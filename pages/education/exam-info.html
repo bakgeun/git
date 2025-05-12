@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시험 안내 - 디지털헬스케어센터</title>
+    <meta name="description" content="디지털헬스케어센터의 자격증 시험 안내 페이지입니다. 다양한 건강운동 전문가 자격증 시험에 대한 정보를 제공합니다.">
+    <link rel="icon" href="../../favicon.ico">
+    <link rel="manifest" href="../../manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body>
+    <header id="main-header" class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="logo">
+                <a href="../../index.html">
+                    <img src="../../assets/images/logo/dhc-logo.svg" alt="디지털헬스케어센터 로고" width="180">
+                </a>
+            </div>
+            <nav class="main-nav hidden md:flex">
+                <ul class="flex space-x-6">
+                    <li class="group relative">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">기관 소개</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="../about/overview.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">개요</a></li>
+                            <li><a href="../about/vision.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">목표 및 전략</a></li>
+                            <li><a href="../about/business.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">사업 내용</a></li>
+                            <li><a href="../about/organization.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
+                            <li><a href="../about/instructors.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">자격증 소개</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="../certificate/health-exercise.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">건강운동처방사</a></li>
+                            <li><a href="../certificate/rehabilitation.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동재활전문가</a></li>
+                            <li><a href="../certificate/pilates.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스 전문가</a></li>
+                            <li><a href="../certificate/recreation.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">교육 과정</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="course-info.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 과정 안내</a></li>
+                            <li><a href="course-application.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
+                            <li><a href="cert-application.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">자격증 신청</a></li>
+                            <li><a href="exam-info.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">시험 안내</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">게시판</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="../board/notice/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">공지사항</a></li>
+                            <li><a href="../board/column/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">칼럼</a></li>
+                            <li><a href="../board/materials/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">강의자료</a></li>
+                            <li><a href="../board/videos/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">동영상 강의</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <div class="auth-buttons flex items-center">
+                <a href="../auth/login.html" class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
+                <a href="../auth/signup.html" class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
+                <button id="mobile-menu-button" class="md:hidden ml-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg py-4">
+            <div class="container mx-auto px-4">
+                <!-- 모바일 메뉴는 JavaScript에서 동적으로 생성 -->
+            </div>
+        </div>
+    </header>
+
+    <!-- 페이지 배너 -->
+    <div class="bg-blue-600 text-white py-12">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">시험 안내</h1>
+            <p class="text-xl">디지털헬스케어센터의 자격증 시험에 대한 정보를 안내해드립니다.</p>
+        </div>
+    </div>
+
+    <main class="py-12">
+        <div class="container mx-auto px-4">
+            <!-- 시험 안내 탭 메뉴 -->
+            <div class="mb-8 flex flex-wrap">
+                <button class="exam-tab bg-blue-600 text-white px-6 py-3 rounded-t-lg mr-2 mb-2 focus:outline-none" data-target="exam-overview">시험 개요</button>
+                <button class="exam-tab bg-gray-100 text-gray-800 px-6 py-3 rounded-t-lg mr-2 mb-2 focus:outline-none" data-target="health-exam">건강운동처방사</button>
+                <button class="exam-tab bg-gray-100 text-gray-800 px-6 py-3 rounded-t-lg mr-2 mb-2 focus:outline-none" data-target="rehab-exam">운동재활전문가</button>
+                <button class="exam-tab bg-gray-100 text-gray-800 px-6 py-3 rounded-t-lg mr-2 mb-2 focus:outline-none" data-target="pilates-exam">필라테스 전문가</button>
+                <button class="exam-tab bg-gray-100 text-gray-800 px-6 py-3 rounded-t-lg mb-2 focus:outline-none" data-target="recreation-exam">레크리에이션지도자</button>
+            </div>
+            
+            <!-- 시험 개요 탭 콘텐츠 -->
+            <div id="exam-overview" class="exam-content bg-white p-6 rounded-lg shadow-md mb-10">
+                <h2 class="text-2xl font-bold mb-6">자격증 시험 개요</h2>
+                
+                <div class="mb-6">
+                    <p class="mb-4">디지털헬스케어센터에서는 각 교육 과정 수료 후 자격증 취득을 위한 시험을 운영하고 있습니다. 자격증 시험은 이론시험과 실기시험으로 구성되며, 두 시험 모두 일정 점수 이상을 획득해야 자격증을 취득할 수 있습니다.</p>
+                    
+                    <div class="bg-gray-50 p-4 rounded-md mb-4">
+                        <h3 class="font-bold mb-2">자격증 시험 응시 자격</h3>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>해당 교육 과정을 수료한 자 (출석률 80% 이상)</li>
+                            <li>교육비 및 시험 응시료를 완납한 자</li>
+                            <li>교육 수료일로부터 1년 이내 응시 가능</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="border p-4 rounded-md">
+                            <h3 class="font-bold mb-2">이론시험</h3>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>객관식 및 주관식 문항 혼합</li>
+                                <li>시험 시간: 90분</li>
+                                <li>합격 기준: 100점 만점 중 70점 이상</li>
+                            </ul>
+                        </div>
+                        <div class="border p-4 rounded-md">
+                            <h3 class="font-bold mb-2">실기시험</h3>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>실기 평가 및 구술 면접</li>
+                                <li>시험 시간: 30분 내외</li>
+                                <li>합격 기준: 100점 만점 중 80점 이상</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <h3 class="font-bold mb-2">시험 일정 안내</h3>
+                    <p class="mb-4">자격증 시험은 연 4회(분기별) 실시되며, 시험 일정은 홈페이지 및 교육생 대상 개별 공지됩니다. 응시 희망자는 시험일 2주 전까지 신청해야 합니다.</p>
+                    
+                    <table class="min-w-full border rounded-md overflow-hidden mb-4">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 text-left border-b">회차</th>
+                                <th class="px-4 py-2 text-left border-b">시험일</th>
+                                <th class="px-4 py-2 text-left border-b">신청 기간</th>
+                                <th class="px-4 py-2 text-left border-b">결과 발표</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="px-4 py-2 border-b">1분기</td>
+                                <td class="px-4 py-2 border-b">2025.03.15</td>
+                                <td class="px-4 py-2 border-b">2025.02.15 ~ 2025.03.01</td>
+                                <td class="px-4 py-2 border-b">2025.03.31</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="px-4 py-2 border-b">2분기</td>
+                                <td class="px-4 py-2 border-b">2025.06.14</td>
+                                <td class="px-4 py-2 border-b">2025.05.15 ~ 2025.05.31</td>
+                                <td class="px-4 py-2 border-b">2025.06.30</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2 border-b">3분기</td>
+                                <td class="px-4 py-2 border-b">2025.09.13</td>
+                                <td class="px-4 py-2 border-b">2025.08.15 ~ 2025.08.31</td>
+                                <td class="px-4 py-2 border-b">2025.09.30</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="px-4 py-2">4분기</td>
+                                <td class="px-4 py-2">2025.12.06</td>
+                                <td class="px-4 py-2">2025.11.08 ~ 2025.11.22</td>
+                                <td class="px-4 py-2">2025.12.20</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3 class="font-bold mb-2">시험 응시료</h3>
+                    <ul class="list-disc pl-5 space-y-1 mb-4">
+                        <li>이론시험: 50,000원</li>
+                        <li>실기시험: 70,000원</li>
+                        <li>재시험(이론/실기 각각): 30,000원</li>
+                    </ul>
+                    
+                    <div class="bg-blue-50 p-4 rounded-md border border-blue-200">
+                        <h3 class="font-bold text-blue-800 mb-2">시험 관련 참고사항</h3>
+                        <ul class="list-disc pl-5 space-y-1 text-blue-800">
+                            <li>시험 당일 신분증을 반드시 지참해야 합니다.</li>
+                            <li>부정행위 적발 시 해당 시험은 0점 처리되며, 향후 1년간 응시가 제한됩니다.</li>
+                            <li>이론시험과 실기시험 중 한 과목만 합격한 경우, 다음 회차에 불합격 과목만 재응시 가능합니다(단, 1년 이내).</li>
+                            <li>시험 문의: 02-1234-5678 (평일 09:00-18:00) 또는 exam@dhcenter.kr</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 건강운동처방사 탭 콘텐츠 -->
+            <div id="health-exam" class="exam-content hidden bg-white p-6 rounded-lg shadow-md mb-10">
+                <h2 class="text-2xl font-bold mb-6">건강운동처방사 자격 시험</h2>
+                
+                <div class="mb-6">
+                    <div class="bg-gray-50 p-4 rounded-md mb-6">
+                        <h3 class="font-bold mb-2">시험 개요</h3>
+                        <p>건강운동처방사 자격증은 다양한 질환을 가진 대상자에게 적합한 운동 프로그램을 설계하고 지도할 수 있는 전문성을 검증하는 시험입니다.</p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-xl font-bold mb-3">이론시험 과목</h3>
+                        <table class="min-w-full border rounded-md overflow-hidden">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-2 text-left">과목</th>
+                                    <th class="px-4 py-2 text-left">주요 내용</th>
+                                    <th class="px-4 py-2 text-left">문항 수</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="px-4 py-2 border-b">운동생리학</td>
+                                    <td class="px-4 py-2 border-b">운동 시 인체 반응 및 적응, 에너지 시스템, 운동 훈련의 원리</td>
+                                    <td class="px-4 py-2 border-b">20문항</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="px-4 py-2 border-b">기능해부학</td>
+                                    <td class="px-4 py-2 border-b">근골격계 구조와 기능, 관절 움직임의 역학</td>
+                                    <td class="px-4 py-2 border-b">15문항</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-2 border-b">운동검사 및 평가</td>
+                                    <td class="px-4 py-2 border-b">체력 요소별 검사 방법, 운동부하검사, 결과 해석</td>
+                                    <td class="px-4 py-2 border-b">15문항</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="px-4 py-2 border-b">운동처방론</td>
+                                    <td class="px-4 py-2 border-b">FITT 원칙, 질환별 운동 프로그램 설계</td>
+                                    <td class="px-4 py-2 border-b">20문항</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-2">임상운동관리</td>
+                                    <td class="px-4 py-2">만성질환자 운동관리, 응급상황 대처</td>
+                                    <td class="px-4 py-2">10문항</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-xl font-bold mb-3">실기시험 내용</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="border p-4 rounded-md">
+                                <h4 class="font-bold mb-2">1. 건강/체력 평가 (40점)</h4>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>체성분 측정 및 해석</li>
+                                    <li>심폐지구력 평가</li>
+                                    <li>근력/근지구력 평가</li>
+                                    <li>유연성 및 균형성 평가</li>
+                                </ul>
+                            </div>
+                            <div class="border p-4 rounded-md">
+                                <h4 class="font-bold mb-2">2. 운동 프로그램 설계 (30점)</h4>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>사례 기반 운동처방 계획 수립</li>
+                                    <li>특정 질환에 적합한 운동 처방</li>
+                                    <li>운동 프로그램 진행 계획</li>
+                                </ul>
+                            </div>
+                            <div class="border p-4 rounded-md">
+                                <h4 class="font-bold mb-2">3. 운동지도 시연 (20점)</h4>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>지정된 운동 동작 시연</li>
+                                    <li>올바른 자세 교정 및 지도</li>
+                                    <li>호흡법 및 동작 설명</li>
+                                </ul>
+                            </div>
+                            <div class="border p-4 rounded-md">
+                                <h4 class="font-bold mb-2">4. 구술 면접 (10점)</h4>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>전문 지식 이해도 평가</li>
+                                    <li>응급상황 대처 능력</li>
+                                    <li>윤리적 판단 능력</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 p-4 rounded-md border border-blue-200 mb-4">
+                        <h3 class="font-bold text-blue-800 mb-2">준비 도서 및 참고자료</h3>
+                        <ul class="list-disc pl-5 space-y-1 text-blue-800">
+                            <li>건강운동처방사 수험서 (디지털헬스케어센터 출간)</li>
+                            <li>ACSM's Guidelines for Exercise Testing and Prescription</li>
+                            <li>운동생리학 (대한운동생리학회)</li>
+                            <li>기능해부학 및 운동처방 핵심 요약집</li>
+                        </ul>
+                    </div>
+                    
+                    <a href="cert-application.html" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md mt-2">자격증 신청 바로가기</a>
+                </div>
+            </div>
+            
+            <!-- 운동재활전문가 탭 콘텐츠 -->
+            <div id="rehab-exam" class="exam-content hidden bg-white p-6 rounded-lg shadow-md mb-10">
+                <h2 class="text-2xl font-bold mb-6">운동재활전문가 자격 시험</h2>
+                
+                <div class="mb-6">
+                    <div class="bg-gray-50 p-4 rounded-md mb-6">
+                        <h3 class="font-bold mb-2">시험 개요</h3>
+                        <p>운동재활전문가 자격증은 부상 및 질환 이후 신체 기능 회복을 위한 운동재활 프로그램을 설계하고 지도할 수 있는 전문성을 검증하는 시험입니다.</p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-xl font-bold mb-3">이론시험 과목</h3>
+                        <table class="min-w-full border rounded-md overflow-hidden">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-2 text-left">과목</th>
+                                    <th class="px-4 py-2 text-left">주요 내용</th>
+                                    <th class="px-4 py-2 text-left">문항 수</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="px-4 py-2 border-b">재활운동학</td>
+                                    <td class="px-4 py-2 border-b">재활의 원리, 부상 후 회복 과정, 재활 단계</td>
+                                    <td class="px-4 py-2 border-b">20문항</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="px-4 py-2 border-b">스포츠 손상학</td>
+                                    <td class="px-4 py-2 border-b">흔한 스포츠 손상의 기전과 특성, 응급처치</td>
+                                    <td class="px-4 py-2 border-b">15문항</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-2 border-b">기능적 평가</td>
+                                    <td class="px-4 py-2 border-b">움직임 분석, 관절 가동범위 평가, 근력 평가</td>
+                                    <td class="px-4 py-2 border-b">15문항</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="px-4 py-2 border-b">재활운동프로그램</td>
+                                    <td class="px-4 py-2 border-b">부위별 재활 운동 프로그램 설계</td>
+                                    <td class="px-4 py-2 border-b">20문항</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-2">도수치료기법</td>
+                                    <td class="px-4 py-2">기본 도수치료 원리와 적용</td>
+                                    <td class="px-4 py-2">10문항</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-xl font-bold mb-3">실기시험 내용</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="border p-4 rounded-md">
+                                <h4 class="font-bold mb-2">1. 기능 평가 (30점)</h4>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>자세 평가</li>
+                                    <li>관절 가동범위 측정</li>
+                                    <li>근력 및 유연성 평가</li>
+                                    <li>기능적 움직임 스크리닝</li>
+                                </ul>
+                            </div>
+                            <div class="border p-4 rounded-md">
+                                <h4 class="font-bold mb-2">2. 재활 운동 프로그램 설계 (30점)</h4>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>사례 기반 재활 계획 수립</li>
+                                    <li>단계별 재활 운동 처방</li>
+                                    <li>부상 예방 운동 설계</li>
+                                </ul>
+                            </div>
+                            <div class="border p-4 rounded-md">
+                                <h4 class="font-bold mb-2">3. 실기 시연 (30점)</h4>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>재활 운동 기법 시연</li>
+                                    <li>테이핑 및 보조기구 활용</li>
+                                    <li>도수치료 기본 기법</li>
+                                </ul>
+                            </div>
+                            <div class="border p-4 rounded-md">
+                                <h4 class="font-bold mb-2">4. 구술 면접 (10점)</h4>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>재활 원리 이해도</li>
+                                    <li>사례별 대처 방안</li>
+                                    <li>전문가 윤리</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-md border border-blue-200 mb-4">
+                        <h3 class="font-bold text-blue-800 mb-2">준비 도서 및 참고자료</h3>
+                        <ul class="list-disc pl-5 space-y-1 text-blue-800">
+                            <li>운동재활전문가 수험서 (디지털헬스케어센터 출간)</li>
+                            <li>스포츠 손상과 재활 (대한스포츠의학회)</li>
+                            <li>움직임의 해부학</li>
+                            <li>임상 도수치료 가이드</li>
+                        </ul>
+                    </div>
+                    
+                    <a href="cert-application.html" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md mt-2">자격증 신청 바로가기</a>
+                </div>
+            </div>
+            
+            <!-- 필라테스 전문가 탭 콘텐츠 -->
+            <div id="pilates-exam" class="exam-content hidden bg-white p-6 rounded-lg shadow-md mb-10">
+                <h2 class="text-2xl font-bold mb-6">필라테스 전문가 자격 시험</h2>
+                
+                <div class="mb-6">
+                    <div class="bg-gray-50 p-4 rounded-md mb-6">
+                        <h3 class="font-bold mb-2">시험 개요</h3>
+                        <p>필라테스 전문가 자격증은 필라테스 원리와 기구를 활용한 운동 지도 능력을 갖춘 전문성을 검증하는 시험입니다.</p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-xl font-bold mb-3">이론시험 과목</h3>
+                        <table class="min-w-full border rounded-md overflow-hidden">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-2 text-left">과목</th>
+                                    <th class="px-4 py-2 text-left">주요 내용</th>
+                                    <th class="px-4 py-2 text-left">문항 수</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="px-4 py-2 border-b">필라테스 원리</td>
+                                    <td class="px-4 py-2 border-b">필라테스 6가지 원리, 역사와 발전</td>
+                                    <td class="px-4 py-2 border-b">15문항</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="px-4 py-2 border-b">기능해부학</td>
+                                    <td class="px-4 py-2 border-b">근골격계 구조와 기능, 코어 근육의 이해</td>
+                                    <td class="px-4 py-2 border-b">15문항</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-2 border-b">매트 운동법</td>
+                                    <td class="px-4 py-2 border-b">매트 필라테스 레퍼토리, 단계별 진행</td>
+                                    <td class="px-4 py-2 border-b">20문항</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="px-4 py-2 border-b">기구 운동법</td>
+                                    <td class="px-4 py-2 border-b">리포머, 캐딜락, 체어 등 기구 활용법</td>
+                                    <td class="px-4 py-2 border-b">20문항</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-2">수업 구성 및 지도법</td>
+                                    <td class="px-4 py-2">대상별 수업 구성, 안전 관리</td>
+                                    <td class="px-4 py-2">10문항</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-xl font-bold mb-3">실기시험 내용</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="border p-4 rounded-md">
+                                <h4 class="font-bold mb-2">1. 매트 필라테스 (30점)</h4>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>기본 동작 시연 (15개 동작)</li>
+                                    <li>동작 연결 및 흐름</li>
+                                    <li>호흡과 동작의 조화</li>
+                                </ul>
+                            </div>
+                            <div class="border p-4 rounded-md">
+                                <h4 class="font-bold mb-2">2. 기구 필라테스 (40점)</h4>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>리포머 기본 동작 (10개)</li>
+                                    <li>캐딜락/체어 기본 동작 (각 5개)</li>
+                                    <li>기구 세팅 및 안전 관리</li>
+                                </ul>
+                            </div>
+                            <div class="border p-4 rounded-md">
+                                <h4 class="font-bold mb-2">3. 지도 시연 (20점)</h4>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>큐잉 및 지도 스킬</li>
+                                    <li>자세 교정 및 수정</li>
+                                    <li>대상자 특성에 맞는 지도</li>
+                                </ul>
+                            </div>
+                            <div class="border p-4 rounded-md">
+                                <h4 class="font-bold mb-2">4. 구술 면접 (10점)</h4>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>원리 이해 및 적용</li>
+                                    <li>특수 대상자 지도 계획</li>
+                                    <li>안전 관리 및 응급상황 대처</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-md border border-blue-200 mb-4">
+                        <h3 class="font-bold text-blue-800 mb-2">준비 도서 및 참고자료</h3>
+                        <ul class="list-disc pl-5 space-y-1 text-blue-800">
+                            <li>필라테스 전문가 수험서 (디지털헬스케어센터 출간)</li>
+                            <li>필라테스 해부학</li>
+                            <li>현대 필라테스: 원리와 실제</li>
+                            <li>필라테스 매트/기구 운동 동영상 강의</li>
+                        </ul>
+                    </div>
+                    
+                    <a href="cert-application.html" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md mt-2">자격증 신청 바로가기</a>
+                </div>
+            </div>
+            
+            <!-- 레크리에이션지도자 탭 콘텐츠 -->
+            <div id="recreation-exam" class="exam-content hidden bg-white p-6 rounded-lg shadow-md mb-10">
+                <h2 class="text-2xl font-bold mb-6">레크리에이션지도자 자격 시험</h2>
+                
+                <div class="mb-6">
+                    <div class="bg-gray-50 p-4 rounded-md mb-6">
+                        <h3 class="font-bold mb-2">시험 개요</h3>
+                        <p>레크리에이션지도자 자격증은 다양한 연령층과 단체를 대상으로 레크리에이션 프로그램을 기획하고 진행할 수 있는 전문성을 검증하는 시험입니다.</p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-xl font-bold mb-3">이론시험 과목</h3>
+                        <table class="min-w-full border rounded-md overflow-hidden">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-2 text-left">과목</th>
+                                    <th class="px-4 py-2 text-left">주요 내용</th>
+                                    <th class="px-4 py-2 text-left">문항 수</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="px-4 py-2 border-b">레크리에이션 개론</td>
+                                    <td class="px-4 py-2 border-b">레크리에이션의 개념, 역사, 사회적 의의</td>
+                                    <td class="px-4 py-2 border-b">15문항</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="px-4 py-2 border-b">프로그램 기획</td>
+                                    <td class="px-4 py-2 border-b">대상별 프로그램 기획, 평가 방법</td>
+                                    <td class="px-4 py-2 border-b">20문항</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-2 border-b">레크리에이션 활동론</td>
+                                    <td class="px-4 py-2 border-b">게임, 음악, 댄스, 스포츠 레크리에이션</td>
+                                    <td class="px-4 py-2 border-b">20문항</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="px-4 py-2 border-b">지도 방법론</td>
+                                    <td class="px-4 py-2 border-b">효과적인 지도 방법, 참여자 관리</td>
+                                    <td class="px-4 py-2 border-b">15문항</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-2">안전 관리</td>
+                                    <td class="px-4 py-2">활동별 안전 지침, 응급처치</td>
+                                    <td class="px-4 py-2">10문항</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-xl font-bold mb-3">실기시험 내용</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="border p-4 rounded-md">
+                                <h4 class="font-bold mb-2">1. 프로그램 기획서 작성 (30점)</h4>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>특정 대상/상황 제시</li>
+                                    <li>목적 설정 및 프로그램 구성</li>
+                                    <li>시간 및 자원 배분</li>
+                                </ul>
+                            </div>
+                            <div class="border p-4 rounded-md">
+                                <h4 class="font-bold mb-2">2. 레크리에이션 실기 (40점)</h4>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>아이스브레이킹 진행</li>
+                                    <li>레크리에이션 게임 3가지</li>
+                                    <li>단체 활동 지도</li>
+                                </ul>
+                            </div>
+                            <div class="border p-4 rounded-md">
+                                <h4 class="font-bold mb-2">3. 화술 및 진행 능력 (20점)</h4>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>화술 및 분위기 조성</li>
+                                    <li>참여자 유도 및 관리</li>
+                                    <li>예상치 못한 상황 대처</li>
+                                </ul>
+                            </div>
+                            <div class="border p-4 rounded-md">
+                                <h4 class="font-bold mb-2">4. 구술 면접 (10점)</h4>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>레크리에이션의 가치 이해</li>
+                                    <li>대상별 접근 방법</li>
+                                    <li>전문가 소양 및 태도</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-md border border-blue-200 mb-4">
+                        <h3 class="font-bold text-blue-800 mb-2">준비 도서 및 참고자료</h3>
+                        <ul class="list-disc pl-5 space-y-1 text-blue-800">
+                            <li>레크리에이션지도자 수험서 (디지털헬스케어센터 출간)</li>
+                            <li>현대 레크리에이션의 이론과 실제</li>
+                            <li>레크리에이션 활동 모음집</li>
+                            <li>효과적인 진행자 되기</li>
+                        </ul>
+                    </div>
+                    
+                    <a href="cert-application.html" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md mt-2">자격증 신청 바로가기</a>
+                </div>
+            </div>
+            
+            <!-- 시험 FAQ -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-6">자주 묻는 질문</h2>
+                <div class="space-y-4">
+                    <div class="border-b pb-4">
+                        <h3 class="font-bold mb-2">Q. 불합격 시 재시험은 언제 볼 수 있나요?</h3>
+                        <p class="text-gray-700">A. 불합격 시 다음 회차 시험부터 응시 가능하며, 1년 이내에는 필기와 실기 중 합격한 과목은 면제받을 수 있습니다.</p>
+                    </div>
+                    <div class="border-b pb-4">
+                        <h3 class="font-bold mb-2">Q. 자격증 취득 후 유효기간이 있나요?</h3>
+                        <p class="text-gray-700">A. 자격증은 3년간 유효하며, 갱신을 위해서는 매 3년마다 보수교육(8시간)을 이수해야 합니다.</p>
+                    </div>
+                    <div class="border-b pb-4">
+                        <h3 class="font-bold mb-2">Q. 시험 준비를 위한 추가 교육이 있나요?</h3>
+                        <p class="text-gray-700">A. 정규 교육 과정 외에도 시험 대비 특강이 분기별로 운영되며, 온라인 자료실에서 기출문제와 예상문제를 제공하고 있습니다.</p>
+                    </div>
+                    <div class="border-b pb-4">
+                        <h3 class="font-bold mb-2">Q. 타 기관 교육 수료자도 응시 가능한가요?</h3>
+                        <p class="text-gray-700">A. 타 기관 교육 수료자는 별도의 교육 인정 심사 후 응시 자격이 부여됩니다. 자세한 사항은 담당자에게 문의 바랍니다.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-2">Q. 장애나 특별한 지원이 필요한 경우 어떻게 하나요?</h3>
+                        <p class="text-gray-700">A. 시험 신청 시 '특별 지원 요청'란에 기재하시면 담당자가 연락하여 필요한 지원을 제공해 드립니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-12 mt-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <img src="../../assets/images/logo/dhc-logo-white.svg" alt="디지털헬스케어센터 로고" class="h-10 mb-4">
+                    <p class="text-gray-400 text-sm">건강한 삶을 위한 운동 전문가 양성</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">소개</h3>
+                    <ul class="space-y-2">
+                        <li><a href="../about/overview.html" class="text-gray-400 hover:text-white">센터 소개</a></li>
+                        <li><a href="../about/vision.html" class="text-gray-400 hover:text-white">목표 및 전략</a></li>
+                        <li><a href="../about/organization.html" class="text-gray-400 hover:text-white">조직도</a></li>
+                        <li><a href="../about/instructors.html" class="text-gray-400 hover:text-white">강사진</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">교육</h3>
+                    <ul class="space-y-2">
+                        <li><a href="course-info.html" class="text-gray-400 hover:text-white">교육 과정 안내</a></li>
+                        <li><a href="course-application.html" class="text-gray-400 hover:text-white">교육 신청</a></li>
+                        <li><a href="cert-application.html" class="text-gray-400 hover:text-white">자격증 신청</a></li>
+                        <li><a href="../board/materials/index.html" class="text-gray-400 hover:text-white">강의 자료실</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">문의</h3>
+                    <ul class="space-y-2">
+                        <li><a href="../contact/inquiry.html" class="text-gray-400 hover:text-white">문의하기</a></li>
+                        <li><a href="../contact/location.html" class="text-gray-400 hover:text-white">찾아오시는 길</a></li>
+                    </ul>
+                    <div class="mt-6">
+                        <h4 class="text-sm font-bold mb-2">연락처</h4>
+                        <p class="text-gray-400 text-sm">서울시 강남구 디지털로 123<br>
+                        Tel: 02-1234-5678<br>
+                        Email: info@dhcenter.kr</p>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <div class="text-gray-500 text-sm mb-4 md:mb-0">
+                    © 2025 디지털헬스케어센터. All rights reserved.
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-2 10h-2v2h2v6h3v-6h1.82l.18-2h-2v-.833c0-.478.096-.667.558-.667h1.442v-2.5h-2.404c-1.798 0-2.596.792-2.596 2.308v1.692z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm4.615 6h-9.23c-.766 0-1.385.62-1.385 1.384v9.23c0 .766.619 1.386 1.385 1.386h9.23c.766 0 1.385-.62 1.385-1.385v-9.23c0-.765-.619-1.385-1.385-1.385zm-4.615 3.693c1.274 0 2.309 1.035 2.309 2.309s-1.035 2.307-2.309 2.307-2.307-1.033-2.307-2.307 1.033-2.309 2.307-2.309zm4.5 6.346c0 .255-.207.461-.461.461h-8.078c-.254 0-.461-.207-.461-.461v-5.039h.949c-.045.158-.078.32-.078.486 0 1.988 1.611 3.6 3.6 3.6s3.6-1.612 3.6-3.6c0-.166-.033-.328-.078-.486h.929v5.039z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3 17v-10l9 5.146-9 4.854z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../../assets/js/main.js"></script>
+</body>
+</html>

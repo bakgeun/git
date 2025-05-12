@@ -1,0 +1,294 @@
+/* 
+ * 타이포그래피 CSS 파일
+ * 이 파일은 웹사이트 전체의 텍스트 스타일을 정의합니다.
+ */
+
+/* 기본 폰트 설정 */
+:root {
+    --font-sans: 'Noto Sans KR', sans-serif;
+    --font-mono: 'Courier New', Courier, monospace;
+    
+    --font-weight-light: 300;
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 700;
+    
+    --line-height-tight: 1.2;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.8;
+    
+    --text-xs: 0.75rem;     /* 12px */
+    --text-sm: 0.875rem;    /* 14px */
+    --text-base: 1rem;      /* 16px */
+    --text-lg: 1.125rem;    /* 18px */
+    --text-xl: 1.25rem;     /* 20px */
+    --text-2xl: 1.5rem;     /* 24px */
+    --text-3xl: 1.875rem;   /* 30px */
+    --text-4xl: 2.25rem;    /* 36px */
+    --text-5xl: 3rem;       /* 48px */
+  }
+  
+  /* Body 텍스트 */
+  body {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-normal);
+    color: var(--text-primary);
+  }
+  
+  /* 제목 (Headings) */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+    margin-bottom: 0.5em;
+    color: var(--text-primary);
+  }
+  
+  h1 {
+    font-size: var(--text-4xl);
+  }
+  
+  h2 {
+    font-size: var(--text-3xl);
+  }
+  
+  h3 {
+    font-size: var(--text-2xl);
+  }
+  
+  h4 {
+    font-size: var(--text-xl);
+  }
+  
+  h5 {
+    font-size: var(--text-lg);
+  }
+  
+  h6 {
+    font-size: var(--text-base);
+  }
+  
+  /* 모바일 반응형 제목 크기 */
+  @media (max-width: 768px) {
+    h1 {
+      font-size: var(--text-3xl);
+    }
+    
+    h2 {
+      font-size: var(--text-2xl);
+    }
+    
+    h3 {
+      font-size: var(--text-xl);
+    }
+  }
+  
+  /* 단락 (Paragraphs) */
+  p {
+    margin-bottom: 1rem;
+  }
+  
+  /* 강조 텍스트 */
+  em, i {
+    font-style: italic;
+  }
+  
+  strong, b {
+    font-weight: var(--font-weight-bold);
+  }
+  
+  /* 인용구 */
+  blockquote {
+    border-left: 4px solid var(--primary-color);
+    padding-left: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+    font-style: italic;
+    color: var(--text-secondary);
+  }
+  
+  /* 코드 */
+  code, pre {
+    font-family: var(--font-mono);
+    background-color: var(--background-medium);
+    border-radius: 0.25rem;
+  }
+  
+  code {
+    padding: 0.2em 0.4em;
+    font-size: 0.9em;
+  }
+  
+  pre {
+    padding: 1rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+  
+  pre code {
+    padding: 0;
+    background-color: transparent;
+  }
+  
+  /* 링크 */
+  a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.15s ease-in-out;
+  }
+  
+  a:hover {
+    color: var(--secondary-color);
+  }
+  
+  /* 리스트 */
+  ul, ol {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+  
+  ul {
+    list-style-type: disc;
+  }
+  
+  ol {
+    list-style-type: decimal;
+  }
+  
+  li {
+    margin-bottom: 0.5rem;
+  }
+  
+  /* 테이블 텍스트 */
+  table {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  
+  th {
+    font-weight: var(--font-weight-bold);
+    text-align: left;
+  }
+  
+  /* 작은 텍스트 */
+  small, .text-sm {
+    font-size: var(--text-sm);
+  }
+  
+  /* 텍스트 색상 유틸리티 */
+  .text-primary {
+    color: var(--text-primary);
+  }
+  
+  .text-secondary {
+    color: var(--text-secondary);
+  }
+  
+  .text-tertiary {
+    color: var(--text-tertiary);
+  }
+  
+  .text-brand {
+    color: var(--primary-color);
+  }
+  
+  /* 텍스트 정렬 유틸리티 */
+  .text-left {
+    text-align: left;
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  .text-right {
+    text-align: right;
+  }
+  
+  .text-justify {
+    text-align: justify;
+  }
+  
+  /* 텍스트 변형 유틸리티 */
+  .uppercase {
+    text-transform: uppercase;
+  }
+  
+  .lowercase {
+    text-transform: lowercase;
+  }
+  
+  .capitalize {
+    text-transform: capitalize;
+  }
+  
+  /* 텍스트 줄바꿈 유틸리티 */
+  .break-normal {
+    word-wrap: normal;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  
+  .break-words {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  .break-all {
+    word-break: break-all;
+  }
+  
+  .truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  /* 폰트 스타일 유틸리티 */
+  .italic {
+    font-style: italic;
+  }
+  
+  .not-italic {
+    font-style: normal;
+  }
+  
+  /* 폰트 가중치 유틸리티 */
+  .font-light {
+    font-weight: var(--font-weight-light);
+  }
+  
+  .font-normal {
+    font-weight: var(--font-weight-regular);
+  }
+  
+  .font-medium {
+    font-weight: var(--font-weight-medium);
+  }
+  
+  .font-bold {
+    font-weight: var(--font-weight-bold);
+  }
+  
+  /* 텍스트 음영 (Shadowing) */
+  .text-shadow {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .text-shadow-none {
+    text-shadow: none;
+  }
+  
+  /* 줄 높이 (Line Height) 유틸리티 */
+  .leading-tight {
+    line-height: var(--line-height-tight);
+  }
+  
+  .leading-normal {
+    line-height: var(--line-height-normal);
+  }
+  
+  .leading-relaxed {
+    line-height: var(--line-height-relaxed);
+  }

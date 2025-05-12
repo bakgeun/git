@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자격증 갱신 - 디지털헬스케어센터</title>
+    <meta name="description" content="디지털헬스케어센터 자격증 갱신 안내 및 신청 페이지">
+
+    <!-- 파비콘 -->
+    <link rel="icon" href="../../favicon.ico">
+
+    <!-- 구글 폰트 - Noto Sans KR -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+
+    <!-- 외부 라이브러리 -->
+    <script src="../../lib/firebase/firebase-app.js" defer></script>
+    <script src="../../lib/firebase/firebase-auth.js" defer></script>
+    <script src="../../lib/firebase/firebase-firestore.js" defer></script>
+    <script src="../../lib/firebase/firebase-storage.js" defer></script>
+
+    <!-- JavaScript 설정 및 모듈 -->
+    <script src="../../assets/js/config/firebase-config.js" defer></script>
+    <script src="../../assets/js/utils/validators.js" defer></script>
+    <script src="../../assets/js/utils/formatters.js" defer></script>
+    <script src="../../assets/js/utils/date-utils.js" defer></script>
+    <script src="../../assets/js/utils/dom-utils.js" defer></script>
+    <script src="../../assets/js/services/auth-service.js" defer></script>
+    <script src="../../assets/js/services/db-service.js" defer></script>
+    <script src="../../assets/js/services/storage-service.js" defer></script>
+    <script src="../../assets/js/components/header.js" defer></script>
+    <script src="../../assets/js/main.js" defer></script>
+    <script src="../../assets/js/pages/education.js" defer></script>
+</head>
+
+<body>
+    <!-- 헤더 -->
+    <header id="main-header" class="fixed w-full top-0 left-0 right-0 z-50 bg-white shadow-md">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="logo">
+                    <a href="../../index.html">
+                        <img src="../../assets/images/logo/logo.png" alt="디지털헬스케어센터 로고" class="h-10">
+                    </a>
+                </div>
+
+                <nav class="main-nav hidden md:block">
+                    <ul class="flex space-x-6">
+                        <li class="group relative">
+                            <a href="../about/overview.html" class="text-gray-800 hover:text-blue-600">기관소개</a>
+                            <div
+                                class="submenu absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md p-2 hidden group-hover:block z-10">
+                                <ul>
+                                    <li><a href="../about/overview.html"
+                                            class="block px-4 py-2 hover:bg-gray-100 rounded-md">센터 소개</a></li>
+                                    <li><a href="../about/vision.html"
+                                            class="block px-4 py-2 hover:bg-gray-100 rounded-md">비전 및 전략</a></li>
+                                    <li><a href="../about/business.html"
+                                            class="block px-4 py-2 hover:bg-gray-100 rounded-md">사업 내용</a></li>
+                                    <li><a href="../about/organization.html"
+                                            class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
+                                    <li><a href="../about/instructors.html"
+                                            class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="group relative">
+                            <a href="../certificate/health-exercise.html" class="text-gray-800 hover:text-blue-600">자격증
+                                소개</a>
+                            <div
+                                class="submenu absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md p-2 hidden group-hover:block z-10">
+                                <ul>
+                                    <li><a href="../certificate/health-exercise.html"
+                                            class="block px-4 py-2 hover:bg-gray-100 rounded-md">건강운동처방사</a></li>
+                                    <li><a href="../certificate/rehabilitation.html"
+                                            class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동재활전문가</a></li>
+                                    <li><a href="../certificate/pilates.html"
+                                            class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스 전문가</a></li>
+                                    <li><a href="../certificate/recreation.html"
+                                            class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="group relative">
+                            <a href="course-info.html" class="text-gray-800 hover:text-blue-600">교육 과정</a>
+                            <div
+                                class="submenu absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md p-2 hidden group-hover:block z-10">
+                                <ul>
+                                    <li><a href="course-info.html"
+                                            class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 과정 안내</a></li>
+                                    <li><a href="course-application.html"
+                                            class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
+                                    <li><a href="cert-application.html"
+                                            class="block px-4 py-2 hover:bg-gray-100 rounded-md">자격증 신청</a></li>
+                                    <li><a href="exam-info.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">시험
+                                            안내</a></li>
+                                    <li><a href="cert-issuance.html"
+                                            class="block px-4 py-2 hover:bg-gray-100 rounded-md">자격증 발급</a></li>
+                                    <li><a href="cert-renewal.html"
+                                            class="block px-4 py-2 hover:bg-gray-100 rounded-md">자격증 갱신</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="group relative">
+                            <a href="../board/notice/index.html" class="text-gray-800 hover:text-blue-600">게시판</a>
+                            <div
+                                class="submenu absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md p-2 hidden group-hover:block z-10">
+                                <ul>
+                                    <li><a href="../board/notice/index.html"
+                                            class="block px-4 py-2 hover:bg-gray-100 rounded-md">공지사항</a></li>
+                                    <li><a href="../board/column/index.html"
+                                            class="block px-4 py-2 hover:bg-gray-100 rounded-md">칼럼</a></li>
+                                    <li><a href="../board/materials/index.html"
+                                            class="block px-4 py-2 hover:bg-gray-100 rounded-md">강의자료</a></li>
+                                    <li><a href="../board/videos/index.html"
+                                            class="block px-4 py-2 hover:bg-gray-100 rounded-md">동영상 강의</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+
+                <div class="auth-buttons flex items-center">
+                    <a href="../auth/login.html"
+                        class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
+                    <a href="../auth/signup.html"
+                        class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
+                    <button id="mobile-menu-button" class="md:hidden ml-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 모바일 메뉴 -->
+    <div id="mobile-menu" class="md:hidden hidden bg-white border-b border-gray-200 py-2">
+        <div class="container mx-auto px-4">
+            <!-- 모바일 메뉴 내용은 JavaScript로 동적 생성됨 -->
+        </div>
+    </div>
+
+    <!-- 페이지 제목 -->
+    <div class="bg-gray-100 py-8 mt-16">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold text-gray-800">자격증 갱신</h1>
+            <p class="text-gray-600 mt-2">자격증 보유자를 위한 갱신 안내 및 신청 페이지입니다.</p>
+        </div>
+    </div>
+
+    <!-- 갱신 안내 및 절차 -->
+    <section class="py-10 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">자격증 갱신 안내</h2>
+
+                <div class="bg-blue-50 p-6 rounded-lg mb-8">
+                    <h3 class="text-lg font-bold text-blue-800 mb-3">갱신 대상</h3>
+                    <p class="text-gray-700 mb-4">디지털헬스케어센터에서 발급한 모든 자격증은 <span class="font-bold">발급일로부터 3년간</span>
+                        유효하며, 유효기간 만료 전에 갱신 절차를 거쳐야 합니다.</p>
+                    <div class="flex items-start mt-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2 mt-0.5"
+                            viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <p class="text-sm text-blue-700">유효기간이 만료된 자격증은 갱신 교육을 이수하고 갱신 신청을 완료해야 자격이 유지됩니다.</p>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-bold text-gray-800 mb-4">갱신 요건</h3>
+                <ul class="list-disc list-inside mb-6 space-y-2 text-gray-700">
+                    <li>갱신 교육 이수 (온라인 또는 오프라인 교육 중 선택)</li>
+                    <li>갱신 신청서 제출</li>
+                    <li>갱신 비용 납부</li>
+                    <li>보수교육 이수 증명 (최소 10시간)</li>
+                </ul>
+
+                <h3 class="text-xl font-bold text-gray-800 mb-4">갱신 절차</h3>
+                <div class="relative mb-8">
+                    <!-- 절차 타임라인 -->
+                    <div class="absolute left-4 top-0 h-full w-0.5 bg-blue-200"></div>
+
+                    <!-- 1단계 -->
+                    <div class="relative pl-12 pb-8">
+                        <div
+                            class="absolute left-0 top-1 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">
+                            1</div>
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">갱신 교육 이수</h4>
+                        <p class="text-gray-700">자격증 유형에 맞는 갱신 교육을 이수합니다. 온라인 또는 오프라인 교육 중 선택할 수 있습니다.</p>
+                    </div>
+
+                    <!-- 2단계 -->
+                    <div class="relative pl-12 pb-8">
+                        <div
+                            class="absolute left-0 top-1 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">
+                            2</div>
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">보수교육 이수</h4>
+                        <p class="text-gray-700">공인된 기관에서 제공하는 보수교육을 최소 10시간 이상 이수하고 증빙자료를 준비합니다.</p>
+                    </div>
+
+                    <!-- 3단계 -->
+                    <div class="relative pl-12 pb-8">
+                        <div
+                            class="absolute left-0 top-1 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">
+                            3</div>
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">갱신 신청 및 비용 납부</h4>
+                        <p class="text-gray-700">아래 갱신 신청 양식을 작성하고 갱신 비용을 납부합니다.</p>
+                    </div>
+
+                    <!-- 4단계 -->
+                    <div class="relative pl-12">
+                        <div
+                            class="absolute left-0 top-1 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">
+                            4</div>
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">갱신 자격증 발급</h4>
+                        <p class="text-gray-700">승인 후 갱신된 자격증이 우편 또는 이메일로 발송됩니다 (선택에 따라).</p>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-bold text-gray-800 mb-4">자격증 갱신 비용</h3>
+                <div class="overflow-x-auto mb-8">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border px-4 py-2 text-left">자격증 유형</th>
+                                <th class="border px-4 py-2 text-left">갱신 비용</th>
+                                <th class="border px-4 py-2 text-left">갱신 교육비</th>
+                                <th class="border px-4 py-2 text-left">총 비용</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="border px-4 py-2">건강운동처방사</td>
+                                <td class="border px-4 py-2">50,000원</td>
+                                <td class="border px-4 py-2">100,000원</td>
+                                <td class="border px-4 py-2">150,000원</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="border px-4 py-2">운동재활전문가</td>
+                                <td class="border px-4 py-2">50,000원</td>
+                                <td class="border px-4 py-2">120,000원</td>
+                                <td class="border px-4 py-2">170,000원</td>
+                            </tr>
+                            <tr>
+                                <td class="border px-4 py-2">필라테스 전문가</td>
+                                <td class="border px-4 py-2">40,000원</td>
+                                <td class="border px-4 py-2">80,000원</td>
+                                <td class="border px-4 py-2">120,000원</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="border px-4 py-2">레크리에이션지도자</td>
+                                <td class="border px-4 py-2">30,000원</td>
+                                <td class="border px-4 py-2">70,000원</td>
+                                <td class="border px-4 py-2">100,000원</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200 mb-10">
+                    <h3 class="text-lg font-bold text-yellow-800 mb-3">중요 안내사항</h3>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700">
+                        <li>자격증 유효기간 만료일 <span class="font-bold">3개월 전부터</span> 갱신 신청이 가능합니다.</li>
+                        <li>유효기간이 지난 후에도 갱신은 가능하나, <span class="font-bold">추가 비용이 발생</span>할 수 있습니다.</li>
+                        <li>갱신 교육 일정은 <a href="../board/notice/index.html" class="text-blue-600 underline">공지사항</a>을 통해
+                            확인하실 수 있습니다.</li>
+                        <li>갱신 신청 시 허위사실 기재 또는 위조된 서류 제출 시 자격 박탈 등의 조치가 이루어질 수 있습니다.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 갱신 신청 폼 -->
+    <section class="py-10 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">자격증 갱신 신청</h2>
+
+                <!-- 로그인 안내 메시지 -->
+                <div id="login-alert" class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm">자격증 갱신을 신청하려면 <a href="../auth/login.html"
+                                    class="font-bold underline">로그인</a>이 필요합니다.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 갱신 신청 폼 -->
+                <form id="renewal-form" class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b">기본 정보</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">이름*</label>
+                            <input type="text" id="name" name="name"
+                                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required>
+                        </div>
+
+                        <div>
+                            <label for="birth" class="block text-sm font-medium text-gray-700 mb-1">생년월일*</label>
+                            <input type="date" id="birth" name="birth"
+                                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required>
+                        </div>
+
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">이메일*</label>
+                            <input type="email" id="email" name="email"
+                                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required>
+                        </div>
+
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">휴대폰 번호*</label>
+                            <input type="tel" id="phone" name="phone" placeholder="010-0000-0000"
+                                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required>
+                        </div>
+                    </div>
+
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b">자격증 정보</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label for="cert-type" class="block text-sm font-medium text-gray-700 mb-1">자격증 종류*</label>
+                            <select id="cert-type" name="cert-type"
+                                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required>
+                                <option value="">선택해주세요</option>
+                                <option value="health">건강운동처방사</option>
+                                <option value="rehab">운동재활전문가</option>
+                                <option value="pilates">필라테스 전문가</option>
+                                <option value="recreation">레크리에이션지도자</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="cert-number" class="block text-sm font-medium text-gray-700 mb-1">자격증
+                                번호*</label>
+                            <input type="text" id="cert-number" name="cert-number" placeholder="예: DHC-2022-12345"
+                                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required>
+                        </div>
+
+                        <div>
+                            <label for="issue-date" class="block text-sm font-medium text-gray-700 mb-1">최초 발급일*</label>
+                            <input type="date" id="issue-date" name="issue-date"
+                                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required>
+                        </div>
+
+                        <div>
+                            <label for="expiry-date" class="block text-sm font-medium text-gray-700 mb-1">만료일*</label>
+                            <input type="date" id="expiry-date" name="expiry-date"
+                                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required>
+                        </div>
+                    </div>
+
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b">갱신 교육 정보</h3>
+
+                    <div class="grid grid-cols-1 gap-4 mb-6">
+                        <div>
+                            <label for="education-type" class="block text-sm font-medium text-gray-700 mb-1">갱신 교육
+                                유형*</label>
+                            <select id="education-type" name="education-type"
+                                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required>
+                                <option value="">선택해주세요</option>
+                                <option value="online">온라인 교육</option>
+                                <option value="offline">오프라인 교육</option>
+                                <option value="completed">이미 이수 완료</option>
+                            </select>
+                        </div>
+
+                        <div id="education-completion-field" class="hidden">
+                            <label for="education-completion" class="block text-sm font-medium text-gray-700 mb-1">교육 이수
+                                증명*</label>
+                            <input type="file" id="education-completion" name="education-completion"
+                                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <p class="text-xs text-gray-500 mt-1">교육 이수 증명서 또는 수료증을 PDF, JPG, PNG 형식으로 업로드해주세요. (최대 5MB)
+                            </p>
+                        </div>
+
+                        <div>
+                            <label for="cpe-hours" class="block text-sm font-medium text-gray-700 mb-1">보수교육 이수
+                                시간*</label>
+                            <input type="number" id="cpe-hours" name="cpe-hours" min="10" max="100"
+                                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required>
+                            <p class="text-xs text-gray-500 mt-1">최소 10시간 이상의 보수교육 이수가 필요합니다.</p>
+                        </div>
+
+                        <div>
+                            <label for="cpe-documents" class="block text-sm font-medium text-gray-700 mb-1">보수교육
+                                증빙자료*</label>
+                            <input type="file" id="cpe-documents" name="cpe-documents" multiple
+                                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required>
+                            <p class="text-xs text-gray-500 mt-1">보수교육 이수 증명서 또는 수료증을 업로드해주세요. 여러 개의 파일을 선택할 수 있습니다. (최대
+                                5개 파일, 각 파일당 5MB)</p>
+                        </div>
+                    </div>
+
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b">배송 정보</h3>
+
+                    <div class="grid grid-cols-1 gap-4 mb-6">
+                        <div>
+                            <label for="delivery-method" class="block text-sm font-medium text-gray-700 mb-1">자격증 수령
+                                방법*</label>
+                            <select id="delivery-method" name="delivery-method"
+                                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required>
+                                <option value="physical">실물 자격증 (우편발송)</option>
+                                <option value="digital">디지털 자격증 (이메일 발송)</option>
+                                <option value="both">실물 + 디지털 자격증 (추가 비용 5,000원)</option>
+                            </select>
+                        </div>
+
+                        <div id="address-fields">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="md:col-span-2">
+                                    <label for="zipcode"
+                                        class="block text-sm font-medium text-gray-700 mb-1">우편번호*</label>
+                                    <div class="flex">
+                                        <input type="text" id="zipcode" name="zipcode"
+                                            class="w-full px-3 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            readonly required>
+                                        <button type="button" id="find-address"
+                                            class="bg-gray-200 text-gray-700 px-4 py-2 rounded-r-md hover:bg-gray-300">주소찾기</button>
+                                    </div>
+                                </div>
+
+                                <div class="md:col-span-2">
+                                    <label for="address1"
+                                        class="block text-sm font-medium text-gray-700 mb-1">기본주소*</label>
+                                    <input type="text" id="address1" name="address1"
+                                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        readonly required>
+                                </div>
+
+                                <div class="md:col-span-2">
+                                    <label for="address2"
+                                        class="block text-sm font-medium text-gray-700 mb-1">상세주소*</label>
+                                    <input type="text" id="address2" name="address2"
+                                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b">결제 정보</h3>
+
+                    <div class="grid grid-cols-1 gap-4 mb-6">
+                        <div>
+                            <label for="payment-method" class="block text-sm font-medium text-gray-700 mb-1">결제
+                                방법*</label>
+                            <select id="payment-method" name="payment-method"
+                                class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required>
+                                <option value="">선택해주세요</option>
+                                <option value="card">신용/체크카드</option>
+                                <option value="transfer">계좌이체</option>
+                                <option value="virtual">가상계좌</option>
+                                <option value="phone">휴대폰 결제</option>
+                            </select>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-md">
+                            <h4 class="font-bold text-gray-700 mb-2">결제 금액</h4>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-600">갱신 비용</span>
+                                <span class="text-gray-800 renewal-fee">0원</span>
+                            </div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-600">교육 비용</span>
+                                <span class="text-gray-800 education-fee">0원</span>
+                            </div>
+                            <div class="flex justify-between mb-2" id="delivery-fee-row">
+                                <span class="text-gray-600">배송 추가 비용 (실물+디지털)</span>
+                                <span class="text-gray-800 delivery-fee">0원</span>
+                            </div>
+                            <div class="border-t border-gray-200 my-2 pt-2 flex justify-between font-bold">
+                                <span class="text-gray-700">총 결제 금액</span>
+                                <span class="text-blue-600 total-amount">0원</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <div class="flex items-start">
+                            <div class="flex items-center h-5">
+                                <input id="agree-terms" name="agree-terms" type="checkbox"
+                                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" required>
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="agree-terms" class="font-medium text-gray-700">개인정보 수집 및 이용, 자격증 갱신 약관에
+                                    동의합니다.*</label>
+                                <p class="text-gray-500">자세한 내용은 <button type="button" class="text-blue-600 underline"
+                                        data-modal-target="terms-modal">약관 보기</button>에서 확인하실 수 있습니다.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit"
+                            class="bg-blue-600 text-white py-3 px-8 rounded-md font-bold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            갱신 신청하기
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- 자주 묻는 질문 -->
+    <section class="py-10 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">자주 묻는 질문</h2>
+
+                <div class="space-y-4">
+                    <!-- FAQ 항목 1 -->
+                    <div class="border border-gray-200 rounded-md">
+                        <button
+                            class="faq-question w-full text-left p-4 font-bold text-gray-800 focus:outline-none flex justify-between items-center">
+                            <span>자격증 갱신 신청은 언제부터 가능한가요?</span>
+                            <svg class="h-5 w-5 transform transition-transform" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div class="faq-answer hidden p-4 pt-0 text-gray-600">
+                            <p>자격증 유효기간 만료일로부터 3개월 전부터 갱신 신청이 가능합니다. 만료일이 가까워지면 이메일로 갱신 알림을 보내드립니다.</p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 항목 2 -->
+                    <div class="border border-gray-200 rounded-md">
+                        <button
+                            class="faq-question w-full text-left p-4 font-bold text-gray-800 focus:outline-none flex justify-between items-center">
+                            <span>갱신 교육은 필수인가요?</span>
+                            <svg class="h-5 w-5 transform transition-transform" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div class="faq-answer hidden p-4 pt-0 text-gray-600">
+                            <p>네, 자격증 갱신을 위해서는 지정된 갱신 교육과 보수교육을 모두 이수해야 합니다. 갱신 교육은 온라인 또는 오프라인으로 선택하여 이수할 수 있습니다.</p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 항목 3 -->
+                    <div class="border border-gray-200 rounded-md">
+                        <button
+                            class="faq-question w-full text-left p-4 font-bold text-gray-800 focus:outline-none flex justify-between items-center">
+                            <span>보수교육 이수 증명은 어떻게 하나요?</span>
+                            <svg class="h-5 w-5 transform transition-transform" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div class="faq-answer hidden p-4 pt-0 text-gray-600">
+                            <p>보수교육 이수 증명을 위해서는 공인된 기관에서 발급한 수료증 또는 이수증을 제출해야 합니다. 디지털헬스케어센터 교육, 관련 학회 참석, 워크샵 참여 등이
+                                보수교육으로 인정됩니다. 교육별 인정 시간은 수료증에 명시된 시간을 기준으로 합니다.</p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 항목 4 -->
+                    <div class="border border-gray-200 rounded-md">
+                        <button
+                            class="faq-question w-full text-left p-4 font-bold text-gray-800 focus:outline-none flex justify-between items-center">
+                            <span>자격증 유효기간이 지난 후에도 갱신이 가능한가요?</span>
+                            <svg class="h-5 w-5 transform transition-transform" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div class="faq-answer hidden p-4 pt-0 text-gray-600">
+                            <p>유효기간이 지난 후에도 갱신은 가능합니다. 다만, 만료일로부터 1년 이내에는 추가 비용(20,000원)이 발생하며, 1년 이상 경과한 경우에는 추가 평가 또는
+                                교육이 필요할 수 있습니다. 만료일로부터 3년이 지난 자격증은 갱신이 아닌 재취득 절차를 밟아야 합니다.</p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 항목 5 -->
+                    <div class="border border-gray-200 rounded-md">
+                        <button
+                            class="faq-question w-full text-left p-4 font-bold text-gray-800 focus:outline-none flex justify-between items-center">
+                            <span>갱신 신청 후 처리 기간은 얼마나 걸리나요?</span>
+                            <svg class="h-5 w-5 transform transition-transform" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div class="faq-answer hidden p-4 pt-0 text-gray-600">
+                            <p>갱신 신청 서류 검토는 일반적으로 3~5일 정도 소요됩니다. 승인 후 자격증 발급 및 배송까지는 추가로 7~10일이 소요됩니다. 디지털 자격증의 경우 승인 후
+                                1~2일 내에 이메일로 발송됩니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 약관 모달 -->
+    <div id="terms-modal"
+        class="modal hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="modal-content bg-white rounded-lg max-w-2xl w-full max-h-90vh overflow-y-auto">
+            <div class="modal-header flex justify-between items-center p-4 border-b">
+                <h3 class="text-xl font-bold text-gray-800">개인정보 수집 및 이용, 자격증 갱신 약관</h3>
+                <button class="close text-gray-500 hover:text-gray-700" data-dismiss="modal" aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="space-y-4">
+                    <h4 class="font-bold text-lg text-gray-800">개인정보 수집 및 이용 동의</h4>
+                    <p class="text-gray-700">디지털헬스케어센터는 자격증 갱신 신청을 위해 아래와 같이 개인정보를 수집 및 이용합니다.</p>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="border px-4 py-2 text-left">수집 항목</th>
+                                    <th class="border px-4 py-2 text-left">수집 목적</th>
+                                    <th class="border px-4 py-2 text-left">보유 기간</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border px-4 py-2">이름, 생년월일, 이메일, 휴대폰 번호</td>
+                                    <td class="border px-4 py-2">갱신 신청자 확인 및 갱신 처리</td>
+                                    <td class="border px-4 py-2" rowspan="3">자격 만료 후 5년</td>
+                                </tr>
+                                <tr>
+                                    <td class="border px-4 py-2">자격증 정보, 교육 이수 정보</td>
+                                    <td class="border px-4 py-2">자격 갱신 자격 검증</td>
+                                </tr>
+                                <tr>
+                                    <td class="border px-4 py-2">주소</td>
+                                    <td class="border px-4 py-2">자격증 배송</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p class="text-gray-700">위 개인정보 수집 및 이용에 대한 동의를 거부할 권리가 있으나, 동의를 거부할 경우 자격증 갱신 신청이 제한될 수 있습니다.</p>
+
+                    <h4 class="font-bold text-lg text-gray-800">자격증 갱신 약관</h4>
+                    <div class="overflow-y-auto h-64 border rounded-md p-4 text-gray-700 text-sm">
+                        <p class="mb-2">제1조 (목적)</p>
+                        <p class="mb-4">본 약관은 디지털헬스케어센터(이하 '센터')가 발급한 자격증의 갱신에 관한 제반 사항을 규정함을 목적으로 합니다.</p>
+
+                        <p class="mb-2">제2조 (갱신 대상)</p>
+                        <p class="mb-4">센터에서 발급한 모든 자격증은 유효기간 3년으로, 유효기간 만료 전에 갱신 절차를 거쳐야 합니다.</p>
+
+                        <p class="mb-2">제3조 (갱신 요건)</p>
+                        <p class="mb-4">자격증 갱신을 위해서는 다음 각 호의 요건을 모두 충족해야 합니다.</p>
+                        <ol class="list-decimal list-inside mb-4">
+                            <li>갱신 교육 이수 (온라인 또는 오프라인)</li>
+                            <li>갱신 신청서 제출</li>
+                            <li>갱신 비용 납부</li>
+                            <li>보수교육 이수 (최소 10시간)</li>
+                        </ol>
+
+                        <p class="mb-2">제4조 (갱신 신청)</p>
+                        <p class="mb-4">자격증 갱신 신청은 유효기간 만료일 3개월 전부터 가능하며, 유효기간이 지난 후에도 갱신은 가능하나 추가 비용이 발생할 수 있습니다.</p>
+
+                        <p class="mb-2">제5조 (보수교육)</p>
+                        <p class="mb-4">보수교육은 센터에서 인정하는 교육, 학회, 워크샵 등에 참가하여 이수할 수 있으며, 최소 10시간 이상 이수해야 합니다.</p>
+
+                        <p class="mb-2">제6조 (갱신 승인)</p>
+                        <p class="mb-4">센터는 제출된 갱신 신청서와 증빙자료를 검토하여 갱신 승인 여부를 결정하며, 필요시 추가 자료를 요청할 수 있습니다.</p>
+
+                        <p class="mb-2">제7조 (자격 취소)</p>
+                        <p class="mb-4">다음 각 호에 해당하는 경우 자격이 취소될 수 있습니다.</p>
+                        <ol class="list-decimal list-inside mb-4">
+                            <li>허위 또는 부정한 방법으로 자격을 갱신한 경우</li>
+                            <li>자격증을 대여하거나 부정하게 사용한 경우</li>
+                            <li>자격 관련 법규를 위반한 경우</li>
+                        </ol>
+
+                        <p class="mb-2">제8조 (약관 변경)</p>
+                        <p>센터는 필요한 경우 본 약관을 변경할 수 있으며, 변경 사항은 센터 웹사이트를 통해 공지합니다.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer p-4 border-t flex justify-end">
+                <button type="button" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300"
+                    data-dismiss="modal">
+                    닫기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="bg-gray-800 text-white py-10">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- 로고 및 연락처 -->
+                <div>
+                    <img src="../../assets/images/logo/logo-white.png" alt="디지털헬스케어센터 로고" class="h-10 mb-4">
+                    <p class="text-gray-400 mb-4">운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼</p>
+                    <div class="space-y-2">
+                        <p class="flex items-center text-sm text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            02-1234-5678
+                        </p>
+                        <p class="flex items-center text-sm text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            info@digitalhealthcare.org
+                        </p>
+                        <p class="flex items-center text-sm text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            서울특별시 강남구 역삼동 123-456 디지털헬스케어센터
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 퀵 링크 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-4">바로가기</h3>
+                    <ul class="space-y-2">
+                        <li><a href="../about/overview.html" class="text-gray-400 hover:text-white">센터 소개</a></li>
+                        <li><a href="../certificate/health-exercise.html" class="text-gray-400 hover:text-white">자격증
+                                소개</a></li>
+                        <li><a href="course-info.html" class="text-gray-400 hover:text-white">교육 과정</a></li>
+                        <li><a href="exam-info.html" class="text-gray-400 hover:text-white">시험 안내</a></li>
+                        <li><a href="../board/notice/index.html" class="text-gray-400 hover:text-white">공지사항</a></li>
+                    </ul>
+                </div>
+
+                <!-- 자격증 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-4">자격증</h3>
+                    <ul class="space-y-2">
+                        <li><a href="../certificate/health-exercise.html"
+                                class="text-gray-400 hover:text-white">건강운동처방사</a></li>
+                        <li><a href="../certificate/rehabilitation.html"
+                                class="text-gray-400 hover:text-white">운동재활전문가</a></li>
+                        <li><a href="../certificate/pilates.html" class="text-gray-400 hover:text-white">필라테스 전문가</a>
+                        </li>
+                        <li><a href="../certificate/recreation.html"
+                                class="text-gray-400 hover:text-white">레크리에이션지도자</a></li>
+                    </ul>
+                </div>
+
+                <!-- 소셜 미디어 및 구독 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-4">소식 받기</h3>
+                    <p class="text-gray-400 mb-4">최신 소식과 이벤트 정보를 받아보세요.</p>
+                    <form class="mb-4">
+                        <div class="flex">
+                            <input type="email" placeholder="이메일 주소"
+                                class="w-full px-3 py-2 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800">
+                            <button type="submit"
+                                class="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700">구독</button>
+                        </div>
+                    </form>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="currentColor">
+                                <path
+                                    d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="currentColor">
+                                <path
+                                    d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z" />
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="currentColor">
+                                <path
+                                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 pt-8 border-t border-gray-700 text-center text-gray-400 text-sm">
+                <p>&copy; 2025 디지털헬스케어센터. All rights reserved.</p>
+                <p class="mt-2">
+                    <a href="#" class="hover:text-white mx-2">개인정보처리방침</a>
+                    <span class="text-gray-600">|</span>
+                    <a href="#" class="hover:text-white mx-2">이용약관</a>
+                    <span class="text-gray-600">|</span>
+                    <a href="#" class="hover:text-white mx-2">이메일 무단수집 거부</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

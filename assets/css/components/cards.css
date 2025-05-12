@@ -1,0 +1,326 @@
+/* 
+ * 카드 CSS 파일
+ * 이 파일은 카드 컴포넌트 스타일을 정의합니다.
+ */
+
+/* 기본 카드 */
+.card {
+    background-color: var(--background-white);
+    border: 1px solid var(--border-light);
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+  }
+  
+  /* 카드 헤더 */
+  .card-header {
+    background-color: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid var(--border-light);
+    padding: 0.75rem 1.25rem;
+  }
+  
+  .card-header:first-child {
+    border-radius: calc(var(--border-radius) - 1px) calc(var(--border-radius) - 1px) 0 0;
+  }
+  
+  /* 카드 푸터 */
+  .card-footer {
+    background-color: rgba(0, 0, 0, 0.03);
+    border-top: 1px solid var(--border-light);
+    padding: 0.75rem 1.25rem;
+  }
+  
+  .card-footer:last-child {
+    border-radius: 0 0 calc(var(--border-radius) - 1px) calc(var(--border-radius) - 1px);
+  }
+  
+  /* 카드 바디 */
+  .card-body {
+    flex: 1 1 auto;
+    padding: 1.25rem;
+  }
+  
+  /* 카드 타이틀 */
+  .card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+  
+  /* 카드 서브타이틀 */
+  .card-subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    margin-top: -0.25rem;
+  }
+  
+  /* 카드 텍스트 */
+  .card-text {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+  
+  .card-text + .card-text {
+    margin-top: 0.25rem;
+  }
+  
+  /* 카드 링크 */
+  .card-link {
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+  
+  .card-link:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+  }
+  
+  .card-link + .card-link {
+    margin-left: 1.25rem;
+  }
+  
+  /* 카드 이미지 */
+  .card-img-top {
+    width: 100%;
+  }
+  
+  .card-img-top:first-child {
+    border-top-left-radius: calc(var(--border-radius) - 1px);
+    border-top-right-radius: calc(var(--border-radius) - 1px);
+  }
+  
+  .card-img-bottom {
+    width: 100%;
+  }
+  
+  .card-img-bottom:last-child {
+    border-bottom-left-radius: calc(var(--border-radius) - 1px);
+    border-bottom-right-radius: calc(var(--border-radius) - 1px);
+  }
+  
+  .card-img {
+    border-radius: calc(var(--border-radius) - 1px);
+    width: 100%;
+  }
+  
+  /* 카드 이미지 오버레이 */
+  .card-img-overlay {
+    bottom: 0;
+    color: white;
+    left: 0;
+    padding: 1.25rem;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+  
+  /* 카드 그룹 */
+  .card-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  @media (min-width: 576px) {
+    .card-group {
+      flex-flow: row wrap;
+    }
+    
+    .card-group > .card {
+      flex: 1 0 0%;
+      margin-bottom: 0;
+    }
+    
+    .card-group > .card + .card {
+      border-left: 0;
+      margin-left: 0;
+    }
+    
+    .card-group > .card:first-child {
+      border-bottom-right-radius: 0;
+      border-top-right-radius: 0;
+    }
+    
+    .card-group > .card:last-child {
+      border-bottom-left-radius: 0;
+      border-top-left-radius: 0;
+    }
+    
+    .card-group > .card:not(:first-child):not(:last-child) {
+      border-radius: 0;
+    }
+    
+    .card-group > .card:first-child .card-img-top,
+    .card-group > .card:first-child .card-header {
+      border-top-right-radius: 0;
+    }
+    
+    .card-group > .card:first-child .card-img-bottom,
+    .card-group > .card:first-child .card-footer {
+      border-bottom-right-radius: 0;
+    }
+    
+    .card-group > .card:last-child .card-img-top,
+    .card-group > .card:last-child .card-header {
+      border-top-left-radius: 0;
+    }
+    
+    .card-group > .card:last-child .card-img-bottom,
+    .card-group > .card:last-child .card-footer {
+      border-bottom-left-radius: 0;
+    }
+    
+    .card-group > .card:not(:first-child):not(:last-child) .card-img-top,
+    .card-group > .card:not(:first-child):not(:last-child) .card-img-bottom,
+    .card-group > .card:not(:first-child):not(:last-child) .card-header,
+    .card-group > .card:not(:first-child):not(:last-child) .card-footer {
+      border-radius: 0;
+    }
+  }
+  
+  /* 카드 덱 */
+  .card-deck {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  @media (min-width: 576px) {
+    .card-deck {
+      flex-flow: row wrap;
+      margin-left: -0.5rem;
+      margin-right: -0.5rem;
+    }
+    
+    .card-deck .card {
+      flex: 1 0 0%;
+      margin-bottom: 0;
+      margin-left: 0.5rem;
+      margin-right: 0.5rem;
+    }
+  }
+  
+  /* 카드 컬럼 */
+  .card-columns {
+    column-count: 1;
+    column-gap: 1.25rem;
+  }
+  
+  .card-columns .card {
+    display: inline-block;
+    margin-bottom: 0.75rem;
+    width: 100%;
+  }
+  
+  @media (min-width: 576px) {
+    .card-columns {
+      column-count: 2;
+    }
+  }
+  
+  @media (min-width: 992px) {
+    .card-columns {
+      column-count: 3;
+    }
+  }
+  
+  /* 카드 액션 */
+  .card-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.75rem 1.25rem;
+  }
+  
+  /* 카드 스타일 변형 */
+  .card-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+  }
+  
+  .card-secondary {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: white;
+  }
+  
+  .card-success {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+    color: white;
+  }
+  
+  .card-danger {
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
+    color: white;
+  }
+  
+  .card-warning {
+    background-color: var(--warning-color);
+    border-color: var(--warning-color);
+    color: white;
+  }
+  
+  .card-info {
+    background-color: var(--info-color);
+    border-color: var(--info-color);
+    color: white;
+  }
+  
+  /* 카드 아웃라인 변형 */
+  .card-outline-primary {
+    background-color: transparent;
+    border-color: var(--primary-color);
+  }
+  
+  .card-outline-secondary {
+    background-color: transparent;
+    border-color: var(--secondary-color);
+  }
+  
+  .card-outline-success {
+    background-color: transparent;
+    border-color: var(--success-color);
+  }
+  
+  .card-outline-danger {
+    background-color: transparent;
+    border-color: var(--danger-color);
+  }
+  
+  .card-outline-warning {
+    background-color: transparent;
+    border-color: var(--warning-color);
+  }
+  
+  .card-outline-info {
+    background-color: transparent;
+    border-color: var(--info-color);
+  }
+  
+  /* 카드 그림자 */
+  .card-shadow-sm {
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .card-shadow {
+    box-shadow: var(--shadow);
+  }
+  
+  .card-shadow-lg {
+    box-shadow: var(--shadow-lg);
+  }
+  
+  /* 카드 호버 효과 */
+  .card-hover {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+  
+  .card-hover:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-5px);
+  }

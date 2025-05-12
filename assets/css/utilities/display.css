@@ -1,0 +1,196 @@
+/* 
+ * 디스플레이 유틸리티 CSS 파일
+ * 이 파일은 디스플레이 관련 유틸리티 클래스를 정의합니다.
+ */
+
+/* 디스플레이 속성 */
+.block { display: block !important; }
+.inline-block { display: inline-block !important; }
+.inline { display: inline !important; }
+.flex { display: flex !important; }
+.inline-flex { display: inline-flex !important; }
+.table { display: table !important; }
+.table-row { display: table-row !important; }
+.table-cell { display: table-cell !important; }
+.grid { display: grid !important; }
+.inline-grid { display: inline-grid !important; }
+.contents { display: contents !important; }
+.hidden { display: none !important; }
+
+/* 가시성 */
+.visible { visibility: visible !important; }
+.invisible { visibility: hidden !important; }
+
+/* 오버플로우 */
+.overflow-auto { overflow: auto !important; }
+.overflow-hidden { overflow: hidden !important; }
+.overflow-visible { overflow: visible !important; }
+.overflow-scroll { overflow: scroll !important; }
+.overflow-x-auto { overflow-x: auto !important; }
+.overflow-y-auto { overflow-y: auto !important; }
+.overflow-x-hidden { overflow-x: hidden !important; }
+.overflow-y-hidden { overflow-y: hidden !important; }
+.overflow-x-visible { overflow-x: visible !important; }
+.overflow-y-visible { overflow-y: visible !important; }
+.overflow-x-scroll { overflow-x: scroll !important; }
+.overflow-y-scroll { overflow-y: scroll !important; }
+
+/* 플로트 */
+.float-left { float: left !important; }
+.float-right { float: right !important; }
+.float-none { float: none !important; }
+
+/* 클리어 */
+.clearfix::after {
+  clear: both;
+  content: "";
+  display: table;
+}
+
+/* 포지션 */
+.static { position: static !important; }
+.fixed { position: fixed !important; }
+.absolute { position: absolute !important; }
+.relative { position: relative !important; }
+.sticky { position: sticky !important; }
+
+/* z-인덱스 */
+.z-0 { z-index: 0 !important; }
+.z-10 { z-index: 10 !important; }
+.z-20 { z-index: 20 !important; }
+.z-30 { z-index: 30 !important; }
+.z-40 { z-index: 40 !important; }
+.z-50 { z-index: 50 !important; }
+.z-auto { z-index: auto !important; }
+
+/* 위치 */
+.top-0 { top: 0 !important; }
+.right-0 { right: 0 !important; }
+.bottom-0 { bottom: 0 !important; }
+.left-0 { left: 0 !important; }
+.top-auto { top: auto !important; }
+.right-auto { right: auto !important; }
+.bottom-auto { bottom: auto !important; }
+.left-auto { left: auto !important; }
+.inset-0 { top: 0 !important; right: 0 !important; bottom: 0 !important; left: 0 !important; }
+.inset-auto { top: auto !important; right: auto !important; bottom: auto !important; left: auto !important; }
+.inset-x-0 { right: 0 !important; left: 0 !important; }
+.inset-y-0 { top: 0 !important; bottom: 0 !important; }
+.inset-x-auto { right: auto !important; left: auto !important; }
+.inset-y-auto { top: auto !important; bottom: auto !important; }
+
+/* 반응형 디스플레이 */
+@media (min-width: 576px) {
+  .sm\:block { display: block !important; }
+  .sm\:inline-block { display: inline-block !important; }
+  .sm\:inline { display: inline !important; }
+  .sm\:flex { display: flex !important; }
+  .sm\:inline-flex { display: inline-flex !important; }
+  .sm\:table { display: table !important; }
+  .sm\:grid { display: grid !important; }
+  .sm\:hidden { display: none !important; }
+}
+
+@media (min-width: 768px) {
+  .md\:block { display: block !important; }
+  .md\:inline-block { display: inline-block !important; }
+  .md\:inline { display: inline !important; }
+  .md\:flex { display: flex !important; }
+  .md\:inline-flex { display: inline-flex !important; }
+  .md\:table { display: table !important; }
+  .md\:grid { display: grid !important; }
+  .md\:hidden { display: none !important; }
+}
+
+@media (min-width: 992px) {
+  .lg\:block { display: block !important; }
+  .lg\:inline-block { display: inline-block !important; }
+  .lg\:inline { display: inline !important; }
+  .lg\:flex { display: flex !important; }
+  .lg\:inline-flex { display: inline-flex !important; }
+  .lg\:table { display: table !important; }
+  .lg\:grid { display: grid !important; }
+  .lg\:hidden { display: none !important; }
+}
+
+@media (min-width: 1200px) {
+  .xl\:block { display: block !important; }
+  .xl\:inline-block { display: inline-block !important; }
+  .xl\:inline { display: inline !important; }
+  .xl\:flex { display: flex !important; }
+  .xl\:inline-flex { display: inline-flex !important; }
+  .xl\:table { display: table !important; }
+  .xl\:grid { display: grid !important; }
+  .xl\:hidden { display: none !important; }
+}
+
+/* 박스 사이징 */
+.box-border { box-sizing: border-box !important; }
+.box-content { box-sizing: content-box !important; }
+
+/* 객체 핏 */
+.object-contain { object-fit: contain !important; }
+.object-cover { object-fit: cover !important; }
+.object-fill { object-fit: fill !important; }
+.object-none { object-fit: none !important; }
+.object-scale-down { object-fit: scale-down !important; }
+
+/* 객체 위치 */
+.object-bottom { object-position: bottom !important; }
+.object-center { object-position: center !important; }
+.object-left { object-position: left !important; }
+.object-left-bottom { object-position: left bottom !important; }
+.object-left-top { object-position: left top !important; }
+.object-right { object-position: right !important; }
+.object-right-bottom { object-position: right bottom !important; }
+.object-right-top { object-position: right top !important; }
+.object-top { object-position: top !important; }
+
+/* 커서 */
+.cursor-auto { cursor: auto !important; }
+.cursor-default { cursor: default !important; }
+.cursor-pointer { cursor: pointer !important; }
+.cursor-wait { cursor: wait !important; }
+.cursor-text { cursor: text !important; }
+.cursor-move { cursor: move !important; }
+.cursor-not-allowed { cursor: not-allowed !important; }
+.cursor-help { cursor: help !important; }
+
+/* 사용자 선택 */
+.select-none { user-select: none !important; }
+.select-text { user-select: text !important; }
+.select-all { user-select: all !important; }
+.select-auto { user-select: auto !important; }
+
+/* 윈도우 스크롤 동작 */
+.scrolling-touch { -webkit-overflow-scrolling: touch !important; }
+.scrolling-auto { -webkit-overflow-scrolling: auto !important; }
+
+/* 포인터 이벤트 */
+.pointer-events-none { pointer-events: none !important; }
+.pointer-events-auto { pointer-events: auto !important; }
+
+/* 윈도우 스크롤 동작 */
+.overscroll-auto { overscroll-behavior: auto !important; }
+.overscroll-contain { overscroll-behavior: contain !important; }
+.overscroll-none { overscroll-behavior: none !important; }
+.overscroll-y-auto { overscroll-behavior-y: auto !important; }
+.overscroll-y-contain { overscroll-behavior-y: contain !important; }
+.overscroll-y-none { overscroll-behavior-y: none !important; }
+.overscroll-x-auto { overscroll-behavior-x: auto !important; }
+.overscroll-x-contain { overscroll-behavior-x: contain !important; }
+.overscroll-x-none { overscroll-behavior-x: none !important; }
+
+/* 스크롤 마진 */
+.scroll-m-0 { scroll-margin: 0 !important; }
+.scroll-m-1 { scroll-margin: 0.25rem !important; }
+.scroll-m-2 { scroll-margin: 0.5rem !important; }
+.scroll-m-4 { scroll-margin: 1rem !important; }
+.scroll-m-8 { scroll-margin: 2rem !important; }
+
+/* 스크롤 패딩 */
+.scroll-p-0 { scroll-padding: 0 !important; }
+.scroll-p-1 { scroll-padding: 0.25rem !important; }
+.scroll-p-2 { scroll-padding: 0.5rem !important; }
+.scroll-p-4 { scroll-padding: 1rem !important; }
+.scroll-p-8 { scroll-padding: 2rem !important; }

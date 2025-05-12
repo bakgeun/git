@@ -1,0 +1,134 @@
+/* 
+ * 그리드 CSS 파일
+ * 이 파일은 그리드 시스템을 정의합니다.
+ */
+
+/* 기본 그리드 컨테이너 */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-columns, 12), 1fr);
+    gap: var(--grid-gap, 1rem);
+  }
+  
+  /* 그리드 열 확장 */
+  .col-span-1 { grid-column: span 1 / span 1; }
+  .col-span-2 { grid-column: span 2 / span 2; }
+  .col-span-3 { grid-column: span 3 / span 3; }
+  .col-span-4 { grid-column: span 4 / span 4; }
+  .col-span-5 { grid-column: span 5 / span 5; }
+  .col-span-6 { grid-column: span 6 / span 6; }
+  .col-span-7 { grid-column: span 7 / span 7; }
+  .col-span-8 { grid-column: span 8 / span 8; }
+  .col-span-9 { grid-column: span 9 / span 9; }
+  .col-span-10 { grid-column: span 10 / span 10; }
+  .col-span-11 { grid-column: span 11 / span 11; }
+  .col-span-12 { grid-column: span 12 / span 12; }
+  
+  /* 그리드 행 확장 */
+  .row-span-1 { grid-row: span 1 / span 1; }
+  .row-span-2 { grid-row: span 2 / span 2; }
+  .row-span-3 { grid-row: span 3 / span 3; }
+  .row-span-4 { grid-row: span 4 / span 4; }
+  .row-span-5 { grid-row: span 5 / span 5; }
+  .row-span-6 { grid-row: span 6 / span 6; }
+  
+  /* 그리드 갭 */
+  .gap-0 { gap: 0; }
+  .gap-1 { gap: var(--spacing-1); }
+  .gap-2 { gap: var(--spacing-2); }
+  .gap-3 { gap: var(--spacing-3); }
+  .gap-4 { gap: var(--spacing-4); }
+  .gap-5 { gap: var(--spacing-5); }
+  .gap-6 { gap: var(--spacing-6); }
+  .gap-8 { gap: var(--spacing-8); }
+  .gap-10 { gap: var(--spacing-10); }
+  .gap-12 { gap: var(--spacing-12); }
+  
+  /* 그리드 열 갭 */
+  .gap-x-0 { column-gap: 0; }
+  .gap-x-1 { column-gap: var(--spacing-1); }
+  .gap-x-2 { column-gap: var(--spacing-2); }
+  .gap-x-3 { column-gap: var(--spacing-3); }
+  .gap-x-4 { column-gap: var(--spacing-4); }
+  .gap-x-5 { column-gap: var(--spacing-5); }
+  .gap-x-6 { column-gap: var(--spacing-6); }
+  .gap-x-8 { column-gap: var(--spacing-8); }
+  .gap-x-10 { column-gap: var(--spacing-10); }
+  .gap-x-12 { column-gap: var(--spacing-12); }
+  
+  /* 그리드 행 갭 */
+  .gap-y-0 { row-gap: 0; }
+  .gap-y-1 { row-gap: var(--spacing-1); }
+  .gap-y-2 { row-gap: var(--spacing-2); }
+  .gap-y-3 { row-gap: var(--spacing-3); }
+  .gap-y-4 { row-gap: var(--spacing-4); }
+  .gap-y-5 { row-gap: var(--spacing-5); }
+  .gap-y-6 { row-gap: var(--spacing-6); }
+  .gap-y-8 { row-gap: var(--spacing-8); }
+  .gap-y-10 { row-gap: var(--spacing-10); }
+  .gap-y-12 { row-gap: var(--spacing-12); }
+  
+  /* 반응형 그리드 */
+  @media (min-width: 640px) {
+    .sm\:grid { display: grid; }
+    .sm\:grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+    .sm\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .sm\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .sm\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .sm\:grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+    .sm\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+    .sm\:grid-cols-7 { grid-template-columns: repeat(7, 1fr); }
+    .sm\:grid-cols-8 { grid-template-columns: repeat(8, 1fr); }
+    .sm\:grid-cols-9 { grid-template-columns: repeat(9, 1fr); }
+    .sm\:grid-cols-10 { grid-template-columns: repeat(10, 1fr); }
+    .sm\:grid-cols-11 { grid-template-columns: repeat(11, 1fr); }
+    .sm\:grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
+  }
+  
+  @media (min-width: 768px) {
+    .md\:grid { display: grid; }
+    .md\:grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+    .md\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .md\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .md\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .md\:grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+    .md\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+    .md\:grid-cols-7 { grid-template-columns: repeat(7, 1fr); }
+    .md\:grid-cols-8 { grid-template-columns: repeat(8, 1fr); }
+    .md\:grid-cols-9 { grid-template-columns: repeat(9, 1fr); }
+    .md\:grid-cols-10 { grid-template-columns: repeat(10, 1fr); }
+    .md\:grid-cols-11 { grid-template-columns: repeat(11, 1fr); }
+    .md\:grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
+  }
+  
+  @media (min-width: 1024px) {
+    .lg\:grid { display: grid; }
+    .lg\:grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+    .lg\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .lg\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .lg\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .lg\:grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+    .lg\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+    .lg\:grid-cols-7 { grid-template-columns: repeat(7, 1fr); }
+    .lg\:grid-cols-8 { grid-template-columns: repeat(8, 1fr); }
+    .lg\:grid-cols-9 { grid-template-columns: repeat(9, 1fr); }
+    .lg\:grid-cols-10 { grid-template-columns: repeat(10, 1fr); }
+    .lg\:grid-cols-11 { grid-template-columns: repeat(11, 1fr); }
+    .lg\:grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
+  }
+  
+  @media (min-width: 1280px) {
+    .xl\:grid { display: grid; }
+    .xl\:grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+    .xl\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .xl\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .xl\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .xl\:grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+    .xl\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+    .xl\:grid-cols-7 { grid-template-columns: repeat(7, 1fr); }
+    .xl\:grid-cols-8 { grid-template-columns: repeat(8, 1fr); }
+    .xl\:grid-cols-9 { grid-template-columns: repeat(9, 1fr); }
+    .xl\:grid-cols-10 { grid-template-columns: repeat(10, 1fr); }
+    .xl\:grid-cols-11 { grid-template-columns: repeat(11, 1fr); }
+    .xl\:grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
+  }

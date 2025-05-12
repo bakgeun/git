@@ -1,0 +1,205 @@
+/* 
+ * 뱃지 CSS 파일
+ * 이 파일은 뱃지 컴포넌트 스타일을 정의합니다.
+ */
+
+/* 기본 뱃지 */
+.badge {
+    border-radius: var(--border-radius);
+    display: inline-block;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0.25em 0.4em;
+    text-align: center;
+    vertical-align: baseline;
+    white-space: nowrap;
+  }
+  
+  .badge:empty {
+    display: none;
+  }
+  
+  /* 버튼 내 뱃지 */
+  .btn .badge {
+    margin-left: 0.5em;
+    position: relative;
+    top: -1px;
+  }
+  
+  /* 뱃지 색상 변형 */
+  .badge-primary {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .badge-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+  }
+  
+  .badge-success {
+    background-color: var(--success-color);
+    color: white;
+  }
+  
+  .badge-info {
+    background-color: var(--info-color);
+    color: white;
+  }
+  
+  .badge-warning {
+    background-color: var(--warning-color);
+    color: white;
+  }
+  
+  .badge-danger {
+    background-color: var(--danger-color);
+    color: white;
+  }
+  
+  .badge-light {
+    background-color: var(--background-light);
+    color: var(--text-primary);
+  }
+  
+  .badge-dark {
+    background-color: var(--background-dark);
+    color: white;
+  }
+  
+  /* 배지 아웃라인 변형 */
+  .badge-outline-primary {
+    background-color: transparent;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+  }
+  
+  .badge-outline-secondary {
+    background-color: transparent;
+    border: 1px solid var(--secondary-color);
+    color: var(--secondary-color);
+  }
+  
+  .badge-outline-success {
+    background-color: transparent;
+    border: 1px solid var(--success-color);
+    color: var(--success-color);
+  }
+  
+  .badge-outline-info {
+    background-color: transparent;
+    border: 1px solid var(--info-color);
+    color: var(--info-color);
+  }
+  
+  .badge-outline-warning {
+    background-color: transparent;
+    border: 1px solid var(--warning-color);
+    color: var(--warning-color);
+  }
+  
+  .badge-outline-danger {
+    background-color: transparent;
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+  }
+  
+  .badge-outline-light {
+    background-color: transparent;
+    border: 1px solid var(--background-light);
+    color: var(--text-secondary);
+  }
+  
+  .badge-outline-dark {
+    background-color: transparent;
+    border: 1px solid var(--background-dark);
+    color: var(--background-dark);
+  }
+  
+  /* 뱃지 크기 */
+  .badge-sm {
+    font-size: 65%;
+    padding: 0.2em 0.3em;
+  }
+  
+  .badge-lg {
+    font-size: 85%;
+    padding: 0.3em 0.5em;
+  }
+  
+  /* 둥근 뱃지 */
+  .badge-pill {
+    border-radius: 10rem;
+    padding-left: 0.6em;
+    padding-right: 0.6em;
+  }
+  
+  /* 도트 뱃지 */
+  .badge-dot {
+    border-radius: 50%;
+    height: 8px;
+    padding: 0;
+    width: 8px;
+  }
+  
+  .badge-dot-sm {
+    height: 6px;
+    width: 6px;
+  }
+  
+  .badge-dot-lg {
+    height: 10px;
+    width: 10px;
+  }
+  
+  /* 뱃지 위치 */
+  .badge-top-right {
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: translate(50%, -50%);
+  }
+  
+  .badge-top-left {
+    left: 0;
+    position: absolute;
+    top: 0;
+    transform: translate(-50%, -50%);
+  }
+  
+  .badge-bottom-right {
+    bottom: 0;
+    position: absolute;
+    right: 0;
+    transform: translate(50%, 50%);
+  }
+  
+  .badge-bottom-left {
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    transform: translate(-50%, 50%);
+  }
+  
+  /* 링크 뱃지 */
+  a.badge {
+    text-decoration: none;
+  }
+  
+  a.badge:hover, a.badge:focus {
+    opacity: 0.85;
+  }
+  
+  /* 카운터 뱃지 */
+  .badge-counter {
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    height: 1.5rem;
+    min-width: 1.5rem;
+    padding: 0 0.25rem;
+  }

@@ -1,0 +1,250 @@
+/* 
+ * 텍스트 유틸리티 CSS 파일
+ * 이 파일은 텍스트 서식 관련 유틸리티 클래스를 정의합니다.
+ */
+
+/* 폰트 크기 */
+.text-xs { font-size: 0.75rem !important; }
+.text-sm { font-size: 0.875rem !important; }
+.text-base { font-size: 1rem !important; }
+.text-lg { font-size: 1.125rem !important; }
+.text-xl { font-size: 1.25rem !important; }
+.text-2xl { font-size: 1.5rem !important; }
+.text-3xl { font-size: 1.875rem !important; }
+.text-4xl { font-size: 2.25rem !important; }
+.text-5xl { font-size: 3rem !important; }
+.text-6xl { font-size: 3.75rem !important; }
+.text-7xl { font-size: 4.5rem !important; }
+.text-8xl { font-size: 6rem !important; }
+.text-9xl { font-size: 8rem !important; }
+
+/* 폰트 가중치 */
+.font-thin { font-weight: 100 !important; }
+.font-extralight { font-weight: 200 !important; }
+.font-light { font-weight: 300 !important; }
+.font-normal { font-weight: 400 !important; }
+.font-medium { font-weight: 500 !important; }
+.font-semibold { font-weight: 600 !important; }
+.font-bold { font-weight: 700 !important; }
+.font-extrabold { font-weight: 800 !important; }
+.font-black { font-weight: 900 !important; }
+
+/* 텍스트 정렬 */
+.text-left { text-align: left !important; }
+.text-center { text-align: center !important; }
+.text-right { text-align: right !important; }
+.text-justify { text-align: justify !important; }
+
+/* 텍스트 색상 */
+.text-transparent { color: transparent !important; }
+.text-current { color: currentColor !important; }
+.text-black { color: #000000 !important; }
+.text-white { color: #ffffff !important; }
+.text-primary { color: var(--text-primary) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-tertiary { color: var(--text-tertiary) !important; }
+.text-brand { color: var(--primary-color) !important; }
+.text-success { color: var(--success-color) !important; }
+.text-warning { color: var(--warning-color) !important; }
+.text-danger { color: var(--danger-color) !important; }
+.text-info { color: var(--info-color) !important; }
+
+/* 줄 높이 */
+.leading-none { line-height: 1 !important; }
+.leading-tight { line-height: 1.25 !important; }
+.leading-snug { line-height: 1.375 !important; }
+.leading-normal { line-height: 1.5 !important; }
+.leading-relaxed { line-height: 1.625 !important; }
+.leading-loose { line-height: 2 !important; }
+.leading-3 { line-height: .75rem !important; }
+.leading-4 { line-height: 1rem !important; }
+.leading-5 { line-height: 1.25rem !important; }
+.leading-6 { line-height: 1.5rem !important; }
+.leading-7 { line-height: 1.75rem !important; }
+.leading-8 { line-height: 2rem !important; }
+.leading-9 { line-height: 2.25rem !important; }
+.leading-10 { line-height: 2.5rem !important; }
+
+/* 문자 간격 */
+.tracking-tighter { letter-spacing: -0.05em !important; }
+.tracking-tight { letter-spacing: -0.025em !important; }
+.tracking-normal { letter-spacing: 0 !important; }
+.tracking-wide { letter-spacing: 0.025em !important; }
+.tracking-wider { letter-spacing: 0.05em !important; }
+.tracking-widest { letter-spacing: 0.1em !important; }
+
+/* 단어 간격 */
+.word-spacing-tighter { word-spacing: -0.05em !important; }
+.word-spacing-tight { word-spacing: -0.025em !important; }
+.word-spacing-normal { word-spacing: 0 !important; }
+.word-spacing-wide { word-spacing: 0.025em !important; }
+.word-spacing-wider { word-spacing: 0.05em !important; }
+.word-spacing-widest { word-spacing: 0.1em !important; }
+
+/* 텍스트 변형 */
+.uppercase { text-transform: uppercase !important; }
+.lowercase { text-transform: lowercase !important; }
+.capitalize { text-transform: capitalize !important; }
+.normal-case { text-transform: none !important; }
+
+/* 텍스트 장식 */
+.underline { text-decoration: underline !important; }
+.line-through { text-decoration: line-through !important; }
+.no-underline { text-decoration: none !important; }
+
+/* 텍스트 줄바꿈 */
+.break-normal { overflow-wrap: normal !important; word-break: normal !important; }
+.break-words { overflow-wrap: break-word !important; }
+.break-all { word-break: break-all !important; }
+.truncate { overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
+.whitespace-normal { white-space: normal !important; }
+.whitespace-nowrap { white-space: nowrap !important; }
+.whitespace-pre { white-space: pre !important; }
+.whitespace-pre-line { white-space: pre-line !important; }
+.whitespace-pre-wrap { white-space: pre-wrap !important; }
+
+/* 텍스트 오버플로우 */
+.overflow-ellipsis { text-overflow: ellipsis !important; }
+.overflow-clip { text-overflow: clip !important; }
+
+/* 폰트 스타일 */
+.italic { font-style: italic !important; }
+.not-italic { font-style: normal !important; }
+
+/* 텍스트 방향 */
+.ltr { direction: ltr !important; }
+.rtl { direction: rtl !important; }
+
+/* 텍스트 수직 정렬 */
+.align-baseline { vertical-align: baseline !important; }
+.align-top { vertical-align: top !important; }
+.align-middle { vertical-align: middle !important; }
+.align-bottom { vertical-align: bottom !important; }
+.align-text-top { vertical-align: text-top !important; }
+.align-text-bottom { vertical-align: text-bottom !important; }
+.align-sub { vertical-align: sub !important; }
+.align-super { vertical-align: super !important; }
+
+/* 줄 제한 */
+.line-clamp-1 {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 1 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+.line-clamp-2 {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+.line-clamp-3 {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+.line-clamp-4 {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 4 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+.line-clamp-5 {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 5 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+.line-clamp-none {
+  -webkit-line-clamp: unset !important;
+}
+
+/* 텍스트 그림자 */
+.text-shadow-none { text-shadow: none !important; }
+.text-shadow-sm { text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important; }
+.text-shadow { text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06) !important; }
+.text-shadow-md { text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06) !important; }
+.text-shadow-lg { text-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05) !important; }
+.text-shadow-xl { text-shadow: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04) !important; }
+
+/* 인용 마크 */
+.quotation-marks::before {
+  content: "\201C";
+}
+
+.quotation-marks::after {
+  content: "\201D";
+}
+
+/* 반응형 텍스트 */
+@media (min-width: 576px) {
+  .sm\:text-sm { font-size: 0.875rem !important; }
+  .sm\:text-base { font-size: 1rem !important; }
+  .sm\:text-lg { font-size: 1.125rem !important; }
+  .sm\:text-xl { font-size: 1.25rem !important; }
+  .sm\:text-2xl { font-size: 1.5rem !important; }
+  .sm\:text-3xl { font-size: 1.875rem !important; }
+  .sm\:text-left { text-align: left !important; }
+  .sm\:text-center { text-align: center !important; }
+  .sm\:text-right { text-align: right !important; }
+  .sm\:font-normal { font-weight: 400 !important; }
+  .sm\:font-medium { font-weight: 500 !important; }
+  .sm\:font-bold { font-weight: 700 !important; }
+}
+
+@media (min-width: 768px) {
+  .md\:text-sm { font-size: 0.875rem !important; }
+  .md\:text-base { font-size: 1rem !important; }
+  .md\:text-lg { font-size: 1.125rem !important; }
+  .md\:text-xl { font-size: 1.25rem !important; }
+  .md\:text-2xl { font-size: 1.5rem !important; }
+  .md\:text-3xl { font-size: 1.875rem !important; }
+  .md\:text-4xl { font-size: 2.25rem !important; }
+  .md\:text-left { text-align: left !important; }
+  .md\:text-center { text-align: center !important; }
+  .md\:text-right { text-align: right !important; }
+  .md\:font-normal { font-weight: 400 !important; }
+  .md\:font-medium { font-weight: 500 !important; }
+  .md\:font-bold { font-weight: 700 !important; }
+}
+
+@media (min-width: 992px) {
+  .lg\:text-sm { font-size: 0.875rem !important; }
+  .lg\:text-base { font-size: 1rem !important; }
+  .lg\:text-lg { font-size: 1.125rem !important; }
+  .lg\:text-xl { font-size: 1.25rem !important; }
+  .lg\:text-2xl { font-size: 1.5rem !important; }
+  .lg\:text-3xl { font-size: 1.875rem !important; }
+  .lg\:text-4xl { font-size: 2.25rem !important; }
+  .lg\:text-5xl { font-size: 3rem !important; }
+  .lg\:text-left { text-align: left !important; }
+  .lg\:text-center { text-align: center !important; }
+  .lg\:text-right { text-align: right !important; }
+  .lg\:font-normal { font-weight: 400 !important; }
+  .lg\:font-medium { font-weight: 500 !important; }
+  .lg\:font-bold { font-weight: 700 !important; }
+}
+
+@media (min-width: 1200px) {
+  .xl\:text-sm { font-size: 0.875rem !important; }
+  .xl\:text-base { font-size: 1rem !important; }
+  .xl\:text-lg { font-size: 1.125rem !important; }
+  .xl\:text-xl { font-size: 1.25rem !important; }
+  .xl\:text-2xl { font-size: 1.5rem !important; }
+  .xl\:text-3xl { font-size: 1.875rem !important; }
+  .xl\:text-4xl { font-size: 2.25rem !important; }
+  .xl\:text-5xl { font-size: 3rem !important; }
+  .xl\:text-6xl { font-size: 3.75rem !important; }
+  .xl\:text-left { text-align: left !important; }
+  .xl\:text-center { text-align: center !important; }
+  .xl\:text-right { text-align: right !important; }
+  .xl\:font-normal { font-weight: 400 !important; }
+  .xl\:font-medium { font-weight: 500 !important; }
+  .xl\:font-bold { font-weight: 700 !important; }
+}

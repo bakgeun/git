@@ -1,0 +1,412 @@
+/* 
+ * 내비게이션 CSS 파일
+ * 이 파일은 내비게이션 컴포넌트 스타일을 정의합니다.
+ */
+
+/* 기본 내비게이션 */
+.nav {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    margin-bottom: 0;
+    padding-left: 0;
+  }
+  
+  /* 내비게이션 링크 */
+  .nav-link {
+    display: block;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+  }
+  
+  .nav-link:hover, .nav-link:focus {
+    text-decoration: none;
+  }
+  
+  .nav-link.disabled {
+    color: var(--text-tertiary);
+    cursor: default;
+    pointer-events: none;
+  }
+  
+  /* 내비게이션 탭 */
+  .nav-tabs {
+    border-bottom: 1px solid var(--border-light);
+  }
+  
+  .nav-tabs .nav-item {
+    margin-bottom: -1px;
+  }
+  
+  .nav-tabs .nav-link {
+    border: 1px solid transparent;
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+  }
+  
+  .nav-tabs .nav-link:hover, .nav-tabs .nav-link:focus {
+    border-color: var(--border-light) var(--border-light) var(--border-light);
+  }
+  
+  .nav-tabs .nav-link.disabled {
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--text-tertiary);
+  }
+  
+  .nav-tabs .nav-link.active,
+  .nav-tabs .nav-item.show .nav-link {
+    background-color: var(--background-white);
+    border-color: var(--border-medium) var(--border-medium) var(--background-white);
+    color: var(--text-primary);
+  }
+  
+  /* 내비게이션 알약 */
+  .nav-pills .nav-link {
+    border-radius: var(--border-radius);
+  }
+  
+  .nav-pills .nav-link.active,
+  .nav-pills .show > .nav-link {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  /* 내비게이션 채우기 */
+  .nav-fill .nav-item {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+  
+  /* 내비게이션 균등 분할 */
+  .nav-justified .nav-item {
+    flex-basis: 0;
+    flex-grow: 1;
+    text-align: center;
+  }
+  
+  /* 내비게이션 정렬 */
+  .nav.flex-column {
+    flex-direction: column;
+  }
+  
+  /* 탭 콘텐츠 */
+  .tab-content > .tab-pane {
+    display: none;
+  }
+  
+  .tab-content > .active {
+    display: block;
+  }
+  
+  /* 내비게이션 바 */
+  .navbar {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    position: relative;
+  }
+  
+  /* 내비게이션 브랜드 */
+  .navbar-brand {
+    display: inline-block;
+    font-size: 1.25rem;
+    line-height: inherit;
+    margin-right: 1rem;
+    padding-bottom: 0.3125rem;
+    padding-top: 0.3125rem;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  
+  /* 내비게이션 토글러 */
+  .navbar-toggler {
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--border-radius);
+    font-size: 1.25rem;
+    line-height: 1;
+    padding: 0.25rem 0.75rem;
+  }
+  
+  .navbar-toggler:hover, .navbar-toggler:focus {
+    text-decoration: none;
+  }
+  
+  /* 내비게이션 확장 지점 */
+  .navbar-collapse {
+    align-items: center;
+    flex-basis: 100%;
+    flex-grow: 1;
+  }
+  
+  /* 내비게이션 항목 */
+  .navbar-nav {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin-bottom: 0;
+    padding-left: 0;
+  }
+  
+  .navbar-nav .nav-link {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  
+  .navbar-nav .dropdown-menu {
+    float: none;
+    position: static;
+  }
+  
+  /* 내비게이션 텍스트 */
+  .navbar-text {
+    display: inline-block;
+    padding-bottom: 0.5rem;
+    padding-top: 0.5rem;
+  }
+  
+  /* 내비게이션 테마 */
+  .navbar-light .navbar-brand {
+    color: var(--text-primary);
+  }
+  
+  .navbar-light .navbar-brand:hover, .navbar-light .navbar-brand:focus {
+    color: var(--text-primary);
+  }
+  
+  .navbar-light .navbar-nav .nav-link {
+    color: var(--text-secondary);
+  }
+  
+  .navbar-light .navbar-nav .nav-link:hover, .navbar-light .navbar-nav .nav-link:focus {
+    color: var(--text-primary);
+  }
+  
+  .navbar-light .navbar-nav .nav-link.disabled {
+    color: var(--text-tertiary);
+  }
+  
+  .navbar-light .navbar-nav .show > .nav-link,
+  .navbar-light .navbar-nav .active > .nav-link,
+  .navbar-light .navbar-nav .nav-link.show,
+  .navbar-light .navbar-nav .nav-link.active {
+    color: var(--primary-color);
+  }
+  
+  .navbar-light .navbar-toggler {
+    border-color: rgba(0, 0, 0, 0.1);
+    color: var(--text-secondary);
+  }
+  
+  .navbar-light .navbar-text {
+    color: var(--text-secondary);
+  }
+  
+  .navbar-dark .navbar-brand {
+    color: white;
+  }
+  
+  .navbar-dark .navbar-brand:hover, .navbar-dark .navbar-brand:focus {
+    color: white;
+  }
+  
+  .navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.75);
+  }
+  
+  .navbar-dark .navbar-nav .nav-link:hover, .navbar-dark .navbar-nav .nav-link:focus {
+    color: white;
+  }
+  
+  .navbar-dark .navbar-nav .nav-link.disabled {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  .navbar-dark .navbar-nav .show > .nav-link,
+  .navbar-dark .navbar-nav .active > .nav-link,
+  .navbar-dark .navbar-nav .nav-link.show,
+  .navbar-dark .navbar-nav .nav-link.active {
+    color: white;
+  }
+  
+  .navbar-dark .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.75);
+  }
+  
+  .navbar-dark .navbar-text {
+    color: rgba(255, 255, 255, 0.75);
+  }
+  
+  /* 반응형 내비게이션 */
+  @media (min-width: 576px) {
+    .navbar-expand-sm {
+      flex-flow: row nowrap;
+      justify-content: flex-start;
+    }
+    
+    .navbar-expand-sm .navbar-nav {
+      flex-direction: row;
+    }
+    
+    .navbar-expand-sm .navbar-nav .dropdown-menu {
+      position: absolute;
+    }
+    
+    .navbar-expand-sm .navbar-nav .nav-link {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+    
+    .navbar-expand-sm .navbar-collapse {
+      display: flex !important;
+      flex-basis: auto;
+    }
+    
+    .navbar-expand-sm .navbar-toggler {
+      display: none;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .navbar-expand-md {
+      flex-flow: row nowrap;
+      justify-content: flex-start;
+    }
+    
+    .navbar-expand-md .navbar-nav {
+      flex-direction: row;
+    }
+    
+    .navbar-expand-md .navbar-nav .dropdown-menu {
+      position: absolute;
+    }
+    
+    .navbar-expand-md .navbar-nav .nav-link {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+    
+    .navbar-expand-md .navbar-collapse {
+      display: flex !important;
+      flex-basis: auto;
+    }
+    
+    .navbar-expand-md .navbar-toggler {
+      display: none;
+    }
+  }
+  
+  @media (min-width: 992px) {
+    .navbar-expand-lg {
+      flex-flow: row nowrap;
+      justify-content: flex-start;
+    }
+    
+    .navbar-expand-lg .navbar-nav {
+      flex-direction: row;
+    }
+    
+    .navbar-expand-lg .navbar-nav .dropdown-menu {
+      position: absolute;
+    }
+    
+    .navbar-expand-lg .navbar-nav .nav-link {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+    
+    .navbar-expand-lg .navbar-collapse {
+      display: flex !important;
+      flex-basis: auto;
+    }
+    
+    .navbar-expand-lg .navbar-toggler {
+      display: none;
+    }
+  }
+  
+  @media (min-width: 1200px) {
+    .navbar-expand-xl {
+      flex-flow: row nowrap;
+      justify-content: flex-start;
+    }
+    
+    .navbar-expand-xl .navbar-nav {
+      flex-direction: row;
+    }
+    
+    .navbar-expand-xl .navbar-nav .dropdown-menu {
+      position: absolute;
+    }
+    
+    .navbar-expand-xl .navbar-nav .nav-link {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+    
+    .navbar-expand-xl .navbar-collapse {
+      display: flex !important;
+      flex-basis: auto;
+    }
+    
+    .navbar-expand-xl .navbar-toggler {
+      display: none;
+    }
+  }
+  
+  .navbar-expand {
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+  }
+  
+  .navbar-expand .navbar-nav {
+    flex-direction: row;
+  }
+  
+  .navbar-expand .navbar-nav .dropdown-menu {
+    position: absolute;
+  }
+  
+  .navbar-expand .navbar-nav .nav-link {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  .navbar-expand .navbar-collapse {
+    display: flex !important;
+    flex-basis: auto;
+  }
+  
+  .navbar-expand .navbar-toggler {
+    display: none;
+  }
+  
+  /* 브레드크럼 */
+  .breadcrumb {
+    background-color: var(--background-light);
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+  }
+  
+  .breadcrumb-item + .breadcrumb-item {
+    padding-left: 0.5rem;
+  }
+  
+  .breadcrumb-item + .breadcrumb-item::before {
+    color: var(--text-tertiary);
+    content: "/";
+    display: inline-block;
+    padding-right: 0.5rem;
+  }
+  
+  .breadcrumb-item.active {
+    color: var(--text-secondary);
+  }

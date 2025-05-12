@@ -1,0 +1,261 @@
+/* 
+ * 홈페이지 CSS 파일
+ * 이 파일은 메인 페이지 전용 스타일을 정의합니다.
+ */
+
+/* 히어로 섹션 */
+.hero-section {
+    background-image: linear-gradient(to right, rgba(37, 99, 235, 0.9), rgba(79, 70, 229, 0.9)), url('../images/banners/hero-bg.jpg');
+    background-position: center;
+    background-size: cover;
+    color: white;
+    padding: 4rem 0;
+    position: relative;
+  }
+  
+  .hero-section h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    transition: opacity 0.5s ease;
+  }
+  
+  .hero-section p {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    transition: opacity 0.5s ease;
+  }
+  
+  @media (min-width: 768px) {
+    .hero-section {
+      padding: 6rem 0;
+    }
+    
+    .hero-section h1 {
+      font-size: 3rem;
+    }
+  }
+  
+  /* 슬라이더 내비게이션 도트 */
+  .slider-nav {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+  
+  .slider-nav-dot {
+    background-color: rgba(255, 255, 255, 0.5);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    height: 0.75rem;
+    margin: 0 0.25rem;
+    padding: 0;
+    transition: background-color 0.3s ease;
+    width: 0.75rem;
+  }
+  
+  .slider-nav-dot:hover, .slider-nav-dot:focus {
+    background-color: rgba(255, 255, 255, 0.75);
+  }
+  
+  .slider-nav-dot.active {
+    background-color: white;
+  }
+  
+  /* 자격증 소개 섹션 */
+  .certificate-section {
+    background-color: var(--background-light);
+    padding: 4rem 0;
+  }
+  
+  .certificate-section h2 {
+    margin-bottom: 3rem;
+    text-align: center;
+  }
+  
+  .certificate-section .card {
+    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .certificate-section .card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-5px);
+  }
+  
+  .certificate-section .card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* 교육 과정 섹션 */
+  .courses-section {
+    padding: 4rem 0;
+  }
+  
+  .courses-section h2 {
+    margin-bottom: 3rem;
+    text-align: center;
+  }
+  
+  .courses-section .card {
+    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .courses-section .card:hover {
+    box-shadow: var(--shadow-md);
+  }
+  
+  .courses-section .card img {
+    height: 12rem;
+    object-fit: cover;
+  }
+  
+  /* 공지사항 & 칼럼 섹션 */
+  .notice-column-section {
+    background-color: var(--background-light);
+    padding: 4rem 0;
+  }
+  
+  .notice-column-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .notice-column-section .card {
+    margin-bottom: 1rem;
+  }
+  
+  /* CTA 섹션 */
+  .cta-section {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 4rem 0;
+    text-align: center;
+  }
+  
+  .cta-section h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .cta-section p {
+    font-size: 1.25rem;
+    margin: 0 auto 2rem;
+    max-width: 800px;
+  }
+  
+  /* 추가 섹션 */
+  .stats-section {
+    padding: 4rem 0;
+    text-align: center;
+  }
+  
+  .stats-section .stat-item {
+    margin-bottom: 2rem;
+  }
+  
+  .stats-section .stat-number {
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  
+  .stats-section .stat-label {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+  }
+  
+  .testimonials-section {
+    background-color: var(--background-light);
+    padding: 4rem 0;
+  }
+  
+  .testimonials-section .testimonial {
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+    padding: 2rem;
+  }
+  
+  .testimonials-section .testimonial-content {
+    font-style: italic;
+    margin-bottom: 1.5rem;
+  }
+  
+  .testimonials-section .testimonial-author {
+    align-items: center;
+    display: flex;
+  }
+  
+  .testimonials-section .testimonial-avatar {
+    border-radius: 50%;
+    height: 3rem;
+    margin-right: 1rem;
+    width: 3rem;
+  }
+  
+  .testimonials-section .testimonial-name {
+    font-weight: 600;
+  }
+  
+  .testimonials-section .testimonial-role {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+  }
+  
+  /* 캐러셀 */
+  .carousel {
+    position: relative;
+  }
+  
+  .carousel-wrapper {
+    display: flex;
+    transition: transform 0.3s ease;
+  }
+  
+  .carousel-item {
+    flex: 0 0 100%;
+    width: 100%;
+  }
+  
+  .carousel-prev,
+  .carousel-next {
+    align-items: center;
+    background-color: white;
+    border-radius: 50%;
+    box-shadow: var(--shadow);
+    display: flex;
+    height: 2.5rem;
+    justify-content: center;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2.5rem;
+    z-index: 10;
+  }
+  
+  .carousel-prev {
+    left: 0.5rem;
+  }
+  
+  .carousel-next {
+    right: 0.5rem;
+  }
+  
+  /* 애니메이션 */
+  .animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  
+  .animate-on-scroll.active {
+    opacity: 1;
+    transform: translateY(0);
+  }

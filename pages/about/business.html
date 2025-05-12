@@ -1,0 +1,769 @@
+<!-- pages/about/business.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사업 내용 - 디지털헬스케어센터</title>
+    <!-- 파비콘 -->
+    <link rel="shortcut icon" href="../../favicon.ico" type="image/x-icon">
+    <!-- CSS 파일 -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <!-- 노토 산스 KR 폰트 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 헤더 영역 -->
+    <header id="main-header" class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <!-- 로고 -->
+            <div class="logo">
+                <a href="../../index.html">
+                    <img src="../../assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" width="180">
+                </a>
+            </div>
+
+            <!-- 메인 네비게이션 -->
+            <nav class="main-nav hidden md:flex">
+                <ul class="flex space-x-6">
+                    <li class="group relative">
+                        <a href="#" class="text-blue-600 font-bold py-2">기관 소개</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="overview.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">개요</a></li>
+                            <li><a href="vision.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">목표 및 전략</a></li>
+                            <li><a href="business.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600">사업 내용</a></li>
+                            <li><a href="organization.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
+                            <li><a href="instructors.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">자격증 소개</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="../certificate/health-exercise.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">건강운동처방사</a></li>
+                            <li><a href="../certificate/rehabilitation.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동재활전문가</a></li>
+                            <li><a href="../certificate/pilates.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스 전문가</a></li>
+                            <li><a href="../certificate/recreation.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">교육 과정</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="../education/course-info.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 과정 안내</a></li>
+                            <li><a href="../education/course-application.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
+                            <li><a href="../education/cert-application.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">자격증 신청</a></li>
+                            <li><a href="../education/exam-info.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">시험 안내</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">게시판</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="../board/notice/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">공지사항</a></li>
+                            <li><a href="../board/column/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">칼럼</a></li>
+                            <li><a href="../board/materials/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">강의자료</a></li>
+                            <li><a href="../board/videos/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">동영상 강의</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            
+            <!-- 인증 버튼 영역 -->
+            <div class="auth-buttons flex items-center">
+                <a href="../auth/login.html" class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
+                <a href="../auth/signup.html" class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
+                <button id="mobile-menu-button" class="md:hidden ml-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- 모바일 메뉴 -->
+        <div id="mobile-menu" class="hidden md:hidden shadow-md">
+            <div class="container mx-auto px-4 py-3">
+                <!-- 모바일 메뉴 내용은 JavaScript로 동적 생성 -->
+            </div>
+        </div>
+    </header>
+
+    <!-- 페이지 제목 영역 -->
+    <div class="bg-gradient-to-r from-blue-600 to-green-500 text-white py-12">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">사업 내용</h1>
+            <p class="text-lg">디지털헬스케어센터가 수행하는 주요 사업을 소개합니다.</p>
+        </div>
+    </div>
+
+    <!-- 내비게이션 탭 -->
+    <div class="bg-white border-b sticky top-0 z-20">
+        <div class="container mx-auto px-4">
+            <ul class="flex overflow-x-auto py-4 space-x-6">
+                <li><a href="overview.html" class="text-gray-700 hover:text-blue-600 pb-2">개요</a></li>
+                <li><a href="vision.html" class="text-gray-700 hover:text-blue-600 pb-2">목표 및 전략</a></li>
+                <li><a href="business.html" class="text-blue-600 border-b-2 border-blue-600 pb-2 font-bold">사업 내용</a></li>
+                <li><a href="organization.html" class="text-gray-700 hover:text-blue-600 pb-2">조직도</a></li>
+                <li><a href="instructors.html" class="text-gray-700 hover:text-blue-600 pb-2">강사 소개</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="py-12">
+        <div class="container mx-auto px-4">
+            <!-- 사업 개요 섹션 -->
+            <div class="mb-12">
+                <h2 class="text-3xl font-bold mb-6 text-center">디지털헬스케어센터 기본사업</h2>
+                <p class="text-lg text-gray-700 mb-8 max-w-4xl mx-auto text-center">
+                    디지털헬스케어센터는 운동과학 기반 전문직업인력 양성을 위한 다양한 사업을 진행하고 있습니다.
+                    주요 사업 분야는 연구 활동, 교육·훈련, 국제협력, 그리고 기타 연구 지원활동으로 구성되어 있습니다.
+                </p>
+            </div>
+            
+            <!-- 주요 사업 영역 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+                <!-- 연구 활동 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow">
+                    <div class="h-2 bg-blue-600"></div>
+                    <div class="p-6">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 mx-auto">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4 text-center">연구 활동</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>연구개발 및 실증을 위한 자산 확보 및 관리</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>대형 국책연구과제 수주를 위한 정보 수집 및 과제 준비 지원</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>연구 분야별 연구모임 및 주제별 연구 교류 활성화</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 교육·훈련 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow">
+                    <div class="h-2 bg-green-600"></div>
+                    <div class="p-6">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 mx-auto">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path d="M12 14l9-5-9-5-9 5 9 5z" />
+                                <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4 text-center">교육·훈련</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>신진 전문인력 양성을 위한 자격인증 교육프로그램 운영</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>학부 및 대학원생, Post-doc 대상 연구 인턴십 프로그램</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>글로벌 현장실습 교육 참여 인력 양성 및 지원</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 국제협력 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow">
+                    <div class="h-2 bg-purple-600"></div>
+                    <div class="p-6">
+                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4 mx-auto">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4 text-center">국제협력</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-500 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>국내외 디지털헬스케어 연구기관들과 협력 체계 구축</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-500 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>국내 및 국제학술대회의 참여와 학술행사 유치로 연구 협력 확대</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-500 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>글로벌 건강운동 전문가 자격 표준화 추진</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 기타 연구 지원활동 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow">
+                    <div class="h-2 bg-orange-600"></div>
+                    <div class="p-6">
+                        <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4 mx-auto">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4 text-center">기타 연구 지원활동</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>스포츠 현장의 신규 디지털 서비스 수요 파악 및 대응</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>디지털헬스케어 분야 스타트업에 대한 자문 및 공동 연구개발</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-500 mr-2 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>산업체-학계 간 공동 프로젝트 중개 및 지원</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 민간자격 관리 운영 섹션 -->
+            <div class="mb-16">
+                <h2 class="text-3xl font-bold mb-8 text-center">민간자격 관리 운영</h2>
+                
+                <div class="bg-gray-50 rounded-xl p-8 mb-8">
+                    <h3 class="text-2xl font-bold mb-6">자격증 종류</h3>
+                    
+                    <div class="space-y-6">
+                        <!-- 건강운동처방사 -->
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h4 class="text-xl font-bold mb-3 flex items-center text-blue-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                                건강운동처방사
+                            </h4>
+                            <div class="ml-8">
+                                <p class="mb-3"><strong>직무내용:</strong> 개인 또는 집단의 건강 상태와 체력 수준을 평가하고, 그에 맞는 운동프로그램을 계획·지도·관리하는 전문가로서 건강 증진, 질병 예방 및 재활을 목표로 체계적인 운동처방을 지도하는 업무를 수행</p>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                    <div>
+                                        <h5 class="font-bold mb-2">등급별 직무내용</h5>
+                                        <ul class="space-y-1 text-sm">
+                                            <li><strong>1급:</strong> 만성질환자, 재활 대상자, 스포츠 선수, 노인 등의 건강관리 및 고급 운동 프로그램 설계와 연구에 관한 직무를 수행</li>
+                                            <li><strong>2급:</strong> 일반인과 기초 체력 증진이 필요한 대상자를 중심으로 맞춤형 운동을 설계하고 지도하는 직무를 수행</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-bold mb-2">등급별 검정기준</h5>
+                                        <ul class="space-y-1 text-sm">
+                                            <li><strong>1급:</strong> 전문가 수준으로, 체계적인 운동프로그램을 개발 및 측정, 평가하고 교육을 관리할 수 있는 직무의 능력을 갖춘 자</li>
+                                            <li><strong>2급:</strong> 기초 건강 평가와 일반인을 위한 맞춤형 운동프로그램을 지도할 수 있는 직무의 능력을 갖춘 자</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 운동재활전문가 -->
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h4 class="text-xl font-bold mb-3 flex items-center text-green-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                </svg>
+                                운동재활전문가
+                            </h4>
+                            <div class="ml-8">
+                                <p class="mb-3"><strong>직무내용:</strong> 근골격계 손상과 관련된 운동 재활, 부상 예방 및 회복, 운동 능력 향상을 목적으로 스포츠센터, 노인 복지관, 장애아동센터 등에서 전문적인 운동 재활을 지도하는 업무를 수행</p>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                    <div>
+                                        <h5 class="font-bold mb-2">등급별 직무내용</h5>
+                                        <ul class="space-y-1 text-sm">
+                                            <li><strong>1급:</strong> 근골격계 손상 및 재활에 대한 전문 지식을 활용해 선수 및 일반인의 운동 능력 향상, 재활 지원, 맞춤형 운동 재활 프로그램을 설계 및 지도하는 직무를 수행</li>
+                                            <li><strong>2급:</strong> 기초적인 운동 손상과 재활의 이해를 바탕으로 선수 및 일반인의 근육 피로 회복과 부상 예방을 지원하며, 기본적인 신체 상태 평가 및 지도하는 직무를 수행</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-bold mb-2">등급별 검정기준</h5>
+                                        <ul class="space-y-1 text-sm">
+                                            <li><strong>1급:</strong> 기능해부학, 운동생리학 지식을 바탕으로 선수 및 일반인을 위한 운동 재활 지원 능력을 갖춘 자</li>
+                                            <li><strong>2급:</strong> 기초적인 재활 테이핑 및 스포츠 마사지 이론과 실기를 습득하여 선수 및 일반인을 위한 운동재활 지원 능력을 갖춘 자</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 필라테스 전문가 -->
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h4 class="text-xl font-bold mb-3 flex items-center text-purple-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                필라테스 전문가
+                            </h4>
+                            <div class="ml-8">
+                                <p class="mb-3"><strong>직무내용:</strong> 개인의 체형, 체력, 건강 상태를 평가하여 필라테스 동작과 기구를 활용한 맞춤형 운동프로그램을 설계하고 지도하며, 신체 균형과 코어 근력 강화, 자세 교정, 유연성 향상을 지도하는 업무를 수행</p>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                    <div>
+                                        <h5 class="font-bold mb-2">등급별 직무내용</h5>
+                                        <ul class="space-y-1 text-sm">
+                                            <li><strong>1급:</strong> 필라테스 기구와 고급 운동 이론을 활용해 특수 대상자(임산부, 재활 대상자, 고령층 등)를 포함한 맞춤형 프로그램을 설계·지도하며, 신체 불균형 교정과 전문적인 운동 효과를 지도하는 직무를 수행</li>
+                                            <li><strong>2급:</strong> 기본적인 필라테스 동작과 소도구를 활용하여 일반인의 체형 교정, 유연성 향상, 그리고 기초적인 코어 근력 강화를 지도하는 직무를 수행</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-bold mb-2">등급별 검정기준</h5>
+                                        <ul class="space-y-1 text-sm">
+                                            <li><strong>1급:</strong> 필라테스 기구와 고급 운동 이론을 바탕으로 특수 대상자(재활, 임산부, 고령층 등)를 포함한 맞춤형 프로그램 설계와 지도 능력을 갖춘 자</li>
+                                            <li><strong>2급:</strong> 기본적인 필라테스 원리와 동작을 이해하고, 일반인을 대상으로 필라테스 동작과 소도구를 활용해 기초적인 운동 지도 능력을 갖춘 자</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 레크리에이션지도자 -->
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h4 class="text-xl font-bold mb-3 flex items-center text-orange-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                레크리에이션지도자
+                            </h4>
+                            <div class="ml-8">
+                                <p class="mb-3"><strong>직무내용:</strong> 다양한 레크리에이션 기법을 통해 인간관계 형성과 심리적, 신체적, 사회적 건강을 증진시키는 교육 업무를 수행</p>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                    <div>
+                                        <h5 class="font-bold mb-2">등급별 직무내용</h5>
+                                        <ul class="space-y-1 text-sm">
+                                            <li><strong>1급:</strong> 캠프, 사교 모임 등에서 여가 활동을 즐길 수 있도록 전문가 수준의 다양한 오락 프로그램을 계획하고 진행, 지도하는 직무를 수행</li>
+                                            <li><strong>2급:</strong> 긍정적인 사고 형성과 커뮤니케이션 향상을 위한 준전문가 수준의 다양한 레크리에이션 활동(노래, 율동, 게임 등)을 지도하는 직무를 수행</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-bold mb-2">등급별 검정기준</h5>
+                                        <ul class="space-y-1 text-sm">
+                                            <li><strong>1급:</strong> 레크리에이션의 프로그램 기획 및 운영관리를 교육할 수 있는 직무의 능력을 갖춘 자</li>
+                                            <li><strong>2급:</strong> 기본적인 레크리에이션 프로그램(노래, 율동, 게임 등)을 교육할 수 있는 직무의 능력을 갖춘 자</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 자격증 관리 섹션 -->
+                <div class="bg-gray-50 rounded-xl p-8">
+                    <h3 class="text-2xl font-bold mb-6">자격증 발급 및 관리 프로세스</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <!-- 교육 -->
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                                <span class="text-blue-600 text-xl font-bold">1</span>
+                            </div>
+                            <h4 class="text-xl font-bold mb-2">교육</h4>
+                            <p class="text-gray-700 mb-4">총 15시간 (이론 8시간 + 실습 6시간 + 평가 1시간)의 체계적인 교육 과정</p>
+                            <p class="text-gray-700">전문 강사진의 이론 강의와 현장 중심 실습을 통해 실무 역량 강화</p>
+                        </div>
+                        
+                        <!-- 평가 -->
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                                <span class="text-green-600 text-xl font-bold">2</span>
+                            </div>
+                            <h4 class="text-xl font-bold mb-2">평가</h4>
+                            <p class="text-gray-700 mb-4">필기시험 (60%) + 실기평가 (30%) + 태도 (10%)로 종합적인 평가 시행</p>
+                            <p class="text-gray-700">합격 기준: 총점 70점 이상 취득 시 합격</p>
+                        </div>
+                        
+                        <!-- 자격증 갱신 -->
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                                <span class="text-purple-600 text-xl font-bold">3</span>
+                            </div>
+                            <h4 class="text-xl font-bold mb-2">자격증 갱신</h4>
+                            <p class="text-gray-700 mb-4">유효기간: 3년</p>
+                            <p class="text-gray-700">갱신 요건: 보수교육 이수 또는 디지털 헬스기기 활용 사례 보고서 제출</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 비용 정보 -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h4 class="text-xl font-bold mb-4">비용 안내</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="border px-4 py-2 text-left">항목</th>
+                                        <th class="border px-4 py-2 text-right">비용</th>
+                                        <th class="border px-4 py-2 text-left">비고</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="border px-4 py-2">수강료</td>
+                                        <td class="border px-4 py-2 text-right">150,000원</td>
+                                        <td class="border px-4 py-2">교육 과정 수강비</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border px-4 py-2">인증료</td>
+                                        <td class="border px-4 py-2 text-right">70,000원</td>
+                                        <td class="border px-4 py-2">자격증 발급 및 관리 비용</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border px-4 py-2">강의 교재</td>
+                                        <td class="border px-4 py-2 text-right">20,000원</td>
+                                        <td class="border px-4 py-2">선택사항</td>
+                                    </tr>
+                                    <tr class="bg-gray-50 font-bold">
+                                        <td class="border px-4 py-2">합계</td>
+                                        <td class="border px-4 py-2 text-right">240,000원</td>
+                                        <td class="border px-4 py-2">교재 포함 시</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 연구 센터 프로젝트 -->
+            <div class="mb-16">
+                <h2 class="text-3xl font-bold mb-8 text-center">연구 센터 프로젝트</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- 연구소 1 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="h-3 bg-blue-600"></div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-4">질병관리연구소</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-start">
+                                    <div class="bg-blue-100 rounded-full p-1 mr-3 mt-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold">만성질환연구팀</h4>
+                                        <p class="text-gray-700 text-sm">만성질환 예방 및 관리를 위한 맞춤형 운동 프로그램 개발</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-blue-100 rounded-full p-1 mr-3 mt-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold">건강증진연구팀</h4>
+                                        <p class="text-gray-700 text-sm">다양한 연령대별 건강 증진을 위한 운동 중재 프로그램 연구</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 연구소 2 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="h-3 bg-green-600"></div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-4">운동건강연구소</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-start">
+                                    <div class="bg-green-100 rounded-full p-1 mr-3 mt-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold">운동과학연구팀</h4>
+                                        <p class="text-gray-700 text-sm">운동과학 기반의 과학적 운동 프로그램 개발 및 효과 검증</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-green-100 rounded-full p-1 mr-3 mt-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold">운동재활연구팀</h4>
+                                        <p class="text-gray-700 text-sm">손상 후 재활을 위한 맞춤형 운동 프로그램 개발</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-green-100 rounded-full p-1 mr-3 mt-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold">건강영양연구팀</h4>
+                                        <p class="text-gray-700 text-sm">운동과 영양의 통합적 접근을 통한 건강 증진 프로그램 개발</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-green-100 rounded-full p-1 mr-3 mt-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold">건강정서연구팀</h4>
+                                        <p class="text-gray-700 text-sm">운동을 통한 정서적 건강 향상 방안 연구</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 부서 1 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="h-3 bg-purple-600"></div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-4">연구지원부</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-start">
+                                    <div class="bg-purple-100 rounded-full p-1 mr-3 mt-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold">인사팀</h4>
+                                        <p class="text-gray-700 text-sm">연구인력 채용 및 인사 관리</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-purple-100 rounded-full p-1 mr-3 mt-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold">재무팀</h4>
+                                        <p class="text-gray-700 text-sm">연구비 관리 및 재정 지원</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-purple-100 rounded-full p-1 mr-3 mt-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold">총무팀</h4>
+                                        <p class="text-gray-700 text-sm">행정 지원 및 시설 관리</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 부서 2 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="h-3 bg-orange-600"></div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-4">교육지원부</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-start">
+                                    <div class="bg-orange-100 rounded-full p-1 mr-3 mt-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold">교육프로그램개발팀</h4>
+                                        <p class="text-gray-700 text-sm">자격증 교육 프로그램 개발 및 교재 제작</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-orange-100 rounded-full p-1 mr-3 mt-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold">학회, 학술지 지원팀</h4>
+                                        <p class="text-gray-700 text-sm">학술 활동 및 출판물 지원</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-orange-100 rounded-full p-1 mr-3 mt-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold">홍보팀</h4>
+                                        <p class="text-gray-700 text-sm">센터 홍보 및 마케팅 활동</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CTA 섹션 -->
+            <div class="bg-gradient-to-r from-blue-600 to-green-500 rounded-xl p-8 text-white text-center">
+                <h2 class="text-2xl font-bold mb-4">디지털헬스케어센터의 사업에 참여하세요</h2>
+                <p class="text-lg mb-6 max-w-2xl mx-auto">
+                    연구, 교육, 국제협력 등 다양한 사업을 통해 건강운동 분야의
+                    전문가로 성장하고 함께 발전해 나가세요.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="../education/course-info.html" class="bg-white text-blue-600 hover:bg-gray-100 px-6 py-3 rounded-md font-medium">교육 과정 알아보기</a>
+                    <a href="../certificate/health-exercise.html" class="bg-transparent hover:bg-white hover:text-blue-600 text-white border border-white px-6 py-3 rounded-md font-medium">자격증 정보 보기</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 푸터 영역 -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-4">디지털헬스케어센터</h3>
+                    <p class="text-gray-400 mb-4">운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼</p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                                <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                                <rect x="2" y="9" width="4" height="12"></rect>
+                                <circle cx="4" cy="4" r="2"></circle>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">바로가기</h3>
+                    <ul class="space-y-2">
+                        <li><a href="overview.html" class="text-gray-400 hover:text-white">기관 소개</a></li>
+                        <li><a href="../certificate/health-exercise.html" class="text-gray-400 hover:text-white">자격증 소개</a></li>
+                        <li><a href="../education/course-info.html" class="text-gray-400 hover:text-white">교육 과정</a></li>
+                        <li><a href="../board/notice/index.html" class="text-gray-400 hover:text-white">공지사항</a></li>
+                        <li><a href="../board/column/index.html" class="text-gray-400 hover:text-white">전문가 칼럼</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">자격증 정보</h3>
+                    <ul class="space-y-2">
+                        <li><a href="../certificate/health-exercise.html" class="text-gray-400 hover:text-white">건강운동처방사</a></li>
+                        <li><a href="../certificate/rehabilitation.html" class="text-gray-400 hover:text-white">운동재활전문가</a></li>
+                        <li><a href="../certificate/pilates.html" class="text-gray-400 hover:text-white">필라테스 전문가</a></li>
+                        <li><a href="../certificate/recreation.html" class="text-gray-400 hover:text-white">레크리에이션지도자</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">고객 지원</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            </svg>
+                            <span>02-123-4567</span>
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            <span>info@digitalhealthcare.org</span>
+                        </li>
+                        <li class="flex items-center text-gray-400 mt-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <span>서울특별시 강남구 테헤란로 123</span>
+                        </li>
+                    </ul>
+                    <div class="mt-4">
+                        <a href="#" class="text-blue-400 hover:text-blue-300">문의하기</a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-sm text-gray-400">
+                <div class="flex flex-col md:flex-row justify-between">
+                    <div class="mb-4 md:mb-0">
+                        <p>&copy; 2025 디지털헬스케어센터. All rights reserved.</p>
+                    </div>
+                    <div class="flex space-x-4">
+                        <a href="#" class="hover:text-white">개인정보처리방침</a>
+                        <a href="#" class="hover:text-white">이용약관</a>
+                        <a href="#" class="hover:text-white">사이트맵</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="../../lib/firebase/firebase-app.js"></script>
+    <script src="../../lib/firebase/firebase-auth.js"></script>
+    <script src="../../lib/firebase/firebase-firestore.js"></script>
+    <script src="../../lib/firebase/firebase-storage.js"></script>
+    
+    <!-- JavaScript 파일 -->
+    <script src="../../assets/js/config/firebase-config.js"></script>
+    <script src="../../assets/js/services/auth-service.js"></script>
+    <script src="../../assets/js/components/header.js"></script>
+    <script src="../../assets/js/main.js"></script>
+</body>
+</html>

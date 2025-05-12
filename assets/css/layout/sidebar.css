@@ -1,0 +1,157 @@
+/* 
+ * 사이드바 CSS 파일
+ * 이 파일은 사이드바 스타일을 정의합니다.
+ */
+
+/* 기본 사이드바 */
+.sidebar {
+    background-color: var(--background-white);
+    border-right: 1px solid var(--border-light);
+    height: 100%;
+    padding: 1.5rem;
+    position: fixed;
+    top: 0;
+    width: 250px;
+    z-index: var(--z-index-fixed);
+  }
+  
+  /* 사이드바 헤더 */
+  .sidebar-header {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+  
+  .sidebar-header .logo img {
+    height: 40px;
+    width: auto;
+  }
+  
+  /* 사이드바 닫기 버튼 */
+  .sidebar-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    padding: 0;
+  }
+  
+  /* 사이드바 메뉴 */
+  .sidebar-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .sidebar-menu li {
+    margin-bottom: 0.25rem;
+  }
+  
+  .sidebar-menu a {
+    border-radius: var(--border-radius);
+    color: var(--text-primary);
+    display: block;
+    padding: 0.75rem 1rem;
+    text-decoration: none;
+    transition: all 0.15s ease-in-out;
+  }
+  
+  .sidebar-menu a:hover,
+  .sidebar-menu a:focus {
+    background-color: var(--background-light);
+    color: var(--primary-color);
+  }
+  
+  .sidebar-menu a.active {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  /* 사이드바 서브메뉴 */
+  .sidebar-submenu {
+    list-style: none;
+    margin: 0.5rem 0 0.5rem 1rem;
+    padding: 0;
+  }
+  
+  .sidebar-submenu a {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+  }
+  
+  /* 사이드바 구분선 */
+  .sidebar-divider {
+    background-color: var(--border-light);
+    height: 1px;
+    margin: 1.5rem 0;
+    width: 100%;
+  }
+  
+  /* 사이드바 푸터 */
+  .sidebar-footer {
+    bottom: 0;
+    left: 0;
+    padding: 1.5rem;
+    position: absolute;
+    width: 100%;
+  }
+  
+  /* 사이드바 접힘/펼침 토글 */
+  .sidebar-toggle {
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: 50%;
+    bottom: 1.5rem;
+    box-shadow: var(--shadow-md);
+    color: white;
+    cursor: pointer;
+    height: 3rem;
+    position: fixed;
+    right: 1.5rem;
+    width: 3rem;
+    z-index: var(--z-index-fixed);
+  }
+  
+  /* 접힌 사이드바 */
+  .sidebar.collapsed {
+    transform: translateX(-100%);
+  }
+  
+  /* 오버레이 */
+  .sidebar-overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    height: 100%;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: calc(var(--z-index-fixed) - 1);
+  }
+  
+  .sidebar-overlay.active {
+    display: block;
+  }
+  
+  /* 메인 콘텐츠 조정 */
+  .has-sidebar .main-content {
+    margin-left: 250px;
+  }
+  
+  /* 반응형 조정 */
+  @media (max-width: 768px) {
+    .sidebar {
+      transform: translateX(-100%);
+      transition: transform 0.3s ease-in-out;
+    }
+    
+    .sidebar.active {
+      transform: translateX(0);
+    }
+    
+    .has-sidebar .main-content {
+      margin-left: 0;
+    }
+  }

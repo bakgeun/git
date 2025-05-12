@@ -1,0 +1,611 @@
+<!-- pages/about/organization.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>조직도 - 디지털헬스케어센터</title>
+    <!-- 파비콘 -->
+    <link rel="shortcut icon" href="../../favicon.ico" type="image/x-icon">
+    <!-- CSS 파일 -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <!-- 노토 산스 KR 폰트 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 헤더 영역 -->
+    <header id="main-header" class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <!-- 로고 -->
+            <div class="logo">
+                <a href="../../index.html">
+                    <img src="../../assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" width="180">
+                </a>
+            </div>
+
+            <!-- 메인 네비게이션 -->
+            <nav class="main-nav hidden md:flex">
+                <ul class="flex space-x-6">
+                    <li class="group relative">
+                        <a href="#" class="text-blue-600 font-bold py-2">기관 소개</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="overview.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">개요</a></li>
+                            <li><a href="vision.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">목표 및 전략</a></li>
+                            <li><a href="business.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">사업 내용</a></li>
+                            <li><a href="organization.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600">조직도</a></li>
+                            <li><a href="instructors.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">자격증 소개</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="../certificate/health-exercise.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">건강운동처방사</a></li>
+                            <li><a href="../certificate/rehabilitation.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동재활전문가</a></li>
+                            <li><a href="../certificate/pilates.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스 전문가</a></li>
+                            <li><a href="../certificate/recreation.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">교육 과정</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="../education/course-info.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 과정 안내</a></li>
+                            <li><a href="../education/course-application.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
+                            <li><a href="../education/cert-application.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">자격증 신청</a></li>
+                            <li><a href="../education/exam-info.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">시험 안내</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">게시판</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="../board/notice/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">공지사항</a></li>
+                            <li><a href="../board/column/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">칼럼</a></li>
+                            <li><a href="../board/materials/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">강의자료</a></li>
+                            <li><a href="../board/videos/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">동영상 강의</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            
+            <!-- 인증 버튼 영역 -->
+            <div class="auth-buttons flex items-center">
+                <a href="../auth/login.html" class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
+                <a href="../auth/signup.html" class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
+                <button id="mobile-menu-button" class="md:hidden ml-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- 모바일 메뉴 -->
+        <div id="mobile-menu" class="hidden md:hidden shadow-md">
+            <div class="container mx-auto px-4 py-3">
+                <!-- 모바일 메뉴 내용은 JavaScript로 동적 생성 -->
+            </div>
+        </div>
+    </header>
+
+    <!-- 페이지 제목 영역 -->
+    <div class="bg-gradient-to-r from-blue-600 to-green-500 text-white py-12">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">조직도</h1>
+            <p class="text-lg">디지털헬스케어센터의 조직 구성과 체계를 소개합니다.</p>
+        </div>
+    </div>
+
+    <!-- 내비게이션 탭 -->
+    <div class="bg-white border-b sticky top-0 z-20">
+        <div class="container mx-auto px-4">
+            <ul class="flex overflow-x-auto py-4 space-x-6">
+                <li><a href="overview.html" class="text-gray-700 hover:text-blue-600 pb-2">개요</a></li>
+                <li><a href="vision.html" class="text-gray-700 hover:text-blue-600 pb-2">목표 및 전략</a></li>
+                <li><a href="business.html" class="text-gray-700 hover:text-blue-600 pb-2">사업 내용</a></li>
+                <li><a href="organization.html" class="text-blue-600 border-b-2 border-blue-600 pb-2 font-bold">조직도</a></li>
+                <li><a href="instructors.html" class="text-gray-700 hover:text-blue-600 pb-2">강사 소개</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="py-12">
+        <div class="container mx-auto px-4">
+            <!-- 조직도 소개 -->
+            <div class="mb-16">
+                <h2 class="text-3xl font-bold mb-6 text-center">디지털헬스케어센터 조직 체계</h2>
+                <p class="text-lg text-gray-700 mb-8 max-w-4xl mx-auto text-center">
+                    디지털헬스케어센터는 체계적이고 효율적인 운영을 위해 다음과 같은 조직 구조를 갖추고 있습니다.
+                    각 부서와 연구소는 유기적으로 협력하여 전문인력 양성과 연구 발전에 기여하고 있습니다.
+                </p>
+                
+                <!-- 조직도 다이어그램 -->
+                <div class="bg-gray-50 rounded-xl p-8 mb-12">
+                    <div class="mx-auto max-w-4xl">
+                        <!-- 조직도 구조 -->
+                        <div class="flex flex-col items-center">
+                            <!-- 센터장 -->
+                            <div class="bg-blue-600 text-white py-4 px-8 rounded-lg mb-8 w-48 text-center">
+                                <h3 class="font-bold text-lg">센터장</h3>
+                            </div>
+                            
+                            <!-- 위원회 -->
+                            <div class="grid grid-cols-2 gap-8 w-full mb-8">
+                                <div class="bg-gray-600 text-white py-3 px-6 rounded-lg text-center">
+                                    <h3 class="font-medium">자문위원회</h3>
+                                </div>
+                                <div class="bg-gray-600 text-white py-3 px-6 rounded-lg text-center">
+                                    <h3 class="font-medium">연구위원회</h3>
+                                </div>
+                            </div>
+                            
+                            <!-- 부서 -->
+                            <div class="grid grid-cols-2 gap-8 w-full mb-8">
+                                <div class="bg-blue-500 text-white py-3 px-6 rounded-lg text-center">
+                                    <h3 class="font-medium">연구부</h3>
+                                </div>
+                                <div class="bg-green-500 text-white py-3 px-6 rounded-lg text-center">
+                                    <h3 class="font-medium">지원부</h3>
+                                </div>
+                            </div>
+                            
+                            <!-- 하위 부서 -->
+                            <div class="grid grid-cols-5 gap-4 w-full">
+                                <div class="bg-blue-100 text-blue-800 py-2 px-3 rounded text-center text-sm">
+                                    <h4 class="font-medium">질병관리연구소</h4>
+                                </div>
+                                <div class="bg-blue-100 text-blue-800 py-2 px-3 rounded text-center text-sm">
+                                    <h4 class="font-medium">운동건강연구소</h4>
+                                </div>
+                                <div class="bg-blue-100 text-blue-800 py-2 px-3 rounded text-center text-sm">
+                                    <h4 class="font-medium">연구지원부</h4>
+                                </div>
+                                <div class="bg-green-100 text-green-800 py-2 px-3 rounded text-center text-sm">
+                                    <h4 class="font-medium">교육지원부</h4>
+                                </div>
+                                <div class="bg-green-100 text-green-800 py-2 px-3 rounded text-center text-sm">
+                                    <h4 class="font-medium">연구개발부</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 세부 조직 정보 -->
+            <div class="mb-16">
+                <h2 class="text-2xl font-bold mb-8">주요 조직 구성</h2>
+                
+                <!-- 센터장 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+                    <div class="bg-blue-600 py-3 px-6">
+                        <h3 class="text-xl font-bold text-white">센터장</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex flex-col md:flex-row items-center md:items-start gap-8">
+                            <div class="w-48 h-48 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
+                                <img src="../../assets/images/about/director.jpg" alt="센터장 프로필" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-bold mb-2">김건강 센터장</h4>
+                                <p class="text-gray-700 mb-4">
+                                    서울대학교 스포츠과학과 교수<br>
+                                    운동생리학 박사<br>
+                                    전) 한국운동과학회 회장<br>
+                                    현) 국제건강운동협회 이사
+                                </p>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h5 class="font-bold mb-2">인사말</h5>
+                                    <p class="text-gray-700">
+                                        "디지털헬스케어센터는 운동과학 기반의 전문지식과 디지털 기술을 결합하여 
+                                        현장에서 필요로 하는 실무형 전문인력 양성에 최선을 다하고 있습니다. 
+                                        우리 센터는 건강한 사회 구현을 위한 전문가 양성의 요람으로서 
+                                        여러분의 꿈과 열정을 응원합니다."
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 위원회 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <!-- 자문위원회 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="bg-gray-600 py-3 px-6">
+                            <h3 class="text-xl font-bold text-white">자문위원회</h3>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-gray-700 mb-4">
+                                센터의 주요 정책과 운영 방향에 대한 자문 역할을 수행하며, 
+                                각 분야의 전문가들로 구성되어 있습니다.
+                            </p>
+                            <h4 class="font-bold mb-2">주요 업무</h4>
+                            <ul class="list-disc list-inside space-y-1 text-gray-700 mb-4">
+                                <li>센터 운영 정책 자문</li>
+                                <li>교육 프로그램 검토 및 자문</li>
+                                <li>자격 인증 기준 검토</li>
+                                <li>발전 계획 수립 자문</li>
+                            </ul>
+                            <h4 class="font-bold mb-2">위원 구성</h4>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div class="bg-gray-50 p-2 rounded">
+                                    <p class="font-bold">이병원 위원장</p>
+                                    <p class="text-gray-600">한국스포츠의학회 회장</p>
+                                </div>
+                                <div class="bg-gray-50 p-2 rounded">
+                                    <p class="font-bold">박운동 위원</p>
+                                    <p class="text-gray-600">국립체육대학 교수</p>
+                                </div>
+                                <div class="bg-gray-50 p-2 rounded">
+                                    <p class="font-bold">최건강 위원</p>
+                                    <p class="text-gray-600">건강관리협회 이사</p>
+                                </div>
+                                <div class="bg-gray-50 p-2 rounded">
+                                    <p class="font-bold">정디지털 위원</p>
+                                    <p class="text-gray-600">디지털헬스산업협회 회장</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 연구위원회 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="bg-gray-600 py-3 px-6">
+                            <h3 class="text-xl font-bold text-white">연구위원회</h3>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-gray-700 mb-4">
+                                센터의 연구 방향과 주요 연구 프로젝트에 대한 심의 및 자문 역할을 수행합니다.
+                                학계와 산업계의 전문가들로 구성되어 있습니다.
+                            </p>
+                            <h4 class="font-bold mb-2">주요 업무</h4>
+                            <ul class="list-disc list-inside space-y-1 text-gray-700 mb-4">
+                                <li>연구 과제 심의 및 선정</li>
+                                <li>연구 성과 평가</li>
+                                <li>연구 윤리 심의</li>
+                                <li>연구 방향성 제시</li>
+                            </ul>
+                            <h4 class="font-bold mb-2">위원 구성</h4>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div class="bg-gray-50 p-2 rounded">
+                                    <p class="font-bold">김연구 위원장</p>
+                                    <p class="text-gray-600">한국연구재단 전문위원</p>
+                                </div>
+                                <div class="bg-gray-50 p-2 rounded">
+                                    <p class="font-bold">이학술 위원</p>
+                                    <p class="text-gray-600">중앙대학교 운동의학과 교수</p>
+                                </div>
+                                <div class="bg-gray-50 p-2 rounded">
+                                    <p class="font-bold">박과학 위원</p>
+                                    <p class="text-gray-600">국립스포츠과학원 연구원</p>
+                                </div>
+                                <div class="bg-gray-50 p-2 rounded">
+                                    <p class="font-bold">최첨단 위원</p>
+                                    <p class="text-gray-600">헬스테크기업 대표</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 부서 설명 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <!-- 연구부 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="bg-blue-500 py-3 px-6">
+                            <h3 class="text-xl font-bold text-white">연구부</h3>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-gray-700 mb-4">
+                                디지털헬스케어센터의 핵심 연구 활동을 담당하는 부서로, 
+                                운동과학 기반 건강관리 및 디지털 헬스케어 관련 연구를 수행합니다.
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <h4 class="font-bold mb-2 text-blue-800">질병관리연구소</h4>
+                                    <ul class="list-disc list-inside text-sm space-y-1 text-gray-700">
+                                        <li>만성질환연구팀</li>
+                                        <li>건강증진연구팀</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <h4 class="font-bold mb-2 text-blue-800">운동건강연구소</h4>
+                                    <ul class="list-disc list-inside text-sm space-y-1 text-gray-700">
+                                        <li>운동과학연구팀</li>
+                                        <li>운동재활연구팀</li>
+                                        <li>건강영양연구팀</li>
+                                        <li>건강정서연구팀</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h4 class="font-bold mb-2 text-blue-800">연구지원부</h4>
+                                <ul class="list-disc list-inside text-sm space-y-1 text-gray-700">
+                                    <li>인사팀 - 연구인력 채용 및 인사 관리</li>
+                                    <li>재무팀 - 연구비 관리 및 재정 지원</li>
+                                    <li>총무팀 - 행정 지원 및 시설 관리</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 지원부 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="bg-green-500 py-3 px-6">
+                            <h3 class="text-xl font-bold text-white">지원부</h3>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-gray-700 mb-4">
+                                교육 프로그램 운영 및 자격증 관리, 대외 활동 등 
+                                센터의 주요 사업을 지원하는 부서입니다.
+                            </p>
+                            <div class="grid grid-cols-1 gap-4 mb-4">
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <h4 class="font-bold mb-2 text-green-800">교육지원부</h4>
+                                    <ul class="list-disc list-inside text-sm space-y-1 text-gray-700">
+                                        <li>교육프로그램개발팀 - 자격증 교육 프로그램 개발 및 교재 제작</li>
+                                        <li>학회, 학술지 지원팀 - 학술 활동 및 출판물 지원</li>
+                                        <li>홍보팀 - 센터 홍보 및 마케팅 활동</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <h4 class="font-bold mb-2 text-green-800">연구개발부</h4>
+                                    <ul class="list-disc list-inside text-sm space-y-1 text-gray-700">
+                                        <li>국내협력팀 - 국내 교육기관 및 산업체 협력 관리</li>
+                                        <li>국제협력팀 - 국제 교류 및 협력 프로그램 운영</li>
+                                        <li>자격관리팀 - 자격증 인증 및 갱신 관리</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 연락처 정보 -->
+            <div class="bg-gray-50 rounded-xl p-8 mb-16">
+                <h2 class="text-2xl font-bold mb-6 text-center">부서별 연락처</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border px-4 py-2 text-left">부서명</th>
+                                <th class="border px-4 py-2 text-left">담당자</th>
+                                <th class="border px-4 py-2 text-left">연락처</th>
+                                <th class="border px-4 py-2 text-left">이메일</th>
+                                <th class="border px-4 py-2 text-left">업무 내용</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="border px-4 py-2 font-medium">센터 대표</td>
+                                <td class="border px-4 py-2">행정실</td>
+                                <td class="border px-4 py-2">02-123-4567</td>
+                                <td class="border px-4 py-2">info@digitalhealthcare.org</td>
+                                <td class="border px-4 py-2">일반 문의</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="border px-4 py-2 font-medium">연구부</td>
+                                <td class="border px-4 py-2">이연구 부장</td>
+                                <td class="border px-4 py-2">02-123-4568</td>
+                                <td class="border px-4 py-2">research@digitalhealthcare.org</td>
+                                <td class="border px-4 py-2">연구 관련 문의</td>
+                            </tr>
+                            <tr>
+                                <td class="border px-4 py-2 font-medium">교육지원부</td>
+                                <td class="border px-4 py-2">박교육 부장</td>
+                                <td class="border px-4 py-2">02-123-4569</td>
+                                <td class="border px-4 py-2">edu@digitalhealthcare.org</td>
+                                <td class="border px-4 py-2">교육 과정 및 강의 문의</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="border px-4 py-2 font-medium">자격관리팀</td>
+                                <td class="border px-4 py-2">김자격 팀장</td>
+                                <td class="border px-4 py-2">02-123-4570</td>
+                                <td class="border px-4 py-2">cert@digitalhealthcare.org</td>
+                                <td class="border px-4 py-2">자격증 신청 및 갱신 문의</td>
+                            </tr>
+                            <tr>
+                                <td class="border px-4 py-2 font-medium">홍보팀</td>
+                                <td class="border px-4 py-2">최홍보 팀장</td>
+                                <td class="border px-4 py-2">02-123-4571</td>
+                                <td class="border px-4 py-2">pr@digitalhealthcare.org</td>
+                                <td class="border px-4 py-2">언론 및 홍보 문의</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-sm text-gray-500 mt-4 text-center">
+                    * 업무 시간: 평일 09:00 ~ 18:00 (점심시간 12:00 ~ 13:00, 주말 및 공휴일 휴무)
+                </p>
+            </div>
+            
+            <!-- 위치 정보 -->
+            <div class="mb-16">
+                <h2 class="text-2xl font-bold mb-6 text-center">찾아오시는 길</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden h-96">
+                        <!-- 지도 이미지 (실제 구현 시 지도 API 연동 필요) -->
+                        <img src="../../assets/images/about/map.jpg" alt="디지털헬스케어센터 위치" class="w-full h-full object-cover">
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden p-6">
+                        <h3 class="text-xl font-bold mb-4">디지털헬스케어센터</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-3 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                <div>
+                                    <h4 class="font-bold">주소</h4>
+                                    <p class="text-gray-700">서울특별시 강남구 테헤란로 123 디지털헬스빌딩 5층</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-3 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                </svg>
+                                <div>
+                                    <h4 class="font-bold">대표전화</h4>
+                                    <p class="text-gray-700">02-123-4567</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-3 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <div>
+                                    <h4 class="font-bold">업무시간</h4>
+                                    <p class="text-gray-700">평일 09:00 ~ 18:00 (점심시간 12:00 ~ 13:00)</p>
+                                    <p class="text-gray-700">주말 및 공휴일 휴무</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-3 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                <div>
+                                    <h4 class="font-bold">이메일</h4>
+                                    <p class="text-gray-700">info@digitalhealthcare.org</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-3 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                <div>
+                                    <h4 class="font-bold">교통편</h4>
+                                    <p class="text-gray-700">2호선 강남역 3번 출구에서 도보 5분</p>
+                                    <p class="text-gray-700">버스: 강남역 정류장 하차 (146, 341, 360 등)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CTA 섹션 -->
+            <div class="bg-gradient-to-r from-blue-600 to-green-500 rounded-xl p-8 text-white text-center">
+                <h2 class="text-2xl font-bold mb-4">디지털헬스케어센터와 함께하세요</h2>
+                <p class="text-lg mb-6 max-w-2xl mx-auto">
+                    디지털헬스케어센터의 조직과 함께 건강운동 분야의
+                    전문가로 성장할 수 있는 기회를 놓치지 마세요.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="../education/course-info.html" class="bg-white text-blue-600 hover:bg-gray-100 px-6 py-3 rounded-md font-medium">교육 과정 알아보기</a>
+                    <a href="../certificate/health-exercise.html" class="bg-transparent hover:bg-white hover:text-blue-600 text-white border border-white px-6 py-3 rounded-md font-medium">자격증 정보 보기</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 푸터 영역 -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-4">디지털헬스케어센터</h3>
+                    <p class="text-gray-400 mb-4">운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼</p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                                <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                                <rect x="2" y="9" width="4" height="12"></rect>
+                                <circle cx="4" cy="4" r="2"></circle>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">바로가기</h3>
+                    <ul class="space-y-2">
+                        <li><a href="overview.html" class="text-gray-400 hover:text-white">기관 소개</a></li>
+                        <li><a href="../certificate/health-exercise.html" class="text-gray-400 hover:text-white">자격증 소개</a></li>
+                        <li><a href="../education/course-info.html" class="text-gray-400 hover:text-white">교육 과정</a></li>
+                        <li><a href="../board/notice/index.html" class="text-gray-400 hover:text-white">공지사항</a></li>
+                        <li><a href="../board/column/index.html" class="text-gray-400 hover:text-white">전문가 칼럼</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">자격증 정보</h3>
+                    <ul class="space-y-2">
+                        <li><a href="../certificate/health-exercise.html" class="text-gray-400 hover:text-white">건강운동처방사</a></li>
+                        <li><a href="../certificate/rehabilitation.html" class="text-gray-400 hover:text-white">운동재활전문가</a></li>
+                        <li><a href="../certificate/pilates.html" class="text-gray-400 hover:text-white">필라테스 전문가</a></li>
+                        <li><a href="../certificate/recreation.html" class="text-gray-400 hover:text-white">레크리에이션지도자</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">고객 지원</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            </svg>
+                            <span>02-123-4567</span>
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            <span>info@digitalhealthcare.org</span>
+                        </li>
+                        <li class="flex items-center text-gray-400 mt-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <span>서울특별시 강남구 테헤란로 123</span>
+                        </li>
+                    </ul>
+                    <div class="mt-4">
+                        <a href="#" class="text-blue-400 hover:text-blue-300">문의하기</a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-sm text-gray-400">
+                <div class="flex flex-col md:flex-row justify-between">
+                    <div class="mb-4 md:mb-0">
+                        <p>&copy; 2025 디지털헬스케어센터. All rights reserved.</p>
+                    </div>
+                    <div class="flex space-x-4">
+                        <a href="#" class="hover:text-white">개인정보처리방침</a>
+                        <a href="#" class="hover:text-white">이용약관</a>
+                        <a href="#" class="hover:text-white">사이트맵</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="../../lib/firebase/firebase-app.js"></script>
+    <script src="../../lib/firebase/firebase-auth.js"></script>
+    <script src="../../lib/firebase/firebase-firestore.js"></script>
+    <script src="../../lib/firebase/firebase-storage.js"></script>
+    
+    <!-- JavaScript 파일 -->
+    <script src="../../assets/js/config/firebase-config.js"></script>
+    <script src="../../assets/js/services/auth-service.js"></script>
+    <script src="../../assets/js/components/header.js"></script>
+    <script src="../../assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+/* 
+ * 색상 CSS 파일
+ * 이 파일은 웹사이트 전체에서 사용되는 색상 변수를 정의합니다.
+ */
+
+ :root {
+    /* 브랜드 색상 */
+    --primary-color: #2563eb; /* 파란색 - 메인 브랜드 색상 */
+    --primary-light: #3b82f6;
+    --primary-dark: #1d4ed8;
+    
+    --secondary-color: #1e40af; /* 진한 파란색 */
+    --secondary-light: #3151be;
+    --secondary-dark: #17348f;
+    
+    /* 강조 색상 */
+    --accent-color: #f59e0b; /* 노란색 - 강조 색상 */
+    --accent-light: #fbbf24;
+    --accent-dark: #d97706;
+    
+    /* 상태 색상 */
+    --success-color: #10b981; /* 초록색 */
+    --success-light: #34d399;
+    --success-dark: #059669;
+    
+    --warning-color: #f59e0b; /* 주황색 */
+    --warning-light: #fbbf24;
+    --warning-dark: #d97706;
+    
+    --danger-color: #ef4444; /* 빨간색 */
+    --danger-light: #f87171;
+    --danger-dark: #dc2626;
+    
+    --info-color: #3b82f6; /* 밝은 파란색 */
+    --info-light: #60a5fa;
+    --info-dark: #2563eb;
+    
+    /* 텍스트 색상 */
+    --text-primary: #111827; /* 거의 검은색 */
+    --text-secondary: #4b5563; /* 회색 */
+    --text-tertiary: #9ca3af; /* 밝은 회색 */
+    --text-light: #f9fafb; /* 흰색에 가까운 색 */
+    
+    /* 배경 색상 */
+    --background-white: #ffffff; /* 흰색 */
+    --background-light: #f9fafb; /* 밝은 배경 */
+    --background-medium: #f3f4f6; /* 중간 밝기 배경 */
+    --background-dark: #1f2937; /* 어두운 배경 - 푸터 등 */
+    
+    /* 경계선 색상 */
+    --border-light: #e5e7eb;
+    --border-medium: #d1d5db;
+    --border-dark: #9ca3af;
+    
+    /* 그림자 색상 */
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --shadow-color-dark: rgba(0, 0, 0, 0.2);
+  }
+  
+  /* 텍스트 색상 클래스 */
+  .text-primary { color: var(--text-primary); }
+  .text-secondary { color: var(--text-secondary); }
+  .text-tertiary { color: var(--text-tertiary); }
+  .text-light { color: var(--text-light); }
+  
+  .text-brand { color: var(--primary-color); }
+  .text-brand-secondary { color: var(--secondary-color); }
+  .text-accent { color: var(--accent-color); }
+  
+  .text-success { color: var(--success-color); }
+  .text-warning { color: var(--warning-color); }
+  .text-danger { color: var(--danger-color); }
+  .text-info { color: var(--info-color); }
+  
+  /* 배경 색상 클래스 */
+  .bg-white { background-color: var(--background-white); }
+  .bg-light { background-color: var(--background-light); }
+  .bg-medium { background-color: var(--background-medium); }
+  .bg-dark { background-color: var(--background-dark); }
+  
+  .bg-primary { background-color: var(--primary-color); }
+  .bg-secondary { background-color: var(--secondary-color); }
+  .bg-accent { background-color: var(--accent-color); }
+  
+  .bg-success { background-color: var(--success-color); }
+  .bg-warning { background-color: var(--warning-color); }
+  .bg-danger { background-color: var(--danger-color); }
+  .bg-info { background-color: var(--info-color); }
+  
+  /* 경계선 색상 클래스 */
+  .border-light { border-color: var(--border-light); }
+  .border-medium { border-color: var(--border-medium); }
+  .border-dark { border-color: var(--border-dark); }
+  
+  .border-primary { border-color: var(--primary-color); }
+  .border-secondary { border-color: var(--secondary-color); }
+  .border-accent { border-color: var(--accent-color); }
+  
+  .border-success { border-color: var(--success-color); }
+  .border-warning { border-color: var(--warning-color); }
+  .border-danger { border-color: var(--danger-color); }
+  .border-info { border-color: var(--info-color); }
+  

@@ -1,0 +1,307 @@
+/* 
+ * 테이블 CSS 파일
+ * 이 파일은 테이블 컴포넌트 스타일을 정의합니다.
+ */
+
+/* 기본 테이블 */
+.table {
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    width: 100%;
+  }
+  
+  .table th,
+  .table td {
+    border-bottom: 1px solid var(--border-light);
+    padding: 0.75rem;
+    vertical-align: top;
+  }
+  
+  .table th {
+    border-bottom: 2px solid var(--border-medium);
+    font-weight: 700;
+    text-align: left;
+  }
+  
+  .table thead th {
+    border-bottom: 2px solid var(--border-medium);
+    vertical-align: bottom;
+  }
+  
+  .table tbody + tbody {
+    border-top: 2px solid var(--border-medium);
+  }
+  
+  /* 테이블 변형 */
+  .table-sm th,
+  .table-sm td {
+    padding: 0.3rem;
+  }
+  
+  .table-bordered {
+    border: 1px solid var(--border-light);
+  }
+  
+  .table-bordered th,
+  .table-bordered td {
+    border: 1px solid var(--border-light);
+  }
+  
+  .table-borderless th,
+  .table-borderless td,
+  .table-borderless thead th,
+  .table-borderless tbody + tbody {
+    border: 0;
+  }
+  
+  .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  .table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+  }
+  
+  /* 테이블 컨텍스트 클래스 */
+  .table-primary,
+  .table-primary > th,
+  .table-primary > td {
+    background-color: rgba(37, 99, 235, 0.1);
+  }
+  
+  .table-hover .table-primary:hover {
+    background-color: rgba(37, 99, 235, 0.2);
+  }
+  
+  .table-secondary,
+  .table-secondary > th,
+  .table-secondary > td {
+    background-color: rgba(30, 64, 175, 0.1);
+  }
+  
+  .table-hover .table-secondary:hover {
+    background-color: rgba(30, 64, 175, 0.2);
+  }
+  
+  .table-success,
+  .table-success > th,
+  .table-success > td {
+    background-color: rgba(16, 185, 129, 0.1);
+  }
+  
+  .table-hover .table-success:hover {
+    background-color: rgba(16, 185, 129, 0.2);
+  }
+  
+  .table-info,
+  .table-info > th,
+  .table-info > td {
+    background-color: rgba(59, 130, 246, 0.1);
+  }
+  
+  .table-hover .table-info:hover {
+    background-color: rgba(59, 130, 246, 0.2);
+  }
+  
+  .table-warning,
+  .table-warning > th,
+  .table-warning > td {
+    background-color: rgba(245, 158, 11, 0.1);
+  }
+  
+  .table-hover .table-warning:hover {
+    background-color: rgba(245, 158, 11, 0.2);
+  }
+  
+  .table-danger,
+  .table-danger > th,
+  .table-danger > td {
+    background-color: rgba(239, 68, 68, 0.1);
+  }
+  
+  .table-hover .table-danger:hover {
+    background-color: rgba(239, 68, 68, 0.2);
+  }
+  
+  .table-light,
+  .table-light > th,
+  .table-light > td {
+    background-color: var(--background-light);
+  }
+  
+  .table-hover .table-light:hover {
+    background-color: var(--background-medium);
+  }
+  
+  .table-dark,
+  .table-dark > th,
+  .table-dark > td {
+    background-color: var(--background-dark);
+    color: white;
+  }
+  
+  .table-hover .table-dark:hover {
+    background-color: #1a202c;
+  }
+  
+  /* 테이블 행 활성화 상태 */
+  .table .table-active,
+  .table .table-active > th,
+  .table .table-active > td {
+    background-color: rgba(0, 0, 0, 0.075);
+  }
+  
+  .table-hover .table-active:hover {
+    background-color: rgba(0, 0, 0, 0.125);
+  }
+  
+  /* 반응형 테이블 */
+  .table-responsive {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .table-responsive-sm {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  @media (max-width: 575.98px) {
+    .table-responsive-sm {
+      display: block;
+      overflow-x: auto;
+      width: 100%;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+  
+  @media (max-width: 767.98px) {
+    .table-responsive-md {
+      display: block;
+      overflow-x: auto;
+      width: 100%;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+  
+  @media (max-width: 991.98px) {
+    .table-responsive-lg {
+      display: block;
+      overflow-x: auto;
+      width: 100%;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+  
+  @media (max-width: 1199.98px) {
+    .table-responsive-xl {
+      display: block;
+      overflow-x: auto;
+      width: 100%;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+  
+  /* 테이블 헤드 색상 */
+  .thead-light th {
+    background-color: var(--background-medium);
+    color: var(--text-primary);
+  }
+  
+  .thead-dark th {
+    background-color: var(--background-dark);
+    color: white;
+  }
+  
+  /* 다크 테이블 */
+  .table-dark {
+    background-color: var(--background-dark);
+    color: white;
+  }
+  
+  .table-dark th,
+  .table-dark td,
+  .table-dark thead th {
+    border-color: #32383e;
+  }
+  
+  .table-dark.table-bordered {
+    border: 0;
+  }
+  
+  .table-dark.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .table-dark.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.075);
+  }
+  
+  /* 캡션 */
+  .table caption {
+    caption-side: bottom;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    padding-bottom: 0.75rem;
+    padding-top: 0.75rem;
+    text-align: left;
+  }
+  
+  /* 테이블 정렬 */
+  .text-left {
+    text-align: left;
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  .text-right {
+    text-align: right;
+  }
+  
+  /* 검색/필터/정렬 테이블 헤더 */
+  .table th.sortable {
+    cursor: pointer;
+    position: relative;
+  }
+  
+  .table th.sortable::after {
+    content: '\2195'; /* 위아래 화살표 */
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  .table th.sortable.asc::after {
+    content: '\2191'; /* 위 화살표 */
+  }
+  
+  .table th.sortable.desc::after {
+    content: '\2193'; /* 아래 화살표 */
+  }
+  
+  /* 테이블 내 폼 요소 */
+  .table td .form-control {
+    display: inline-block;
+    margin: -0.25rem 0;
+    width: auto;
+  }
+  
+  /* 테이블 액션 버튼 */
+  .table-actions {
+    white-space: nowrap;
+  }
+  
+  .table-actions .btn {
+    margin-right: 0.25rem;
+  }
+  
+  .table-actions .btn:last-child {
+    margin-right: 0;
+  }

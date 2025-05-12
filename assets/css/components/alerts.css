@@ -1,0 +1,180 @@
+/* 
+ * 알림 CSS 파일
+ * 이 파일은 알림 컴포넌트 스타일을 정의합니다.
+ */
+
+/* 기본 알림 */
+.alert {
+    border: 1px solid transparent;
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
+    padding: 0.75rem 1.25rem;
+    position: relative;
+  }
+  
+  /* 닫기 버튼 */
+  .alert-dismissible {
+    padding-right: 4rem;
+  }
+  
+  .alert-dismissible .close {
+    color: inherit;
+    padding: 0.75rem 1.25rem;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+  
+  /* 알림 링크 */
+  .alert a {
+    font-weight: 700;
+  }
+  
+  /* 알림 헤딩 */
+  .alert-heading {
+    color: inherit;
+  }
+  
+  /* 알림 변형 */
+  .alert-primary {
+    background-color: rgba(37, 99, 235, 0.1);
+    border-color: rgba(37, 99, 235, 0.2);
+    color: var(--primary-dark);
+  }
+  
+  .alert-primary a {
+    color: var(--primary-dark);
+  }
+  
+  .alert-secondary {
+    background-color: rgba(30, 64, 175, 0.1);
+    border-color: rgba(30, 64, 175, 0.2);
+    color: var(--secondary-dark);
+  }
+  
+  .alert-secondary a {
+    color: var(--secondary-dark);
+  }
+  
+  .alert-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.2);
+    color: var(--success-dark);
+  }
+  
+  .alert-success a {
+    color: var(--success-dark);
+  }
+  
+  .alert-info {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.2);
+    color: var(--info-dark);
+  }
+  
+  .alert-info a {
+    color: var(--info-dark);
+  }
+  
+  .alert-warning {
+    background-color: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.2);
+    color: var(--warning-dark);
+  }
+  
+  .alert-warning a {
+    color: var(--warning-dark);
+  }
+  
+  .alert-danger {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.2);
+    color: var(--danger-dark);
+  }
+  
+  .alert-danger a {
+    color: var(--danger-dark);
+  }
+  
+  .alert-light {
+    background-color: rgba(249, 250, 251, 0.9);
+    border-color: rgba(233, 236, 239, 0.8);
+    color: var(--text-primary);
+  }
+  
+  .alert-light a {
+    color: var(--primary-color);
+  }
+  
+  .alert-dark {
+    background-color: rgba(31, 41, 55, 0.1);
+    border-color: rgba(31, 41, 55, 0.2);
+    color: var(--text-primary);
+  }
+  
+  .alert-dark a {
+    color: var(--text-primary);
+  }
+  
+  /* 아이콘 알림 */
+  .alert-icon {
+    align-items: center;
+    display: flex;
+  }
+  
+  .alert-icon .alert-icon-aside {
+    display: flex;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+  }
+  
+  .alert-icon .alert-icon-content {
+    flex: 1;
+  }
+  
+  /* 알림 애니메이션 */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+  
+  .alert-fadeIn {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .alert-fadeOut {
+    animation: fadeOut 0.3s ease-in-out;
+  }
+  
+  /* 알림 그룹 */
+  .alert-group {
+    position: fixed;
+    right: 1rem;
+    top: 1rem;
+    z-index: var(--z-index-popover);
+  }
+  
+  .alert-group .alert {
+    margin-bottom: 0.5rem;
+    width: 300px;
+  }
+  
+  /* 알림 내부 모양 */
+  .alert-content {
+    word-wrap: break-word;
+  }
+  
+  .alert-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+  }
+  
+  .alert-actions .btn {
+    margin-left: 0.5rem;
+  }

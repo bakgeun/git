@@ -1,0 +1,324 @@
+/* 
+ * 폼 CSS 파일
+ * 이 파일은 폼 관련 컴포넌트 스타일을 정의합니다.
+ */
+
+/* 폼 그룹 */
+.form-group {
+    margin-bottom: 1rem;
+  }
+  
+  /* 폼 레이블 */
+  .form-label {
+    color: var(--text-primary);
+    display: inline-block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* 필수 필드 표시 */
+  .form-label.required::after {
+    color: var(--danger-color);
+    content: " *";
+  }
+  
+  /* 폼 컨트롤 */
+  .form-control {
+    background-clip: padding-box;
+    background-color: var(--background-white);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--border-radius);
+    color: var(--text-primary);
+    display: block;
+    font-size: 1rem;
+    line-height: 1.5;
+    padding: 0.5rem 0.75rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    width: 100%;
+  }
+  
+  .form-control:focus {
+    background-color: var(--background-white);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+    color: var(--text-primary);
+    outline: 0;
+  }
+  
+  .form-control:disabled, .form-control[readonly] {
+    background-color: var(--background-medium);
+    opacity: 1;
+  }
+  
+  /* 유효성 상태 */
+  .form-control.is-valid {
+    border-color: var(--success-color);
+  }
+  
+  .form-control.is-valid:focus {
+    border-color: var(--success-color);
+    box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25);
+  }
+  
+  .form-control.is-invalid {
+    border-color: var(--danger-color);
+  }
+  
+  .form-control.is-invalid:focus {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.25);
+  }
+  
+  /* 피드백 메시지 */
+  .valid-feedback, .invalid-feedback {
+    display: none;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+  
+  .valid-feedback {
+    color: var(--success-color);
+  }
+  
+  .invalid-feedback {
+    color: var(--danger-color);
+  }
+  
+  .was-validated .form-control:valid ~ .valid-feedback,
+  .was-validated .form-control:invalid ~ .invalid-feedback,
+  .form-control.is-valid ~ .valid-feedback,
+  .form-control.is-invalid ~ .invalid-feedback {
+    display: block;
+  }
+  
+  /* 폼 텍스트 */
+  .form-text {
+    color: var(--text-secondary);
+    display: block;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+  
+  /* 인풋 그룹 */
+  .input-group {
+    align-items: stretch;
+    display: flex;
+    flex-wrap: wrap;
+    position: relative;
+    width: 100%;
+  }
+  
+  .input-group .form-control {
+    flex: 1 1 auto;
+    position: relative;
+    width: 1%;
+  }
+  
+  .input-group-prepend, .input-group-append {
+    display: flex;
+  }
+  
+  .input-group-text {
+    align-items: center;
+    background-color: var(--background-medium);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--border-radius);
+    color: var(--text-secondary);
+    display: flex;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    padding: 0.5rem 0.75rem;
+    text-align: center;
+    white-space: nowrap;
+  }
+  
+  .input-group .form-control:not(:first-child) {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+  }
+  
+  .input-group .form-control:not(:last-child) {
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+  }
+  
+  .input-group-prepend .input-group-text {
+    border-bottom-right-radius: 0;
+    border-right: 0;
+    border-top-right-radius: 0;
+  }
+  
+  .input-group-append .input-group-text {
+    border-bottom-left-radius: 0;
+    border-left: 0;
+    border-top-left-radius: 0;
+  }
+  
+  /* 체크박스 & 라디오 */
+  .form-check {
+    display: block;
+    min-height: 1.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+  
+  .form-check-inline {
+    display: inline-flex;
+    margin-right: 1rem;
+  }
+  
+  .form-check-input {
+    height: 1rem;
+    left: 0;
+    margin-top: 0.25rem;
+    position: absolute;
+    width: 1rem;
+  }
+  
+  .form-check-label {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+  
+  /* 스위치 */
+  .form-switch {
+    padding-left: 2.5rem;
+  }
+  
+  .form-switch .form-check-input {
+    background-color: var(--border-medium);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+    background-position: left center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    border: 0;
+    height: 1.5rem;
+    transition: background-position 0.15s ease-in-out;
+    width: 2.5rem;
+  }
+  
+  .form-switch .form-check-input:checked {
+    background-color: var(--primary-color);
+    background-position: right center;
+  }
+  
+  /* 파일 입력 */
+  .form-file {
+    height: calc(1.5em + 0.75rem + 2px);
+    position: relative;
+  }
+  
+  .form-file-input {
+    height: 100%;
+    left: 0;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 2;
+  }
+  
+  .form-file-label {
+    background-color: var(--background-white);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--border-radius);
+    color: var(--text-primary);
+    display: block;
+    font-weight: 400;
+    height: 100%;
+    left: 0;
+    line-height: 1.5;
+    padding: 0.5rem 0.75rem;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 1;
+  }
+  
+  .form-file-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .form-file-button {
+    background-color: var(--background-medium);
+    border-left: 1px solid var(--border-medium);
+    bottom: 0;
+    padding: 0.5rem 0.75rem;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 3;
+  }
+  
+  /* 셀렉트 */
+  select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%234b5563' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 16px 12px;
+    padding-right: 2.5rem;
+  }
+  
+  select.form-control[size], select.form-control[multiple] {
+    background-image: none;
+    height: auto;
+    padding-right: 0.75rem;
+  }
+  
+  /* 인라인 폼 */
+  .form-inline {
+    align-items: center;
+    display: flex;
+    flex-flow: row wrap;
+  }
+  
+  .form-inline .form-check {
+    width: 100%;
+  }
+  
+  @media (min-width: 576px) {
+    .form-inline label {
+      align-items: center;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 0;
+    }
+    
+    .form-inline .form-group {
+      align-items: center;
+      display: flex;
+      flex: 0 0 auto;
+      flex-flow: row wrap;
+      margin-bottom: 0;
+    }
+    
+    .form-inline .form-control {
+      display: inline-block;
+      vertical-align: middle;
+      width: auto;
+    }
+    
+    .form-inline .input-group {
+      width: auto;
+    }
+    
+    .form-inline .form-check {
+      align-items: center;
+      display: flex;
+      justify-content: center;
+      padding-left: 0;
+      width: auto;
+    }
+    
+    .form-inline .form-check-input {
+      flex-shrink: 0;
+      margin-left: 0;
+      margin-right: 0.25rem;
+      margin-top: 0;
+      position: static;
+    }
+  }

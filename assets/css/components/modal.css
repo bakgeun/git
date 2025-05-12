@@ -1,0 +1,222 @@
+/* 
+ * 모달 CSS 파일
+ * 이 파일은 모달 컴포넌트 스타일을 정의합니다.
+ */
+
+/* 모달 바탕 */
+.modal {
+    background-color: rgba(0, 0, 0, 0.5);
+    bottom: 0;
+    display: none;
+    left: 0;
+    outline: 0;
+    overflow: hidden;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: var(--z-index-modal);
+  }
+  
+  .modal.show {
+    display: block;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  
+  /* 모달 다이얼로그 */
+  .modal-dialog {
+    margin: 1.75rem auto;
+    max-width: 500px;
+    pointer-events: none;
+    position: relative;
+    width: auto;
+  }
+  
+  .modal-dialog-centered {
+    align-items: center;
+    display: flex;
+    min-height: calc(100% - 3.5rem);
+  }
+  
+  /* 모달 내용 */
+  .modal-content {
+    background-clip: padding-box;
+    background-color: var(--background-white);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: column;
+    outline: 0;
+    pointer-events: auto;
+    position: relative;
+    width: 100%;
+  }
+  
+  /* 모달 헤더 */
+  .modal-header {
+    align-items: flex-start;
+    border-bottom: 1px solid var(--border-light);
+    border-top-left-radius: calc(var(--border-radius) - 1px);
+    border-top-right-radius: calc(var(--border-radius) - 1px);
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+  }
+  
+  .modal-title {
+    line-height: 1.5;
+    margin-bottom: 0;
+    margin-top: 0;
+  }
+  
+  .modal-header .close {
+    background-color: transparent;
+    border: 0;
+    color: #000;
+  cursor: pointer;
+  float: right;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  margin: -1rem -1rem -1rem auto;
+  opacity: 0.5;
+  padding: 1rem;
+  text-shadow: 0 1px 0 #fff;
+}
+
+.modal-header .close:hover, 
+.modal-header .close:focus {
+  opacity: 0.75;
+}
+
+/* 모달 바디 */
+.modal-body {
+  flex: 1 1 auto;
+  padding: 1rem;
+  position: relative;
+}
+
+/* 모달 푸터 */
+.modal-footer {
+  align-items: center;
+  border-bottom-left-radius: calc(var(--border-radius) - 1px);
+  border-bottom-right-radius: calc(var(--border-radius) - 1px);
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem;
+}
+
+.modal-footer > :not(:first-child) {
+  margin-left: 0.25rem;
+}
+
+.modal-footer > :not(:last-child) {
+  margin-right: 0.25rem;
+}
+
+/* 모달 스크롤바 */
+.modal-scrollbar-measure {
+  height: 50px;
+  overflow: scroll;
+  position: absolute;
+  top: -9999px;
+  width: 50px;
+}
+
+/* 모달 크기 */
+.modal-sm {
+  max-width: 300px;
+}
+
+.modal-lg {
+  max-width: 800px;
+}
+
+.modal-xl {
+  max-width: 1140px;
+}
+
+/* 모달 애니메이션 */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.modal.fade .modal-dialog {
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+.modal.fade-out .modal-dialog {
+  animation: modalFadeOut 0.2s ease-in;
+}
+
+/* 반응형 조정 */
+@media (min-width: 576px) {
+  .modal-dialog {
+    margin: 1.75rem auto;
+    max-width: 500px;
+  }
+  
+  .modal-dialog-centered {
+    min-height: calc(100% - 3.5rem);
+  }
+  
+  .modal-sm {
+    max-width: 300px;
+  }
+}
+
+@media (min-width: 992px) {
+  .modal-lg,
+  .modal-xl {
+    max-width: 800px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .modal-xl {
+    max-width: 1140px;
+  }
+}
+
+/* 모달 백드롭 */
+.modal-backdrop {
+  background-color: #000;
+  bottom: 0;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: var(--z-index-modal-backdrop);
+}
+
+.modal-backdrop.fade {
+  opacity: 0;
+}
+
+.modal-backdrop.show {
+  opacity: 0.5;
+}
+
+/* 모달 오픈 시 body 조정 */
+body.modal-open {
+  overflow: hidden;
+}

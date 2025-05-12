@@ -1,0 +1,135 @@
+/* 
+ * 푸터 CSS 파일
+ * 이 파일은 웹사이트 푸터 스타일을 정의합니다.
+ */
+
+/* 푸터 기본 스타일 */
+footer {
+    background-color: var(--background-dark);
+    color: white;
+    padding: 3rem 0;
+  }
+  
+  /* 푸터 컨테이너 */
+  footer .container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  /* 푸터 섹션 */
+  footer .footer-section {
+    flex: 1 1 250px;
+    margin-bottom: 2rem;
+  }
+  
+  /* 푸터 제목 */
+  footer h3 {
+    color: white;
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+  }
+  
+  /* 푸터 텍스트 */
+  footer p {
+    color: var(--text-tertiary);
+    margin-bottom: 1rem;
+  }
+  
+  /* 푸터 링크 목록 */
+  footer ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  footer li {
+    margin-bottom: 0.5rem;
+  }
+  
+  /* 푸터 링크 */
+  footer a {
+    color: var(--text-tertiary);
+    text-decoration: none;
+    transition: color 0.15s ease-in-out;
+  }
+  
+  footer a:hover,
+  footer a:focus {
+    color: white;
+  }
+  
+  /* 소셜 미디어 링크 */
+  footer .social-links {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  footer .social-links a {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+  
+  /* 연락처 항목 */
+  footer .contact-item {
+    align-items: center;
+    display: flex;
+    margin-bottom: 0.5rem;
+  }
+  
+  footer .contact-item svg {
+    color: var(--text-tertiary);
+    margin-right: 0.5rem;
+  }
+  
+  /* 푸터 하단 영역 */
+footer .footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 2rem;
+    padding-top: 2rem;
+    width: 100%;
+  }
+  
+  /* 저작권 텍스트 */
+  footer .copyright {
+    color: var(--text-tertiary);
+    font-size: 0.875rem;
+  }
+  
+  /* 법적 링크 */
+  footer .legal-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  footer .legal-links a {
+    font-size: 0.875rem;
+  }
+  
+  /* 반응형 조정 */
+  @media (min-width: 768px) {
+    footer .footer-bottom {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    footer .legal-links {
+      margin-top: 0;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    footer .container {
+      flex-direction: column;
+    }
+    
+    footer .footer-section {
+      margin-bottom: 2rem;
+      width: 100%;
+    }
+  }

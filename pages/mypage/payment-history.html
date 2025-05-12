@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결제 내역 - 디지털헬스케어센터</title>
+    <meta name="description" content="디지털헬스케어센터 마이페이지 - 결제 내역">
+    <link rel="icon" href="../../favicon.ico">
+    <link rel="manifest" href="../../manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body class="bg-gray-50">
+    <header id="main-header" class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="logo">
+                <a href="../../index.html">
+                    <img src="../../assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" width="180">
+                </a>
+            </div>
+            <nav class="main-nav hidden md:flex">
+                <ul class="flex space-x-6">
+                    <li class="group relative">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">기관 소개</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="../about/overview.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">개요</a></li>
+                            <li><a href="../about/vision.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">목표 및 전략</a></li>
+                            <li><a href="../about/business.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">사업 내용</a></li>
+                            <li><a href="../about/organization.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
+                            <li><a href="../about/instructors.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">자격증 소개</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="../certificate/health-exercise.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">건강운동처방사</a></li>
+                            <li><a href="../certificate/rehabilitation.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동재활전문가</a></li>
+                            <li><a href="../certificate/pilates.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스 전문가</a></li>
+                            <li><a href="../certificate/recreation.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">교육 과정</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="../education/course-info.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 과정 안내</a></li>
+                            <li><a href="../education/course-application.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
+                            <li><a href="../education/cert-application.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">자격증 신청</a></li>
+                            <li><a href="../education/exam-info.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">시험 안내</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">게시판</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="../board/notice/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">공지사항</a></li>
+                            <li><a href="../board/column/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">칼럼</a></li>
+                            <li><a href="../board/materials/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">강의자료</a></li>
+                            <li><a href="../board/videos/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">동영상 강의</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <div class="auth-buttons flex items-center">
+                <div class="user-menu relative">
+                    <button id="user-menu-button" class="flex items-center space-x-2 text-gray-700 hover:text-blue-600">
+                        <span id="user-display-name" class="text-sm font-medium">사용자</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </button>
+                    <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden">
+                        <a href="../mypage/personal-info.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">마이페이지</a>
+                        <a href="#" id="logout-button" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">로그아웃</a>
+                    </div>
+                </div>
+                <button id="mobile-menu-button" class="md:hidden ml-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg py-4">
+            <div class="container mx-auto px-4">
+                <!-- Mobile navigation menu -->
+            </div>
+        </div>
+    </header>
+
+    <main class="mypage-container container mx-auto px-4">
+        <!-- 사이드바 -->
+        <aside class="mypage-sidebar">
+            <nav>
+                <ul class="mypage-nav">
+                    <li class="mypage-nav-item">
+                        <a href="personal-info.html" class="mypage-nav-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="mypage-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            개인정보 관리
+                        </a>
+                    </li>
+                    <li class="mypage-nav-item">
+                        <a href="course-history.html" class="mypage-nav-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="mypage-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                            수강 내역
+                        </a>
+                    </li>
+                    <li class="mypage-nav-item">
+                        <a href="cert-management.html" class="mypage-nav-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="mypage-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                            </svg>
+                            자격증 관리
+                        </a>
+                    </li>
+                    <li class="mypage-nav-item">
+                        <a href="payment-history.html" class="mypage-nav-link active">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="mypage-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                            </svg>
+                            결제 내역
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- 메인 콘텐츠 -->
+        <section class="mypage-content">
+            <div class="mypage-header">
+                <h1 class="mypage-title">결제 내역</h1>
+                <p class="mypage-description">교육 과정 및 자격증 관련 결제 내역을 확인할 수 있습니다.</p>
+            </div>
+
+            <!-- 필터 섹션 -->
+            <div class="payment-filters">
+                <div class="date-range-filter">
+                    <label for="start-date" class="text-sm font-medium text-gray-700 mr-2">기간:</label>
+                    <input type="date" id="start-date" class="filter-select">
+                    <span class="mx-2">~</span>
+                    <input type="date" id="end-date" class="filter-select">
+                    <button id="apply-date-filter" class="btn btn-secondary ml-2">적용</button>
+                </div>
+                <div class="flex gap-2">
+                    <select id="status-filter" class="filter-select">
+                        <option value="">전체 상태</option>
+                        <option value="completed">결제 완료</option>
+                        <option value="pending">결제 대기</option>
+                        <option value="cancelled">취소됨</option>
+                        <option value="refunded">환불됨</option>
+                    </select>
+                    <select id="type-filter" class="filter-select">
+                        <option value="">전체 유형</option>
+                        <option value="course">교육 과정</option>
+                        <option value="certificate">자격증 발급</option>
+                        <option value="exam">시험 응시</option>
+                        <option value="renewal">자격증 갱신</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 결제 내역 테이블 -->
+            <div class="content-card">
+                <div class="overflow-x-auto">
+                    <table class="payment-table">
+                        <thead>
+                            <tr>
+                                <th>결제일시</th>
+                                <th>상품명</th>
+                                <th>결제금액</th>
+                                <th>결제상태</th>
+                                <th>결제방법</th>
+                                <th>영수증</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payment-table-body">
+                            <!-- 동적으로 생성될 결제 내역 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 로딩 상태 -->
+                <div id="loading-state" class="loading-state hidden">
+                    <div class="loading-spinner"></div>
+                    <p>결제 내역을 불러오는 중입니다...</p>
+                </div>
+
+                <!-- 빈 상태 -->
+                <div id="empty-state" class="empty-state hidden">
+                    <div class="empty-state-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                    </div>
+                    <h3 class="empty-state-title">결제 내역이 없습니다</h3>
+                    <p class="empty-state-description">아직 결제한 내역이 없습니다.</p>
+                    <button onclick="window.location.href='../education/course-application.html'" class="btn btn-primary">
+                        교육 신청하기
+                    </button>
+                </div>
+
+                <!-- 페이지네이션 -->
+                <div id="pagination" class="pagination"></div>
+            </div>
+
+            <!-- 결제 요약 정보 -->
+            <div class="content-card mt-6">
+                <div class="card-header">
+                    <h2 class="card-title">결제 요약</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600">총 결제 건수</p>
+                        <p class="text-2xl font-bold text-blue-600" id="total-count">0건</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600">총 결제 금액</p>
+                        <p class="text-2xl font-bold text-blue-600" id="total-amount">₩0</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600">이번 달 결제</p>
+                        <p class="text-2xl font-bold text-blue-600" id="monthly-amount">₩0</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-12 mt-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-4">디지털헬스케어센터</h3>
+                    <p class="text-gray-400 mb-4">운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼</p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                                <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                                <rect x="2" y="9" width="4" height="12"></rect>
+                                <circle cx="4" cy="4" r="2"></circle>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">바로가기</h3>
+                    <ul class="space-y-2">
+                        <li><a href="../about/overview.html" class="text-gray-400 hover:text-white">기관 소개</a></li>
+                        <li><a href="../certificate/health-exercise.html" class="text-gray-400 hover:text-white">자격증 소개</a></li>
+                        <li><a href="../education/course-info.html" class="text-gray-400 hover:text-white">교육 과정</a></li>
+                        <li><a href="../board/notice/index.html" class="text-gray-400 hover:text-white">공지사항</a></li>
+                        <li><a href="../board/column/index.html" class="text-gray-400 hover:text-white">전문가 칼럼</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">자격증 정보</h3>
+                    <ul class="space-y-2">
+                        <li><a href="../certificate/health-exercise.html" class="text-gray-400 hover:text-white">건강운동처방사</a></li>
+                        <li><a href="../certificate/rehabilitation.html" class="text-gray-400 hover:text-white">운동재활전문가</a></li>
+                        <li><a href="../certificate/pilates.html" class="text-gray-400 hover:text-white">필라테스 전문가</a></li>
+                        <li><a href="../certificate/recreation.html" class="text-gray-400 hover:text-white">레크리에이션지도자</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">고객 지원</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            </svg>
+                            <span>02-123-4567</span>
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            <span>info@digitalhealthcare.org</span>
+                        </li>
+                        <li class="flex items-center text-gray-400 mt-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <span>서울특별시 강남구 테헤란로 123</span>
+                        </li>
+                    </ul>
+                    <div class="mt-4">
+                        <a href="#" class="text-blue-400 hover:text-blue-300">문의하기</a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-sm text-gray-400">
+                <div class="flex flex-col md:flex-row justify-between">
+                    <div class="mb-4 md:mb-0">
+                        <p>&copy; 2025 디지털헬스케어센터. All rights reserved.</p>
+                    </div>
+                    <div class="flex space-x-4">
+                        <a href="#" class="hover:text-white">개인정보처리방침</a>
+                        <a href="#" class="hover:text-white">이용약관</a>
+                        <a href="#" class="hover:text-white">사이트맵</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="../../lib/firebase/firebase-app.js"></script>
+    <script src="../../lib/firebase/firebase-auth.js"></script>
+    <script src="../../lib/firebase/firebase-firestore.js"></script>
+    
+    <!-- JavaScript 파일 -->
+    <script src="../../assets/js/config/firebase-config.js"></script>
+    <script src="../../assets/js/services/auth-service.js"></script>
+    <script src="../../assets/js/services/db-service.js"></script>
+    <script src="../../assets/js/components/header.js"></script>
+    <script src="../../assets/js/utils/formatters.js"></script>
+    <script src="../../assets/js/pages/mypage.js"></script>
+    <script src="../../assets/js/pages/mypage/payment-history.js"></script>
+    <script src="../../assets/js/main.js"></script>
+</body>
+</html>
