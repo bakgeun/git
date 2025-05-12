@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,9 +8,13 @@
     <meta name="description" content="운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼">
     <link rel="icon" href="assets/images/logo/logo.jpeg">
     <link rel="manifest" href="manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="assets/css/main.css">
+    <!-- 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
+    <script src="assets/js/utils/script-loader.js"></script>
 </head>
+
 <body>
     <header id="main-header">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
@@ -22,58 +27,84 @@
                 <ul class="flex space-x-6">
                     <li class="group relative">
                         <a href="#" class="text-gray-800 hover:text-blue-600 py-2">기관 소개</a>
-                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="pages/about/overview.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">개요</a></li>
-                            <li><a href="pages/about/vision.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">목표 및 전략</a></li>
-                            <li><a href="pages/about/business.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">사업 내용</a></li>
-                            <li><a href="pages/about/organization.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
-                            <li><a href="pages/about/instructors.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">개요</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">목표 및 전략</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/business.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">사업 내용</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
                         </ul>
                     </li>
                     <li class="group relative">
                         <a href="#" class="text-gray-800 hover:text-blue-600 py-2">자격증 소개</a>
-                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="pages/certificate/health-exercise.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">건강운동처방사</a></li>
-                            <li><a href="pages/certificate/rehabilitation.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동재활전문가</a></li>
-                            <li><a href="pages/certificate/pilates.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스 전문가</a></li>
-                            <li><a href="pages/certificate/recreation.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">건강운동처방사</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동재활전문가</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스 전문가</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
                         </ul>
                     </li>
                     <li class="group relative">
                         <a href="#" class="text-gray-800 hover:text-blue-600 py-2">교육 과정</a>
-                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="pages/education/course-info.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 과정 안내</a></li>
-                            <li><a href="pages/education/course-application.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
-                            <li><a href="pages/education/cert-application.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">자격증 신청</a></li>
-                            <li><a href="pages/education/exam-info.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">시험 안내</a></li>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 과정 안내</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">자격증 신청</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/exam-info.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">시험 안내</a></li>
                         </ul>
                     </li>
                     <li class="group relative">
                         <a href="#" class="text-gray-800 hover:text-blue-600 py-2">게시판</a>
-                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="pages/board/notice/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">공지사항</a></li>
-                            <li><a href="pages/board/column/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">칼럼</a></li>
-                            <li><a href="pages/board/materials/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">강의자료</a></li>
-                            <li><a href="pages/board/videos/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">동영상 강의</a></li>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">공지사항</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">칼럼</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/materials/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">강의자료</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/videos/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">동영상 강의</a></li>
                         </ul>
                     </li>
                 </ul>
             </nav>
             <div class="auth-buttons flex items-center">
-                <a href="pages/auth/login.html" class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
-                <a href="pages/auth/signup.html" class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
-                <button id="mobile-menu-button" class="md:hidden ml-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                <a href="javascript:window.location.href=window.adjustPath('pages/auth/login.html')"
+                    class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/auth/signup.html')"
+                    class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
+                <button id="mobile-menu-button" class="md:hidden ml-4" aria-expanded="false"
+                    aria-controls="mobile-menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
             </div>
         </div>
+
         <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg py-4">
+        <div id="mobile-menu" class="hidden md:hidden">
             <div class="container mx-auto px-4">
-                <!-- Mobile navigation menu -->
-                <!-- 내용은 JavaScript에서 동적으로 생성 예정 -->
+                <!-- 모바일 메뉴 내용은 JS에서 동적으로 생성됩니다 -->
             </div>
         </div>
     </header>
@@ -86,8 +117,12 @@
                     <h1 class="text-4xl md:text-5xl font-bold mb-4">운동과학 기반 전문인력 양성 플랫폼</h1>
                     <p class="text-xl mb-8">디지털헬스케어센터에서 각 분야 최고의 전문가들과 함께<br>건강운동 전문가의 꿈을 이루세요.</p>
                     <div class="flex flex-wrap gap-4">
-                        <a href="pages/education/course-info.html" class="bg-white text-blue-600 hover:bg-gray-100 px-6 py-3 rounded-md font-medium">교육 과정 알아보기</a>
-                        <a href="pages/certificate/health-exercise.html" class="bg-transparent hover:bg-white hover:text-blue-600 text-white border border-white px-6 py-3 rounded-md font-medium">자격증 정보 보기</a>
+                        <a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
+                            class="bg-white text-blue-600 hover:bg-gray-100 px-6 py-3 rounded-md font-medium">교육 과정
+                            알아보기</a>
+                        <a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
+                            class="bg-transparent hover:bg-white hover:text-blue-600 text-white border border-white px-6 py-3 rounded-md font-medium">자격증
+                            정보 보기</a>
                     </div>
                 </div>
             </div>
@@ -101,27 +136,31 @@
                     <!-- 건강운동처방사 -->
                     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                         <div class="h-48 bg-blue-500 flex items-center justify-center">
-                            <img src="assets/images/certificates/health-exercise-icon.jpeg" alt="건강운동처방사 아이콘" class="h-24">
+                            <img src="assets/images/certificates/health-exercise-icon.jpeg" alt="건강운동처방사 아이콘"
+                                class="h-24">
                         </div>
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-2">건강운동처방사</h3>
                             <p class="text-gray-600 mb-4">운동을 통한 건강증진과 질병예방을 위한 운동처방 전문가</p>
-                            <a href="pages/certificate/health-exercise.html" class="text-blue-600 hover:text-blue-800 font-medium">자세히 보기 →</a>
+                            <a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
+                                class="text-blue-600 hover:text-blue-800 font-medium">자세히 보기 →</a>
                         </div>
                     </div>
-                    
+
                     <!-- 운동재활전문가 -->
                     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                         <div class="h-48 bg-green-500 flex items-center justify-center">
-                            <img src="assets/images/certificates/rehabilitation-icon.jpeg" alt="운동재활전문가 아이콘" class="h-24">
+                            <img src="assets/images/certificates/rehabilitation-icon.jpeg" alt="운동재활전문가 아이콘"
+                                class="h-24">
                         </div>
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-2">운동재활전문가</h3>
                             <p class="text-gray-600 mb-4">부상 및 질환 이후 재활을 위한 운동재활 전문가</p>
-                            <a href="pages/certificate/rehabilitation.html" class="text-blue-600 hover:text-blue-800 font-medium">자세히 보기 →</a>
+                            <a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
+                                class="text-blue-600 hover:text-blue-800 font-medium">자세히 보기 →</a>
                         </div>
                     </div>
-                    
+
                     <!-- 필라테스 전문가 -->
                     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                         <div class="h-48 bg-purple-500 flex items-center justify-center">
@@ -130,10 +169,11 @@
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-2">필라테스 전문가</h3>
                             <p class="text-gray-600 mb-4">몸의 균형과 유연성을 증진시키는 필라테스 지도 전문가</p>
-                            <a href="pages/certificate/pilates.html" class="text-blue-600 hover:text-blue-800 font-medium">자세히 보기 →</a>
+                            <a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
+                                class="text-blue-600 hover:text-blue-800 font-medium">자세히 보기 →</a>
                         </div>
                     </div>
-                    
+
                     <!-- 레크리에이션지도자 -->
                     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                         <div class="h-48 bg-orange-500 flex items-center justify-center">
@@ -142,7 +182,8 @@
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-2">레크리에이션지도자</h3>
                             <p class="text-gray-600 mb-4">즐거운 신체활동과 여가생활을 위한 레크리에이션 지도 전문가</p>
-                            <a href="pages/certificate/recreation.html" class="text-blue-600 hover:text-blue-800 font-medium">자세히 보기 →</a>
+                            <a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
+                                class="text-blue-600 hover:text-blue-800 font-medium">자세히 보기 →</a>
                         </div>
                     </div>
                 </div>
@@ -157,55 +198,68 @@
                     <!-- 과정 카드 1 -->
                     <div class="bg-white rounded-lg shadow-md overflow-hidden">
                         <div class="relative">
-                            <img src="assets/images/courses/health-exercise-course.jpeg" alt="건강운동처방사 과정" class="w-full h-48 object-cover">
-                            <div class="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 m-2 rounded-md text-sm">인기 과정</div>
+                            <img src="assets/images/courses/health-exercise-course.jpeg" alt="건강운동처방사 과정"
+                                class="w-full h-48 object-cover">
+                            <div class="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 m-2 rounded-md text-sm">
+                                인기 과정</div>
                         </div>
                         <div class="p-6">
-                            <span class="text-sm font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded-md">건강운동처방사</span>
+                            <span
+                                class="text-sm font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded-md">건강운동처방사</span>
                             <h3 class="text-xl font-bold mt-2 mb-2">건강운동처방사 자격과정 (온라인)</h3>
                             <p class="text-gray-600 mb-4">질병예방과 건강증진을 위한 맞춤형 운동처방 전문가 양성과정</p>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-700 font-medium">350,000원</span>
-                                <a href="pages/education/course-application.html" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">신청하기</a>
+                                <a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">신청하기</a>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- 과정 카드 2 -->
                     <div class="bg-white rounded-lg shadow-md overflow-hidden">
                         <div class="relative">
-                            <img src="assets/images/courses/rehabilitation-course.jpeg" alt="운동재활전문가 과정" class="w-full h-48 object-cover">
+                            <img src="assets/images/courses/rehabilitation-course.jpeg" alt="운동재활전문가 과정"
+                                class="w-full h-48 object-cover">
                         </div>
                         <div class="p-6">
-                            <span class="text-sm font-medium text-green-600 bg-green-100 px-2 py-1 rounded-md">운동재활전문가</span>
+                            <span
+                                class="text-sm font-medium text-green-600 bg-green-100 px-2 py-1 rounded-md">운동재활전문가</span>
                             <h3 class="text-xl font-bold mt-2 mb-2">운동재활전문가 자격과정 (온/오프라인)</h3>
                             <p class="text-gray-600 mb-4">부상 및 질환 이후 효과적인 운동재활 프로그램 설계 및 지도 전문가 과정</p>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-700 font-medium">420,000원</span>
-                                <a href="pages/education/course-application.html" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">신청하기</a>
+                                <a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">신청하기</a>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- 과정 카드 3 -->
                     <div class="bg-white rounded-lg shadow-md overflow-hidden">
                         <div class="relative">
-                            <img src="assets/images/courses/pilates-course.jpeg" alt="필라테스 전문가 과정" class="w-full h-48 object-cover">
-                            <div class="absolute top-0 right-0 bg-red-600 text-white px-3 py-1 m-2 rounded-md text-sm">마감 임박</div>
+                            <img src="assets/images/courses/pilates-course.jpeg" alt="필라테스 전문가 과정"
+                                class="w-full h-48 object-cover">
+                            <div class="absolute top-0 right-0 bg-red-600 text-white px-3 py-1 m-2 rounded-md text-sm">
+                                마감 임박</div>
                         </div>
                         <div class="p-6">
-                            <span class="text-sm font-medium text-purple-600 bg-purple-100 px-2 py-1 rounded-md">필라테스 전문가</span>
+                            <span class="text-sm font-medium text-purple-600 bg-purple-100 px-2 py-1 rounded-md">필라테스
+                                전문가</span>
                             <h3 class="text-xl font-bold mt-2 mb-2">필라테스 지도자 자격과정 (오프라인)</h3>
                             <p class="text-gray-600 mb-4">과학적 원리 기반의 체계적인 필라테스 실기 및 이론 전문가 과정</p>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-700 font-medium">480,000원</span>
-                                <a href="pages/education/course-application.html" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">신청하기</a>
+                                <a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">신청하기</a>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="text-center mt-8">
-                    <a href="pages/education/course-info.html" class="inline-block border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-6 py-3 rounded-md font-medium">모든 교육과정 보기</a>
+                    <a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
+                        class="inline-block border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-6 py-3 rounded-md font-medium">모든
+                        교육과정 보기</a>
                 </div>
             </div>
         </section>
@@ -218,21 +272,25 @@
                     <div>
                         <div class="flex justify-between items-center mb-6">
                             <h2 class="text-2xl font-bold">공지사항</h2>
-                            <a href="pages/board/notice/index.html" class="text-blue-600 hover:text-blue-800">더보기 →</a>
+                            <a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')"
+                                class="text-blue-600 hover:text-blue-800">더보기 →</a>
                         </div>
                         <div class="bg-white rounded-lg shadow-md p-6">
                             <ul class="space-y-4">
                                 <li>
-                                    <a href="pages/board/notice/view.html" class="flex items-center justify-between hover:bg-gray-50 p-2 rounded">
+                                    <a href="javascript:window.location.href=window.adjustPath('pages/board/notice/view.html')"
+                                        class="flex items-center justify-between hover:bg-gray-50 p-2 rounded">
                                         <div>
-                                            <span class="inline-block bg-blue-100 text-blue-600 px-2 py-1 text-xs rounded mr-2">중요</span>
+                                            <span
+                                                class="inline-block bg-blue-100 text-blue-600 px-2 py-1 text-xs rounded mr-2">중요</span>
                                             <span>2025년 상반기 건강운동처방사 자격시험 일정 안내</span>
                                         </div>
                                         <span class="text-gray-500 text-sm">2025.04.28</span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="pages/board/notice/view.html" class="flex items-center justify-between hover:bg-gray-50 p-2 rounded">
+                                    <a href="javascript:window.location.href=window.adjustPath('pages/board/notice/view.html')"
+                                        class="flex items-center justify-between hover:bg-gray-50 p-2 rounded">
                                         <div>
                                             <span>2025년 5월 온라인 강의 일정 변경 안내</span>
                                         </div>
@@ -240,7 +298,8 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="pages/board/notice/view.html" class="flex items-center justify-between hover:bg-gray-50 p-2 rounded">
+                                    <a href="javascript:window.location.href=window.adjustPath('pages/board/notice/view.html')"
+                                        class="flex items-center justify-between hover:bg-gray-50 p-2 rounded">
                                         <div>
                                             <span>운동재활전문가 실기시험 합격자 발표</span>
                                         </div>
@@ -248,7 +307,8 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="pages/board/notice/view.html" class="flex items-center justify-between hover:bg-gray-50 p-2 rounded">
+                                    <a href="javascript:window.location.href=window.adjustPath('pages/board/notice/view.html')"
+                                        class="flex items-center justify-between hover:bg-gray-50 p-2 rounded">
                                         <div>
                                             <span>필라테스 전문가 과정 추가 모집 안내</span>
                                         </div>
@@ -256,7 +316,8 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="pages/board/notice/view.html" class="flex items-center justify-between hover:bg-gray-50 p-2 rounded">
+                                    <a href="javascript:window.location.href=window.adjustPath('pages/board/notice/view.html')"
+                                        class="flex items-center justify-between hover:bg-gray-50 p-2 rounded">
                                         <div>
                                             <span>시스템 점검에 따른 서비스 일시 중단 안내</span>
                                         </div>
@@ -266,47 +327,57 @@
                             </ul>
                         </div>
                     </div>
-                    
+
                     <!-- 칼럼 -->
                     <div>
                         <div class="flex justify-between items-center mb-6">
                             <h2 class="text-2xl font-bold">전문가 칼럼</h2>
-                            <a href="pages/board/column/index.html" class="text-blue-600 hover:text-blue-800">더보기 →</a>
+                            <a href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')"
+                                class="text-blue-600 hover:text-blue-800">더보기 →</a>
                         </div>
                         <div class="bg-white rounded-lg shadow-md p-6">
                             <div class="space-y-4">
-                                <a href="pages/board/column/view.html" class="block hover:bg-gray-50 p-2 rounded">
+                                <a href="javascript:window.location.href=window.adjustPath('pages/board/column/view.html')"
+                                    class="block hover:bg-gray-50 p-2 rounded">
                                     <div class="flex">
                                         <div class="w-24 h-24 flex-shrink-0 bg-gray-200 rounded overflow-hidden">
-                                            <img src="assets/images/columns/column1.jpeg" alt="칼럼 이미지" class="w-full h-full object-cover">
+                                            <img src="assets/images/columns/column1.jpeg" alt="칼럼 이미지"
+                                                class="w-full h-full object-cover">
                                         </div>
                                         <div class="ml-4">
                                             <h3 class="font-bold mb-1">효과적인 운동처방의 핵심 요소</h3>
-                                            <p class="text-gray-600 text-sm line-clamp-2">개인 맞춤형 운동처방을 위한 핵심 요소들과 효과적인 적용 방법에 대해 알아봅니다.</p>
+                                            <p class="text-gray-600 text-sm line-clamp-2">개인 맞춤형 운동처방을 위한 핵심 요소들과 효과적인
+                                                적용 방법에 대해 알아봅니다.</p>
                                             <p class="text-gray-500 text-xs mt-2">김지영 교수 | 2025.04.25</p>
                                         </div>
                                     </div>
                                 </a>
-                                <a href="pages/board/column/view.html" class="block hover:bg-gray-50 p-2 rounded">
+                                <a href="javascript:window.location.href=window.adjustPath('pages/board/column/view.html')"
+                                    class="block hover:bg-gray-50 p-2 rounded">
                                     <div class="flex">
                                         <div class="w-24 h-24 flex-shrink-0 bg-gray-200 rounded overflow-hidden">
-                                            <img src="assets/images/columns/column2.jpeg" alt="칼럼 이미지" class="w-full h-full object-cover">
+                                            <img src="assets/images/columns/column2.jpeg" alt="칼럼 이미지"
+                                                class="w-full h-full object-cover">
                                         </div>
                                         <div class="ml-4">
                                             <h3 class="font-bold mb-1">만성질환 예방을 위한 운동 프로그램</h3>
-                                            <p class="text-gray-600 text-sm line-clamp-2">현대인에게 흔한 만성질환 예방을 위한 효과적인 운동 프로그램 설계 방법을 소개합니다.</p>
+                                            <p class="text-gray-600 text-sm line-clamp-2">현대인에게 흔한 만성질환 예방을 위한 효과적인 운동
+                                                프로그램 설계 방법을 소개합니다.</p>
                                             <p class="text-gray-500 text-xs mt-2">박성호 교수 | 2025.04.18</p>
                                         </div>
                                     </div>
                                 </a>
-                                <a href="pages/board/column/view.html" class="block hover:bg-gray-50 p-2 rounded">
+                                <a href="javascript:window.location.href=window.adjustPath('pages/board/column/view.html')"
+                                    class="block hover:bg-gray-50 p-2 rounded">
                                     <div class="flex">
                                         <div class="w-24 h-24 flex-shrink-0 bg-gray-200 rounded overflow-hidden">
-                                            <img src="assets/images/columns/column3.jpeg" alt="칼럼 이미지" class="w-full h-full object-cover">
+                                            <img src="assets/images/columns/column3.jpeg" alt="칼럼 이미지"
+                                                class="w-full h-full object-cover">
                                         </div>
                                         <div class="ml-4">
                                             <h3 class="font-bold mb-1">필라테스와 근골격계 건강</h3>
-                                            <p class="text-gray-600 text-sm line-clamp-2">필라테스가 근골격계 건강에 미치는 긍정적 영향과 효과적인 프로그램 구성에 대해 알아봅니다.</p>
+                                            <p class="text-gray-600 text-sm line-clamp-2">필라테스가 근골격계 건강에 미치는 긍정적 영향과
+                                                효과적인 프로그램 구성에 대해 알아봅니다.</p>
                                             <p class="text-gray-500 text-xs mt-2">이미영 교수 | 2025.04.12</p>
                                         </div>
                                     </div>
@@ -322,10 +393,14 @@
         <section class="cta-section py-16 bg-blue-600 text-white">
             <div class="container mx-auto px-4 text-center">
                 <h2 class="text-3xl font-bold mb-4">디지털헬스케어센터와 함께<br>건강운동 전문가의 꿈을 이루세요</h2>
-                <p class="text-xl mb-8 max-w-2xl mx-auto">전문적인 교육과 체계적인 자격 인증 시스템을 통해<br>건강한 사회를 만드는 전문가로 성장할 수 있습니다.</p>
+                <p class="text-xl mb-8 max-w-2xl mx-auto">전문적인 교육과 체계적인 자격 인증 시스템을 통해<br>건강한 사회를 만드는 전문가로 성장할 수 있습니다.
+                </p>
                 <div class="flex flex-wrap justify-center gap-4">
-                    <a href="pages/auth/signup.html" class="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 rounded-md font-medium">회원가입 하기</a>
-                    <a href="pages/education/course-info.html" class="bg-transparent hover:bg-blue-700 text-white border border-white px-8 py-3 rounded-md font-medium">교육과정 둘러보기</a>
+                    <a href="javascript:window.location.href=window.adjustPath('pages/auth/signup.html')"
+                        class="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 rounded-md font-medium">회원가입 하기</a>
+                    <a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
+                        class="bg-transparent hover:bg-blue-700 text-white border border-white px-8 py-3 rounded-md font-medium">교육과정
+                        둘러보기</a>
                 </div>
             </div>
         </section>
@@ -339,25 +414,37 @@
                     <p class="text-gray-400 mb-4">운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼</p>
                     <div class="flex space-x-4 mt-4">
                         <a href="#" class="text-gray-400 hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-5 w-5">
                                 <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
                             </svg>
                         </a>
                         <a href="#" class="text-gray-400 hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-5 w-5">
                                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                                 <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                                 <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                             </svg>
                         </a>
                         <a href="#" class="text-gray-400 hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
-                                <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-5 w-5">
+                                <path
+                                    d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+                                </path>
                             </svg>
                         </a>
                         <a href="#" class="text-gray-400 hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
-                                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-5 w-5">
+                                <path
+                                    d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z">
+                                </path>
                                 <rect x="2" y="9" width="4" height="12"></rect>
                                 <circle cx="4" cy="4" r="2"></circle>
                             </svg>
@@ -367,40 +454,62 @@
                 <div>
                     <h3 class="text-lg font-bold mb-4">바로가기</h3>
                     <ul class="space-y-2">
-                        <li><a href="pages/about/overview.html" class="text-gray-400 hover:text-white">기관 소개</a></li>
-                        <li><a href="pages/certificate/health-exercise.html" class="text-gray-400 hover:text-white">자격증 소개</a></li>
-                        <li><a href="pages/education/course-info.html" class="text-gray-400 hover:text-white">교육 과정</a></li>
-                        <li><a href="pages/board/notice/index.html" class="text-gray-400 hover:text-white">공지사항</a></li>
-                        <li><a href="pages/board/column/index.html" class="text-gray-400 hover:text-white">전문가 칼럼</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
+                                class="text-gray-400 hover:text-white">기관 소개</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
+                                class="text-gray-400 hover:text-white">자격증
+                                소개</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
+                                class="text-gray-400 hover:text-white">교육 과정</a>
+                        </li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')"
+                                class="text-gray-400 hover:text-white">공지사항</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')"
+                                class="text-gray-400 hover:text-white">전문가 칼럼</a>
+                        </li>
                     </ul>
                 </div>
                 <div>
                     <h3 class="text-lg font-bold mb-4">자격증 정보</h3>
                     <ul class="space-y-2">
-                        <li><a href="pages/certificate/health-exercise.html" class="text-gray-400 hover:text-white">건강운동처방사</a></li>
-                        <li><a href="pages/certificate/rehabilitation.html" class="text-gray-400 hover:text-white">운동재활전문가</a></li>
-                        <li><a href="pages/certificate/pilates.html" class="text-gray-400 hover:text-white">필라테스 전문가</a></li>
-                        <li><a href="pages/certificate/recreation.html" class="text-gray-400 hover:text-white">레크리에이션지도자</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
+                                class="text-gray-400 hover:text-white">건강운동처방사</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
+                                class="text-gray-400 hover:text-white">운동재활전문가</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
+                                class="text-gray-400 hover:text-white">필라테스 전문가</a>
+                        </li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
+                                class="text-gray-400 hover:text-white">레크리에이션지도자</a></li>
                     </ul>
                 </div>
                 <div>
                     <h3 class="text-lg font-bold mb-4">고객 지원</h3>
                     <ul class="space-y-2">
                         <li class="flex items-center text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
-                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-4 w-4 mr-2">
+                                <path
+                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                                </path>
                             </svg>
                             <span>02-123-4567</span>
                         </li>
                         <li class="flex items-center text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
-                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-4 w-4 mr-2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+                                </path>
                                 <polyline points="22,6 12,13 2,6"></polyline>
                             </svg>
                             <span>info@digitalhealthcare.org</span>
                         </li>
                         <li class="flex items-center text-gray-400 mt-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-4 w-4 mr-2">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                                 <circle cx="12" cy="10" r="3"></circle>
                             </svg>
@@ -427,17 +536,178 @@
         </div>
     </footer>
 
-    <!-- Firebase SDK -->
-    <script src="lib/firebase/firebase-app.js"></script>
-    <script src="lib/firebase/firebase-auth.js"></script>
-    <script src="lib/firebase/firebase-firestore.js"></script>
-    <script src="lib/firebase/firebase-storage.js"></script>
-    
-    <!-- JavaScript 파일 -->
-    <script src="assets/js/config/firebase-config.js"></script>
-    <script src="assets/js/services/auth-service.js"></script>
-    <script src="assets/js/components/header.js"></script>
-    <script src="assets/js/pages/home.js"></script>
-    <script src="assets/js/main.js"></script>
+    <!-- 기존 스크립트 대신 -->
+    <script id="firebase-sdk-template" type="text/template">
+    <!-- Firebase SDK - CDN 방식 -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
+
+    <!-- 프로젝트 Firebase 설정 및 서비스 -->
+    <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
+    <script src="{basePath}assets/js/services/auth-service.js"><\/script>
+
+    <!-- 로컬 테스트용 인증 오버라이드 (개발 완료 후 제거) -->
+    <script src="{basePath}assets/js/services/local-auth-override.js"><\/script>
+
+    <!-- 필요한 서비스 모듈 -->
+    <script src="{basePath}assets/js/services/db-service.js"><\/script>
+    <script src="{basePath}assets/js/services/storage-service.js"><\/script>
+</script>
+
+    <!-- 추가 스크립트 템플릿 (페이지별 필요한 스크립트) -->
+    <script id="additional-scripts-template" type="text/template">
+    <!-- 페이지별 필요한 스크립트 -->
+    <script src="{basePath}assets/js/components/header.js"><\/script>
+    <script src="{basePath}assets/js/pages/home.js"><\/script>
+    <script src="{basePath}assets/js/main.js"><\/script>
+</script>
+
+    <!-- 인증 상태 복원 스크립트 -->
+    <script>
+        window.addEventListener('load', function () {
+            console.log('인증 상태 복원 스크립트 실행');
+
+            // 로컬 스토리지에서 사용자 정보 확인
+            try {
+                const savedUserJson = localStorage.getItem('mockUser');
+
+                if (savedUserJson) {
+                    console.log('로컬 스토리지에 저장된 사용자 발견');
+                    const savedUser = JSON.parse(savedUserJson);
+                    const userType = localStorage.getItem('mockUserType');
+
+                    // 직접 헤더 UI 수동 업데이트 (긴급 해결책)
+                    console.log('헤더 UI 수동 업데이트');
+
+                    // 현재 위치에서 기본 URL 추출
+                    const baseUrl = window.location.protocol + '//' + window.location.host + '/';
+                    console.log('기본 URL:', baseUrl);
+
+                    // 수동으로 로그인 상태의 헤더 UI 만들기
+                    const authButtons = document.querySelector('.auth-buttons');
+                    if (authButtons) {
+                        const displayName = savedUser.displayName || savedUser.email;
+
+                        // 관리자 메뉴 옵션 추가
+                        let adminMenuHTML = '';
+                        if (userType === 'admin') {
+                            adminMenuHTML = `<button id="admin-button" class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600">관리자 페이지</button>`;
+                        }
+
+                        // 전체 헤더 UI HTML - 드롭다운 표시 방식 변경
+                        authButtons.innerHTML = `
+                        <div class="user-menu relative">
+                            <button id="user-menu-button" class="flex items-center text-sm text-gray-600 hover:text-blue-600">
+                                <span class="mr-1">${displayName}</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                            <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md p-2 hidden z-10">
+                                <button id="mypage-button" class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md">마이페이지</button>
+                                <button id="course-button" class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md">수강 내역</button>
+                                <button id="cert-button" class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md">자격증 관리</button>
+                                ${adminMenuHTML}
+                                <div class="border-t border-gray-200 my-1"></div>
+                                <button id="logout-button" class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md text-red-600">로그아웃</button>
+                            </div>
+                        </div>
+                        <button id="mobile-menu-button" class="md:hidden ml-4" aria-expanded="false" aria-controls="mobile-menu">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                    `;
+
+                        // 드롭다운 메뉴 토글 기능 추가
+                        const userMenuButton = document.getElementById('user-menu-button');
+                        const userDropdown = document.getElementById('user-dropdown');
+
+                        if (userMenuButton && userDropdown) {
+                            userMenuButton.addEventListener('click', function (event) {
+                                event.stopPropagation(); // 이벤트 전파 중단
+                                userDropdown.classList.toggle('hidden'); // 드롭다운 표시/숨김 토글
+                                console.log('드롭다운 메뉴 토글:', userDropdown.classList.contains('hidden') ? '숨김' : '표시');
+                            });
+
+                            // 페이지 다른 부분 클릭 시 드롭다운 닫기
+                            document.addEventListener('click', function (event) {
+                                if (!userMenuButton.contains(event.target) && !userDropdown.contains(event.target)) {
+                                    userDropdown.classList.add('hidden');
+                                }
+                            });
+
+                            // 드롭다운 항목 클릭 시 이벤트 전파 중단 (드롭다운이 바로 닫히지 않도록)
+                            userDropdown.addEventListener('click', function (event) {
+                                event.stopPropagation();
+                            });
+                        }
+
+                        // 이벤트 리스너 등록
+                        document.getElementById('mypage-button')?.addEventListener('click', function () {
+                            console.log('마이페이지 버튼 클릭');
+                            window.location.href = baseUrl + 'pages/mypage/personal-info.html';
+                        });
+
+                        document.getElementById('course-button')?.addEventListener('click', function () {
+                            console.log('수강 내역 버튼 클릭');
+                            window.location.href = baseUrl + 'pages/mypage/course-history.html';
+                        });
+
+                        document.getElementById('cert-button')?.addEventListener('click', function () {
+                            console.log('자격증 관리 버튼 클릭');
+                            window.location.href = baseUrl + 'pages/mypage/cert-management.html';
+                        });
+
+                        if (userType === 'admin') {
+                            document.getElementById('admin-button')?.addEventListener('click', function () {
+                                console.log('관리자 페이지 버튼 클릭');
+                                const targetUrl = baseUrl + 'pages/admin/dashboard.html';
+
+                                // 현재 URL과 타겟 URL 디버깅
+                                console.log('현재 URL:', window.location.href);
+                                console.log('이동 URL:', targetUrl);
+
+                                // 관리자 페이지로 이동
+                                window.location.href = targetUrl;
+                            });
+                        }
+
+                        document.getElementById('logout-button')?.addEventListener('click', function () {
+                            console.log('로그아웃 버튼 클릭');
+                            localStorage.removeItem('mockUser');
+                            localStorage.removeItem('mockUserType');
+                            window.location.reload();
+                        });
+
+                        // 모바일 메뉴 버튼 이벤트 리스너
+                        document.getElementById('mobile-menu-button')?.addEventListener('click', function () {
+                            const mobileMenu = document.getElementById('mobile-menu');
+                            if (mobileMenu) {
+                                if (mobileMenu.classList.contains('hidden')) {
+                                    mobileMenu.classList.remove('hidden');
+                                    this.setAttribute('aria-expanded', 'true');
+                                } else {
+                                    mobileMenu.classList.add('hidden');
+                                    this.setAttribute('aria-expanded', 'false');
+                                }
+                            }
+                        });
+
+                        console.log('헤더 UI 수동 업데이트 및 이벤트 리스너 등록 완료');
+                    }
+
+                    console.log('인증 상태 복원 완료');
+                } else {
+                    console.log('저장된 사용자 정보 없음');
+                }
+            } catch (e) {
+                console.error('인증 상태 복원 중 오류:', e);
+            }
+        });
+    </script>
 </body>
+
 </html>

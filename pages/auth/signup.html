@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,14 +8,18 @@
     <meta name="description" content="디지털헬스케어센터 회원가입 페이지">
     <link rel="icon" href="../../favicon.ico">
     <link rel="manifest" href="../../manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/main.css">
+    <!-- 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
+    <script src="../../assets/js/utils/script-loader.js"></script>
 </head>
+
 <body class="bg-gray-50">
     <header id="main-header" class="bg-white shadow-md">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="logo">
-                <a href="../../index.html">
+                <a href="javascript:window.location.href=window.adjustPath('index.html')">
                     <img src="../../assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" width="180">
                 </a>
             </div>
@@ -22,49 +27,74 @@
                 <ul class="flex space-x-6">
                     <li class="group relative">
                         <a href="#" class="text-gray-800 hover:text-blue-600 py-2">기관 소개</a>
-                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="../about/overview.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">개요</a></li>
-                            <li><a href="../about/vision.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">목표 및 전략</a></li>
-                            <li><a href="../about/business.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">사업 내용</a></li>
-                            <li><a href="../about/organization.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
-                            <li><a href="../about/instructors.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">개요</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">목표 및 전략</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/business.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">사업 내용</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
                         </ul>
                     </li>
                     <li class="group relative">
                         <a href="#" class="text-gray-800 hover:text-blue-600 py-2">자격증 소개</a>
-                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="../certificate/health-exercise.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">건강운동처방사</a></li>
-                            <li><a href="../certificate/rehabilitation.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동재활전문가</a></li>
-                            <li><a href="../certificate/pilates.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스 전문가</a></li>
-                            <li><a href="../certificate/recreation.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">건강운동처방사</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동재활전문가</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스 전문가</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
                         </ul>
                     </li>
                     <li class="group relative">
                         <a href="#" class="text-gray-800 hover:text-blue-600 py-2">교육 과정</a>
-                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="../education/course-info.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 과정 안내</a></li>
-                            <li><a href="../education/course-application.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
-                            <li><a href="../education/cert-application.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">자격증 신청</a></li>
-                            <li><a href="../education/exam-info.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">시험 안내</a></li>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 과정 안내</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">자격증 신청</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/exam-info.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">시험 안내</a></li>
                         </ul>
                     </li>
                     <li class="group relative">
                         <a href="#" class="text-gray-800 hover:text-blue-600 py-2">게시판</a>
-                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="../board/notice/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">공지사항</a></li>
-                            <li><a href="../board/column/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">칼럼</a></li>
-                            <li><a href="../board/materials/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">강의자료</a></li>
-                            <li><a href="../board/videos/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">동영상 강의</a></li>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">공지사항</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">칼럼</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/materials/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">강의자료</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/videos/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">동영상 강의</a></li>
                         </ul>
                     </li>
                 </ul>
             </nav>
             <div class="auth-buttons flex items-center">
-                <a href="login.html" class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
-                <a href="signup.html" class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/auth/login.html')"
+                    class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/auth/signup.html')"
+                    class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
                 <button id="mobile-menu-button" class="md:hidden ml-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
             </div>
@@ -91,8 +121,11 @@
                     <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
                         <div class="flex items-start">
                             <div class="flex-shrink-0">
-                                <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                        clip-rule="evenodd" />
                                 </svg>
                             </div>
                             <div class="ml-3">
@@ -107,40 +140,52 @@
                     <!-- 이메일 입력 -->
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
-                        <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="이메일 주소를 입력하세요" required>
+                        <input type="email" id="email" name="email"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="이메일 주소를 입력하세요" required>
                         <p class="text-xs text-gray-500 mt-1">이메일은 로그인 아이디로 사용됩니다.</p>
                     </div>
 
                     <!-- 비밀번호 입력 -->
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
-                        <input type="password" id="password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="비밀번호를 입력하세요" required>
+                        <input type="password" id="password" name="password"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="비밀번호를 입력하세요" required>
                         <p class="text-xs text-gray-500 mt-1">8자 이상, 문자와 숫자를 포함해야 합니다.</p>
                     </div>
 
                     <!-- 비밀번호 확인 입력 -->
                     <div>
-                        <label for="password-confirm" class="block text-sm font-medium text-gray-700 mb-1">비밀번호 확인</label>
-                        <input type="password" id="password-confirm" name="password-confirm" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="비밀번호를 다시 입력하세요" required>
+                        <label for="password-confirm" class="block text-sm font-medium text-gray-700 mb-1">비밀번호
+                            확인</label>
+                        <input type="password" id="password-confirm" name="password-confirm"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="비밀번호를 다시 입력하세요" required>
                     </div>
 
                     <!-- 이름 입력 -->
                     <div>
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-1">이름</label>
-                        <input type="text" id="name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="이름을 입력하세요" required>
+                        <input type="text" id="name" name="name"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="이름을 입력하세요" required>
                     </div>
 
                     <!-- 휴대폰 번호 입력 -->
                     <div>
                         <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">휴대폰 번호</label>
-                        <input type="tel" id="phone" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="'-' 없이 입력하세요" required>
+                        <input type="tel" id="phone" name="phone"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="'-' 없이 입력하세요" required>
                     </div>
 
                     <!-- 약관 동의 -->
                     <div class="space-y-4">
                         <div class="flex items-start">
                             <div class="flex items-center h-5">
-                                <input id="terms-all" name="terms-all" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <input id="terms-all" name="terms-all" type="checkbox"
+                                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                             </div>
                             <div class="ml-3 text-sm">
                                 <label for="terms-all" class="font-medium text-gray-700">전체 약관에 동의합니다</label>
@@ -150,38 +195,53 @@
                         <div class="ml-6 space-y-2">
                             <div class="flex items-start">
                                 <div class="flex items-center h-5">
-                                    <input id="terms-service" name="terms-service" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" required>
+                                    <input id="terms-service" name="terms-service" type="checkbox"
+                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        required>
                                 </div>
                                 <div class="ml-3 text-sm">
-                                    <label for="terms-service" class="font-medium text-gray-700">[필수] 서비스 이용약관 동의</label>
-                                    <button type="button" class="text-blue-600 hover:text-blue-800 underline text-xs ml-2" data-modal="terms-service-modal">보기</button>
+                                    <label for="terms-service" class="font-medium text-gray-700">[필수] 서비스 이용약관
+                                        동의</label>
+                                    <button type="button"
+                                        class="text-blue-600 hover:text-blue-800 underline text-xs ml-2"
+                                        data-modal="terms-service-modal">보기</button>
                                 </div>
                             </div>
 
                             <div class="flex items-start">
                                 <div class="flex items-center h-5">
-                                    <input id="terms-privacy" name="terms-privacy" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" required>
+                                    <input id="terms-privacy" name="terms-privacy" type="checkbox"
+                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        required>
                                 </div>
                                 <div class="ml-3 text-sm">
-                                    <label for="terms-privacy" class="font-medium text-gray-700">[필수] 개인정보 수집 및 이용 동의</label>
-                                    <button type="button" class="text-blue-600 hover:text-blue-800 underline text-xs ml-2" data-modal="privacy-modal">보기</button>
+                                    <label for="terms-privacy" class="font-medium text-gray-700">[필수] 개인정보 수집 및 이용
+                                        동의</label>
+                                    <button type="button"
+                                        class="text-blue-600 hover:text-blue-800 underline text-xs ml-2"
+                                        data-modal="privacy-modal">보기</button>
                                 </div>
                             </div>
 
                             <div class="flex items-start">
                                 <div class="flex items-center h-5">
-                                    <input id="terms-marketing" name="terms-marketing" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <input id="terms-marketing" name="terms-marketing" type="checkbox"
+                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                                 </div>
                                 <div class="ml-3 text-sm">
-                                    <label for="terms-marketing" class="font-medium text-gray-700">[선택] 마케팅 정보 수신 동의</label>
-                                    <button type="button" class="text-blue-600 hover:text-blue-800 underline text-xs ml-2" data-modal="marketing-modal">보기</button>
+                                    <label for="terms-marketing" class="font-medium text-gray-700">[선택] 마케팅 정보 수신
+                                        동의</label>
+                                    <button type="button"
+                                        class="text-blue-600 hover:text-blue-800 underline text-xs ml-2"
+                                        data-modal="marketing-modal">보기</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <button type="submit" id="signup-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        <button type="submit" id="signup-btn"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                             회원가입
                         </button>
                     </div>
@@ -198,13 +258,18 @@
                     </div>
 
                     <div class="mt-6 grid grid-cols-1 gap-3">
-                        <button type="button" id="google-signup-btn" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <button type="button" id="google-signup-btn"
+                            class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
-                                    <path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z" />
-                                    <path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z" />
-                                    <path fill="#FBBC05" d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.724 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z" />
-                                    <path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z" />
+                                    <path fill="#4285F4"
+                                        d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z" />
+                                    <path fill="#34A853"
+                                        d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z" />
+                                    <path fill="#FBBC05"
+                                        d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.724 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z" />
+                                    <path fill="#EA4335"
+                                        d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z" />
                                 </g>
                             </svg>
                             Google 계정으로 가입하기
@@ -214,7 +279,8 @@
 
                 <div class="mt-6 text-center">
                     <p class="text-sm text-gray-600">
-                        이미 회원이신가요? <a href="login.html" class="text-blue-600 hover:text-blue-800 font-medium">로그인</a>
+                        이미 회원이신가요? <a href="javascript:window.location.href=window.adjustPath('pages/auth/login.html')"
+                            class="text-blue-600 hover:text-blue-800 font-medium">로그인</a>
                     </p>
                 </div>
             </div>
@@ -222,37 +288,45 @@
     </main>
 
     <!-- 이용약관 모달 -->
-    <div id="terms-service-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div id="terms-service-modal"
+        class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="modal-dialog bg-white rounded-lg max-w-lg w-full mx-4">
             <div class="modal-content">
                 <div class="modal-header flex items-center justify-between p-4 border-b">
                     <h3 class="modal-title text-lg font-bold">서비스 이용약관</h3>
-                    <button type="button" class="close text-gray-500 hover:text-gray-700 focus:outline-none" data-dismiss="modal">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    <button type="button" class="close text-gray-500 hover:text-gray-700 focus:outline-none"
+                        data-dismiss="modal">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>
                 </div>
                 <div class="modal-body p-4 overflow-y-auto" style="max-height: 60vh;">
                     <h4 class="font-bold mb-2">제1조 (목적)</h4>
-                    <p class="mb-4">이 약관은 디지털헬스케어센터(이하 '회사'라 함)가 제공하는 서비스의 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.</p>
-                    
+                    <p class="mb-4">이 약관은 디지털헬스케어센터(이하 '회사'라 함)가 제공하는 서비스의 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항, 기타 필요한 사항을
+                        규정함을 목적으로 합니다.</p>
+
                     <h4 class="font-bold mb-2">제2조 (정의)</h4>
                     <p class="mb-2">이 약관에서 사용하는 용어의 정의는 다음과 같습니다.</p>
                     <ol class="list-decimal pl-5 mb-4">
                         <li class="mb-1">'서비스'라 함은 회사가 제공하는 교육 및 자격 인증 관리 등 모든 서비스를 의미합니다.</li>
                         <li class="mb-1">'회원'이라 함은 회사와 서비스 이용계약을 체결하고 회원 아이디(ID)를 부여받은 자를 의미합니다.</li>
                         <li class="mb-1">'아이디(ID)'라 함은 회원의 식별과 서비스 이용을 위하여 회원이 정하고 회사가 승인하는 문자와 숫자의 조합을 의미합니다.</li>
-                        <li class="mb-1">'비밀번호'라 함은 회원이 부여받은 아이디와 일치되는 회원임을 확인하고 비밀보호를 위해 회원 자신이 정한 문자 또는 숫자의 조합을 의미합니다.</li>
+                        <li class="mb-1">'비밀번호'라 함은 회원이 부여받은 아이디와 일치되는 회원임을 확인하고 비밀보호를 위해 회원 자신이 정한 문자 또는 숫자의 조합을 의미합니다.
+                        </li>
                     </ol>
-                    
+
                     <h4 class="font-bold mb-2">제3조 (약관의 효력 및 변경)</h4>
                     <p class="mb-2">1. 이 약관은 서비스 화면에 게시하거나 기타의 방법으로 회원에게 공지함으로써 효력이 발생합니다.</p>
                     <p class="mb-2">2. 회사는 필요하다고 인정되는 경우 이 약관을 변경할 수 있으며, 변경된 약관은 제1항과 같은 방법으로 공지함으로써 효력이 발생합니다.</p>
-                    <p class="mb-4">3. 회원은 변경된 약관에 동의하지 않을 경우 회원 탈퇴를 요청할 수 있으며, 변경된 약관의 효력 발생일 이후에도 서비스를 계속 이용할 경우 약관의 변경사항에 동의한 것으로 간주됩니다.</p>
-                    
+                    <p class="mb-4">3. 회원은 변경된 약관에 동의하지 않을 경우 회원 탈퇴를 요청할 수 있으며, 변경된 약관의 효력 발생일 이후에도 서비스를 계속 이용할 경우 약관의
+                        변경사항에 동의한 것으로 간주됩니다.</p>
+
                     <h4 class="font-bold mb-2">제4조 (서비스 이용 계약의 성립)</h4>
-                    <p class="mb-2">1. 서비스 이용 계약은 회원이 되고자 하는 자가 약관의 내용에 대하여 동의를 한 다음 회원가입 신청을 하고 회사가 이러한 신청에 대하여 승낙함으로써 체결됩니다.</p>
+                    <p class="mb-2">1. 서비스 이용 계약은 회원이 되고자 하는 자가 약관의 내용에 대하여 동의를 한 다음 회원가입 신청을 하고 회사가 이러한 신청에 대하여 승낙함으로써
+                        체결됩니다.</p>
                     <p class="mb-4">2. 회사는 회원가입 신청자가 다음 각 호에 해당하는 경우에는 승낙을 거부할 수 있습니다.</p>
                     <ul class="list-disc pl-5 mb-4">
                         <li class="mb-1">실명이 아니거나 타인의 명의를 이용한 경우</li>
@@ -261,7 +335,7 @@
                         <li class="mb-1">이전에 회원 자격을 상실한 적이 있는 경우</li>
                         <li class="mb-1">기타 회원으로 등록하는 것이 회사의 서비스 운영 및 기술상 현저히 지장이 있다고 판단되는 경우</li>
                     </ul>
-                    
+
                     <h4 class="font-bold mb-2">제5조 (서비스의 제공 및 변경)</h4>
                     <p class="mb-2">1. 회사는 회원에게 아래와 같은 서비스를 제공합니다.</p>
                     <ul class="list-disc pl-5 mb-2">
@@ -271,26 +345,33 @@
                         <li class="mb-1">커뮤니티 서비스</li>
                         <li class="mb-1">기타 회사가 추가 개발하거나 제휴를 통해 회원에게 제공하는 일체의 서비스</li>
                     </ul>
-                    <p class="mb-4">2. 회사는 서비스의 내용, 이용방법, 이용시간에 대하여 변경이 있는 경우에는 변경사유, 변경될 서비스의 내용 및 제공일자 등을 사전에 회원에게 통지합니다.</p>
-                    
+                    <p class="mb-4">2. 회사는 서비스의 내용, 이용방법, 이용시간에 대하여 변경이 있는 경우에는 변경사유, 변경될 서비스의 내용 및 제공일자 등을 사전에 회원에게
+                        통지합니다.</p>
+
                     <!-- 이하 생략 (실제로는 더 자세한 약관 내용이 들어갈 수 있음) -->
                 </div>
                 <div class="modal-footer flex justify-end p-4 border-t">
-                    <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" data-dismiss="modal">확인</button>
+                    <button type="button"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        data-dismiss="modal">확인</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- 개인정보 수집 및 이용 동의 모달 -->
-    <div id="privacy-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div id="privacy-modal"
+        class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="modal-dialog bg-white rounded-lg max-w-lg w-full mx-4">
             <div class="modal-content">
                 <div class="modal-header flex items-center justify-between p-4 border-b">
                     <h3 class="modal-title text-lg font-bold">개인정보 수집 및 이용 동의</h3>
-                    <button type="button" class="close text-gray-500 hover:text-gray-700 focus:outline-none" data-dismiss="modal">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    <button type="button" class="close text-gray-500 hover:text-gray-700 focus:outline-none"
+                        data-dismiss="modal">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>
                 </div>
@@ -302,7 +383,7 @@
                         <li class="mb-1">선택항목: 주소, 생년월일, 성별, 직업</li>
                         <li class="mb-1">자동수집항목: IP 주소, 쿠키, 방문 일시, 서비스 이용 기록, 기기정보</li>
                     </ul>
-                    
+
                     <h4 class="font-bold mb-2">2. 개인정보 수집 및 이용목적</h4>
                     <p class="mb-2">회사는 수집한 개인정보를 다음의 목적을 위해 활용합니다.</p>
                     <ul class="list-disc pl-5 mb-4">
@@ -310,50 +391,60 @@
                         <li class="mb-1">서비스 제공: 교육 과정 제공, 자격증 시험 접수 및 관리, 콘텐츠 제공</li>
                         <li class="mb-1">마케팅 및 광고에 활용: 신규 서비스 개발 및 특화, 이벤트 등 광고성 정보 전달(선택 동의 시)</li>
                     </ul>
-                    
+
                     <h4 class="font-bold mb-2">3. 개인정보의 보유 및 이용기간</h4>
-                    <p class="mb-2">회사는 회원탈퇴 시 또는 개인정보의 수집 및 이용목적이 달성되면 지체 없이 파기합니다. 단, 다음의 정보에 대해서는 아래의 이유로 명시한 기간 동안 보존합니다.</p>
+                    <p class="mb-2">회사는 회원탈퇴 시 또는 개인정보의 수집 및 이용목적이 달성되면 지체 없이 파기합니다. 단, 다음의 정보에 대해서는 아래의 이유로 명시한 기간 동안
+                        보존합니다.</p>
                     <ol class="list-decimal pl-5 mb-4">
                         <li class="mb-1">보존 항목: 이메일, 이름, 휴대폰 번호, 서비스 이용 기록</li>
                         <li class="mb-1">보존 근거: 전자상거래 등에서의 소비자보호에 관한 법률</li>
                         <li class="mb-1">보존 기간: 5년</li>
                     </ol>
-                    
+
                     <h4 class="font-bold mb-2">4. 개인정보의 파기절차 및 방법</h4>
                     <p class="mb-2">회사는 원칙적으로 개인정보 수집 및 이용목적이 달성된 후에는 해당 정보를 지체 없이 파기합니다. 파기절차 및 방법은 다음과 같습니다.</p>
                     <ul class="list-disc pl-5 mb-4">
-                        <li class="mb-1">파기절차: 회원이 입력한 정보는 목적 달성 후 별도의 DB에 옮겨져 내부 방침 및 기타 관련 법령에 따라 일정기간 저장된 후 혹은 즉시 파기됩니다.</li>
+                        <li class="mb-1">파기절차: 회원이 입력한 정보는 목적 달성 후 별도의 DB에 옮겨져 내부 방침 및 기타 관련 법령에 따라 일정기간 저장된 후 혹은 즉시
+                            파기됩니다.</li>
                         <li class="mb-1">파기방법: 전자적 파일 형태로 저장된 개인정보는 기록을 재생할 수 없는 기술적 방법을 사용하여 삭제합니다.</li>
                     </ul>
-                    
+
                     <!-- 이하 생략 (실제로는 더 자세한 개인정보 처리방침이 들어갈 수 있음) -->
                 </div>
                 <div class="modal-footer flex justify-end p-4 border-t">
-                    <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" data-dismiss="modal">확인</button>
+                    <button type="button"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        data-dismiss="modal">확인</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- 마케팅 정보 수신 동의 모달 -->
-    <div id="marketing-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div id="marketing-modal"
+        class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="modal-dialog bg-white rounded-lg max-w-lg w-full mx-4">
             <div class="modal-content">
                 <div class="modal-header flex items-center justify-between p-4 border-b">
                     <h3 class="modal-title text-lg font-bold">마케팅 정보 수신 동의</h3>
-                    <button type="button" class="close text-gray-500 hover:text-gray-700 focus:outline-none" data-dismiss="modal">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    <button type="button" class="close text-gray-500 hover:text-gray-700 focus:outline-none"
+                        data-dismiss="modal">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>
                 </div>
                 <div class="modal-body p-4 overflow-y-auto" style="max-height: 60vh;">
                     <h4 class="font-bold mb-2">마케팅 정보 수신 동의</h4>
-                    <p class="mb-4">디지털헬스케어센터에서 제공하는 서비스 및 이벤트 정보, 혜택 등의 다양한 정보를 이메일, SMS, 앱 푸시 알림 등을 통해 받아보실 수 있습니다.</p>
-                    
+                    <p class="mb-4">디지털헬스케어센터에서 제공하는 서비스 및 이벤트 정보, 혜택 등의 다양한 정보를 이메일, SMS, 앱 푸시 알림 등을 통해 받아보실 수 있습니다.
+                    </p>
+
                     <h4 class="font-bold mb-2">1. 마케팅 정보 수신 동의 안내</h4>
-                    <p class="mb-4">회사는 고객님께서 마케팅 정보 수신 동의를 하신 경우에 한하여 신규 서비스 및 교육 과정, 이벤트, 프로모션 등의 정보를 제공해 드립니다. 마케팅 정보 수신 동의는 선택사항이며, 동의하지 않으셔도 기본적인 서비스 이용에는 제한이 없습니다.</p>
-                    
+                    <p class="mb-4">회사는 고객님께서 마케팅 정보 수신 동의를 하신 경우에 한하여 신규 서비스 및 교육 과정, 이벤트, 프로모션 등의 정보를 제공해 드립니다. 마케팅 정보
+                        수신 동의는 선택사항이며, 동의하지 않으셔도 기본적인 서비스 이용에는 제한이 없습니다.</p>
+
                     <h4 class="font-bold mb-2">2. 수신 정보 종류</h4>
                     <ul class="list-disc pl-5 mb-4">
                         <li class="mb-1">신규 교육 과정 및 서비스 안내</li>
@@ -361,14 +452,14 @@
                         <li class="mb-1">자격증 시험 일정 및 관련 소식</li>
                         <li class="mb-1">건강/운동 관련 콘텐츠 및 정보</li>
                     </ul>
-                    
+
                     <h4 class="font-bold mb-2">3. 마케팅 정보 수신 채널</h4>
                     <ul class="list-disc pl-5 mb-4">
                         <li class="mb-1">이메일</li>
                         <li class="mb-1">SMS/MMS</li>
                         <li class="mb-1">앱 푸시 알림</li>
                     </ul>
-                    
+
                     <h4 class="font-bold mb-2">4. 수신 동의 철회 방법</h4>
                     <p class="mb-4">마케팅 정보 수신 동의는 언제든지 철회하실 수 있으며, 다음의 방법으로 수신을 거부할 수 있습니다.</p>
                     <ul class="list-disc pl-5 mb-4">
@@ -376,11 +467,14 @@
                         <li class="mb-1">이메일: 수신 이메일 하단의 수신거부 링크 클릭</li>
                         <li class="mb-1">고객센터 문의: 02-123-4567</li>
                     </ul>
-                    
-                    <p class="mb-4">마케팅 정보 수신에 동의하지 않으셔도 회원가입 및 기본 서비스 이용에는 제한이 없으나, 이벤트, 프로모션 등의 혜택 정보를 받아보실 수 없습니다.</p>
+
+                    <p class="mb-4">마케팅 정보 수신에 동의하지 않으셔도 회원가입 및 기본 서비스 이용에는 제한이 없으나, 이벤트, 프로모션 등의 혜택 정보를 받아보실 수 없습니다.
+                    </p>
                 </div>
                 <div class="modal-footer flex justify-end p-4 border-t">
-                    <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" data-dismiss="modal">확인</button>
+                    <button type="button"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        data-dismiss="modal">확인</button>
                 </div>
             </div>
         </div>
@@ -394,25 +488,37 @@
                     <p class="text-gray-400 mb-4">운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼</p>
                     <div class="flex space-x-4 mt-4">
                         <a href="#" class="text-gray-400 hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-5 w-5">
                                 <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
                             </svg>
                         </a>
                         <a href="#" class="text-gray-400 hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-5 w-5">
                                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                                 <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                                 <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                             </svg>
                         </a>
                         <a href="#" class="text-gray-400 hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
-                                <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-5 w-5">
+                                <path
+                                    d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+                                </path>
                             </svg>
                         </a>
                         <a href="#" class="text-gray-400 hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
-                                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-5 w-5">
+                                <path
+                                    d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z">
+                                </path>
                                 <rect x="2" y="9" width="4" height="12"></rect>
                                 <circle cx="4" cy="4" r="2"></circle>
                             </svg>
@@ -422,40 +528,58 @@
                 <div>
                     <h3 class="text-lg font-bold mb-4">바로가기</h3>
                     <ul class="space-y-2">
-                        <li><a href="../about/overview.html" class="text-gray-400 hover:text-white">기관 소개</a></li>
-                        <li><a href="../certificate/health-exercise.html" class="text-gray-400 hover:text-white">자격증 소개</a></li>
-                        <li><a href="../education/course-info.html" class="text-gray-400 hover:text-white">교육 과정</a></li>
-                        <li><a href="../board/notice/index.html" class="text-gray-400 hover:text-white">공지사항</a></li>
-                        <li><a href="../board/column/index.html" class="text-gray-400 hover:text-white">전문가 칼럼</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
+                                class="text-gray-400 hover:text-white">기관 소개</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
+                                class="text-gray-400 hover:text-white">자격증 소개</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
+                                class="text-gray-400 hover:text-white">교육 과정</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')"
+                                class="text-gray-400 hover:text-white">공지사항</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')"
+                                class="text-gray-400 hover:text-white">전문가 칼럼</a></li>
                     </ul>
                 </div>
                 <div>
                     <h3 class="text-lg font-bold mb-4">자격증 정보</h3>
                     <ul class="space-y-2">
-                        <li><a href="../certificate/health-exercise.html" class="text-gray-400 hover:text-white">건강운동처방사</a></li>
-                        <li><a href="../certificate/rehabilitation.html" class="text-gray-400 hover:text-white">운동재활전문가</a></li>
-                        <li><a href="../certificate/pilates.html" class="text-gray-400 hover:text-white">필라테스 전문가</a></li>
-                        <li><a href="../certificate/recreation.html" class="text-gray-400 hover:text-white">레크리에이션지도자</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
+                                class="text-gray-400 hover:text-white">건강운동처방사</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
+                                class="text-gray-400 hover:text-white">운동재활전문가</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
+                                class="text-gray-400 hover:text-white">필라테스 전문가</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
+                                class="text-gray-400 hover:text-white">레크리에이션지도자</a></li>
                     </ul>
                 </div>
                 <div>
                     <h3 class="text-lg font-bold mb-4">고객 지원</h3>
                     <ul class="space-y-2">
                         <li class="flex items-center text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
-                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-4 w-4 mr-2">
+                                <path
+                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                                </path>
                             </svg>
                             <span>02-123-4567</span>
                         </li>
                         <li class="flex items-center text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
-                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-4 w-4 mr-2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+                                </path>
                                 <polyline points="22,6 12,13 2,6"></polyline>
                             </svg>
                             <span>info@digitalhealthcare.org</span>
                         </li>
                         <li class="flex items-center text-gray-400 mt-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-4 w-4 mr-2">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                                 <circle cx="12" cy="10" r="3"></circle>
                             </svg>
@@ -482,17 +606,34 @@
         </div>
     </footer>
 
-    <!-- Firebase SDK -->
-    <script src="../../lib/firebase/firebase-app.js"></script>
-    <script src="../../lib/firebase/firebase-auth.js"></script>
-    <script src="../../lib/firebase/firebase-firestore.js"></script>
-    
-    <!-- JavaScript 파일 -->
-    <script src="../../assets/js/config/firebase-config.js"></script>
-    <script src="../../assets/js/services/auth-service.js"></script>
-    <script src="../../assets/js/components/header.js"></script>
-    <script src="../../assets/js/utils/validators.js"></script>
-    <script src="../../assets/js/pages/auth/signup.js"></script>
-    <script src="../../assets/js/main.js"></script>
+    <!-- Firebase SDK 템플릿 (script-loader.js에 의해 처리됨) -->
+    <script id="firebase-sdk-template" type="text/template">
+        <!-- Firebase SDK - CDN 방식 -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
+
+        <!-- 프로젝트 Firebase 설정 및 서비스 -->
+        <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
+        <script src="{basePath}assets/js/services/auth-service.js"><\/script>
+
+        <!-- 로컬 테스트용 인증 오버라이드 (개발 완료 후 제거) -->
+        <script src="{basePath}assets/js/services/local-auth-override.js"><\/script>
+
+        <!-- 필요한 서비스 모듈 -->
+        <script src="{basePath}assets/js/services/db-service.js"><\/script>
+        <script src="{basePath}assets/js/services/storage-service.js"><\/script>
+    </script>
+
+    <!-- 추가 스크립트 템플릿 (페이지별 필요한 스크립트) -->
+    <script id="additional-scripts-template" type="text/template">
+        <!-- 페이지별 필요한 스크립트 -->
+    <script src="{basePath}assets/js/components/header.js"><\/script>
+        <script src="{basePath}assets/js/utils/validators.js"><\/script>
+        <script src="{basePath}assets/js/pages/auth/signup.js"><\/script>
+        <script src="{basePath}assets/js/main.js"><\/script>
+    </script>
 </body>
+
 </html>

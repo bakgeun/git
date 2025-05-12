@@ -5,229 +5,305 @@
 
 /* 기본 헤더 */
 #main-header {
-    position: relative;
-    background-color: var(--background-white);
-    border-bottom: 1px solid var(--border-light);
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    width: 100%;
-    z-index: var(--z-index-fixed);
-  }
-  
-  /* 스크롤 시 고정 헤더 */
-  #main-header.fixed {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    box-shadow: var(--shadow-md);
-  }
-  
-  /* 헤더 내 컨테이너 */
-  #main-header .container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-  }
-  
-  /* 로고 영역 */
-  #main-header .logo {
-    flex-shrink: 0;
-  }
-  
-  #main-header .logo img {
-    height: auto;
-    max-height: 50px;
-    width: auto;
-  }
-  
-  /* 메인 네비게이션 */
+  position: relative;
+  background-color: var(--background-white);
+  border-bottom: 1px solid var(--border-light);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  z-index: var(--z-index-fixed);
+}
+
+/* 스크롤 시 고정 헤더 */
+#main-header.fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  box-shadow: var(--shadow-md);
+}
+
+/* 헤더 내 컨테이너 */
+#main-header .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+/* 로고 영역 */
+#main-header .logo {
+  flex-shrink: 0;
+}
+
+#main-header .logo img {
+  height: auto;
+  max-height: 50px;
+  width: auto;
+}
+
+/* 메인 네비게이션 */
+#main-header .main-nav {
+  margin-left: auto;
+}
+
+#main-header .main-nav ul {
+  display: flex;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+#main-header .main-nav li {
+  margin: 0;
+  position: relative;
+}
+
+#main-header .main-nav a {
+  color: var(--text-primary);
+  display: block;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  transition: color 0.15s ease-in-out;
+}
+
+#main-header .main-nav a:hover,
+#main-header .main-nav a:focus {
+  color: var(--primary-color);
+}
+
+/* 드롭다운 메뉴 */
+#main-header .submenu {
+  background-color: var(--background-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  display: none; /* hidden 대신 display: none 사용 */
+  left: 0;
+  margin-top: 0.125rem;
+  min-width: 10rem;
+  padding: 0.5rem 0;
+  position: absolute;
+  top: 100%;
+  z-index: var(--z-index-dropdown);
+}
+
+/* 호버 시 서브메뉴 표시 - !important 플래그 추가 */
+#main-header .group:hover .submenu {
+  display: block !important;
+}
+
+#main-header .group:focus-within .submenu {
+  display: block !important;
+}
+
+#main-header .submenu a {
+  color: var(--text-primary);
+  display: block;
+  font-weight: normal;
+  padding: 0.25rem 1.5rem;
+  white-space: nowrap;
+  width: 100%;
+}
+
+#main-header .submenu a:hover,
+#main-header .submenu a:focus {
+  background-color: var(--background-light);
+  color: var(--primary-color);
+}
+
+/* 인증 버튼 영역 */
+#main-header .auth-buttons {
+  display: flex;
+  align-items: center;
+  margin-left: 1rem;
+}
+
+#main-header .login-btn {
+  color: var(--text-secondary);
+  margin-right: 1rem;
+  transition: color 0.15s ease-in-out;
+}
+
+#main-header .login-btn:hover,
+#main-header .login-btn:focus {
+  color: var(--primary-color);
+}
+
+#main-header .signup-btn {
+  background-color: var(--primary-color);
+  border-radius: var(--border-radius);
+  color: white;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.15s ease-in-out;
+}
+
+#main-header .signup-btn:hover,
+#main-header .signup-btn:focus {
+  background-color: var(--secondary-color);
+}
+
+/* 사용자 메뉴 */
+#main-header .user-menu {
+  position: relative;
+}
+
+#main-header .user-menu button {
+  align-items: center;
+  color: var(--text-primary);
+  display: flex;
+  font-weight: 500;
+}
+
+#main-header .user-menu .absolute {
+  background-color: var(--background-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  right: 0;
+  margin-top: 0.5rem;
+  min-width: 12rem;
+  padding: 0.5rem;
+  position: absolute;
+  top: 100%;
+  z-index: var(--z-index-dropdown);
+}
+
+/* 모바일 메뉴 토글 버튼 */
+#mobile-menu-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: none;
+  padding: 0.5rem;
+}
+
+#mobile-menu-button svg {
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+/* 모바일 메뉴 */
+#mobile-menu {
+  position: absolute; /* fixed로 변경할 수도 있음 */
+  top: 100%; /* 헤더 바로 아래에 위치하도록 설정 */
+  left: 0;
+  right: 0;
+  background-color: var(--background-white);
+  border-bottom: 1px solid var(--border-light);
+  padding: 0; /* 상하 패딩 제거 */
+  margin: 0; /* 마진 제거 */
+  width: 100%;
+  z-index: calc(var(--z-index-fixed) - 1); /* 헤더보다 낮은 z-index */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+  /* 스크롤 가능하도록 설정 */
+  max-height: 80vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 모바일 메뉴 내부 컨테이너에 패딩 적용 */
+#mobile-menu .container {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+/* 모바일 메뉴 내부 스타일 */
+#mobile-menu ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+#mobile-menu li {
+  border-bottom: 1px solid var(--border-light);
+  margin: 0; /* 마진 제거 */
+}
+
+#mobile-menu li:last-child {
+  border-bottom: none;
+}
+
+#mobile-menu a {
+  color: var(--text-primary);
+  display: block;
+  padding: 0.75rem 0; /* 탭 영역 확대 */
+  text-decoration: none;
+  font-size: 1.1rem; /* 글자 크기 키움 */
+}
+
+#mobile-menu a:hover,
+#mobile-menu a:focus {
+  color: var(--primary-color);
+}
+
+#mobile-menu .submenu {
+  margin-left: 1rem;
+  padding-top: 0.5rem;
+  display: none;
+  border-top: 1px solid var(--border-light);
+  margin-top: 0.5rem;
+}
+
+#mobile-menu .submenu.show {
+  display: block;
+}
+
+#mobile-menu .submenu a {
+  font-size: 1rem; /* 서브메뉴 글자 크기 조정 */
+  padding: 0.5rem 0; /* 왼쪽 패딩 추가로 계층 구조 표현 */
+  color: var(--text-secondary); /* 서브메뉴 글자색 변경 */
+}
+
+/* 모바일 메뉴 토글 버튼 */
+#mobile-menu-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: none;
+  padding: 0.5rem;
+}
+
+#mobile-menu-button svg {
+  height: 1.75rem; /* 약간 키움 */
+  width: 1.75rem;
+}
+
+/* 모바일 메뉴 확장 아이콘 */
+.mobile-menu-toggle {
+  display: inline-block;
+  margin-left: 0.5rem;
+  transition: transform 0.2s ease;
+}
+
+.mobile-menu-toggle.rotated {
+  transform: rotate(180deg);
+}
+
+/* 반응형 조정 */
+@media (max-width: 768px) {
   #main-header .main-nav {
-    margin-left: auto;
-  }
-  
-  #main-header .main-nav ul {
-    display: flex;
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-  }
-  
-  #main-header .main-nav li {
-    margin: 0;
-    position: relative;
-  }
-  
-  #main-header .main-nav a {
-    color: var(--text-primary);
-    display: block;
-    font-weight: 500;
-    padding: 0.5rem 1rem;
-    text-decoration: none;
-    transition: color 0.15s ease-in-out;
-  }
-  
-  #main-header .main-nav a:hover,
-  #main-header .main-nav a:focus {
-    color: var(--primary-color);
-  }
-  
-  /* 드롭다운 메뉴 */
-  #main-header .submenu {
-    background-color: var(--background-white);
-    border: 1px solid var(--border-light);
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-md);
     display: none;
-    left: 0;
-    margin-top: 0.125rem;
-    min-width: 10rem;
-    padding: 0.5rem 0;
-    position: absolute;
-    top: 100%;
-    z-index: var(--z-index-dropdown);
   }
   
-  #main-header .group:hover .submenu,
-  #main-header .group:focus-within .submenu {
-    display: block;
-  }
-  
-  #main-header .submenu a {
-    color: var(--text-primary);
-    display: block;
-    font-weight: normal;
-    padding: 0.25rem 1.5rem;
-    white-space: nowrap;
-    width: 100%;
-  }
-  
-  #main-header .submenu a:hover,
-  #main-header .submenu a:focus {
-    background-color: var(--background-light);
-    color: var(--primary-color);
-  }
-  
-  /* 인증 버튼 영역 */
-  #main-header .auth-buttons {
-    display: flex;
-    align-items: center;
-    margin-left: 1rem;
-  }
-  
-  #main-header .login-btn {
-    color: var(--text-secondary);
-    margin-right: 1rem;
-    transition: color 0.15s ease-in-out;
-  }
-  
-  #main-header .login-btn:hover,
-  #main-header .login-btn:focus {
-    color: var(--primary-color);
-  }
-  
-  #main-header .signup-btn {
-    background-color: var(--primary-color);
-    border-radius: var(--border-radius);
-    color: white;
-    padding: 0.5rem 1rem;
-    transition: background-color 0.15s ease-in-out;
-  }
-  
-  #main-header .signup-btn:hover,
-  #main-header .signup-btn:focus {
-    background-color: var(--secondary-color);
-  }
-  
-  /* 사용자 메뉴 */
-  #main-header .user-menu {
-    position: relative;
-  }
-  
-  #main-header .user-menu button {
-    align-items: center;
-    color: var(--text-primary);
-    display: flex;
-    font-weight: 500;
-  }
-  
-  #main-header .user-menu .absolute {
-    background-color: var(--background-white);
-    border: 1px solid var(--border-light);
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-md);
-    right: 0;
-    margin-top: 0.5rem;
-    min-width: 12rem;
-    padding: 0.5rem;
-    position: absolute;
-    top: 100%;
-    z-index: var(--z-index-dropdown);
-  }
-  
-  /* 모바일 메뉴 토글 버튼 */
   #mobile-menu-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    display: none;
-    padding: 0.5rem;
-  }
-  
-  #mobile-menu-button svg {
-    height: 1.5rem;
-    width: 1.5rem;
-  }
-  
-  /* 모바일 메뉴 */
-  #mobile-menu {
-    background-color: var(--background-white);
-    border-bottom: 1px solid var(--border-light);
-    padding: 1rem 0;
-    width: 100%;
-  }
-  
-  /* 모바일 메뉴 내부 스타일 */
-  #mobile-menu ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-  }
-  
-  #mobile-menu li {
-    border-bottom: 1px solid var(--border-light);
-    padding: 0.5rem 0;
-  }
-  
-  #mobile-menu li:last-child {
-    border-bottom: none;
-  }
-  
-  #mobile-menu a {
-    color: var(--text-primary);
     display: block;
-    padding: 0.5rem 0;
-    text-decoration: none;
   }
   
-  #mobile-menu a:hover,
-  #mobile-menu a:focus {
-    color: var(--primary-color);
-  }
-  
-  #mobile-menu .submenu {
-    margin-left: 1rem;
-    padding-top: 0.5rem;
-  }
-  
-  /* 반응형 조정 */
-  @media (max-width: 768px) {
-    #main-header .main-nav {
-      display: none;
-    }
-    
-    #mobile-menu-button {
-      display: block;
+  /* 모바일에서 화면 높이가 작을 때를 대비한 최대 높이 조정 */
+  @media (max-height: 600px) {
+    #mobile-menu {
+      max-height: 70vh;
     }
   }
+  
+  /* 아주 작은 화면에서의 조정 */
+  @media (max-width: 320px) {
+    #mobile-menu a {
+      font-size: 1rem;
+      padding: 0.6rem 0;
+    }
+  }
+}

@@ -137,14 +137,16 @@ digital-healthcare-center/
 │   │   │   ├── auth-service.js   # 인증 관련 서비스 ✓
 │   │   │   ├── db-service.js     # 데이터베이스 관련 서비스 ✓
 │   │   │   ├── storage-service.js # 스토리지 관련 서비스 ✓
-│   │   │   └── api-service.js    # 기타 API 호출 서비스 ✓
+│   │   │   ├── api-service.js    # 기타 API 호출 서비스 ✓
+│   │   │   └── local-auth-override.js # 로컬 테스트용 인증 오버라이드 ✓
 │   │   │
 │   │   ├── utils/            # 유틸리티 함수
 │   │   │   ├── validators.js # 유효성 검사 유틸리티 ✓
 │   │   │   ├── formatters.js # 데이터 포맷팅 유틸리티 ✓
 │   │   │   ├── date-utils.js # 날짜 관련 유틸리티 ✓
 │   │   │   ├── dom-utils.js  # DOM 조작 유틸리티 ✓
-│   │   │   └── admin-auth.js # 관리자 권한 확인 미들웨어 ✓
+│   │   │   ├── admin-auth.js # 관리자 권한 확인 미들웨어 ✓
+│   │   │   └── script-loader.js # 스크립트 로더 유틸리티 ✓
 │   │   │
 │   │   ├── components/       # 컴포넌트 스크립트
 │   │   │   ├── header.js     # 헤더 관련 기능 ✓
@@ -203,10 +205,10 @@ digital-healthcare-center/
 ### 완료된 모듈 - 100% 완료
 
 #### 모든 HTML, CSS, JavaScript 파일 개발 완료
-- 총 107개 파일 개발 완료
+- 총 109개 파일 개발 완료
 - HTML: 39개 파일
 - CSS: 26개 파일  
-- JavaScript: 42개 파일
+- JavaScript: 44개 파일
 
 #### 주요 모듈별 개발 현황
 1. **인증 모듈 (Auth)** ✓
@@ -218,161 +220,54 @@ digital-healthcare-center/
 7. **관리자 모듈 (Admin)** ✓
 8. **공통 컴포넌트 및 서비스** ✓
 
-#### 인증 모듈 (Auth) ✓
-- **HTML 페이지**
-  - `pages/auth/login.html` - 로그인 페이지
-  - `pages/auth/signup.html` - 회원가입 페이지
-  - `pages/auth/find-account.html` - 계정찾기 페이지
-- **JavaScript 파일**
-  - `assets/js/pages/auth.js` - 인증 페이지 공통 기능
-  - `assets/js/pages/auth/login.js` - 로그인 기능
-  - `assets/js/pages/auth/signup.js` - 회원가입 기능
-  - `assets/js/pages/auth/find-account.js` - 계정찾기 기능
-- **CSS 파일**
-  - `assets/css/pages/auth.css` - 인증 페이지 스타일
+## 로컬 테스트 및 개발 방법
 
-#### 자격증 모듈 (Certificate) ✓
-- **HTML 페이지**
-  - `pages/certificate/health-exercise.html` - 건강운동처방사
-  - `pages/certificate/rehabilitation.html` - 운동재활전문가
-  - `pages/certificate/pilates.html` - 필라테스 전문가
-  - `pages/certificate/recreation.html` - 레크리에이션지도자
-- **JavaScript 파일**
-  - `assets/js/pages/certificate.js` - 자격증 페이지 공통 기능
-  - `assets/js/pages/certificate/health-exercise.js` - 건강운동처방사 페이지 기능
-  - `assets/js/pages/certificate/rehabilitation.js` - 운동재활전문가 페이지 기능
-  - `assets/js/pages/certificate/pilates.js` - 필라테스 전문가 페이지 기능
-  - `assets/js/pages/certificate/recreation.js` - 레크리에이션지도자 페이지 기능
-- **CSS 파일**
-  - `assets/css/pages/certificate.css` - 자격증 페이지 스타일
+### 로컬 테스트 환경
 
-#### 게시판 모듈 (Board) ✓
-- **HTML 페이지**
-  - `pages/board/notice/index.html` - 공지사항 목록
-  - `pages/board/notice/view.html` - 공지사항 상세보기
-  - `pages/board/column/index.html` - 칼럼 목록
-  - `pages/board/column/view.html` - 칼럼 상세보기
-  - `pages/board/materials/index.html` - 강의자료 목록
-  - `pages/board/materials/view.html` - 강의자료 상세보기
-  - `pages/board/videos/index.html` - 동영상 강의 목록
-  - `pages/board/videos/view.html` - 동영상 강의 상세보기
-- **JavaScript 파일**
-  - `assets/js/pages/board.js` - 게시판 공통 기능 (모든 게시판 타입 지원)
-- **CSS 파일**
-  - `assets/css/pages/board.css` - 게시판 공통 스타일
+로컬 개발 및 테스트를 위해 `local-auth-override.js`와 `script-loader.js` 파일을 추가하여 Firebase 연동 전에도 모든 기능을 테스트할 수 있도록 구성했습니다.
 
-#### 관리자 모듈 (Admin) ✓
-- **HTML 페이지**
-  - `pages/admin/dashboard.html` - 관리자 대시보드
-  - `pages/admin/user-management.html` - 회원 관리
-  - `pages/admin/course-management.html` - 교육 관리
-  - `pages/admin/cert-management.html` - 자격증 관리
-  - `pages/admin/board-management.html` - 게시판 관리
-  - `pages/admin/payment-management.html` - 결제 관리
-- **JavaScript 파일**
-  - `assets/js/utils/admin-auth.js` - 관리자 권한 확인 미들웨어
-  - `assets/js/pages/admin.js` - 관리자 페이지 공통 기능
-  - `assets/js/pages/admin/dashboard.js` - 대시보드 기능
-  - `assets/js/pages/admin/user-management.js` - 회원 관리 기능
-  - `assets/js/pages/admin/course-management.js` - 교육 관리 기능
-  - `assets/js/pages/admin/cert-management.js` - 자격증 관리 기능
-  - `assets/js/pages/admin/board-management.js` - 게시판 관리 기능
-  - `assets/js/pages/admin/payment-management.js` - 결제 관리 기능
-- **CSS 파일**
-  - `assets/css/pages/admin.css` - 관리자 페이지 스타일
+#### 테스트 계정
+- **관리자 계정**
+  - 이메일: admin@test.com
+  - 비밀번호: admin123
+- **일반 사용자 계정**
+  - 이메일: student@test.com
+  - 비밀번호: student123
 
-#### 공통 모듈 ✓
-- **서비스 모듈**
-  - `assets/js/services/auth-service.js` - Firebase 인증 서비스
-  - `assets/js/services/db-service.js` - Firestore 데이터베이스 서비스
-  - `assets/js/services/storage-service.js` - Firebase Storage 서비스
-- **유틸리티 모듈**
-  - `assets/js/utils/validators.js` - 입력값 유효성 검사
-  - `assets/js/utils/formatters.js` - 데이터 포맷팅
-  - `assets/js/utils/date-utils.js` - 날짜 처리
-  - `assets/js/utils/dom-utils.js` - DOM 조작
-- **컴포넌트 모듈**
-  - `assets/js/components/header.js` - 헤더 기능
-- **기타**
-  - `assets/js/main.js` - 메인 JavaScript
-  - `assets/js/config/firebase-config.js` - Firebase 설정
-  - `assets/css/main.css` - 메인 CSS
-  - `assets/js/pages/home.js` - 홈페이지 스크립트
+#### 스크립트 로딩 방식
+모든 페이지는 일관된 스크립트 로딩 방식을 채택하여, 페이지 깊이에 관계없이 동일한 코드로 스크립트를 로드합니다:
 
-## CSS 및 JavaScript 모듈화
+```html
+<!-- 스크립트 로더 - head 태그 안에 추가 -->
+<script src="../../assets/js/utils/script-loader.js"></script>
 
-### CSS 모듈화
+<!-- 페이지 하단에 추가 -->
+<script id="firebase-sdk-template" type="text/template">
+    <!-- Firebase SDK - CDN 방식 -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
 
-프로젝트는 다음과 같은 CSS 모듈 구조를 따릅니다:
+    <!-- 프로젝트 Firebase 설정 및 서비스 -->
+    <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
+    <script src="{basePath}assets/js/services/auth-service.js"><\/script>
 
-- **base/**: 기본 스타일, 리셋, 타이포그래피, 변수 정의
-- **layout/**: 레이아웃 구조 관련 스타일 (헤더, 푸터, 그리드 등)
-- **components/**: 재사용 가능한 UI 컴포넌트 스타일
-- **pages/**: 페이지별 특정 스타일
-- **utilities/**: 유틸리티 클래스
+    <!-- 로컬 테스트용 인증 오버라이드 (개발 완료 후 제거) -->
+    <script src="{basePath}assets/js/services/local-auth-override.js"><\/script>
 
-모든 CSS 파일은 `main.css`에서 임포트되어 단일 스타일시트로 제공됩니다.
+    <!-- 필요한 서비스 모듈 -->
+    <script src="{basePath}assets/js/services/db-service.js"><\/script>
+    <script src="{basePath}assets/js/services/storage-service.js"><\/script>
+</script>
+```
 
-### JavaScript 모듈화
+#### 네비게이션 링크 처리
+모든 페이지의 네비게이션 링크는 다음과 같은 방식으로 구현되어 페이지 깊이에 관계없이 올바른 경로로 이동합니다:
 
-JavaScript 코드는 다음과 같은 모듈 패턴으로 구성됩니다:
-
-- **config/**: 설정 파일 (Firebase 등)
-- **services/**: 외부 서비스 연동 모듈 (인증, 데이터베이스, 스토리지 등)
-- **utils/**: 유틸리티 함수 (유효성 검사, 포맷팅, 날짜 처리, DOM 조작 등)
-- **components/**: UI 컴포넌트 관련 기능
-- **pages/**: 페이지별 스크립트
-  - 일반 페이지 스크립트
-  - 하위 폴더를 통한 관련 페이지 그룹화 (auth/, certificate/, admin/ 등)
-
-각 모듈은 즉시 실행 함수 표현식(IIFE)을 사용하여 캡슐화하고 전역 네임스페이스 오염을 방지합니다.
-
-## 관리자 기능
-
-관리자 모듈은 다음과 같은 기능을 제공합니다:
-
-### 대시보드
-- 전체 통계 표시 (회원수, 교육과정, 자격증, 수익)
-- 최근 가입 회원 및 교육 신청 현황
-- 시스템 상태 모니터링
-- 실시간 데이터 업데이트
-
-### 회원 관리
-- 회원 목록 조회/검색/필터링
-- 회원 추가/수정/삭제
-- 회원 유형 관리 (수강생/강사/관리자)
-- 회원 상태 관리 (활성/비활성/정지)
-
-### 교육 관리
-- 교육 과정 목록 조회/검색/필터링
-- 교육 과정 추가/수정/삭제
-- 수강생 목록 확인
-- 교육 과정 상태 관리
-
-### 자격증 관리
-- 자격증 목록 조회/검색/필터링
-- 자격증 발급/수정/취소
-- 자격증 번호 자동 생성
-- 만료일 자동 체크
-- PDF 다운로드 기능
-
-### 게시판 관리
-- 다중 게시판 통합 관리
-- 게시글 추가/수정/삭제
-- 게시판별 특화 기능
-  - 공지사항: 중요 공지 표시
-  - 칼럼: 저자 및 카테고리 관리
-  - 강의자료: 파일 첨부
-  - 동영상: 동영상 URL 관리
-
-### 결제 관리
-- 결제 내역 조회/검색/필터링
-- 결제 통계 및 현황
-- 환불 처리
-- 결제 취소
-- 실시간 결제 알림
-
-## 개발 및 실행 방법
+```html
+<a href="javascript:window.location.href=window.adjustPath('pages/admin/dashboard.html')">대시보드</a>
+```
 
 ### 개발 환경 설정
 
@@ -433,10 +328,25 @@ firebase deploy
 1. 모든 파일을 웹 호스팅 서버에 업로드
 2. 필요한 경우 `.htaccess` 파일 등을 통해 URL 리다이렉션 설정
 
+### 실제 환경 전환 방법
+
+Firebase 연동이 완료되면 다음과 같이 실제 환경으로 전환할 수 있습니다:
+
+1. `local-auth-override.js` 파일에서 LOCAL_TEST_MODE 변수를 false로 설정:
+```javascript
+const LOCAL_TEST_MODE = false;
+```
+
+2. 또는 모든 HTML 파일에서 로컬 인증 오버라이드 스크립트 로드 부분을 제거:
+```html
+<!-- 이 줄 제거 -->
+<script src="{basePath}assets/js/services/local-auth-override.js"><\/script>
+```
+
 ## 사용된 외부 리소스
 
-- [Tailwind CSS](https://tailwindcss.com/) - UI 스타일링
 - [Firebase](https://firebase.google.com/) - 백엔드 서비스
+- [Tailwind CSS](https://tailwindcss.com/) - UI 스타일링
 - [Google Fonts - Noto Sans KR](https://fonts.google.com/specimen/Noto+Sans+KR) - 웹 폰트
 - [Heroicons](https://heroicons.com/) - 아이콘
 
@@ -458,6 +368,14 @@ firebase deploy
 - **개발자**: [개발자 이메일](mailto:bakgeun82@gmail.com)
 
 ## 변경 이력
+
+### 2025-05-13
+- 스크립트 로더 유틸리티 추가
+  - 페이지 깊이에 관계없는 일관된 스크립트 로딩 구현
+  - 네비게이션 링크 경로 자동 조정 기능 추가
+- 로컬 테스트용 인증 오버라이드 추가
+  - Firebase 연동 전 테스트 계정으로 기능 테스트 가능
+  - 개발 완료 후 쉽게 제거 가능한 구조로 구현
 
 ### 2025-05-12
 - 관리자 모듈 완성
@@ -499,237 +417,3 @@ firebase deploy
   - Firebase 인증, 데이터베이스, 스토리지 서비스 구현
 - 유틸리티 모듈 개발
   - 유효성 검사, 포맷팅, 날짜 처리, DOM 조작 유틸리티 구현
-
-## 데이터베이스 구조
-
-### Firestore 컬렉션 구조
-
-#### users (사용자 정보)
-```
-{
-  uid: string,
-  email: string,
-  displayName: string,
-  phoneNumber: string,
-  address: string,
-  birthdate: timestamp,
-  gender: string,
-  userType: string, // 'student', 'instructor', 'admin'
-  status: string, // 'active', 'inactive', 'suspended'
-  createdAt: timestamp,
-  updatedAt: timestamp,
-  lastLogin: timestamp
-}
-```
-
-#### courses (교육 과정)
-```
-{
-  id: string,
-  title: string,
-  certificateType: string, // 'health-exercise', 'rehabilitation', 'pilates', 'recreation'
-  startDate: timestamp,
-  endDate: timestamp,
-  price: number,
-  capacity: number,
-  enrolledCount: number,
-  instructor: string,
-  location: string,
-  status: string, // 'preparing', 'active', 'closed', 'completed'
-  description: string,
-  createdAt: timestamp,
-  updatedAt: timestamp
-}
-```
-
-#### certificates (자격증)
-```
-{
-  id: string,
-  certificateNumber: string,
-  certificateType: string,
-  courseId: string,
-  userId: string,
-  holderName: string,
-  issueDate: timestamp,
-  expiryDate: timestamp,
-  status: string, // 'active', 'expired', 'revoked'
-  remarks: string,
-  createdAt: timestamp,
-  updatedAt: timestamp
-}
-```
-
-#### enrollments (수강 신청)
-```
-{
-  id: string,
-  userId: string,
-  courseId: string,
-  status: string, // 'enrolled', 'completed', 'cancelled'
-  enrolledAt: timestamp,
-  completedAt: timestamp,
-  cancelledAt: timestamp,
-  createdAt: timestamp,
-  updatedAt: timestamp
-}
-```
-
-#### payments (결제)
-```
-{
-  id: string,
-  paymentId: string,
-  userId: string,
-  courseId: string,
-  amount: number,
-  paymentMethod: string, // 'card', 'transfer', 'vbank'
-  status: string, // 'pending', 'completed', 'failed', 'cancelled', 'refund_requested', 'refunded'
-  pgResponse: object,
-  refundInfo: object,
-  createdAt: timestamp,
-  updatedAt: timestamp
-}
-```
-
-#### board_* (게시판 - notice, column, materials, videos)
-```
-{
-  id: string,
-  title: string,
-  content: string,
-  authorId: string,
-  viewCount: number,
-  status: string, // 'published', 'draft', 'hidden'
-  boardType: string,
-  // 게시판별 추가 필드
-  isImportant: boolean, // notice
-  author: string, // column
-  category: string, // column, materials
-  attachments: array, // materials
-  videoUrl: string, // videos
-  duration: string, // videos
-  createdAt: timestamp,
-  updatedAt: timestamp
-}
-```
-
-## 보안 고려사항
-
-### 인증 및 권한
-- Firebase Authentication을 통한 사용자 인증
-- Firestore Security Rules를 통한 데이터 접근 제어
-- 관리자 권한 미들웨어를 통한 관리자 페이지 보호
-
-### 데이터 보호
-- 클라이언트 사이드 유효성 검사
-- 서버 사이드 유효성 검사 (Firebase Rules)
-- 민감한 정보의 암호화 저장
-
-### XSS 및 CSRF 방지
-- 사용자 입력 데이터의 이스케이핑
-- Firebase의 보안 토큰 사용
-
-## 성능 최적화
-
-### 코드 최적화
-- JavaScript 모듈화를 통한 코드 분리
-- 필요한 스크립트만 페이지별로 로드
-- 비동기 처리를 통한 UI 블로킹 방지
-
-### 데이터베이스 최적화
-- 페이지네이션을 통한 대용량 데이터 처리
-- 인덱스 활용한 빠른 검색
-- 실시간 리스너는 필요한 경우에만 사용
-
-### 이미지 최적화
-- 적절한 이미지 포맷 사용
-- 이미지 압축
-- 레이지 로딩 적용
-
-## 접근성 고려사항
-
-- 시맨틱 HTML 사용
-- ARIA 레이블 활용
-- 키보드 네비게이션 지원
-- 충분한 색상 대비
-- 반응형 디자인
-
-## 향후 개발 계획
-
-### 단기 계획
-1. 교육 모듈 개발
-   - 교육 과정 안내
-   - 교육 신청/결제
-   - 시험 안내
-   
-2. 마이페이지 모듈 개발
-   - 개인정보 관리
-   - 수강 내역
-   - 자격증 관리
-   - 결제 내역
-
-3. 기관 소개 모듈 개발
-   - 센터 소개
-   - 비전 및 전략
-   - 조직도
-   - 강사 소개
-
-### 장기 계획
-1. Progressive Web App (PWA) 구현
-2. 다국어 지원
-3. 모바일 앱 개발
-4. 실시간 채팅 상담 기능
-5. 온라인 시험 시스템 구현
-6. 학습 관리 시스템(LMS) 통합
-
-## 주요 기능 사용 예시
-
-### 관리자 로그인
-1. 관리자 계정으로 로그인
-2. 헤더의 드롭다운 메뉴에서 '관리자 페이지' 선택
-3. 관리자 대시보드로 이동
-
-### 자격증 발급
-1. 관리자 페이지 > 자격증 관리 접속
-2. '자격증 발급' 버튼 클릭
-3. 교육 과정 및 수료자 선택
-4. 발급일/만료일 설정
-5. 자격증 발급 완료
-
-### 게시글 작성
-1. 관리자 페이지 > 게시판 관리 접속
-2. 게시판 유형 선택 (공지사항/칼럼/강의자료/동영상)
-3. '게시글 추가' 버튼 클릭
-4. 내용 작성 및 저장
-
-### 결제 환불 처리
-1. 관리자 페이지 > 결제 관리 접속
-2. 환불 요청된 결제 검색
-3. '환불' 버튼 클릭
-4. 환불 금액 및 사유 입력
-5. 환불 처리 완료
-
-## 트러블슈팅
-
-### Firebase 연결 오류
-- Firebase 설정 파일 확인
-- 네트워크 연결 상태 확인
-- Firebase 프로젝트 활성화 상태 확인
-
-### 페이지 로딩 오류
-- JavaScript 콘솔 에러 확인
-- 파일 경로 확인
-- Firebase SDK 로딩 순서 확인
-
-### 권한 오류
-- 사용자 로그인 상태 확인
-- Firestore Security Rules 확인
-- 관리자 권한 확인
-
-## 참고 문서
-
-- [Firebase 공식 문서](https://firebase.google.com/docs)
-- [Tailwind CSS 문서](https://tailwindcss.com/docs)
-- [MDN Web Docs](https://developer.mozilla.org/)
-- [Google Web Fundamentals](https://developers.google.com/web/fundamentals)

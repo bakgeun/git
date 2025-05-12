@@ -1,24 +1,29 @@
 <!-- pages/about/overview.html -->
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>기관 소개 - 디지털헬스케어센터</title>
+    <title>센터 소개 - 문경 부설 디지털헬스케어센터</title>
     <!-- 파비콘 -->
-    <link rel="shortcut icon" href="../../favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="../../assets/images/logo/logo.jpeg" type="image/x-icon">
     <!-- CSS 파일 -->
     <link rel="stylesheet" href="../../assets/css/main.css">
     <!-- 노토 산스 KR 폰트 -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <!-- 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
+    <script src="../../assets/js/utils/script-loader.js"></script>
 </head>
+
 <body>
     <!-- 헤더 영역 -->
     <header id="main-header" class="bg-white shadow-md">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <!-- 로고 -->
             <div class="logo">
-                <a href="../../index.html">
+                <a href="javascript:window.location.href=window.adjustPath('index.html')">
                     <img src="../../assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" width="180">
                 </a>
             </div>
@@ -28,51 +33,79 @@
                 <ul class="flex space-x-6">
                     <li class="group relative">
                         <a href="#" class="text-blue-600 font-bold py-2">기관 소개</a>
-                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="overview.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600">개요</a></li>
-                            <li><a href="vision.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">목표 및 전략</a></li>
-                            <li><a href="business.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">사업 내용</a></li>
-                            <li><a href="organization.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
-                            <li><a href="instructors.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">개요</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">목표 및 전략</a>
+                            </li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/business.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600">사업 내용</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a>
+                            </li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사
+                                    소개</a></li>
                         </ul>
                     </li>
                     <li class="group relative">
                         <a href="#" class="text-gray-800 hover:text-blue-600 py-2">자격증 소개</a>
-                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="../certificate/health-exercise.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">건강운동처방사</a></li>
-                            <li><a href="../certificate/rehabilitation.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동재활전문가</a></li>
-                            <li><a href="../certificate/pilates.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스 전문가</a></li>
-                            <li><a href="../certificate/recreation.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">건강운동처방사</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동재활전문가</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스 전문가</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
                         </ul>
                     </li>
                     <li class="group relative">
                         <a href="#" class="text-gray-800 hover:text-blue-600 py-2">교육 과정</a>
-                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="../education/course-info.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 과정 안내</a></li>
-                            <li><a href="../education/course-application.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
-                            <li><a href="../education/cert-application.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">자격증 신청</a></li>
-                            <li><a href="../education/exam-info.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">시험 안내</a></li>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 과정 안내</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">자격증 신청</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/exam-info.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">시험 안내</a></li>
                         </ul>
                     </li>
                     <li class="group relative">
                         <a href="#" class="text-gray-800 hover:text-blue-600 py-2">게시판</a>
-                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="../board/notice/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">공지사항</a></li>
-                            <li><a href="../board/column/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">칼럼</a></li>
-                            <li><a href="../board/materials/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">강의자료</a></li>
-                            <li><a href="../board/videos/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">동영상 강의</a></li>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">공지사항</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">칼럼</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/materials/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">강의자료</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/videos/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">동영상 강의</a></li>
                         </ul>
                     </li>
                 </ul>
             </nav>
-            
+
             <!-- 인증 버튼 영역 -->
             <div class="auth-buttons flex items-center">
-                <a href="../auth/login.html" class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
-                <a href="../auth/signup.html" class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/auth/login.html')"
+                    class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/auth/signup.html')"
+                    class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
                 <button id="mobile-menu-button" class="md:hidden ml-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
             </div>
@@ -89,8 +122,8 @@
     <!-- 페이지 제목 영역 -->
     <div class="bg-gradient-to-r from-blue-600 to-green-500 text-white py-12">
         <div class="container mx-auto px-4">
-            <h1 class="text-3xl md:text-4xl font-bold mb-2">기관 소개</h1>
-            <p class="text-lg">운동과학 기반 전문직업인력 양성을 위한 디지털헬스케어센터를 소개합니다.</p>
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">사업 내용</h1>
+            <p class="text-lg">사&rpar;문경 부설 디지털헬스케어센터가 수행하는 주요 사업을 소개합니다.</p>
         </div>
     </div>
 
@@ -98,11 +131,17 @@
     <div class="bg-white border-b sticky top-0 z-20">
         <div class="container mx-auto px-4">
             <ul class="flex overflow-x-auto py-4 space-x-6">
-                <li><a href="overview.html" class="text-blue-600 border-b-2 border-blue-600 pb-2 font-bold">개요</a></li>
-                <li><a href="vision.html" class="text-gray-700 hover:text-blue-600 pb-2">목표 및 전략</a></li>
-                <li><a href="business.html" class="text-gray-700 hover:text-blue-600 pb-2">사업 내용</a></li>
-                <li><a href="organization.html" class="text-gray-700 hover:text-blue-600 pb-2">조직도</a></li>
-                <li><a href="instructors.html" class="text-gray-700 hover:text-blue-600 pb-2">강사 소개</a></li>
+                <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
+                        class="text-blue-600 border-b-2 border-blue-600 pb-2 font-bold">개요</a></li>
+                <li><a href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')"
+                        class="text-gray-700 hover:text-blue-600 pb-2">목표 및 전략</a></li>
+                <li><a href="javascript:window.location.href=window.adjustPath('pages/about/business.html')"
+                        class="text-gray-700 hover:text-blue-600 pb-2">사업 내용</a>
+                </li>
+                <li><a href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')"
+                        class="text-gray-700 hover:text-blue-600 pb-2">조직도</a></li>
+                <li><a href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')"
+                        class="text-gray-700 hover:text-blue-600 pb-2">강사 소개</a></li>
             </ul>
         </div>
     </div>
@@ -112,15 +151,15 @@
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
                 <div>
-                    <h2 class="text-3xl font-bold mb-6 text-gray-900">디지털헬스케어센터 소개</h2>
+                    <h2 class="text-3xl font-bold mb-6 text-gray-900">사&rpar;문경 부설 디지털헬스케어센터 소개</h2>
                     <p class="text-lg text-gray-700 mb-4">
-                        디지털헬스케어센터는 운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼입니다. 
-                        우리 센터는 건강운동과 관련된 다양한 분야의 전문가를 양성하고, 체계적인 교육과 인증을 통해 
+                        사&rpar;문경 부설 디지털헬스케어센터는 운동과학 기반 전문직업인력 양성을 위한 민간자격 기관 입니다.
+                        우리 센터는 건강운동과 관련된 다양한 분야의 전문가를 양성하고, 체계적인 교육과 인증을 통해
                         국내 건강관리 서비스의 질적 향상에 기여하고 있습니다.
                     </p>
                     <p class="text-lg text-gray-700 mb-4">
                         건강운동처방사, 운동재활전문가, 필라테스 전문가, 레크리에이션지도자 등
-                        다양한 민간자격증을 운영하며, 이론과 실습이 결합된 과학적 교육과정을 통해 
+                        다양한 민간자격과정을 운영하며, 이론과 실습이 결합된 과학적 교육과정을 통해
                         건강운동 분야의 전문가로 성장할 수 있도록 지원합니다.
                     </p>
                 </div>
@@ -128,15 +167,17 @@
                     <img src="../../assets/images/about/center-overview.jpg" alt="디지털헬스케어센터 전경" class="w-full h-auto">
                 </div>
             </div>
-            
+
             <!-- 주요 특징 섹션 -->
             <div class="bg-gray-50 rounded-xl p-8 mb-16">
                 <h2 class="text-2xl font-bold mb-8 text-center">디지털헬스케어센터의 주요 특징</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div class="bg-white p-6 rounded-lg shadow-md">
                         <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 mx-auto">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                             </svg>
                         </div>
                         <h3 class="text-xl font-bold mb-2 text-center">체계적인 교육과정</h3>
@@ -144,8 +185,10 @@
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow-md">
                         <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 mx-auto">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                             </svg>
                         </div>
                         <h3 class="text-xl font-bold mb-2 text-center">공신력 있는 인증 시스템</h3>
@@ -153,8 +196,10 @@
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow-md">
                         <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4 mx-auto">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
                         </div>
                         <h3 class="text-xl font-bold mb-2 text-center">최고의 전문가 네트워크</h3>
@@ -162,7 +207,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- 역사와 발전 과정 -->
             <h2 class="text-2xl font-bold mb-6">디지털헬스케어센터의 역사</h2>
             <div class="relative border-l-2 border-blue-500 pl-8 ml-4 mb-16">
@@ -170,7 +215,7 @@
                     <div class="absolute -left-10 top-0 w-6 h-6 bg-blue-500 rounded-full"></div>
                     <h3 class="text-xl font-bold mb-2">2021년 - 센터 설립</h3>
                     <p class="text-gray-700">
-                        운동과학 기반 전문인력 양성을 위한 디지털헬스케어센터가 설립되었습니다. 
+                        운동과학 기반 전문인력 양성을 위한 디지털헬스케어센터가 설립되었습니다.
                         건강운동처방사와 운동재활전문가 자격증 과정을 시작으로 전문인력 양성을 시작했습니다.
                     </p>
                 </div>
@@ -178,7 +223,7 @@
                     <div class="absolute -left-10 top-0 w-6 h-6 bg-blue-500 rounded-full"></div>
                     <h3 class="text-xl font-bold mb-2">2022년 - 온라인 플랫폼 구축</h3>
                     <p class="text-gray-700">
-                        교육의 접근성을 높이기 위해 온라인 교육 플랫폼을 구축하고, 
+                        교육의 접근성을 높이기 위해 온라인 교육 플랫폼을 구축하고,
                         필라테스 전문가와 레크리에이션지도자 자격증 과정을 추가하여 교육 분야를 확장했습니다.
                     </p>
                 </div>
@@ -186,7 +231,7 @@
                     <div class="absolute -left-10 top-0 w-6 h-6 bg-blue-500 rounded-full"></div>
                     <h3 class="text-xl font-bold mb-2">2023년 - 파트너십 확대</h3>
                     <p class="text-gray-700">
-                        전국 지역 대학, 평생교육원 등과의 협력 네트워크를 구축하고, 
+                        전국 지역 대학, 평생교육원 등과의 협력 네트워크를 구축하고,
                         현장 실습 프로그램을 강화하여 교육의 질을 높였습니다.
                     </p>
                 </div>
@@ -194,23 +239,23 @@
                     <div class="absolute -left-10 top-0 w-6 h-6 bg-blue-500 rounded-full"></div>
                     <h3 class="text-xl font-bold mb-2">2024년 - 디지털 전환 강화</h3>
                     <p class="text-gray-700">
-                        원격 평생교육 디지털 플랫폼을 고도화하고, 빅데이터와 AI를 활용한 
+                        원격 평생교육 디지털 플랫폼을 고도화하고,
                         맞춤형 교육 시스템을 구축하여 개인별 최적화된 학습 경험을 제공하고 있습니다.
                     </p>
                 </div>
             </div>
-            
+
             <!-- 미션과 가치 -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
                 <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-8 rounded-lg text-white shadow-lg">
                     <h3 class="text-2xl font-bold mb-4">미션</h3>
                     <p class="text-lg mb-4">
-                        디지털헬스케어센터는 운동과학 기반의 전문지식과 실무 능력을 갖춘 
+                        디지털헬스케어센터는 운동과학 기반의 전문지식과 실무 능력을 갖춘
                         건강운동 전문가를 양성하여 국민 건강 증진에 기여합니다.
                     </p>
                     <ul class="list-disc list-inside space-y-2">
                         <li>전문적인 교육과 체계적인 자격 인증</li>
-                        <li>디지털 기술을 활용한 혁신적인 교육 방법</li>
+                        <li>건강지도전문가 양성을 통한 국민 건강 증진</li>
                         <li>현장 중심의 실용적인 교육 콘텐츠</li>
                     </ul>
                 </div>
@@ -236,11 +281,11 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- 협력 네트워크 -->
             <h2 class="text-2xl font-bold mb-6">협력 네트워크</h2>
             <p class="text-lg text-gray-700 mb-6">
-                디지털헬스케어센터는 다양한 기관들과의 협력을 통해 
+                디지털헬스케어센터는 다양한 기관들과의 협력을 통해
                 더 나은 교육 서비스를 제공하고 있습니다. 주요 협력 기관은 다음과 같습니다:
             </p>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
@@ -269,17 +314,20 @@
                     <img src="../../assets/images/about/partner8.png" alt="협력 기관 로고" class="max-h-16">
                 </div>
             </div>
-            
+
             <!-- CTA 섹션 -->
             <div class="bg-gradient-to-r from-blue-600 to-green-500 rounded-xl p-8 text-white text-center">
-                <h2 class="text-2xl font-bold mb-4">디지털헬스케어센터와 함께 성장하세요</h2>
+                <h2 class="text-2xl font-bold mb-4">디지털헬스케어센터의 사업에 참여하세요</h2>
                 <p class="text-lg mb-6 max-w-2xl mx-auto">
-                    전문적인 교육과 자격증을 통해 건강운동 분야의 전문가로 성장하고 싶으신가요?
-                    디지털헬스케어센터에서 제공하는 다양한 교육 과정을 확인해보세요.
+                    연구, 교육, 국제협력 등 다양한 사업을 통해 건강운동 분야의
+                    전문가로 성장하고 함께 발전해 나가세요.
                 </p>
                 <div class="flex flex-wrap justify-center gap-4">
-                    <a href="../education/course-info.html" class="bg-white text-blue-600 hover:bg-gray-100 px-6 py-3 rounded-md font-medium">교육 과정 알아보기</a>
-                    <a href="../certificate/health-exercise.html" class="bg-transparent hover:bg-white hover:text-blue-600 text-white border border-white px-6 py-3 rounded-md font-medium">자격증 정보 보기</a>
+                    <a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
+                        class="bg-white text-blue-600 hover:bg-gray-100 px-6 py-3 rounded-md font-medium">교육 과정 알아보기</a>
+                    <a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
+                        class="bg-transparent hover:bg-white hover:text-blue-600 text-white border border-white px-6 py-3 rounded-md font-medium">자격증
+                        정보 보기</a>
                 </div>
             </div>
         </div>
@@ -294,25 +342,37 @@
                     <p class="text-gray-400 mb-4">운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼</p>
                     <div class="flex space-x-4 mt-4">
                         <a href="#" class="text-gray-400 hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-5 w-5">
                                 <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
                             </svg>
                         </a>
                         <a href="#" class="text-gray-400 hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-5 w-5">
                                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                                 <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                                 <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                             </svg>
                         </a>
                         <a href="#" class="text-gray-400 hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
-                                <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-5 w-5">
+                                <path
+                                    d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+                                </path>
                             </svg>
                         </a>
                         <a href="#" class="text-gray-400 hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
-                                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-5 w-5">
+                                <path
+                                    d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z">
+                                </path>
                                 <rect x="2" y="9" width="4" height="12"></rect>
                                 <circle cx="4" cy="4" r="2"></circle>
                             </svg>
@@ -322,40 +382,55 @@
                 <div>
                     <h3 class="text-lg font-bold mb-4">바로가기</h3>
                     <ul class="space-y-2">
-                        <li><a href="overview.html" class="text-gray-400 hover:text-white">기관 소개</a></li>
-                        <li><a href="../certificate/health-exercise.html" class="text-gray-400 hover:text-white">자격증 소개</a></li>
-                        <li><a href="../education/course-info.html" class="text-gray-400 hover:text-white">교육 과정</a></li>
-                        <li><a href="../board/notice/index.html" class="text-gray-400 hover:text-white">공지사항</a></li>
-                        <li><a href="../board/column/index.html" class="text-gray-400 hover:text-white">전문가 칼럼</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')" class="text-gray-400 hover:text-white">기관 소개</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')" class="text-gray-400 hover:text-white">자격증
+                                소개</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')" class="text-gray-400 hover:text-white">교육 과정</a>
+                        </li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')" class="text-gray-400 hover:text-white">공지사항</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')" class="text-gray-400 hover:text-white">전문가 칼럼</a></li>
                     </ul>
                 </div>
                 <div>
                     <h3 class="text-lg font-bold mb-4">자격증 정보</h3>
                     <ul class="space-y-2">
-                        <li><a href="../certificate/health-exercise.html" class="text-gray-400 hover:text-white">건강운동처방사</a></li>
-                        <li><a href="../certificate/rehabilitation.html" class="text-gray-400 hover:text-white">운동재활전문가</a></li>
-                        <li><a href="../certificate/pilates.html" class="text-gray-400 hover:text-white">필라테스 전문가</a></li>
-                        <li><a href="../certificate/recreation.html" class="text-gray-400 hover:text-white">레크리에이션지도자</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
+                                class="text-gray-400 hover:text-white">건강운동처방사</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
+                                class="text-gray-400 hover:text-white">운동재활전문가</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')" class="text-gray-400 hover:text-white">필라테스 전문가</a>
+                        </li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
+                                class="text-gray-400 hover:text-white">레크리에이션지도자</a></li>
                     </ul>
                 </div>
                 <div>
                     <h3 class="text-lg font-bold mb-4">고객 지원</h3>
                     <ul class="space-y-2">
                         <li class="flex items-center text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
-                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-4 w-4 mr-2">
+                                <path
+                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                                </path>
                             </svg>
                             <span>02-123-4567</span>
                         </li>
                         <li class="flex items-center text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
-                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-4 w-4 mr-2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+                                </path>
                                 <polyline points="22,6 12,13 2,6"></polyline>
                             </svg>
                             <span>info@digitalhealthcare.org</span>
                         </li>
                         <li class="flex items-center text-gray-400 mt-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="h-4 w-4 mr-2">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                                 <circle cx="12" cy="10" r="3"></circle>
                             </svg>
@@ -382,16 +457,33 @@
         </div>
     </footer>
 
-    <!-- Firebase SDK -->
-    <script src="../../lib/firebase/firebase-app.js"></script>
-    <script src="../../lib/firebase/firebase-auth.js"></script>
-    <script src="../../lib/firebase/firebase-firestore.js"></script>
-    <script src="../../lib/firebase/firebase-storage.js"></script>
-    
-    <!-- JavaScript 파일 -->
-    <script src="../../assets/js/config/firebase-config.js"></script>
-    <script src="../../assets/js/services/auth-service.js"></script>
-    <script src="../../assets/js/components/header.js"></script>
-    <script src="../../assets/js/main.js"></script>
+    <!-- Firebase SDK 템플릿 (script-loader.js에 의해 처리됨) -->
+    <script id="firebase-sdk-template" type="text/template">
+        <!-- Firebase SDK - CDN 방식 -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
+
+        <!-- 프로젝트 Firebase 설정 및 서비스 -->
+        <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
+        <script src="{basePath}assets/js/services/auth-service.js"><\/script>
+
+        <!-- 로컬 테스트용 인증 오버라이드 (개발 완료 후 제거) -->
+        <script src="{basePath}assets/js/services/local-auth-override.js"><\/script>
+
+        <!-- 필요한 서비스 모듈 -->
+        <script src="{basePath}assets/js/services/db-service.js"><\/script>
+        <script src="{basePath}assets/js/services/storage-service.js"><\/script>
+    </script>
+
+    <!-- 추가 스크립트 템플릿 (페이지별 필요한 스크립트) -->
+    <script id="additional-scripts-template" type="text/template">
+        <!-- 페이지별 필요한 스크립트 -->
+    <script src="{basePath}assets/js/components/header.js"><\/script>
+        <script src="{basePath}assets/js/utils/formatters.js"><\/script>
+        <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
+    </script>
 </body>
+
 </html>
