@@ -1,5 +1,5 @@
 /**
- * 스크립트 로더
+ * 스크립트 로더 (수정된 버전)
  * 페이지의 깊이에 따라 스크립트 경로를 자동으로 조정합니다.
  */
 
@@ -18,7 +18,6 @@ console.log('script-loader.js 파일이 로드되었습니다.');
         }
 
         // 상대 경로 계산
-        // URL에서 파일 이름을 제외한 디렉토리 경로만 고려
         const directoryPath = currentPath.substring(0, currentPath.lastIndexOf('/'));
         const pathSegments = directoryPath.split('/').filter(p => p);
         const depth = pathSegments.length;
@@ -34,52 +33,94 @@ console.log('script-loader.js 파일이 로드되었습니다.');
         return basePath;
     }
 
+    // 스크립트를 동적으로 로드 (실행 가능하도록)
+    function loadScriptSrc(src) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = () => {
+                console.log('스크립트 로드 완료:', src);
+                resolve();
+            };
+            script.onerror = () => {
+                console.error('스크립트 로드 실패:', src);
+                reject(new Error(`스크립트 로드 실패: ${src}`));
+            };
+            document.head.appendChild(script);
+        });
+    }
+
     // 페이지에 필요한 스크립트 로드
-    function loadScripts() {
+    // 기존 코드를 수정하여 텍스트 기반으로 스크립트 URL 추출
+    async function loadScripts() {
         const basePath = getBasePath();
 
-        // Firebase SDK 템플릿 가져오기
-        const scriptTemplate = document.getElementById('firebase-sdk-template');
-        if (scriptTemplate) {
-            console.log('Firebase SDK 템플릿 찾음');
-            const scriptContent = scriptTemplate.innerHTML.replace(/{basePath}/g, basePath);
+        try {
+            // Firebase SDK 템플릿에서 스크립트 URL 추출
+            const scriptTemplate = document.getElementById('firebase-sdk-template');
+            if (scriptTemplate) {
+                console.log('Firebase SDK 템플릿 찾음');
+                console.log('템플릿 내용:', scriptTemplate.innerHTML);
 
-            console.log('스크립트 내용 처리됨 (Firebase SDK)');
+                // 정규식을 사용하여 스크립트 src 추출
+                const content = scriptTemplate.innerHTML.replace(/{basePath}/g, basePath);
+                console.log('처리된 내용:', content);
 
-            // 스크립트 템플릿 제거
-            scriptTemplate.remove();
+                // src 속성 값들을 추출하는 정규식 (= 추가됨)
+                const srcRegex = /<script[^>]+src=["']([^"']+)["'][^>]*>/gi;
+                const scripts = [];
+                let match;
 
-            // 스크립트 코드 삽입
-            const targetElement = document.querySelector('body');
-            if (targetElement) {
-                targetElement.insertAdjacentHTML('beforeend', scriptContent);
-                console.log('Firebase SDK 스크립트 삽입 완료');
+                while ((match = srcRegex.exec(content)) !== null) {
+                    scripts.push(match[1]);
+                }
+
+                console.log('추출된 스크립트 URL들:', scripts);
+                console.log('로드할 스크립트 개수:', scripts.length);
+
+                // 스크립트를 순차적으로 로드
+                for (const src of scripts) {
+                    await loadScriptSrc(src);
+                }
+
+                // 템플릿 제거
+                scriptTemplate.remove();
+                console.log('Firebase SDK 스크립트 로드 완료');
             } else {
-                console.error('body 요소를 찾을 수 없음');
+                console.error('Firebase SDK 템플릿을 찾을 수 없음');
             }
-        } else {
-            console.error('Firebase SDK 템플릿을 찾을 수 없음');
-        }
 
-        // 추가 스크립트 로드 (페이지별 필요한 스크립트)
-        const additionalScripts = document.getElementById('additional-scripts-template');
-        if (additionalScripts) {
-            console.log('추가 스크립트 템플릿 찾음');
-            const additionalContent = additionalScripts.innerHTML.replace(/{basePath}/g, basePath);
+            // 추가 스크립트도 동일한 방식으로 처리
+            const additionalScripts = document.getElementById('additional-scripts-template');
+            if (additionalScripts) {
+                console.log('추가 스크립트 템플릿 찾음');
 
-            // 스크립트 템플릿 제거
-            additionalScripts.remove();
+                const content = additionalScripts.innerHTML.replace(/{basePath}/g, basePath);
 
-            // 스크립트 코드 삽입
-            const targetElement = document.querySelector('body');
-            if (targetElement) {
-                targetElement.insertAdjacentHTML('beforeend', additionalContent);
-                console.log('추가 스크립트 삽입 완료');
+                // 정규식으로 스크립트 src 추출 (= 추가됨)
+                const srcRegex = /<script[^>]+src=["']([^"']+)["'][^>]*>/gi;
+                const scripts = [];
+                let match;
+
+                while ((match = srcRegex.exec(content)) !== null) {
+                    scripts.push(match[1]);
+                }
+
+                console.log('로드할 추가 스크립트 개수:', scripts.length);
+
+                // 추가 스크립트를 순차적으로 로드
+                for (const src of scripts) {
+                    await loadScriptSrc(src);
+                }
+
+                additionalScripts.remove();
+                console.log('추가 스크립트 로드 완료');
             } else {
-                console.error('body 요소를 찾을 수 없음');
+                console.error('추가 스크립트 템플릿을 찾을 수 없음');
             }
-        } else {
-            console.error('추가 스크립트 템플릿을 찾을 수 없음');
+
+        } catch (error) {
+            console.error('스크립트 로드 중 오류:', error);
         }
     }
 
@@ -95,7 +136,6 @@ console.log('script-loader.js 파일이 로드되었습니다.');
         }
 
         // 이미 페이지 경로가 포함된 경우 (중복 방지)
-        // 'pages/'로 시작하는 경로에 대한 처리
         if (path.startsWith('pages/')) {
             const currentPathSegments = window.location.pathname.split('/').filter(p => p);
             // 현재 경로에 이미 'pages'가 포함되어 있는지 확인

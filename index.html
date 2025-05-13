@@ -30,8 +30,8 @@
             </div>
             <nav class="main-nav hidden md:flex">
                 <ul class="flex space-x-6">
-                    <li class="group relative">
-                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">기관 소개</a>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">기관 소개</a>
                         <ul
                             class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
@@ -46,8 +46,8 @@
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
                         </ul>
                     </li>
-                    <li class="group relative">
-                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">자격증 소개</a>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">자격증 소개</a>
                         <ul
                             class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
@@ -60,8 +60,8 @@
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
                         </ul>
                     </li>
-                    <li class="group relative">
-                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">교육 과정</a>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">교육 과정</a>
                         <ul
                             class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
@@ -74,8 +74,8 @@
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">시험 안내</a></li>
                         </ul>
                     </li>
-                    <li class="group relative">
-                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">게시판</a>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">게시판</a>
                         <ul
                             class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')"
@@ -95,21 +95,38 @@
                     class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
                 <a href="javascript:window.location.href=window.adjustPath('pages/auth/signup.html')"
                     class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
-                <button id="mobile-menu-button" class="md:hidden ml-4" aria-expanded="false"
-                    aria-controls="mobile-menu">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
+                <button id="mobile-menu-button" class="md:hidden ml-4 hamburger-menu" aria-expanded="false"
+                    aria-controls="mobile-menu-overlay">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
                 </button>
             </div>
         </div>
 
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden">
-            <div class="container mx-auto px-4">
-                <!-- 모바일 메뉴 내용은 JS에서 동적으로 생성됩니다 -->
+        <!-- Mobile Menu Overlay (KSPO 스타일) -->
+        <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden md:hidden">
+            <div class="bg-white h-full w-full flex flex-col">
+                <!-- 모바일 메뉴 헤더 -->
+                <div class="flex justify-between items-center p-4 bg-blue-600 text-white mobile-menu-header">
+                    <span class="text-lg font-semibold">메뉴</span>
+                    <button id="mobile-menu-close" class="text-2xl font-bold hover:text-gray-200">&times;</button>
+                </div>
+
+                <!-- 모바일 메뉴 컨텐츠 -->
+                <div class="flex-1 overflow-y-auto bg-gray-50">
+                    <div class="p-4">
+                        <!-- 회원 정보 영역 -->
+                        <div class="mb-6 p-4 bg-white rounded-lg shadow-sm">
+                            <span class="text-blue-600 font-semibold">로그인 해주세요 ></span>
+                        </div>
+
+                        <!-- 메인 메뉴 -->
+                        <div class="space-y-2">
+                            <!-- 동적으로 생성됨 -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
@@ -181,8 +198,12 @@
 
                     <!-- 레크리에이션지도자 -->
                     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                        <div class="h-48 bg-orange-500 flex items-center justify-center">
-                            <img src="assets/images/certificates/recreation-icon.jpeg" alt="레크리에이션지도자 아이콘" class="h-24">
+                        <div
+                            class="h-48 bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center">
+                            <div class="bg-white p-3 rounded-full shadow-lg">
+                                <img src="assets/images/certificates/recreation-icon.jpeg" alt="레크리에이션지도자 아이콘"
+                                    class="h-20 w-20 object-contain">
+                            </div>
                         </div>
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-2">레크리에이션지도자</h3>
@@ -395,7 +416,8 @@
         </section>
 
         <!-- CTA 섹션 -->
-        <section class="cta-section py-10 bg-gradient-to-r from-blue-600 to-green-500 rounded-xl p-8 text-white text-center">
+        <section
+            class="cta-section py-10 bg-gradient-to-r from-blue-600 to-green-500 rounded-xl p-8 text-white text-center">
             <div class="container mx-auto px-4 text-center">
                 <h2 class="text-2xl font-bold mb-4">사&rpar;디지털헬스케어센터와 함께<br>건강운동 전문가의 꿈을 이루세요</h2>
                 <p class="text-lg mb-6 max-w-2xl mx-auto">전문적인 교육과 체계적인 자격 인증 시스템을 통해<br>건강한 사회를 만드는 전문가로 성장할 수 있습니다.
@@ -542,178 +564,25 @@
         </div>
     </footer>
 
-    <!-- 기존 스크립트 대신 -->
+    <!-- Firebase SDK 템플릿 (script-loader.js에 의해 처리됨) -->
     <script id="firebase-sdk-template" type="text/template">
-    <!-- Firebase SDK - CDN 방식 -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
-
-    <!-- 프로젝트 Firebase 설정 및 서비스 -->
     <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
     <script src="{basePath}assets/js/services/auth-service.js"><\/script>
-
-    <!-- 로컬 테스트용 인증 오버라이드 (개발 완료 후 제거) -->
     <script src="{basePath}assets/js/services/local-auth-override.js"><\/script>
-
-    <!-- 필요한 서비스 모듈 -->
     <script src="{basePath}assets/js/services/db-service.js"><\/script>
     <script src="{basePath}assets/js/services/storage-service.js"><\/script>
 </script>
 
     <!-- 추가 스크립트 템플릿 (페이지별 필요한 스크립트) -->
     <script id="additional-scripts-template" type="text/template">
-    <!-- 페이지별 필요한 스크립트 -->
     <script src="{basePath}assets/js/components/header.js"><\/script>
     <script src="{basePath}assets/js/pages/home.js"><\/script>
     <script src="{basePath}assets/js/main.js"><\/script>
 </script>
-
-    <!-- 인증 상태 복원 스크립트 -->
-    <script>
-        window.addEventListener('load', function () {
-            console.log('인증 상태 복원 스크립트 실행');
-
-            // 로컬 스토리지에서 사용자 정보 확인
-            try {
-                const savedUserJson = localStorage.getItem('mockUser');
-
-                if (savedUserJson) {
-                    console.log('로컬 스토리지에 저장된 사용자 발견');
-                    const savedUser = JSON.parse(savedUserJson);
-                    const userType = localStorage.getItem('mockUserType');
-
-                    // 직접 헤더 UI 수동 업데이트 (긴급 해결책)
-                    console.log('헤더 UI 수동 업데이트');
-
-                    // 현재 위치에서 기본 URL 추출
-                    const baseUrl = window.location.protocol + '//' + window.location.host + '/';
-                    console.log('기본 URL:', baseUrl);
-
-                    // 수동으로 로그인 상태의 헤더 UI 만들기
-                    const authButtons = document.querySelector('.auth-buttons');
-                    if (authButtons) {
-                        const displayName = savedUser.displayName || savedUser.email;
-
-                        // 관리자 메뉴 옵션 추가
-                        let adminMenuHTML = '';
-                        if (userType === 'admin') {
-                            adminMenuHTML = `<button id="admin-button" class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600">관리자 페이지</button>`;
-                        }
-
-                        // 전체 헤더 UI HTML - 드롭다운 표시 방식 변경
-                        authButtons.innerHTML = `
-                        <div class="user-menu relative">
-                            <button id="user-menu-button" class="flex items-center text-sm text-gray-600 hover:text-blue-600">
-                                <span class="mr-1">${displayName}</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </button>
-                            <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md p-2 hidden z-10">
-                                <button id="mypage-button" class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md">마이페이지</button>
-                                <button id="course-button" class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md">수강 내역</button>
-                                <button id="cert-button" class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md">자격증 관리</button>
-                                ${adminMenuHTML}
-                                <div class="border-t border-gray-200 my-1"></div>
-                                <button id="logout-button" class="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md text-red-600">로그아웃</button>
-                            </div>
-                        </div>
-                        <button id="mobile-menu-button" class="md:hidden ml-4" aria-expanded="false" aria-controls="mobile-menu">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
-                        </button>
-                    `;
-
-                        // 드롭다운 메뉴 토글 기능 추가
-                        const userMenuButton = document.getElementById('user-menu-button');
-                        const userDropdown = document.getElementById('user-dropdown');
-
-                        if (userMenuButton && userDropdown) {
-                            userMenuButton.addEventListener('click', function (event) {
-                                event.stopPropagation(); // 이벤트 전파 중단
-                                userDropdown.classList.toggle('hidden'); // 드롭다운 표시/숨김 토글
-                                console.log('드롭다운 메뉴 토글:', userDropdown.classList.contains('hidden') ? '숨김' : '표시');
-                            });
-
-                            // 페이지 다른 부분 클릭 시 드롭다운 닫기
-                            document.addEventListener('click', function (event) {
-                                if (!userMenuButton.contains(event.target) && !userDropdown.contains(event.target)) {
-                                    userDropdown.classList.add('hidden');
-                                }
-                            });
-
-                            // 드롭다운 항목 클릭 시 이벤트 전파 중단 (드롭다운이 바로 닫히지 않도록)
-                            userDropdown.addEventListener('click', function (event) {
-                                event.stopPropagation();
-                            });
-                        }
-
-                        // 이벤트 리스너 등록
-                        document.getElementById('mypage-button')?.addEventListener('click', function () {
-                            console.log('마이페이지 버튼 클릭');
-                            window.location.href = baseUrl + 'pages/mypage/personal-info.html';
-                        });
-
-                        document.getElementById('course-button')?.addEventListener('click', function () {
-                            console.log('수강 내역 버튼 클릭');
-                            window.location.href = baseUrl + 'pages/mypage/course-history.html';
-                        });
-
-                        document.getElementById('cert-button')?.addEventListener('click', function () {
-                            console.log('자격증 관리 버튼 클릭');
-                            window.location.href = baseUrl + 'pages/mypage/cert-management.html';
-                        });
-
-                        if (userType === 'admin') {
-                            document.getElementById('admin-button')?.addEventListener('click', function () {
-                                console.log('관리자 페이지 버튼 클릭');
-                                const targetUrl = baseUrl + 'pages/admin/dashboard.html';
-
-                                // 현재 URL과 타겟 URL 디버깅
-                                console.log('현재 URL:', window.location.href);
-                                console.log('이동 URL:', targetUrl);
-
-                                // 관리자 페이지로 이동
-                                window.location.href = targetUrl;
-                            });
-                        }
-
-                        document.getElementById('logout-button')?.addEventListener('click', function () {
-                            console.log('로그아웃 버튼 클릭');
-                            localStorage.removeItem('mockUser');
-                            localStorage.removeItem('mockUserType');
-                            window.location.reload();
-                        });
-
-                        // 모바일 메뉴 버튼 이벤트 리스너
-                        document.getElementById('mobile-menu-button')?.addEventListener('click', function () {
-                            const mobileMenu = document.getElementById('mobile-menu');
-                            if (mobileMenu) {
-                                if (mobileMenu.classList.contains('hidden')) {
-                                    mobileMenu.classList.remove('hidden');
-                                    this.setAttribute('aria-expanded', 'true');
-                                } else {
-                                    mobileMenu.classList.add('hidden');
-                                    this.setAttribute('aria-expanded', 'false');
-                                }
-                            }
-                        });
-
-                        console.log('헤더 UI 수동 업데이트 및 이벤트 리스너 등록 완료');
-                    }
-
-                    console.log('인증 상태 복원 완료');
-                } else {
-                    console.log('저장된 사용자 정보 없음');
-                }
-            } catch (e) {
-                console.error('인증 상태 복원 중 오류:', e);
-            }
-        });
-    </script>
 </body>
 
 </html>

@@ -3,23 +3,28 @@
  * 이 파일은 웹사이트 헤더 스타일을 정의합니다.
  */
 
+/* CSS 변수 정의 */
+:root {
+  --z-index-fixed: 1000;
+  --z-index-dropdown: 1010;
+}
+
 /* 기본 헤더 */
 #main-header {
   position: relative;
-  background-color: var(--background-white);
-  border-bottom: 1px solid var(--border-light);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  background-color: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
   width: 100%;
-  z-index: var(--z-index-fixed);
+  z-index: 1000;
+  position: sticky;
+  top: 0;
+  transition: all 0.3s ease;
 }
 
 /* 스크롤 시 고정 헤더 */
-#main-header.fixed {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  box-shadow: var(--shadow-md);
+#main-header.scrolled {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 /* 헤더 내 컨테이너 */
@@ -34,12 +39,23 @@
 /* 로고 영역 */
 #main-header .logo {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
 
-#main-header .logo img {
+#main-header .logo .logo-image {
+  width: 60px;
   height: auto;
-  max-height: 50px;
-  width: auto;
+  margin-right: 12px;
+}
+
+#main-header .logo .organization-name {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2F5597;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 /* 메인 네비게이션 */
@@ -52,6 +68,7 @@
   list-style-type: none;
   margin: 0;
   padding: 0;
+  gap: 1.5rem;
 }
 
 #main-header .main-nav li {
@@ -59,37 +76,68 @@
   position: relative;
 }
 
-#main-header .main-nav a {
-  color: var(--text-primary);
+#main-header .main-nav .nav-link {
+  color: #333;
   display: block;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
+  font-weight: 600;
+  padding: 1.2rem 0;
+  margin: 0 0.5rem;
   text-decoration: none;
-  transition: color 0.15s ease-in-out;
+  transition: all 0.3s ease;
+  position: relative;
 }
 
-#main-header .main-nav a:hover,
-#main-header .main-nav a:focus {
-  color: var(--primary-color);
+#main-header .main-nav .nav-link:hover {
+  color: #2F5597;
+}
+
+/* 네비게이션 링크 하단 바 애니메이션 */
+#main-header .main-nav .nav-link:after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background-color: #2F5597;
+  transition: width 0.3s ease;
+}
+
+#main-header .main-nav .nav-link:hover:after,
+#main-header .main-nav .nav-item:hover .nav-link:after {
+  width: 100%;
 }
 
 /* 드롭다운 메뉴 */
 #main-header .submenu {
-  background-color: var(--background-white);
-  border: 1px solid var(--border-light);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-md);
-  display: none; /* hidden 대신 display: none 사용 */
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
+  border-top: 3px solid #2F5597;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  display: none;
   left: 0;
-  margin-top: 0.125rem;
-  min-width: 10rem;
+  margin-top: 0.5rem;
+  min-width: 12rem;
   padding: 0.5rem 0;
   position: absolute;
   top: 100%;
   z-index: var(--z-index-dropdown);
+  animation: fadeIn 0.3s ease;
 }
 
-/* 호버 시 서브메뉴 표시 - !important 플래그 추가 */
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(-10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+/* 호버 시 서브메뉴 표시 */
 #main-header .group:hover .submenu {
   display: block !important;
 }
@@ -99,49 +147,53 @@
 }
 
 #main-header .submenu a {
-  color: var(--text-primary);
+  color: #4b5563;
   display: block;
-  font-weight: normal;
-  padding: 0.25rem 1.5rem;
+  font-weight: 500;
+  padding: 0.6rem 1.5rem;
   white-space: nowrap;
   width: 100%;
+  transition: all 0.2s ease;
 }
 
 #main-header .submenu a:hover,
 #main-header .submenu a:focus {
-  background-color: var(--background-light);
-  color: var(--primary-color);
+  background-color: #f3f4f6;
+  color: #2F5597;
+  transform: translateX(5px);
 }
 
 /* 인증 버튼 영역 */
 #main-header .auth-buttons {
   display: flex;
   align-items: center;
-  margin-left: 1rem;
+  margin-left: 1.5rem;
 }
 
 #main-header .login-btn {
-  color: var(--text-secondary);
+  color: #6b7280;
   margin-right: 1rem;
   transition: color 0.15s ease-in-out;
+  font-weight: 500;
 }
 
 #main-header .login-btn:hover,
 #main-header .login-btn:focus {
-  color: var(--primary-color);
+  color: #2F5597;
 }
 
 #main-header .signup-btn {
-  background-color: var(--primary-color);
-  border-radius: var(--border-radius);
+  background-color: #3b82f6;
+  border-radius: 6px;
   color: white;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   transition: background-color 0.15s ease-in-out;
+  font-weight: 500;
 }
 
 #main-header .signup-btn:hover,
 #main-header .signup-btn:focus {
-  background-color: var(--secondary-color);
+  background-color: #2563eb;
 }
 
 /* 사용자 메뉴 */
@@ -151,16 +203,22 @@
 
 #main-header .user-menu button {
   align-items: center;
-  color: var(--text-primary);
+  color: #333;
   display: flex;
   font-weight: 500;
+  padding: 0.5rem;
+  transition: color 0.2s ease;
+}
+
+#main-header .user-menu button:hover {
+  color: #2F5597;
 }
 
 #main-header .user-menu .absolute {
-  background-color: var(--background-white);
-  border: 1px solid var(--border-light);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-md);
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   right: 0;
   margin-top: 0.5rem;
   min-width: 12rem;
@@ -170,116 +228,206 @@
   z-index: var(--z-index-dropdown);
 }
 
-/* 모바일 메뉴 토글 버튼 */
-#mobile-menu-button {
+/* 햄버거 메뉴 토글 버튼 */
+#mobile-menu-button.hamburger-menu {
   background: none;
   border: none;
   cursor: pointer;
-  display: none;
-  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 20px;
+  padding: 0;
+  width: 28px;
+  transition: all 0.3s ease;
 }
 
-#mobile-menu-button svg {
-  height: 1.5rem;
-  width: 1.5rem;
+.hamburger-line {
+  background-color: #333;
+  display: block;
+  height: 3px;
+  width: 100%;
+  transition: all 0.3s ease;
+  border-radius: 2px;
 }
 
-/* 모바일 메뉴 */
-#mobile-menu {
-  position: absolute; /* fixed로 변경할 수도 있음 */
-  top: 100%; /* 헤더 바로 아래에 위치하도록 설정 */
+/* 햄버거 메뉴 활성화 상태 */
+#mobile-menu-button.active .hamburger-line:first-child {
+  transform: translateY(8px) rotate(45deg);
+}
+
+#mobile-menu-button.active .hamburger-line:nth-child(2) {
+  opacity: 0;
+}
+
+#mobile-menu-button.active .hamburger-line:last-child {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+/* 모바일 메뉴 오버레이 (KSPO 스타일) */
+#mobile-menu-overlay {
+  position: fixed;
+  top: 0;
   left: 0;
   right: 0;
-  background-color: var(--background-white);
-  border-bottom: 1px solid var(--border-light);
-  padding: 0; /* 상하 패딩 제거 */
-  margin: 0; /* 마진 제거 */
-  width: 100%;
-  z-index: calc(var(--z-index-fixed) - 1); /* 헤더보다 낮은 z-index */
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-
-  /* 스크롤 가능하도록 설정 */
-  max-height: 80vh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: none;
 }
 
-/* 모바일 메뉴 내부 컨테이너에 패딩 적용 */
-#mobile-menu .container {
+#mobile-menu-overlay.show {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+#mobile-menu-overlay .bg-white {
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+#mobile-menu-overlay.show .bg-white {
+  transform: translateX(0);
+}
+
+/* 모바일 메뉴 항목 */
+.mobile-menu-item button {
+  transition: all 0.2s ease;
+}
+
+.mobile-menu-item button:hover,
+.mobile-menu-item button.active {
+  background-color: #f3f4f6;
+  border-left: 4px solid #3b82f6;
+}
+
+.mobile-submenu {
+  border-left: 2px solid #e5e7eb;
+  margin-left: 1rem;
+  padding-left: 0.5rem;
+}
+
+.mobile-submenu a:hover {
+  color: #2563eb;
+  background-color: #f0f9ff;
+  padding-left: 0.75rem;
+}
+
+/* 모바일 메뉴 헤더 */
+.mobile-menu-header {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 기존 모바일 메뉴 스타일 제거/수정 */
+#mobile-menu {
+  display: none; /* 기존 모바일 메뉴 숨기기 */
+}
+
+/* 모바일에서만 오버레이 메뉴 표시 */
+@media (max-width: 768px) {
+  #mobile-menu-overlay {
+    display: block;
+  }
+  
+  #mobile-menu-overlay.hidden {
+    display: none;
+  }
+}
+
+/* 모바일 메뉴 내부 컨테이너 */
+.mobile-menu-container .container {
   padding-top: 1rem;
   padding-bottom: 1rem;
 }
 
-/* 모바일 메뉴 내부 스타일 */
-#mobile-menu ul {
+/* 모바일 메뉴 내비게이션 */
+.mobile-menu-container .mobile-nav {
   list-style-type: none;
   margin: 0;
   padding: 0;
 }
 
-#mobile-menu li {
-  border-bottom: 1px solid var(--border-light);
-  margin: 0; /* 마진 제거 */
+.mobile-menu-container .nav-item {
+  border-bottom: 1px solid #f3f4f6;
+  position: relative;
 }
 
-#mobile-menu li:last-child {
+.mobile-menu-container .nav-item:last-child {
   border-bottom: none;
 }
 
-#mobile-menu a {
-  color: var(--text-primary);
-  display: block;
-  padding: 0.75rem 0; /* 탭 영역 확대 */
+.mobile-menu-container .nav-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  font-weight: 600;
+  color: #333;
   text-decoration: none;
-  font-size: 1.1rem; /* 글자 크기 키움 */
+  transition: color 0.2s ease;
 }
 
-#mobile-menu a:hover,
-#mobile-menu a:focus {
-  color: var(--primary-color);
+.mobile-menu-container .nav-link:hover {
+  color: #2F5597;
 }
 
-#mobile-menu .submenu {
-  margin-left: 1rem;
-  padding-top: 0.5rem;
+.mobile-menu-container .toggle-icon {
+  transition: transform 0.3s ease;
+  color: #6b7280;
+}
+
+.mobile-menu-container .toggle-icon.open {
+  transform: rotate(180deg);
+}
+
+/* 모바일 서브메뉴 */
+.mobile-menu-container .submenu {
+  background-color: #f8f9fa;
+  border-top: 1px solid #e5e7eb;
+  padding: 0.5rem 0 0.5rem 1.5rem;
   display: none;
-  border-top: 1px solid var(--border-light);
   margin-top: 0.5rem;
 }
 
-#mobile-menu .submenu.show {
+.mobile-menu-container .submenu.open {
   display: block;
+  animation: slideDown 0.3s ease;
 }
 
-#mobile-menu .submenu a {
-  font-size: 1rem; /* 서브메뉴 글자 크기 조정 */
-  padding: 0.5rem 0; /* 왼쪽 패딩 추가로 계층 구조 표현 */
-  color: var(--text-secondary); /* 서브메뉴 글자색 변경 */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* 모바일 메뉴 토글 버튼 */
-#mobile-menu-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: none;
-  padding: 0.5rem;
+.mobile-menu-container .submenu a {
+  display: block;
+  padding: 0.75rem 0;
+  color: #666;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
-#mobile-menu-button svg {
-  height: 1.75rem; /* 약간 키움 */
-  width: 1.75rem;
+.mobile-menu-container .submenu a:hover {
+  color: #2F5597;
+  padding-left: 0.5rem;
 }
 
-/* 모바일 메뉴 확장 아이콘 */
-.mobile-menu-toggle {
-  display: inline-block;
-  margin-left: 0.5rem;
-  transition: transform 0.2s ease;
+/* 모바일 메뉴의 hidden 상태 오버라이드 */
+#mobile-menu.hidden {
+  display: none !important;
 }
 
-.mobile-menu-toggle.rotated {
-  transform: rotate(180deg);
+#mobile-menu:not(.hidden) {
+  display: block;
 }
 
 /* 반응형 조정 */
@@ -289,21 +437,85 @@
   }
   
   #mobile-menu-button {
-    display: block;
+    display: flex;
+  }
+  
+  /* 모바일 로고 조정 */
+  #main-header .logo .organization-name {
+    font-size: 1rem;
+  }
+  
+  /* 모바일 버튼 크기 조정 */
+  #main-header .signup-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
   }
   
   /* 모바일에서 화면 높이가 작을 때를 대비한 최대 높이 조정 */
   @media (max-height: 600px) {
-    #mobile-menu {
+    .mobile-menu-container {
       max-height: 70vh;
     }
   }
-  
-  /* 아주 작은 화면에서의 조정 */
-  @media (max-width: 320px) {
-    #mobile-menu a {
-      font-size: 1rem;
-      padding: 0.6rem 0;
-    }
+}
+
+/* 아주 작은 화면에서의 조정 */
+@media (max-width: 480px) {
+  #main-header .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
+  
+  #main-header .logo .organization-name {
+    font-size: 0.9rem;
+  }
+  
+  .mobile-menu-container .nav-link {
+    font-size: 1rem;
+    padding: 0.9rem 0;
+  }
+  
+  .mobile-menu-container .submenu a {
+    font-size: 0.9rem;
+    padding: 0.6rem 0;
+  }
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 포커스 스타일 */
+#main-header .nav-link:focus,
+#main-header .submenu a:focus,
+#main-header .login-btn:focus,
+#main-header .signup-btn:focus,
+.mobile-menu-container .nav-link:focus,
+.mobile-menu-container .submenu a:focus {
+  outline: 2px solid #2F5597;
+  outline-offset: 2px;
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+  #main-header {
+    border-bottom: 2px solid #333;
+  }
+  
+  #main-header .nav-link {
+    color: #000;
+  }
+  
+  #main-header .nav-link:hover {
+    color: #0033aa;
+  }
+}
+
+.hidden {
+    display: none !important;
 }

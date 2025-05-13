@@ -25,6 +25,7 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <span id="admin-name">관리자</span>
+                    <span id="admin-email" class="text-sm text-indigo-200">gostepexercise@gmail.com</span>
                     <button id="admin-logout-button"
                         class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md text-sm">
                         로그아웃
@@ -48,7 +49,7 @@
                     대시보드
                 </a>
                 <a href="javascript:window.location.href=window.adjustPath('pages/admin/user-management.html')"
-                    class="block px-6 py-3 text-indigo-300 hover:bg-indigo-600 hover:text-white transition duration-200">
+                    class="block px-6 py-3 bg-indigo-700 text-white">
                     <svg class="inline-block w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
@@ -75,7 +76,7 @@
                     자격증 관리
                 </a>
                 <a href="javascript:window.location.href=window.adjustPath('pages/admin/board-management.html')"
-                    class="block px-6 py-3 bg-indigo-700 text-white">
+                    class="block px-6 py-3 text-indigo-300 hover:bg-indigo-600 hover:text-white transition duration-200">
                     <svg class="inline-block w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
@@ -107,35 +108,75 @@
             </div>
 
             <!-- 검색 필터 -->
-            <div id="user-filter-container"></div>
+            <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label for="search-name" class="block text-sm font-medium text-gray-700 mb-2">이름 검색</label>
+                        <input type="text" id="search-name" placeholder="이름을 입력하세요"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label for="search-email" class="block text-sm font-medium text-gray-700 mb-2">이메일 검색</label>
+                        <input type="email" id="search-email" placeholder="이메일을 입력하세요"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label for="filter-role" class="block text-sm font-medium text-gray-700 mb-2">회원 유형</label>
+                        <select id="filter-role"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <option value="">전체</option>
+                            <option value="student">수강생</option>
+                            <option value="instructor">강사</option>
+                            <option value="admin">관리자</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="userManager.search()" class="admin-btn admin-btn-primary w-full">
+                            검색
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <!-- 회원 목록 테이블 -->
             <div class="bg-white rounded-lg shadow-md">
                 <div class="p-6 border-b border-gray-200 flex justify-between items-center">
                     <h2 class="text-xl font-semibold text-gray-800">회원 목록</h2>
-                    <button onclick="userManager.showAddUserModal()" class="admin-btn admin-btn-primary">
-                        <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
-                        회원 추가
-                    </button>
+                    <div class="flex space-x-3">
+                        <button onclick="userManager.exportToExcel()" class="admin-btn admin-btn-secondary">
+                            <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            엑셀 다운로드
+                        </button>
+                        <button onclick="userManager.showAddUserModal()" class="admin-btn admin-btn-primary">
+                            <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            회원 추가
+                        </button>
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table id="user-table" class="admin-table">
                         <thead>
                             <tr>
+                                <th>
+                                    <input type="checkbox" id="select-all-users" onchange="userManager.toggleSelectAll(this)">
+                                </th>
                                 <th>이름</th>
                                 <th>이메일</th>
                                 <th>회원유형</th>
                                 <th>가입일</th>
+                                <th>최종 로그인</th>
                                 <th>상태</th>
                                 <th>작업</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td colspan="6" class="text-center py-4 text-gray-500">데이터 로딩 중...</td>
+                                <td colspan="8" class="text-center py-4 text-gray-500">데이터 로딩 중...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -146,34 +187,147 @@
         </main>
     </div>
 
-    <!-- Firebase SDK 템플릿 (script-loader.js에 의해 처리됨) -->
-    <script id="firebase-sdk-template" type="text/template">
-        <!-- Firebase SDK - CDN 방식 -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
-        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
-        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
-        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
+    <!-- 회원 추가/수정 모달 -->
+    <div id="user-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-black opacity-50" onclick="userManager.closeUserModal()"></div>
+            <div class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold" id="user-modal-title">회원 추가</h3>
+                        <button onclick="userManager.closeUserModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <form id="user-form" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="user-name" class="block text-sm font-medium text-gray-700">이름</label>
+                                <input type="text" id="user-name" name="name" required
+                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            </div>
+                            <div>
+                                <label for="user-email" class="block text-sm font-medium text-gray-700">이메일</label>
+                                <input type="email" id="user-email" name="email" required
+                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="user-phone" class="block text-sm font-medium text-gray-700">전화번호</label>
+                                <input type="tel" id="user-phone" name="phone"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            </div>
+                            <div>
+                                <label for="user-role" class="block text-sm font-medium text-gray-700">회원 유형</label>
+                                <select id="user-role" name="role" required
+                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                    <option value="">선택하세요</option>
+                                    <option value="student">수강생</option>
+                                    <option value="instructor">강사</option>
+                                    <option value="admin">관리자</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="user-password" class="block text-sm font-medium text-gray-700">비밀번호</label>
+                            <input type="password" id="user-password" name="password"
+                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <p class="text-xs text-gray-500 mt-1">수정 시 비워두면 기존 비밀번호 유지</p>
+                        </div>
+                        <div class="flex justify-end space-x-3">
+                            <button type="button" onclick="userManager.closeUserModal()" class="admin-btn admin-btn-secondary">
+                                취소
+                            </button>
+                            <button type="submit" class="admin-btn admin-btn-primary">
+                                저장
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <!-- 프로젝트 Firebase 설정 및 서비스 -->
-        <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
-        <script src="{basePath}assets/js/services/auth-service.js"><\/script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
-        <!-- 로컬 테스트용 인증 오버라이드 (개발 완료 후 제거) -->
-        <script src="{basePath}assets/js/services/local-auth-override.js"><\/script>
+    <!-- 프로젝트 Firebase 설정 및 서비스 -->
+    <script src="../../assets/js/config/firebase-config.js"></script>
+    <script src="../../assets/js/services/auth-service.js"></script>
+    <script src="../../assets/js/services/db-service.js"></script>
+    <script src="../../assets/js/services/storage-service.js"></script>
 
-        <!-- 필요한 서비스 모듈 -->
-        <script src="{basePath}assets/js/services/db-service.js"><\/script>
-        <script src="{basePath}assets/js/services/storage-service.js"><\/script>
-    </script>
+    <!-- 유틸리티 및 관리자 스크립트 -->
+    <script src="../../assets/js/utils/formatters.js"></script>
+    <script src="../../assets/js/utils/date-utils.js"></script>
+    <script src="../../assets/js/utils/admin-auth.js"></script>
+    <script src="../../assets/js/pages/admin.js"></script>
+    <script src="../../assets/js/pages/admin/user-management.js"></script>
 
-    <!-- 추가 스크립트 템플릿 (페이지별 필요한 스크립트) -->
-    <script id="additional-scripts-template" type="text/template">
-        <!-- 유틸리티 및 관리자 스크립트 -->
-    <script src="{basePath}assets/js/utils/formatters.js"><\/script>
-        <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
-        <script src="{basePath}assets/js/utils/admin-auth.js"><\/script>
-        <script src="{basePath}assets/js/pages/admin.js"><\/script>
-        <script src="{basePath}assets/js/pages/admin/board-management.js"><\/script>
+    <!-- 초기화 스크립트 -->
+    <script>
+        // 페이지 로드 시 실행
+        window.addEventListener('load', async function() {
+            try {
+                console.log('회원 관리 페이지 초기화 시작');
+                
+                // 스크립트 로드 완료 대기
+                let retryCount = 0;
+                const maxRetries = 50;
+                
+                while (!window.adminAuth && retryCount < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    retryCount++;
+                }
+                
+                if (!window.adminAuth) {
+                    console.error('관리자 인증 스크립트 로드 실패');
+                    alert('시스템 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+                    return;
+                }
+                
+                console.log('관리자 권한 확인 시작');
+                
+                // 관리자 권한 확인
+                const hasAccess = await window.adminAuth.checkAdminAccess();
+                
+                if (hasAccess) {
+                    console.log('관리자 권한 확인 완료');
+                    
+                    // 관리자 정보 표시
+                    window.adminAuth.displayAdminInfo();
+                    
+                    // 회원 관리자 초기화
+                    console.log('회원 관리자 초기화 시작');
+                    
+                    // userManager 로드 완료 대기
+                    let userRetryCount = 0;
+                    while (!window.userManager && userRetryCount < maxRetries) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        userRetryCount++;
+                    }
+                    
+                    if (window.userManager) {
+                        await window.userManager.init();
+                        console.log('회원 관리자 초기화 완료');
+                    } else {
+                        console.error('회원 관리자 스크립트 로드 실패');
+                        window.adminAuth.showNotification('회원 관리자 초기화에 실패했습니다.', 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('회원 관리 페이지 초기화 오류:', error);
+                if (window.adminAuth && window.adminAuth.showNotification) {
+                    window.adminAuth.showNotification('페이지 로드 중 오류가 발생했습니다.', 'error');
+                }
+            }
+        });
     </script>
 </body>
 

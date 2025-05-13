@@ -25,6 +25,7 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <span id="admin-name">관리자</span>
+                    <span id="admin-email" class="text-sm text-indigo-200">gostepexercise@gmail.com</span>
                     <button id="admin-logout-button"
                         class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md text-sm">
                         로그아웃
@@ -39,7 +40,7 @@
         <aside class="w-64 bg-indigo-900 min-h-screen text-white">
             <nav class="mt-8 admin-nav">
                 <a href="javascript:window.location.href=window.adjustPath('pages/admin/dashboard.html')"
-                    class="block px-6 py-3 text-indigo-300 hover:bg-indigo-600 hover:text-white transition duration-200">
+                    class="block px-6 py-3 bg-indigo-700 text-white">
                     <svg class="inline-block w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
@@ -75,7 +76,7 @@
                     자격증 관리
                 </a>
                 <a href="javascript:window.location.href=window.adjustPath('pages/admin/board-management.html')"
-                    class="block px-6 py-3 bg-indigo-700 text-white">
+                    class="block px-6 py-3 text-indigo-300 hover:bg-indigo-600 hover:text-white transition duration-200">
                     <svg class="inline-block w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
@@ -295,6 +296,77 @@
     <script src="../../assets/js/utils/date-utils.js"></script>
     <script src="../../assets/js/utils/admin-auth.js"></script>
     <script src="../../assets/js/pages/admin/dashboard.js"></script>
+
+    <!-- 대시보드 초기화 스크립트 -->
+    <script>
+        // 페이지 로드 시 실행
+        window.addEventListener('load', async function() {
+            try {
+                console.log('대시보드 초기화 시작');
+                
+                // 스크립트 로드 완료 대기
+                let retryCount = 0;
+                const maxRetries = 50;
+                
+                while (!window.adminAuth && retryCount < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    retryCount++;
+                }
+                
+                if (!window.adminAuth) {
+                    console.error('관리자 인증 스크립트 로드 실패');
+                    alert('시스템 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+                    return;
+                }
+                
+                console.log('관리자 권한 확인 시작');
+                
+                // 관리자 권한 확인
+                const hasAccess = await window.adminAuth.checkAdminAccess();
+                
+                if (hasAccess) {
+                    console.log('관리자 권한 확인 완료');
+                    
+                    // 관리자 정보 표시
+                    window.adminAuth.displayAdminInfo();
+                    
+                    // 대시보드 데이터 로드
+                    console.log('대시보드 데이터 로드 시작');
+                    await window.adminAuth.loadDashboardData();
+                    
+                    // 추가 대시보드 기능 초기화
+                    if (typeof initDashboard === 'function') {
+                        initDashboard();
+                    }
+                    
+                    console.log('대시보드 초기화 완료');
+                } else {
+                    console.log('관리자 권한 없음');
+                }
+            } catch (error) {
+                console.error('대시보드 초기화 오류:', error);
+                
+                if (window.adminAuth && window.adminAuth.showNotification) {
+                    window.adminAuth.showNotification('대시보드 로드 중 오류가 발생했습니다.', 'error');
+                } else {
+                    alert('대시보드 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+                }
+            }
+        });
+        
+        // 서버 시간 업데이트
+        function updateServerTime() {
+            const now = new Date();
+            const serverTimeElement = document.getElementById('server-time');
+            if (serverTimeElement) {
+                serverTimeElement.textContent = now.toLocaleString('ko-KR');
+            }
+        }
+        
+        // 서버 시간 업데이트 시작
+        updateServerTime();
+        setInterval(updateServerTime, 1000);
+    </script>
 </body>
 
 </html>

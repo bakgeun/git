@@ -220,6 +220,25 @@ digital-healthcare-center/
 7. **관리자 모듈 (Admin)** ✓
 8. **공통 컴포넌트 및 서비스** ✓
 
+## 관리자 계정 설정
+
+### 관리자 계정 정보
+- **관리자 이메일**: `gostepexercise@gmail.com`
+- **권한**: 모든 관리자 기능 접근 가능
+
+### 관리자 시스템 설정
+1. Firebase Console에서 관리자 계정 생성
+2. `assets/js/utils/admin-auth.js` 파일에 관리자 이메일 등록
+3. 모든 관리자 페이지에 권한 확인 시스템 적용
+
+### 관리자 기능
+- **대시보드**: 시스템 전반적인 통계 및 현황
+- **회원 관리**: 사용자 계정 관리 및 권한 설정
+- **교육 관리**: 교육 과정 생성, 수정, 삭제
+- **자격증 관리**: 자격증 발급, 갱신, 관리
+- **게시판 관리**: 공지사항, 칼럼, 강의자료, 동영상 관리
+- **결제 관리**: 결제 내역 조회, 환불 처리
+
 ## 로컬 테스트 및 개발 방법
 
 ### 로컬 테스트 환경
@@ -230,6 +249,9 @@ digital-healthcare-center/
 - **관리자 계정**
   - 이메일: admin@test.com
   - 비밀번호: admin123
+- **실제 관리자 계정**
+  - 이메일: gostepexercise@gmail.com (실제 운영용)
+  - 비밀번호: Firebase에서 설정
 - **일반 사용자 계정**
   - 이메일: student@test.com
   - 비밀번호: student123
@@ -273,7 +295,7 @@ digital-healthcare-center/
 
 1. 저장소 클론:
 ```bash
-git clone https://github.com/your-username/digital-healthcare-center.git
+git clone https://github.com/bakgeun/digital-healthcare-center.git
 cd digital-healthcare-center
 ```
 
@@ -296,6 +318,42 @@ npx http-server
    - Hosting (배포 시)
    - Functions (필요한 경우)
 4. Firebase 설정 정보를 `assets/js/config/firebase-config.js` 파일에 입력
+
+### Firebase 설정 예시
+
+```javascript
+// assets/js/config/firebase-config.js
+const firebaseConfig = {
+  apiKey: "your-api-key",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "your-app-id"
+};
+
+// Firebase 초기화
+firebase.initializeApp(firebaseConfig);
+
+// dhcFirebase 전역 객체 생성
+window.dhcFirebase = {
+  auth: firebase.auth(),
+  db: firebase.firestore(),
+  storage: firebase.storage(),
+  firebase: firebase,
+  
+  onAuthStateChanged: function(callback) {
+    return firebase.auth().onAuthStateChanged(callback);
+  },
+  
+  getCurrentUser: function() {
+    return firebase.auth().currentUser;
+  }
+};
+
+// 로컬 테스트 모드 비활성화 플래그
+window.LOCAL_TEST_MODE = false;
+```
 
 ### 배포 방법
 
@@ -337,7 +395,12 @@ Firebase 연동이 완료되면 다음과 같이 실제 환경으로 전환할 �
 const LOCAL_TEST_MODE = false;
 ```
 
-2. 또는 모든 HTML 파일에서 로컬 인증 오버라이드 스크립트 로드 부분을 제거:
+2. `firebase-config.js` 파일에서 LOCAL_TEST_MODE 변수를 false로 설정:
+```javascript
+window.LOCAL_TEST_MODE = false;
+```
+
+3. 또는 모든 HTML 파일에서 로컬 인증 오버라이드 스크립트 로드 부분을 제거:
 ```html
 <!-- 이 줄 제거 -->
 <script src="{basePath}assets/js/services/local-auth-override.js"><\/script>
@@ -370,11 +433,22 @@ const LOCAL_TEST_MODE = false;
 ## 변경 이력
 
 ### 2025-05-13
-- 스크립트 로더 유틸리티 추가
+- **관리자 시스템 완성**
+  - 관리자 계정 설정: `gostepexercise@gmail.com`
+  - 모든 관리자 페이지에 권한 확인 시스템 적용
+  - 관리자 권한 미들웨어 구현
+  - 관리자 페이지별 초기화 스크립트 통합
+  - 관리자 대시보드 통계 기능 구현
+  - 자격증 발급 및 관리 기능 고도화
+  - 결제 관리 및 환불 처리 기능 추가
+  - 게시판 통합 관리 시스템 완성
+- **스크립트 로더 유틸리티 개선**
   - 페이지 깊이에 관계없는 일관된 스크립트 로딩 구현
   - 네비게이션 링크 경로 자동 조정 기능 추가
-- 로컬 테스트용 인증 오버라이드 추가
-  - Firebase 연동 전 테스트 계정으로 기능 테스트 가능
+  - 관리자 권한 확인 로직 표준화
+- **Firebase와의 연동 최적화**
+  - Firebase 설정 파일 구조 개선
+  - 로컬 테스트용 인증 오버라이드 기능 강화
   - 개발 완료 후 쉽게 제거 가능한 구조로 구현
 
 ### 2025-05-12

@@ -12,7 +12,11 @@
         rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/main.css">
     <!-- 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
-    <script src="../../assets/js/utils/script-loader.js"></script>
+    <!-- 직접 Firebase SDK 로드 (script-loader.js 대신) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 </head>
 
 <body class="bg-gray-50">
@@ -118,10 +122,10 @@
 
                 <!-- 알림 메시지 (필요 시 표시) -->
                 <div id="notification" class="mb-6 hidden">
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
+                    <div class="border-l-4 p-4 rounded">
                         <div class="flex items-start">
                             <div class="flex-shrink-0">
-                                <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                                     fill="currentColor">
                                     <path fill-rule="evenodd"
                                         d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
@@ -147,7 +151,7 @@
                     <div>
                         <div class="flex items-center justify-between mb-1">
                             <label for="password" class="block text-sm font-medium text-gray-700">비밀번호</label>
-                            <a href="javascript:window.location.href=window.adjustPath('find-account.html')"
+                            <a href="javascript:window.location.href=window.adjustPath('pages/auth/find-account.html')"
                                 class="text-xs text-blue-600 hover:text-blue-800">비밀번호 찾기</a>
                         </div>
                         <input type="password" id="password" name="password"
@@ -201,7 +205,7 @@
 
                 <div class="mt-6 text-center">
                     <p class="text-sm text-gray-600">
-                        아직 회원이 아니신가요? <a
+                        아직 회원이 아니신가요? 
                             href="javascript:window.location.href=window.adjustPath('pages/auth/signup.html')"
                             class="text-blue-600 hover:text-blue-800 font-medium">회원가입</a>
                     </p>
@@ -336,284 +340,75 @@
         </div>
     </footer>
 
-    <!-- Firebase SDK 템플릿 (script-loader.js에 의해 처리됨) -->
-    <script id="firebase-sdk-template" type="text/template">
-        <!-- Firebase SDK - CDN 방식 -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
-        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
-        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
-        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
-
-        <!-- 프로젝트 Firebase 설정 및 서비스 -->
-        <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
-        <script src="{basePath}assets/js/services/auth-service.js"><\/script>
-
-        <!-- 로컬 테스트용 인증 오버라이드 (개발 완료 후 제거) -->
-        <script src="{basePath}assets/js/services/local-auth-override.js"><\/script>
-
-        <!-- 필요한 서비스 모듈 -->
-        <script src="{basePath}assets/js/services/db-service.js"><\/script>
-        <script src="{basePath}assets/js/services/storage-service.js"><\/script>
-    </script>
-
-    <!-- 추가 스크립트 템플릿 (페이지별 필요한 스크립트) -->
-    <script id="additional-scripts-template" type="text/template">
-        <!-- 페이지별 필요한 스크립트 -->
-    <script src="{basePath}assets/js/components/header.js"><\/script>
-        <script src="{basePath}assets/js/utils/validators.js"><\/script>
-        <script src="{basePath}assets/js/pages/auth/login.js"><\/script>
-        <script src="{basePath}assets/js/main.js"><\/script>
-    </script>
-
-    <!-- 로그인 디버깅 및 수동 초기화 스크립트 -->
+    <!-- Firebase 초기화 스크립트 (body 끝 부분에) -->
     <script>
-        // 페이지 로드 완료 후 실행
-        window.addEventListener('load', function () {
-            console.log('페이지 로드 완료, dhcFirebase 확인:', window.dhcFirebase ? '존재함' : '존재하지 않음');
-
-            // local-auth-override.js가 로드되지 않았거나 초기화되지 않은 경우를 위한 안전장치
-            if (!window.dhcFirebase) {
-                console.log('dhcFirebase 객체가 존재하지 않아 수동으로 생성합니다.');
-
-                // 로컬 스토리지에서 사용자 정보 확인
-                let currentUser = null;
-                try {
-                    const savedUser = localStorage.getItem('mockUser');
-                    if (savedUser) {
-                        currentUser = JSON.parse(savedUser);
-                        console.log('로컬 스토리지에서 사용자 복원:', currentUser);
-                    }
-                } catch (e) {
-                    console.error('로컬 스토리지 접근 오류:', e);
-                }
-
-                // dhcFirebase 객체 생성
-                window.dhcFirebase = {
-                    getCurrentUser: function () {
-                        try {
-                            const savedUser = localStorage.getItem('mockUser');
-                            return savedUser ? JSON.parse(savedUser) : null;
-                        } catch (e) {
-                            console.error('getCurrentUser 오류:', e);
-                            return null;
-                        }
-                    },
-                    auth: {
-                        currentUser: currentUser,
-                        signInWithEmailAndPassword: function (email, password) {
-                            console.log('수동 로그인 시도:', email);
-                            return new Promise((resolve, reject) => {
-                                // 테스트 계정 정보
-                                const mockUsers = {
-                                    'admin@test.com': {
-                                        uid: 'mock-admin-uid',
-                                        email: 'admin@test.com',
-                                        password: 'admin123',
-                                        displayName: '관리자',
-                                        userType: 'admin'
-                                    },
-                                    'student@test.com': {
-                                        uid: 'mock-student-uid',
-                                        email: 'student@test.com',
-                                        password: 'student123',
-                                        displayName: '홍길동',
-                                        userType: 'student'
-                                    }
-                                };
-
-                                const user = mockUsers[email];
-
-                                if (user && user.password === password) {
-                                    console.log('로그인 성공:', user.email, user.userType);
-
-                                    // 현재 사용자 정보 저장
-                                    const currentUser = {
-                                        uid: user.uid,
-                                        email: user.email,
-                                        displayName: user.displayName
-                                    };
-
-                                    // auth.currentUser 업데이트
-                                    window.dhcFirebase.auth.currentUser = currentUser;
-
-                                    // 로컬 스토리지에 사용자 정보 저장
-                                    try {
-                                        localStorage.setItem('mockUser', JSON.stringify(currentUser));
-                                        localStorage.setItem('mockUserType', user.userType);
-                                        console.log('로컬 스토리지에 사용자 정보 저장됨');
-                                    } catch (e) {
-                                        console.error('로컬 스토리지 저장 오류:', e);
-                                    }
-
-                                    // 인증 상태 이벤트 발생
-                                    const event = new CustomEvent('authStateChanged', { detail: { user: currentUser } });
-                                    document.dispatchEvent(event);
-
-                                    // 페이지 리디렉션
-                                    setTimeout(() => {
-                                        alert('로그인 성공! 메인 페이지로 이동합니다.');
-                                        window.location.href = window.adjustPath('index.html');
-                                    }, 1000);
-
-                                    resolve({ user: currentUser });
-                                } else {
-                                    console.log('로그인 실패:', !user ? '사용자 없음' : '비밀번호 불일치');
-                                    reject({
-                                        code: 'auth/wrong-password',
-                                        message: '이메일 또는 비밀번호가 잘못되었습니다.'
-                                    });
-                                }
-                            });
-                        },
-                        signOut: function () {
-                            return new Promise((resolve) => {
-                                window.dhcFirebase.auth.currentUser = null;
-                                try {
-                                    localStorage.removeItem('mockUser');
-                                    localStorage.removeItem('mockUserType');
-                                } catch (e) {
-                                    console.error('로그아웃 중 오류:', e);
-                                }
-                                resolve();
-                            });
-                        }
-                    }
-                };
-
-                console.log('dhcFirebase 객체 수동 생성 완료');
+        // Firebase 초기화
+        const firebaseConfig = {
+            apiKey: "AIzaSyCnQBH5MxaFhraVPCk7awHOLO8j5C6Lw0A", //전박근
+            authDomain: "digital-healthcare-cente-2204b.firebaseapp.com",
+            projectId: "digital-healthcare-cente-2204b",
+            storageBucket: "digital-healthcare-cente-2204b.firebasestorage.app",
+            messagingSenderId: "60835775420",
+            appId: "1:60835775420:web:7ae13d485fa19fd2f221b9",
+            measurementId: "G-HXQ9SMCCFE"
+        };
+        
+        // Firebase 초기화
+        firebase.initializeApp(firebaseConfig);
+        
+        // dhcFirebase 객체 생성
+        window.dhcFirebase = {
+            auth: firebase.auth(),
+            db: firebase.firestore(),
+            storage: firebase.storage(),
+            firebase: firebase,
+            
+            onAuthStateChanged: function(callback) {
+                return firebase.auth().onAuthStateChanged(callback);
+            },
+            
+            getCurrentUser: function() {
+                return firebase.auth().currentUser;
             }
-
-            // 테스트 버튼 추가
-            const loginBtn = document.getElementById('login-btn');
-            if (loginBtn && loginBtn.parentNode) {
-                const testBtn = document.createElement('button');
-                testBtn.type = 'button';
-                testBtn.className = 'w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md mt-3';
-                testBtn.textContent = '테스트 로그인 (admin@test.com)';
-                testBtn.onclick = function () {
-                    const emailInput = document.getElementById('email');
-                    const passwordInput = document.getElementById('password');
-
-                    if (emailInput && passwordInput) {
-                        emailInput.value = 'admin@test.com';
-                        passwordInput.value = 'admin123';
-
-                        // 로그인 시도
-                        try {
-                            console.log('테스트 로그인 시도');
-                            window.dhcFirebase.auth.signInWithEmailAndPassword('admin@test.com', 'admin123')
-                                .then(result => {
-                                    console.log('로그인 결과:', result);
-                                })
-                                .catch(err => {
-                                    console.error('로그인 오류:', err);
-                                    alert('로그인 실패: ' + err.message);
-                                });
-                        } catch (e) {
-                            console.error('로그인 테스트 중 예외 발생:', e);
-                            alert('오류 발생: ' + e.message);
-                        }
-                    }
-                };
-                loginBtn.parentNode.appendChild(testBtn);
-                console.log('테스트 버튼 추가됨');
-            }
-
-            // 로그인 폼 이벤트 처리
-            const loginForm = document.getElementById('login-form');
-            if (loginForm) {
-                loginForm.addEventListener('submit', function (event) {
-                    event.preventDefault();
-                    console.log('로그인 폼 제출됨');
-
-                    const emailInput = document.getElementById('email');
-                    const passwordInput = document.getElementById('password');
-                    const rememberMeInput = document.getElementById('remember-me');
-
-                    if (!emailInput || !passwordInput) {
-                        alert('이메일 또는 비밀번호 입력 필드를 찾을 수 없습니다.');
-                        return;
-                    }
-
-                    const email = emailInput.value.trim();
-                    const password = passwordInput.value;
-                    const rememberMe = rememberMeInput ? rememberMeInput.checked : false;
-
-                    if (!email) {
-                        alert('이메일을 입력해주세요.');
-                        emailInput.focus();
-                        return;
-                    }
-
-                    if (!password) {
-                        alert('비밀번호를 입력해주세요.');
-                        passwordInput.focus();
-                        return;
-                    }
-
-                    // 로그인 시도
-                    window.dhcFirebase.auth.signInWithEmailAndPassword(email, password)
-                        .then(result => {
-                            console.log('로그인 결과:', result);
-                        })
-                        .catch(err => {
-                            console.error('로그인 오류:', err);
-                            alert('로그인 실패: ' + err.message);
-                        });
-                });
-                console.log('로그인 폼 이벤트 리스너 등록 완료');
-            }
-        });
+        };
+        
+        console.log('Firebase 직접 초기화 완료:', window.dhcFirebase);
     </script>
-    <!-- 로그인 상태 확인 스크립트 -->
+    
+    <!-- 필요한 스크립트들 직접 로드 -->
+    <script src="../../assets/js/pages/auth/login.js"></script>
     <script>
-        // 페이지 로드 완료 후 로그인 상태 확인
-        window.addEventListener('load', function () {
-            console.log('index.html: 페이지 로드 완료, 로그인 상태 확인 시작');
-
-            // localStorage에서 사용자 정보 확인
-            try {
-                const savedUser = localStorage.getItem('mockUser');
-                console.log('localStorage mockUser:', savedUser);
-
-                // dhcFirebase 객체가 있는지 확인
-                if (window.dhcFirebase) {
-                    console.log('dhcFirebase 객체 있음, 현재 사용자:', window.dhcFirebase.getCurrentUser());
-
-                    // localStorage에 사용자 정보가 있지만 dhcFirebase에 없는 경우 복원
-                    if (savedUser && !window.dhcFirebase.getCurrentUser()) {
-                        console.log('로그인 상태 복원 시도');
-                        const userObj = JSON.parse(savedUser);
-
-                        // auth.currentUser 업데이트
-                        if (window.dhcFirebase.auth) {
-                            window.dhcFirebase.auth.currentUser = userObj;
-                        }
-
-                        // 인증 상태 변경 이벤트 발생
-                        if (typeof window.dhcFirebase.authStateChangedCallback === 'function') {
-                            window.dhcFirebase.authStateChangedCallback(userObj);
-                        } else {
-                            // 이벤트 직접 발생
-                            const event = new CustomEvent('authStateChanged', { detail: { user: userObj } });
-                            document.dispatchEvent(event);
-                        }
-
-                        console.log('로그인 상태 복원 완료');
-                    }
-                } else {
-                    console.log('dhcFirebase 객체가 없음, 인증 상태 추적 불가');
-                }
-            } catch (e) {
-                console.error('로그인 상태 확인 중 오류 발생:', e);
-            }
-        });
-
-        // 인증 상태 변경 이벤트 리스너 추가
-        document.addEventListener('authStateChanged', function (event) {
-            console.log('인증 상태 변경 감지:', event.detail.user);
-        });
-    </script>
+    // Firebase 초기화 완료 후 adjustPath 함수 정의
+    window.adjustPath = function(path) {
+        if (!path || path === '#') return path;
+        
+        const currentPath = window.location.pathname;
+        
+        // 루트 경로인 경우
+        if (currentPath === '/' || currentPath === '/index.html') {
+            return path;
+        }
+        
+        // 상대 경로 계산
+        const directoryPath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+        const pathSegments = directoryPath.split('/').filter(p => p);
+        const depth = pathSegments.length;
+        
+        let basePath = '';
+        for (let i = 0; i < depth; i++) {
+            basePath += '../';
+        }
+        
+        // 이미 절대 경로인 경우
+        if (path.startsWith('/')) {
+            return path.substring(1);
+        }
+        
+        return basePath + path;
+    };
+    
+    console.log('adjustPath 함수 정의 완료');
+</script>
 </body>
 
 </html>

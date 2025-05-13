@@ -1,133 +1,71 @@
 /**
  * Firebase 설정 파일
  * 이 파일은 Firebase SDK를 초기화하고 환경을 설정합니다.
- * 현재는 개발 목적으로 모의 구현을 사용합니다.
  */
 
-// 즉시 실행 함수 표현식(IIFE)을 사용하여 전역 네임스페이스 오염 방지
-(function() {
-    console.log("Firebase 모의 설정 초기화");
-    
-    // 로컬 스토리지에서 로그인 상태 확인
-    let savedUser = null;
-    try {
-        const userJson = localStorage.getItem('mockUser');
-        if (userJson) {
-            savedUser = JSON.parse(userJson);
-            console.log("로컬 스토리지에서 사용자 정보 복원:", savedUser);
-        }
-    } catch (e) {
-        console.error("로컬 스토리지 접근 오류:", e);
-    }
-    
-    // dhcFirebase 객체가 이미 존재하는지 확인
-    if (window.dhcFirebase) {
-        console.log("dhcFirebase 객체가 이미 존재함, 기존 객체 유지");
-        
-        // 로컬 스토리지에 사용자 정보가 있다면 로그인 상태 복원
-        if (savedUser && window.dhcFirebase.auth) {
-            console.log("로그인 상태 복원 시도");
-            
-            // 현재 사용자가 없는 경우에만 복원
-            if (!window.dhcFirebase.auth.currentUser) {
-                window.dhcFirebase.auth.currentUser = savedUser;
-                
-                // 인증 상태 변경 이벤트 발생
-                if (typeof window.dhcFirebase.authStateChangedCallback === 'function') {
-                    window.dhcFirebase.authStateChangedCallback(savedUser);
-                }
-                
-                console.log("로그인 상태 복원 완료");
-            }
-        }
-        
-        return; // 이미 dhcFirebase 객체가 있으면 초기화 중단
-    }
-    
-    // dhcFirebase 객체가 없는 경우 기본 객체 생성
-    window.dhcFirebase = {
-        auth: {
-            currentUser: savedUser // 로컬 스토리지에서 복원한 사용자 정보로 초기화
-        },
-        db: {},
-        storage: {},
-        firebase: {},
-        onAuthStateChanged: function(callback) {
-            this.authStateChangedCallback = callback;
-            if (callback) setTimeout(() => callback(savedUser), 0);
-        },
-        getCurrentUser: function() {
-            try {
-                // 로컬 스토리지에서 최신 정보 확인
-                const userJson = localStorage.getItem('mockUser');
-                if (userJson) {
-                    return JSON.parse(userJson);
-                }
-            } catch (e) {
-                console.error("getCurrentUser 오류:", e);
-            }
-            return this.auth.currentUser;
-        },
-        // 인증 상태 변경 콜백 저장용 속성
-        authStateChangedCallback: null
-    };
-    
-    console.log("기본 dhcFirebase 객체가 생성됨:", window.dhcFirebase);
-    
-    // Firebase 모의 초기화
-    try {
-        // Firebase가 불러와졌는지 확인
-        if (typeof firebase !== 'undefined') {
-            firebase.initializeApp({});
-            
-            // Firebase 서비스를 기존 dhcFirebase 객체에 병합
-            if (firebase.auth) window.dhcFirebase.auth = firebase.auth();
-            if (firebase.firestore) window.dhcFirebase.db = firebase.firestore();
-            if (firebase.storage) window.dhcFirebase.storage = firebase.storage();
-            window.dhcFirebase.firebase = firebase;
-            
-            // 사용자 인증 상태 감지 함수 업데이트
-            window.dhcFirebase.onAuthStateChanged = function(callback) {
-                this.authStateChangedCallback = callback;
-                if (firebase.auth) {
-                    firebase.auth().onAuthStateChanged(callback);
-                } else {
-                    if (callback) callback(savedUser);
-                }
-            };
-            
-            // 현재 로그인한 사용자 정보 가져오기 함수 업데이트
-            window.dhcFirebase.getCurrentUser = function() {
-                if (firebase.auth) {
-                    return firebase.auth().currentUser;
-                }
-                
-                try {
-                    // 로컬 스토리지에서 최신 정보 확인
-                    const userJson = localStorage.getItem('mockUser');
-                    if (userJson) {
-                        return JSON.parse(userJson);
-                    }
-                } catch (e) {
-                    console.error("getCurrentUser 오류:", e);
-                }
-                
-                return null;
-            };
-            
-            console.log("Firebase 모의 설정 완료");
-        } else {
-            console.log("Firebase 라이브러리가 로드되지 않았으므로 기본 dhcFirebase 객체 사용");
-        }
-    } catch (error) {
-        console.error("Firebase 초기화 오류:", error);
-    }
-    
-    // 초기화 후 로그인 상태 이벤트 발생 (Firebase가 불러와지지 않은 경우)
-    if (savedUser && window.dhcFirebase.authStateChangedCallback) {
-        setTimeout(() => {
-            window.dhcFirebase.authStateChangedCallback(savedUser);
-            console.log("Firebase 초기화 후 로그인 상태 이벤트 발생");
-        }, 100);
-    }
-})();
+// Firebase 설정 정보
+const firebaseConfig = {
+  apiKey: "AIzaSyCnQBH5MxaFhraVPCk7awHOLO8j5C6Lw0A", // 실제 API 키로 변경
+  authDomain: "digital-healthcare-cente-2204b.firebaseapp.com",
+  projectId: "digital-healthcare-cente-2204b",
+  storageBucket: "digital-healthcare-cente-2204b.firebasestorage.app",
+  messagingSenderId: "60835775420",
+  appId: "1:60835775420:web:7ae13d485fa19fd2f221b9",
+  measurementId: "G-HXQ9SMCCFE"
+};
+
+// Firebase 초기화
+try {
+  firebase.initializeApp(firebaseConfig);
+  console.log("Firebase 초기화 성공");
+} catch (error) {
+  console.error("Firebase 초기화 오류:", error);
+}
+
+// Analytics 초기화 (Analytics 사용 시)
+if (firebase.analytics) {
+  try {
+    firebase.analytics();
+    console.log("Firebase Analytics 초기화 성공");
+  } catch (error) {
+    console.error("Firebase Analytics 초기화 오류:", error);
+  }
+}
+
+// dhcFirebase 전역 객체 생성 (기존 프로젝트에서 사용하는 방식)
+window.dhcFirebase = {
+  auth: firebase.auth(),
+  db: firebase.firestore(),
+  storage: firebase.storage(),
+  firebase: firebase,
+  
+  // 인증 상태 변경 감지
+  onAuthStateChanged: function(callback) {
+    return firebase.auth().onAuthStateChanged(callback);
+  },
+  
+  // 현재 로그인한 사용자 정보
+  getCurrentUser: function() {
+    return firebase.auth().currentUser;
+  }
+};
+
+console.log("Firebase dhcFirebase 객체 생성 완료");
+
+// 로컬 테스트 모드 비활성화 플래그
+// 실제 Firebase를 사용할 때는 이 플래그를 false로 설정
+window.LOCAL_TEST_MODE = false;
+
+// Firebase Authentication 상태 모니터링 및 디버깅
+window.dhcFirebase.onAuthStateChanged(function(user) {
+  if (user) {
+    console.log("Firebase 인증 상태: 로그인됨", {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      emailVerified: user.emailVerified
+    });
+  } else {
+    console.log("Firebase 인증 상태: 로그아웃됨");
+  }
+});
