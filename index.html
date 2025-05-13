@@ -18,9 +18,14 @@
 <body>
     <header id="main-header">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="logo">
+            <div class="logo flex items-center">
                 <a href="index.html">
-                    <img src="assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" width="180">
+                    <div class="flex items-center">
+                        <img src="assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" class="logo-image">
+                        <div class="ml-3">
+                            <span class="organization-name">사&rpar;문경 부설 헬스케어센터</span>
+                        </div>
+                    </div>
                 </a>
             </div>
             <nav class="main-nav hidden md:flex">
@@ -390,10 +395,10 @@
         </section>
 
         <!-- CTA 섹션 -->
-        <section class="cta-section py-16 bg-blue-600 text-white">
+        <section class="cta-section py-10 bg-gradient-to-r from-blue-600 to-green-500 rounded-xl p-8 text-white text-center">
             <div class="container mx-auto px-4 text-center">
-                <h2 class="text-3xl font-bold mb-4">디지털헬스케어센터와 함께<br>건강운동 전문가의 꿈을 이루세요</h2>
-                <p class="text-xl mb-8 max-w-2xl mx-auto">전문적인 교육과 체계적인 자격 인증 시스템을 통해<br>건강한 사회를 만드는 전문가로 성장할 수 있습니다.
+                <h2 class="text-2xl font-bold mb-4">사&rpar;디지털헬스케어센터와 함께<br>건강운동 전문가의 꿈을 이루세요</h2>
+                <p class="text-lg mb-6 max-w-2xl mx-auto">전문적인 교육과 체계적인 자격 인증 시스템을 통해<br>건강한 사회를 만드는 전문가로 성장할 수 있습니다.
                 </p>
                 <div class="flex flex-wrap justify-center gap-4">
                     <a href="javascript:window.location.href=window.adjustPath('pages/auth/signup.html')"
@@ -404,6 +409,7 @@
                 </div>
             </div>
         </section>
+
     </main>
 
     <footer class="bg-gray-800 text-white py-12">
