@@ -1,5 +1,5 @@
 /* 
- * 푸터 CSS 파일
+ * 푸터 CSS 파일 (수정됨)
  * 이 파일은 웹사이트 푸터 스타일을 정의합니다.
  */
 
@@ -7,129 +7,150 @@
 footer {
     background-color: var(--background-dark);
     color: white;
-    padding: 3rem 0;
-  }
-  
-  /* 푸터 컨테이너 */
-  footer .container {
-    display: flex;
-    flex-wrap: wrap;
-  }
-  
-  /* 푸터 섹션 */
-  footer .footer-section {
-    flex: 1 1 250px;
-    margin-bottom: 2rem;
-  }
-  
-  /* 푸터 제목 */
-  footer h3 {
+    padding: 2rem 0;
+}
+
+/* 푸터 컨테이너 */
+footer .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* 푸터 제목 */
+footer h3 {
     color: white;
     font-size: 1.125rem;
     font-weight: 700;
-    margin-bottom: 1.25rem;
-  }
-  
-  /* 푸터 텍스트 */
-  footer p {
-    color: var(--text-tertiary);
     margin-bottom: 1rem;
-  }
-  
-  /* 푸터 링크 목록 */
-  footer ul {
+}
+
+/* 푸터 텍스트 */
+footer p {
+    color: var(--text-tertiary);
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+/* 푸터 링크 목록 */
+footer ul {
     list-style: none;
     margin: 0;
     padding: 0;
-  }
-  
-  footer li {
+}
+
+footer li {
     margin-bottom: 0.5rem;
-  }
-  
-  /* 푸터 링크 */
-  footer a {
+}
+
+/* 푸터 링크 */
+footer a {
     color: var(--text-tertiary);
     text-decoration: none;
     transition: color 0.15s ease-in-out;
-  }
-  
-  footer a:hover,
-  footer a:focus {
+}
+
+footer a:hover,
+footer a:focus {
     color: white;
-  }
-  
-  /* 소셜 미디어 링크 */
-  footer .social-links {
+}
+
+/* 소셜 미디어 링크 */
+footer .social-links {
     display: flex;
     gap: 1rem;
-    margin-top: 1rem;
-  }
-  
-  footer .social-links a {
-    align-items: center;
-    display: flex;
-    justify-content: center;
-  }
-  
-  /* 연락처 항목 */
-  footer .contact-item {
-    align-items: center;
-    display: flex;
-    margin-bottom: 0.5rem;
-  }
-  
-  footer .contact-item svg {
-    color: var(--text-tertiary);
-    margin-right: 0.5rem;
-  }
-  
-  /* 푸터 하단 영역 */
-footer .footer-bottom {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    margin-top: 2rem;
-    padding-top: 2rem;
-    width: 100%;
-  }
-  
-  /* 저작권 텍스트 */
-  footer .copyright {
-    color: var(--text-tertiary);
-    font-size: 0.875rem;
-  }
-  
-  /* 법적 링크 */
-  footer .legal-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-  
-  footer .legal-links a {
-    font-size: 0.875rem;
-  }
-  
-  /* 반응형 조정 */
-  @media (min-width: 768px) {
-    footer .footer-bottom {
-      align-items: center;
-      display: flex;
-      justify-content: space-between;
+}
+
+footer .social-links a {
+    display: inline-block;
+    transition: color 0.15s ease-in-out;
+}
+
+footer .social-links svg {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+/* 반응형 조정 */
+@media (max-width: 768px) {
+    footer {
+        padding: 1.5rem 0;
     }
     
-    footer .legal-links {
-      margin-top: 0;
-    }
-  }
-  
-  @media (max-width: 768px) {
-    footer .container {
-      flex-direction: column;
+    footer h3 {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
     }
     
-    footer .footer-section {
-      margin-bottom: 2rem;
-      width: 100%;
+    footer .grid {
+        gap: 1.5rem;
     }
-  }
+    
+    /* 모바일에서 1컬럼 레이아웃 */
+    footer .lg\:grid-cols-3,
+    footer .md\:grid-cols-2 {
+        grid-template-columns: 1fr !important;
+    }
+    
+    /* 사업자 정보 섹션 */
+    footer .border-t {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    footer {
+        padding: 1rem 0;
+    }
+    
+    footer p,
+    footer li {
+        font-size: 0.875rem;
+    }
+    
+    footer .social-links {
+        gap: 0.75rem;
+    }
+    
+    footer .social-links svg {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+}
+
+/* 아코디언 스타일 (모바일용) - 옵션 */
+@media (max-width: 640px) {
+    .footer-accordion {
+        display: block;
+    }
+    
+    .footer-accordion-title {
+        cursor: pointer;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        position: relative;
+    }
+    
+    .footer-accordion-title:after {
+        content: '+';
+        position: absolute;
+        right: 0;
+        color: var(--text-tertiary);
+    }
+    
+    .footer-accordion-title.active:after {
+        content: '-';
+    }
+    
+    .footer-accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+    
+    .footer-accordion-content.active {
+        max-height: 200px;
+        padding: 0.75rem 0;
+    }
+}

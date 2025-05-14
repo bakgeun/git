@@ -282,20 +282,24 @@
         </main>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    <!-- Firebase SDK 템플릿 (script-loader.js에 의해 처리됨) -->
+    <script id="firebase-sdk-template" type="text/template">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
+    <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
+    <script src="{basePath}assets/js/services/auth-service.js"><\/script>
+    <script src="{basePath}assets/js/services/db-service.js"><\/script>
+</script>
 
-    <!-- 프로젝트 스크립트 -->
-    <script src="../../assets/js/config/firebase-config.js"></script>
-    <script src="../../assets/js/services/auth-service.js"></script>
-    <script src="../../assets/js/services/db-service.js"></script>
-    <script src="../../assets/js/utils/formatters.js"></script>
-    <script src="../../assets/js/utils/date-utils.js"></script>
-    <script src="../../assets/js/utils/admin-auth.js"></script>
-    <script src="../../assets/js/pages/admin/dashboard.js"></script>
+    <!-- 추가 스크립트 템플릿 (관리자 페이지용) -->
+    <script id="additional-scripts-template" type="text/template">
+    <script src="{basePath}assets/js/utils/formatters.js"><\/script>
+    <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
+    <script src="{basePath}assets/js/utils/admin-auth.js"><\/script>
+    <script src="{basePath}assets/js/pages/admin/dashboard.js"><\/script>
+</script>
 
     <!-- 대시보드 초기화 스크립트 -->
     <script>

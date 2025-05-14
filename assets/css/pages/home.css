@@ -566,3 +566,19 @@
    box-shadow: initial;
  }
 }
+
+/* 홈페이지 푸터 최적화 */
+@media (max-width: 1023px) {
+    footer {
+        padding: 1.5rem 0;
+    }
+    
+    footer .grid-cols-1 {
+        gap: 1rem;
+    }
+    
+    footer .border-t {
+        margin-top: 1rem;
+        padding-top: 1rem;
+    }
+}
