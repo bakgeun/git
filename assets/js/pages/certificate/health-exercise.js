@@ -4,7 +4,7 @@
  */
 
 // 즉시 실행 함수 표현식(IIFE)을 사용하여 전역 네임스페이스 오염 방지
-(function() {
+(function () {
     // 건강운동처방사 자격증 정보
     const certificateData = {
         certificateId: 'health-exercise',
@@ -197,10 +197,10 @@
         // 이벤트 리스너 설정
         const faqQuestions = faqElement.querySelectorAll('.faq-question');
         faqQuestions.forEach(question => {
-            question.addEventListener('click', function() {
+            question.addEventListener('click', function () {
                 const answer = this.nextElementSibling;
                 const icon = this.querySelector('span');
-                
+
                 // 다른 FAQ 닫기
                 faqQuestions.forEach(q => {
                     if (q !== this) {
@@ -262,6 +262,98 @@
     }
 
     /**
+     * 섹션 네비게이션 기능 설정 (앵커 링크 기반)
+     */
+    function setupSectionNavigation() {
+        console.log('섹션 네비게이션 설정 시작');
+
+        // 네비게이션 링크들 선택
+        const navLinks = document.querySelectorAll('#tab-nav a');
+        // 모든 콘텐츠 섹션들 선택
+        const contents = document.querySelectorAll('.tab-content');
+
+        if (navLinks.length === 0) {
+            console.error('네비게이션 링크를 찾을 수 없습니다');
+            return;
+        }
+
+        console.log('네비게이션 링크 개수:', navLinks.length);
+        console.log('콘텐츠 섹션 개수:', contents.length);
+
+        // 초기 상태: 첫 번째 섹션(개요) 표시
+        showSection('overview');
+
+        // 각 네비게이션 링크에 클릭 이벤트 등록
+        navLinks.forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // href에서 #을 제거한 섹션 ID 추출
+                const sectionId = this.getAttribute('href').substring(1);
+                console.log('클릭된 섹션:', sectionId);
+
+                showSection(sectionId);
+            });
+        });
+
+        // URL 해시 변경 시에도 처리
+        window.addEventListener('hashchange', function () {
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                console.log('URL 해시 변경:', hash);
+                showSection(hash);
+            }
+        });
+
+        // 페이지 로드 시 URL 해시 확인
+        const initialHash = window.location.hash.substring(1);
+        if (initialHash) {
+            console.log('페이지 로드 시 해시:', initialHash);
+            showSection(initialHash);
+        }
+    }
+
+    /**
+     * 특정 섹션 표시
+     */
+    function showSection(sectionId) {
+        console.log('섹션 표시:', sectionId);
+
+        // 네비게이션 링크 스타일 업데이트
+        const navLinks = document.querySelectorAll('#tab-nav a');
+        navLinks.forEach(function (link) {
+            const href = link.getAttribute('href').substring(1); // # 제거
+
+            if (href === sectionId) {
+                // 활성 상태 스타일
+                link.classList.remove('text-gray-500');
+                link.classList.add('text-blue-600', 'border-b-2', 'border-blue-600', 'active');
+            } else {
+                // 비활성 상태 스타일
+                link.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600', 'active');
+                link.classList.add('text-gray-500');
+            }
+        });
+
+        // 모든 콘텐츠 숨기기
+        const contents = document.querySelectorAll('.tab-content');
+        contents.forEach(function (content) {
+            content.classList.add('hidden');
+            content.classList.remove('block');
+        });
+
+        // 선택된 콘텐츠 표시
+        const targetContent = document.getElementById(sectionId + '-content');
+        if (targetContent) {
+            targetContent.classList.remove('hidden');
+            targetContent.classList.add('block');
+            console.log('콘텐츠 표시 완료:', sectionId + '-content');
+        } else {
+            console.error('대상 콘텐츠를 찾을 수 없음:', sectionId + '-content');
+        }
+    }
+
+    /**
      * 페이지 초기화
      */
     function init() {
@@ -269,6 +361,7 @@
         setupCostCalculator();
         setupFAQAccordion();
         displayRelatedCertificates();
+        setupSectionNavigation(); // setupTabNavigation을 setupSectionNavigation으로 변경
     }
 
     // 페이지 로드 완료 시 초기화

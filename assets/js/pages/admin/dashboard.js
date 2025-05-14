@@ -1,8 +1,9 @@
 /**
- * 관리자 대시보드 페이지 스크립트
+ * 관리자 대시보드 페이지 스크립트 (수정 버전)
  */
 
 let dashboardInitialized = false;
+let authStateListener = null;
 
 // 대시보드 초기화 함수 (dashboard.html에서 호출)
 async function initDashboard() {
@@ -17,14 +18,140 @@ async function initDashboard() {
         // Firebase 초기화 대기
         await waitForFirebase();
         
-        // 관리자 권한 확인
-        const hasAccess = await checkAdminAccess();
-        if (!hasAccess) {
-            return;
+        // 인증 상태 감지 및 초기화
+        await initializeWithAuth();
+        
+        console.log('대시보드 초기화 완료');
+        
+    } catch (error) {
+        console.error('대시보드 초기화 오류:', error);
+        showErrorMessage('대시보드 로드 중 오류가 발생했습니다.');
+    }
+}
+
+// Firebase 초기화 대기 (개선된 버전)
+function waitForFirebase() {
+    return new Promise((resolve, reject) => {
+        let attempts = 0;
+        const maxAttempts = 100; // 시도 횟수 증가
+        
+        function check() {
+            attempts++;
+            console.log('Firebase 확인 시도:', attempts);
+            
+            if (window.dhcFirebase && 
+                window.dhcFirebase.getCurrentUser && 
+                window.dhcFirebase.onAuthStateChanged &&
+                window.dhcFirebase.auth) {
+                console.log('Firebase 준비됨');
+                resolve();
+                return;
+            }
+            
+            if (attempts < maxAttempts) {
+                setTimeout(check, 50); // 체크 간격 단축
+            } else {
+                console.error('Firebase 초기화 시간 초과');
+                reject(new Error('Firebase 초기화 실패'));
+            }
         }
         
+        check();
+    });
+}
+
+// 인증 상태를 기반으로 한 초기화
+function initializeWithAuth() {
+    return new Promise((resolve, reject) => {
+        console.log('인증 상태 감지 시작');
+        
+        // 현재 인증 상태 확인
+        const currentUser = window.dhcFirebase.getCurrentUser();
+        console.log('초기 인증 상태:', currentUser ? `${currentUser.email} 로그인됨` : '로그인하지 않음');
+        
+        // 인증 상태 변화 감지 리스너 설정
+        authStateListener = window.dhcFirebase.onAuthStateChanged(async (user) => {
+            console.log('인증 상태 변화 감지:', user ? `${user.email} 로그인됨` : '로그아웃됨');
+            
+            try {
+                if (user) {
+                    // 사용자가 로그인된 경우
+                    const hasAccess = await checkAdminAccess(user);
+                    if (hasAccess) {
+                        await initializeDashboard(user);
+                        resolve();
+                    } else {
+                        reject(new Error('관리자 권한 없음'));
+                    }
+                } else {
+                    // 사용자가 로그인하지 않은 경우
+                    console.log('로그인하지 않은 상태 감지');
+                    redirectToLogin();
+                    reject(new Error('로그인 필요'));
+                }
+            } catch (error) {
+                console.error('인증 상태 처리 오류:', error);
+                reject(error);
+            }
+        });
+    });
+}
+
+// 관리자 권한 확인 (개선된 버전)
+async function checkAdminAccess(user = null) {
+    console.log('관리자 권한 확인 시작');
+    
+    try {
+        // 사용자 파라미터가 없으면 현재 사용자 확인
+        const currentUser = user || window.dhcFirebase.getCurrentUser();
+        
+        if (!currentUser || !currentUser.email) {
+            console.log('로그인하지 않은 상태');
+            return false;
+        }
+        
+        console.log('현재 사용자:', currentUser.email);
+        
+        const adminEmails = ['admin@test.com', 'gostepexercise@gmail.com'];
+        const isAdmin = adminEmails.includes(currentUser.email);
+        console.log('관리자 권한 결과:', isAdmin);
+        
+        if (!isAdmin) {
+            console.log('관리자 권한 없음');
+            alert('관리자 권한이 필요합니다.');
+            setTimeout(() => {
+                window.location.href = '../../index.html';
+            }, 1000);
+            return false;
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('권한 확인 오류:', error);
+        return false;
+    }
+}
+
+// 로그인 페이지로 리다이렉트
+function redirectToLogin() {
+    console.log('로그인 페이지로 리다이렉트');
+    alert('로그인이 필요합니다.');
+    setTimeout(() => {
+        window.location.href = '../auth/login.html';
+    }, 1000);
+}
+
+// 대시보드 초기화 (인증된 사용자)
+async function initializeDashboard(user) {
+    if (dashboardInitialized) {
+        return;
+    }
+    
+    console.log('인증된 사용자로 대시보드 초기화:', user.email);
+    
+    try {
         // 관리자 정보 표시
-        displayAdminInfo();
+        displayAdminInfo(user);
         
         // 로그아웃 버튼 설정
         setupLogoutButton();
@@ -48,79 +175,14 @@ async function initDashboard() {
         
     } catch (error) {
         console.error('대시보드 초기화 오류:', error);
-        alert('대시보드 로드 중 오류가 발생했습니다.');
+        showErrorMessage('대시보드 로드 중 오류가 발생했습니다.');
     }
 }
 
-// Firebase 초기화 대기
-function waitForFirebase() {
-    return new Promise((resolve) => {
-        let attempts = 0;
-        const maxAttempts = 50;
-        
-        function check() {
-            attempts++;
-            console.log('Firebase 확인 시도:', attempts);
-            
-            if (window.dhcFirebase && window.dhcFirebase.getCurrentUser) {
-                console.log('Firebase 준비됨');
-                resolve();
-                return;
-            }
-            
-            if (attempts < maxAttempts) {
-                setTimeout(check, 100);
-            } else {
-                console.error('Firebase 초기화 시간 초과');
-                reject(new Error('Firebase 초기화 실패'));
-            }
-        }
-        
-        check();
-    });
-}
-
-// 관리자 권한 확인
-async function checkAdminAccess() {
-    console.log('관리자 권한 확인 시작');
-    
+// 관리자 정보 표시 (개선된 버전)
+function displayAdminInfo(user = null) {
     try {
-        const currentUser = window.dhcFirebase.getCurrentUser();
-        console.log('현재 사용자:', currentUser);
-        
-        if (!currentUser || !currentUser.email) {
-            console.log('로그인하지 않은 상태');
-            alert('로그인이 필요합니다.');
-            setTimeout(() => {
-                window.location.href = '../auth/login.html';
-            }, 1000);
-            return false;
-        }
-        
-        const adminEmails = ['admin@test.com', 'gostepexercise@gmail.com'];
-        const isAdmin = adminEmails.includes(currentUser.email);
-        console.log('관리자 권한 결과:', isAdmin);
-        
-        if (!isAdmin) {
-            console.log('관리자 권한 없음');
-            alert('관리자 권한이 필요합니다.');
-            setTimeout(() => {
-                window.location.href = '../../index.html';
-            }, 1000);
-            return false;
-        }
-        
-        return true;
-    } catch (error) {
-        console.error('권한 확인 오류:', error);
-        return false;
-    }
-}
-
-// 관리자 정보 표시
-function displayAdminInfo() {
-    try {
-        const currentUser = window.dhcFirebase.getCurrentUser();
+        const currentUser = user || window.dhcFirebase.getCurrentUser();
         
         if (currentUser) {
             const adminNameElement = document.getElementById('admin-name');
@@ -145,26 +207,64 @@ function displayAdminInfo() {
 function setupLogoutButton() {
     const logoutButton = document.getElementById('admin-logout-button');
     if (logoutButton) {
-        logoutButton.addEventListener('click', async (e) => {
-            e.preventDefault();
-            
-            if (confirm('로그아웃 하시겠습니까?')) {
-                try {
-                    await window.dhcFirebase.auth.signOut();
-                    console.log('로그아웃 성공');
-                    alert('로그아웃 되었습니다.');
-                    window.location.href = '../../index.html';
-                } catch (error) {
-                    console.error('로그아웃 오류:', error);
-                    alert('로그아웃 중 오류가 발생했습니다.');
-                }
-            }
-        });
+        // 기존 이벤트 리스너 제거
+        logoutButton.removeEventListener('click', handleLogout);
+        // 새 이벤트 리스너 추가
+        logoutButton.addEventListener('click', handleLogout);
     }
 }
 
+// 로그아웃 처리
+async function handleLogout(e) {
+    e.preventDefault();
+    
+    if (confirm('로그아웃 하시겠습니까?')) {
+        try {
+            // 인증 상태 리스너 제거
+            if (authStateListener) {
+                authStateListener();
+            }
+            
+            // 로그아웃 실행
+            await window.dhcFirebase.auth.signOut();
+            console.log('로그아웃 성공');
+            alert('로그아웃 되었습니다.');
+            window.location.href = '../../index.html';
+        } catch (error) {
+            console.error('로그아웃 오류:', error);
+            alert('로그아웃 중 오류가 발생했습니다.');
+        }
+    }
+}
+
+// 오류 메시지 표시
+function showErrorMessage(message) {
+    const notification = document.createElement('div');
+    notification.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50';
+    notification.innerHTML = `
+        <div class="flex">
+            <div class="flex-1">
+                <strong class="font-bold">오류!</strong>
+                <span class="block sm:inline">${message}</span>
+            </div>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-4">
+                <span class="sr-only">닫기</span>
+                ×
+            </button>
+        </div>
+    `;
+    document.body.appendChild(notification);
+    
+    // 5초 후 자동 제거
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
 /**
- * 대시보드 통계 데이터 로드
+ * 대시보드 통계 데이터 로드 (기존 코드 유지)
  */
 async function loadDashboardData() {
     console.log('대시보드 데이터 로드 시작');
@@ -258,7 +358,7 @@ function updateElement(elementId, value) {
 }
 
 /**
- * 최근 가입 회원 로드
+ * 최근 가입 회원 로드 (기존 코드 유지)
  */
 async function loadRecentUsers() {
     const tbody = document.getElementById('recent-users-tbody');
@@ -283,7 +383,7 @@ async function loadRecentUsers() {
 }
 
 /**
- * 최근 교육 신청 로드
+ * 최근 교육 신청 로드 (기존 코드 유지)
  */
 async function loadRecentApplications() {
     const tbody = document.getElementById('recent-applications-tbody');
@@ -308,7 +408,7 @@ async function loadRecentApplications() {
 }
 
 /**
- * 최근 공지사항 로드
+ * 최근 공지사항 로드 (기존 코드 유지)
  */
 async function loadRecentNotices() {
     const noticesList = document.getElementById('recent-notices');
@@ -334,7 +434,7 @@ async function loadRecentNotices() {
 }
 
 /**
- * 시스템 상태 업데이트
+ * 시스템 상태 업데이트 (기존 코드 유지)
  */
 function updateSystemStatus() {
     // Firebase 연결 상태
@@ -360,7 +460,7 @@ function updateSystemStatus() {
 }
 
 /**
- * 실시간 업데이트 설정
+ * 실시간 업데이트 설정 (기존 코드 유지)
  */
 function setupRealtimeUpdates() {
     // 실시간 서버 시간 업데이트
@@ -377,7 +477,7 @@ function updateServerTime() {
 }
 
 /**
- * 이번 달 수익 계산
+ * 이번 달 수익 계산 (기존 코드 유지)
  */
 async function calculateMonthlyRevenue() {
     // 더미 데이터로 대체

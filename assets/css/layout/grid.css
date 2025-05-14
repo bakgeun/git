@@ -68,7 +68,9 @@
   .gap-y-10 { row-gap: var(--spacing-10); }
   .gap-y-12 { row-gap: var(--spacing-12); }
   
-  /* 반응형 그리드 */
+  /* 반응형 그리드 - Tailwind와 동일한 브레이크포인트 사용 */
+  
+  /* 640px 이상 (sm) */
   @media (min-width: 640px) {
     .sm\:grid { display: grid; }
     .sm\:grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
@@ -85,6 +87,7 @@
     .sm\:grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
   }
   
+  /* 768px 이상 (md) */
   @media (min-width: 768px) {
     .md\:grid { display: grid; }
     .md\:grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
@@ -101,6 +104,18 @@
     .md\:grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
   }
   
+  /* 896px 이상 (중간 브레이크포인트 - 레이아웃 문제 해결용) */
+  @media (min-width: 896px) {
+    .mid\:grid { display: grid; }
+    .mid\:grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+    .mid\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .mid\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .mid\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .mid\:gap-4 { gap: 1rem; }
+    .mid\:gap-6 { gap: 1.5rem; }
+  }
+  
+  /* 1024px 이상 (lg) */
   @media (min-width: 1024px) {
     .lg\:grid { display: grid; }
     .lg\:grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
@@ -117,6 +132,18 @@
     .lg\:grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
   }
   
+  /* 1200px 이상 (custom 브레이크포인트 - 네비게이션 전환점) */
+  @media (min-width: 1200px) {
+    .nav\:grid { display: grid; }
+    .nav\:grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+    .nav\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .nav\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .nav\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .nav\:gap-4 { gap: 1rem; }
+    .nav\:gap-6 { gap: 1.5rem; }
+  }
+  
+  /* 1280px 이상 (xl) */
   @media (min-width: 1280px) {
     .xl\:grid { display: grid; }
     .xl\:grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
