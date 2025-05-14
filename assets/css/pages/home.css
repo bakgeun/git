@@ -582,3 +582,82 @@
         padding-top: 1rem;
     }
 }
+
+/* 히어로 섹션 버튼 스타일 개선 */
+.hero-section .flex a {
+  transition: all 0.3s ease;
+  font-weight: 500;
+  padding: 12px 24px;
+  border-radius: 6px;
+  display: inline-block;
+  text-decoration: none;
+}
+
+/* 첫 번째 버튼 (교육 과정 알아보기) */
+.hero-section .flex a:first-child,
+.hero-section a[href*="course-info"] {
+  background-color: white;
+  color: #2563eb;
+  border: 2px solid white;
+}
+
+.hero-section .flex a:first-child:hover,
+.hero-section a[href*="course-info"]:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #1d4ed8;
+  border-color: rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 두 번째 버튼 (자격증 정보 보기) */
+.hero-section .flex a:last-child,
+.hero-section a[href*="certificate"] {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.hero-section .flex a:last-child:hover,
+.hero-section a[href*="certificate"]:hover {
+  background-color: white;
+  color: #2563eb;
+  border-color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Tailwind 클래스 덮어쓰기 - 더 구체적으로 */
+.hero-section .bg-white.hover\:bg-gray-100 {
+  transition: all 0.3s ease;
+}
+
+.hero-section .bg-white.hover\:bg-gray-100:hover {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  color: #1d4ed8 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 투명 버튼 스타일 */
+.hero-section .bg-transparent.hover\:bg-white {
+  transition: all 0.3s ease;
+}
+
+.hero-section .bg-transparent.hover\:bg-white:hover {
+  background-color: white !important;
+  color: #2563eb !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 폰트 웨이트와 색상이 변경되지 않는 경우를 위한 추가 스타일 */
+.hero-section .bg-white.text-blue-600 {
+  background-color: white !important;
+  color: #2563eb !important;
+}
+
+.hero-section .bg-white.text-blue-600:hover {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  color: #1d4ed8 !important;
+}

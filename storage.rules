@@ -1,0 +1,137 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // 헬퍼 함수: 사용자가 로그인되어 있는지 확인
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // 헬퍼 함수: 관리자 권한 확인
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.email == 'gostepexercise@gmail.com');
+    }
+    
+    // 헬퍼 함수: 파일 소유자 확인
+    function isOwner() {
+      return isAuthenticated() && 
+        request.auth.uid == resource.metadata.uploadedBy;
+    }
+    
+    // 헬퍼 함수: 허용된 파일 타입 확인
+    function isValidFileType() {
+      return resource.contentType.matches('image/.*') ||
+             resource.contentType.matches('application/pdf') ||
+             resource.contentType.matches('application/msword') ||
+             resource.contentType.matches('application/vnd.openxmlformats-officedocument.wordprocessingml.document') ||
+             resource.contentType.matches('application/vnd.ms-excel') ||
+             resource.contentType.matches('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') ||
+             resource.contentType.matches('application/vnd.ms-powerpoint') ||
+             resource.contentType.matches('application/vnd.openxmlformats-officedocument.presentationml.presentation') ||
+             resource.contentType.matches('text/.*') ||
+             resource.contentType.matches('video/.*');
+    }
+    
+    // 헬퍼 함수: 파일 크기 확인 (10MB 제한)
+    function isValidFileSize() {
+      return resource.size < 10 * 1024 * 1024;
+    }
+    
+    // 프로필 이미지 업로드
+    match /profile-images/{userId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && 
+                      (request.auth.uid == userId || isAdmin()) &&
+                      isValidFileType() && 
+                      isValidFileSize();
+      allow delete: if isOwner() || isAdmin();
+    }
+    
+    // 자격증 파일 (이미지)
+    match /certificates/{userId}/{allPaths=**} {
+      allow read: if isAuthenticated() && 
+                     (request.auth.uid == userId || isAdmin());
+      allow write: if isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // 교육 자료 파일
+    match /course-materials/{courseId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && 
+                      isValidFileType() && 
+                      isValidFileSize();
+      allow delete: if isAdmin();
+    }
+    
+    // 동영상 강의 파일
+    match /video-lectures/{courseId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && 
+                      isValidFileType() && 
+                      isValidFileSize();
+      allow delete: if isAdmin();
+    }
+    
+    // 공지사항 첨부파일
+    match /notice-attachments/{noticeId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && 
+                      isValidFileType() && 
+                      isValidFileSize();
+      allow delete: if isAdmin();
+    }
+    
+    // 칼럼 첨부파일
+    match /column-attachments/{columnId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && 
+                      isValidFileType() && 
+                      isValidFileSize();
+      allow delete: if isAdmin();
+    }
+    
+    // 강사 프로필 이미지
+    match /instructor-images/{instructorId}/{allPaths=**} {
+      allow read: if true; // 공개적으로 읽기 가능
+      allow write: if isAdmin() && 
+                      isValidFileType() && 
+                      isValidFileSize();
+      allow delete: if isAdmin();
+    }
+    
+    // 임시 업로드 폴더 (1시간 후 자동 삭제)
+    match /temp-uploads/{userId}/{allPaths=**} {
+      allow read, write: if isAuthenticated() && 
+                           request.auth.uid == userId &&
+                           isValidFileType() && 
+                           isValidFileSize();
+      allow delete: if isOwner() || isAdmin();
+    }
+    
+    // 결제 영수증 파일
+    match /payment-receipts/{userId}/{allPaths=**} {
+      allow read: if isAuthenticated() && 
+                     (request.auth.uid == userId || isAdmin());
+      allow write: if isAuthenticated() && 
+                      request.auth.uid == userId &&
+                      isValidFileType() && 
+                      isValidFileSize();
+      allow delete: if isAdmin();
+    }
+    
+    // 시험 관련 파일
+    match /exam-files/{examId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && 
+                      isValidFileType() && 
+                      isValidFileSize();
+      allow delete: if isAdmin();
+    }
+    
+    // 기본 거부 규칙
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

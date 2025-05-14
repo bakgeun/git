@@ -1,5 +1,7 @@
 {
   "projects": {
     "default": "digital-healthcare-cente-2204b"
-  }
+  },
+  "targets": {},
+  "etags": {}
 }
