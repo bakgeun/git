@@ -91,17 +91,19 @@
                 </ul>
             </nav>
             <div class="auth-buttons flex items-center">
+                <!-- Firebase에 의해 동적으로 업데이트됨 -->
                 <a href="javascript:window.location.href=window.adjustPath('pages/auth/login.html')"
                     class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
                 <a href="javascript:window.location.href=window.adjustPath('pages/auth/signup.html')"
                     class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
-                <button id="mobile-menu-button" class="md:hidden ml-4 hamburger-menu" aria-expanded="false"
-                    aria-controls="mobile-menu-overlay">
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
-                </button>
             </div>
+            <button id="mobile-menu-button" class="md:hidden ml-4 hamburger-menu" aria-expanded="false"
+                aria-controls="mobile-menu-overlay">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
         </div>
 
         <!-- Mobile Menu Overlay (KSPO 스타일) -->
@@ -114,16 +116,146 @@
                 </div>
 
                 <!-- 모바일 메뉴 컨텐츠 -->
-                <div class="flex-1 overflow-y-auto bg-gray-50">
+                <div class="flex-1 overflow-y-auto bg-gray-50 mobile-menu-container">
                     <div class="p-4">
                         <!-- 회원 정보 영역 -->
-                        <div class="mb-6 p-4 bg-white rounded-lg shadow-sm">
+                        <div class="mb-6 p-4 bg-white rounded-lg shadow-sm mobile-menu-user-info">
                             <span class="text-blue-600 font-semibold">로그인 해주세요 ></span>
                         </div>
 
                         <!-- 메인 메뉴 -->
-                        <div class="space-y-2">
-                            <!-- 동적으로 생성됨 -->
+                        <div class="space-y-2 mobile-menu-nav">
+                            <!-- 기관 소개 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">🏢</div>
+                                    <div class="menu-text">기관 소개</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')">개요</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')">목표
+                                        및 전략</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/about/business.html')">사업
+                                        내용</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')">조직도</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')">강사
+                                        소개</a>
+                                </div>
+                            </div>
+
+                            <!-- 자격증 소개 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">🎓</div>
+                                    <div class="menu-text">자격증 소개</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')">건강운동처방사</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')">운동재활전문가</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')">필라테스
+                                        전문가</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')">레크리에이션지도자</a>
+                                </div>
+                            </div>
+
+                            <!-- 교육 과정 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">📚</div>
+                                    <div class="menu-text">교육 과정</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')">교육
+                                        과정 안내</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')">교육
+                                        신청</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')">자격증
+                                        신청</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/exam-info.html')">시험
+                                        안내</a>
+                                </div>
+                            </div>
+
+                            <!-- 게시판 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">📋</div>
+                                    <div class="menu-text">게시판</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')">공지사항</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')">칼럼</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/board/materials/index.html')">강의자료</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/board/videos/index.html')">동영상
+                                        강의</a>
+                                </div>
+                            </div>
+
+                            <!-- 마이페이지 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">👤</div>
+                                    <div class="menu-text">마이페이지</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/personal-info.html')">개인정보
+                                        관리</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/course-history.html')">수강
+                                        내역</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/cert-management.html')">자격증
+                                        관리</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/payment-history.html')">결제
+                                        내역</a>
+                                </div>
+                            </div>
+
+                            <!-- 관리자 (조건부 표시) -->
+                            <div class="mobile-menu-item admin-only" style="display: none;">
+                                <button type="button">
+                                    <div class="menu-icon">⚙️</div>
+                                    <div class="menu-text">관리자</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/admin/dashboard.html')">대시보드</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/admin/user-management.html')">회원
+                                        관리</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/admin/course-management.html')">교육
+                                        관리</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/admin/cert-management.html')">자격증
+                                        관리</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -158,7 +290,7 @@
                     <!-- 건강운동처방사 -->
                     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                         <div class="h-48 bg-blue-500 flex items-center justify-center">
-                            <img src="assets/images/certificates/health-exercise-icon.jpeg" alt="건강운동처방사 아이콘"
+                            <img src="assets/images/certificates/health-exercise-icon.png" alt="건강운동처방사 아이콘"
                                 class="h-24">
                         </div>
                         <div class="p-6">
@@ -172,7 +304,7 @@
                     <!-- 운동재활전문가 -->
                     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                         <div class="h-48 bg-green-500 flex items-center justify-center">
-                            <img src="assets/images/certificates/rehabilitation-icon.jpeg" alt="운동재활전문가 아이콘"
+                            <img src="assets/images/certificates/rehabilitation-icon.png" alt="운동재활전문가 아이콘"
                                 class="h-24">
                         </div>
                         <div class="p-6">
@@ -186,7 +318,7 @@
                     <!-- 필라테스 전문가 -->
                     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                         <div class="h-48 bg-purple-500 flex items-center justify-center">
-                            <img src="assets/images/certificates/pilates-icon.jpeg" alt="필라테스 전문가 아이콘" class="h-24">
+                            <img src="assets/images/certificates/pilates-icon.png" alt="필라테스 전문가 아이콘" class="h-24">
                         </div>
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-2">필라테스 전문가</h3>
@@ -198,12 +330,8 @@
 
                     <!-- 레크리에이션지도자 -->
                     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                        <div
-                            class="h-48 bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center">
-                            <div class="bg-white p-3 rounded-full shadow-lg">
-                                <img src="assets/images/certificates/recreation-icon.jpeg" alt="레크리에이션지도자 아이콘"
-                                    class="h-20 w-20 object-contain">
-                            </div>
+                        <div class="h-48 bg-yellow-400 flex items-center justify-center">
+                            <img src="assets/images/certificates/recreation-icon.png" alt="레크리에이션지도자 아이콘" class="h-24">
                         </div>
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-2">레크리에이션지도자</h3>

@@ -194,10 +194,6 @@ function updateAuthUI(user, userType) {
 
     console.log('auth-buttons 요소 찾음:', authButtons);
 
-    // 기존 모바일 메뉴 버튼 보존
-    const mobileButton = document.getElementById('mobile-menu-button');
-    console.log('모바일 버튼 찾음:', mobileButton);
-
     if (user) {
         // 로그인 상태
         const displayName = user.displayName || user.email;
@@ -240,15 +236,10 @@ function updateAuthUI(user, userType) {
         // 로그아웃 상태
         authButtons.innerHTML = `
             <a href="javascript:window.location.href=window.adjustPath('pages/auth/login.html')" 
-               class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4 hidden lg:inline">로그인</a>
+               class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
             <a href="javascript:window.location.href=window.adjustPath('pages/auth/signup.html')" 
                class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
         `;
-    }
-
-    // 모바일 메뉴 버튼 다시 추가
-    if (mobileButton) {
-        authButtons.appendChild(mobileButton);
     }
 
     // 외부 클릭 시 드롭다운 닫기

@@ -68,7 +68,7 @@ body {
   background-color: #ffffff;
 }
 
-/* 공통 컨테이너 스타일 */
+/* 공통 컨테이너 스타일 - Tailwind 브레이크포인트에 맞춤 */
 .container {
   width: 100%;
   padding-right: 1rem;
@@ -77,7 +77,7 @@ body {
   margin-left: auto;
 }
 
-/* 반응형 컨테이너 */
+/* 반응형 컨테이너 - Tailwind 브레이크포인트 사용 */
 @media (min-width: 640px) {
   .container {
     max-width: 640px;
@@ -90,9 +90,23 @@ body {
   }
 }
 
+/* 중간 브레이크포인트 추가 - 레이아웃 문제 해결 */
+@media (min-width: 896px) {
+  .container {
+    max-width: 896px;
+  }
+}
+
 @media (min-width: 1024px) {
   .container {
     max-width: 1024px;
+  }
+}
+
+/* 네비게이션 전환점 (1200px) */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1200px;
   }
 }
 
@@ -102,9 +116,29 @@ body {
   }
 }
 
+/* 전체 화면 컨테이너 (최대 1536px까지) */
+@media (min-width: 1536px) {
+  .container {
+    max-width: 1536px;
+  }
+}
+
 /* 공통 섹션 스타일 */
 section {
   padding: 4rem 0;
+}
+
+/* 중간 화면에서의 섹션 패딩 조정 */
+@media (max-width: 1023px) {
+  section {
+    padding: 3rem 0;
+  }
+}
+
+@media (max-width: 767px) {
+  section {
+    padding: 2.5rem 0;
+  }
 }
 
 /* 공통 헤딩 스타일 */
@@ -112,6 +146,21 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 1rem;
+}
+
+/* 반응형 헤딩 크기 조정 */
+@media (max-width: 1023px) {
+  h1 {
+    font-size: 2rem;
+  }
+  
+  h2 {
+    font-size: 1.75rem;
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+  }
 }
 
 /* 버튼 스타일 */
@@ -176,6 +225,13 @@ a:hover {
 .card-body {
   flex: 1 1 auto;
   padding: 1.25rem;
+}
+
+/* 반응형 카드 패딩 */
+@media (max-width: 1023px) {
+  .card-body {
+    padding: 1rem;
+  }
 }
 
 /* 폼 요소 스타일 */
@@ -264,13 +320,64 @@ a:hover {
   display: none;
 }
 
-@media (max-width: 768px) {
-  #mobile-menu-button {
-    display: block;
+/* 네비게이션 브레이크포인트 - 1200px 기준 정확히 적용 */
+@media (max-width: 1199px) {
+  /* 메인 네비게이션 숨기기 */
+  .main-nav,
+  #main-header .main-nav {
+    display: none !important;
   }
   
-  .main-nav {
-    display: none;
+  /* 모바일 버튼 표시 */
+  #mobile-menu-button {
+    display: flex !important;
+  }
+  
+  /* 1199px 이하에서 계정 버튼 완전히 숨기기 - 다양한 선택자로 확실하게 */
+  .auth-buttons,
+  #main-header .auth-buttons,
+  .auth-buttons .login-btn,
+  .auth-buttons .signup-btn,
+  #main-header .auth-buttons .login-btn,
+  #main-header .auth-buttons .signup-btn,
+  #main-header .container .auth-buttons,
+  header .auth-buttons {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}
+
+/* 1200px 이상에서는 정상적으로 네비게이션 표시 */
+@media (min-width: 1200px) {
+  /* 메인 네비게이션 표시 */
+  .main-nav,
+  #main-header .main-nav {
+    display: flex !important;
+  }
+  
+  /* 모바일 버튼 숨기기 */
+  #mobile-menu-button {
+    display: none !important;
+  }
+  
+  /* 계정 버튼 표시 */
+  .auth-buttons,
+  #main-header .auth-buttons {
+    display: flex !important;
+    visibility: visible !important;
+  }
+  
+  .auth-buttons .login-btn,
+  .auth-buttons .signup-btn,
+  #main-header .auth-buttons .login-btn,
+  #main-header .auth-buttons .signup-btn {
+    display: inline-block !important;
+    visibility: visible !important;
+  }
+  
+  /* 모바일 오버레이 완전히 숨기기 */
+  #mobile-menu-overlay {
+    display: none !important;
   }
 }
 
@@ -365,7 +472,7 @@ a:hover {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 /* 로그인/회원가입 폼 스타일 */
@@ -551,4 +658,90 @@ footer a:hover {
 
 .show {
   display: block;
+}
+
+/* 그리드 레이아웃 개선 - Tailwind 클래스 덮어쓰기 */
+@media (min-width: 640px) and (max-width: 767px) {
+  /* 모바일에서 2열 그리드 */
+  .grid-cols-1 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* 태블릿에서 적절한 그리드 */
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  .md\:grid-cols-3 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  .md\:grid-cols-4 {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1199px) {
+  /* 데스크톱 작은 화면에서 적절한 그리드 */
+  .lg\:grid-cols-4 {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+/* 공지사항 & 칼럼 섹션 반응형 개선 */
+@media (max-width: 1023px) {
+  .notice-column-section .grid,
+  .notice-column-section .lg\:grid-cols-2,
+  .lg\:grid-cols-2 {
+    grid-template-columns: 1fr !important;
+    gap: 2rem;
+  }
+}
+
+/* CTA 섹션 반응형 개선 */
+@media (max-width: 1023px) {
+  .cta-section {
+    margin: 1rem 0;
+    border-radius: 8px;
+  }
+}
+
+/* 홈페이지 히어로 섹션 개선 */
+@media (max-width: 767px) {
+  .hero-section .flex {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .hero-section .flex > * {
+    width: 100%;
+  }
+}
+
+/* 섹션별 그리드 간격 조정 */
+@media (max-width: 1023px) {
+  .gap-6 {
+    gap: 1rem !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .gap-6,
+  .gap-4 {
+    gap: 0.75rem !important;
+  }
+}
+
+/* 플렉스 버튼의 반응형 조정 */
+@media (max-width: 767px) {
+  .flex.flex-wrap.gap-4 {
+    flex-direction: column;
+  }
+  
+  .flex.flex-wrap.gap-4 > * {
+    width: 100%;
+    text-align: center;
+  }
 }
