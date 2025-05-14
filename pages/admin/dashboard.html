@@ -299,73 +299,43 @@
 
     <!-- 대시보드 초기화 스크립트 -->
     <script>
-        // 페이지 로드 시 실행
-        window.addEventListener('load', async function() {
-            try {
-                console.log('대시보드 초기화 시작');
-                
-                // 스크립트 로드 완료 대기
-                let retryCount = 0;
-                const maxRetries = 50;
-                
-                while (!window.adminAuth && retryCount < maxRetries) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    retryCount++;
-                }
-                
-                if (!window.adminAuth) {
-                    console.error('관리자 인증 스크립트 로드 실패');
-                    alert('시스템 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
-                    return;
-                }
-                
-                console.log('관리자 권한 확인 시작');
-                
-                // 관리자 권한 확인
-                const hasAccess = await window.adminAuth.checkAdminAccess();
-                
-                if (hasAccess) {
-                    console.log('관리자 권한 확인 완료');
-                    
-                    // 관리자 정보 표시
-                    window.adminAuth.displayAdminInfo();
-                    
-                    // 대시보드 데이터 로드
-                    console.log('대시보드 데이터 로드 시작');
-                    await window.adminAuth.loadDashboardData();
-                    
-                    // 추가 대시보드 기능 초기화
-                    if (typeof initDashboard === 'function') {
-                        initDashboard();
-                    }
-                    
-                    console.log('대시보드 초기화 완료');
-                } else {
-                    console.log('관리자 권한 없음');
-                }
-            } catch (error) {
-                console.error('대시보드 초기화 오류:', error);
-                
-                if (window.adminAuth && window.adminAuth.showNotification) {
-                    window.adminAuth.showNotification('대시보드 로드 중 오류가 발생했습니다.', 'error');
-                } else {
-                    alert('대시보드 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
-                }
+        // 무한 리디렉션 방지 (최소한의 코드만 유지)
+        (function () {
+            const redirectKey = 'dashboard_redirect_count';
+            const resetKey = 'dashboard_last_access';
+            const now = Date.now();
+
+            const lastAccess = parseInt(localStorage.getItem(resetKey) || '0');
+            if (now - lastAccess > 5000) {
+                localStorage.removeItem(redirectKey);
+            }
+
+            localStorage.setItem(resetKey, now.toString());
+
+            let redirectCount = parseInt(localStorage.getItem(redirectKey) || '0');
+            redirectCount++;
+            localStorage.setItem(redirectKey, redirectCount.toString());
+
+            if (redirectCount > 3) {
+                localStorage.removeItem(redirectKey);
+                localStorage.removeItem(resetKey);
+                alert('무한 리디렉션이 감지되었습니다. 홈페이지로 이동합니다.');
+                window.location.replace('../../index.html');
+                return;
+            }
+        })();
+
+        // 페이지 로드 시 dashboard.js 초기화
+        window.addEventListener('load', async function () {
+            console.log('대시보드 페이지 로드 완료');
+
+            // dashboard.js에서 제공하는 초기화 함수 호출
+            if (typeof initDashboard === 'function') {
+                await initDashboard();
+            } else {
+                console.error('dashboard.js의 initDashboard 함수를 찾을 수 없습니다.');
             }
         });
-        
-        // 서버 시간 업데이트
-        function updateServerTime() {
-            const now = new Date();
-            const serverTimeElement = document.getElementById('server-time');
-            if (serverTimeElement) {
-                serverTimeElement.textContent = now.toLocaleString('ko-KR');
-            }
-        }
-        
-        // 서버 시간 업데이트 시작
-        updateServerTime();
-        setInterval(updateServerTime, 1000);
     </script>
 </body>
 

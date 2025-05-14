@@ -14,9 +14,100 @@
         init: function() {
             this.setupHeroSlider();
             this.setupCoursesCarousel();
-            // Firebase 없이 실행하기 위해 임시로 주석 처리
-            //this.setupNewsUpdate();
             this.setupAnimations();
+            
+            // Firebase 인증 상태 확인 및 헤더 업데이트
+            this.setupAuthStateListener();
+        },
+        
+        // Firebase 인증 상태 리스너 설정
+        setupAuthStateListener: function() {
+            // Firebase가 로드될 때까지 대기
+            const waitForFirebase = () => {
+                if (window.dhcFirebase && window.dhcFirebase.onAuthStateChanged) {
+                    // 인증 상태 변경 리스너 등록
+                    window.dhcFirebase.onAuthStateChanged((user) => {
+                        console.log('홈페이지: 인증 상태 변경 감지:', user);
+                        this.updateAuthUI(user);
+                    });
+                } else {
+                    // 아직 Firebase가 로드되지 않았으면 100ms 후 다시 시도
+                    setTimeout(waitForFirebase, 100);
+                }
+            };
+            
+            // Firebase 로드 대기 시작
+            waitForFirebase();
+        },
+        
+        // UI 인증 상태 업데이트
+        updateAuthUI: function(user) {
+            const authButtons = document.querySelector('.auth-buttons');
+            
+            if (!authButtons) {
+                console.warn('auth-buttons 요소를 찾을 수 없습니다.');
+                return;
+            }
+            
+            if (user) {
+                // 로그인된 상태 - 사용자 정보 표시
+                const displayName = user.displayName || user.email;
+                const isAdmin = this.checkAdminAccess(user.email);
+                
+                authButtons.innerHTML = `
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-gray-700 hidden md:inline">안녕하세요, ${displayName.substring(0, displayName.indexOf('@') || displayName.length)}님</span>
+                        ${isAdmin ? `
+                            <a href="javascript:window.location.href=window.adjustPath('pages/admin/dashboard.html')"
+                               class="text-sm text-blue-600 hover:text-blue-800 font-medium">관리자</a>
+                        ` : `
+                            <a href="javascript:window.location.href=window.adjustPath('pages/mypage/personal-info.html')"
+                               class="text-sm text-gray-600 hover:text-blue-600">마이페이지</a>
+                        `}
+                        <button id="logout-btn" 
+                                class="text-sm bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md">
+                            로그아웃
+                        </button>
+                    </div>
+                `;
+                
+                // 로그아웃 버튼 이벤트 리스너 추가
+                const logoutBtn = document.getElementById('logout-btn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', async () => {
+                        if (confirm('로그아웃 하시겠습니까?')) {
+                            try {
+                                await window.dhcFirebase.auth.signOut();
+                                console.log('로그아웃 성공');
+                                // 로그아웃 후 페이지 새로고침
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 500);
+                            } catch (error) {
+                                console.error('로그아웃 오류:', error);
+                                alert('로그아웃 중 오류가 발생했습니다.');
+                            }
+                        }
+                    });
+                }
+            } else {
+                // 로그아웃된 상태 - 로그인/회원가입 버튼 표시
+                authButtons.innerHTML = `
+                    <a href="javascript:window.location.href=window.adjustPath('pages/auth/login.html')"
+                        class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
+                    <a href="javascript:window.location.href=window.adjustPath('pages/auth/signup.html')"
+                        class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
+                `;
+            }
+        },
+        
+        // 관리자 권한 확인
+        checkAdminAccess: function(email) {
+            const adminEmails = [
+                'admin@test.com',
+                'gostepexercise@gmail.com'
+            ];
+            return adminEmails.includes(email);
         },
         
         // 히어로 섹션 슬라이더 설정
@@ -241,8 +332,8 @@
         
         // 최신 공지사항 및 칼럼 가져오기
         setupNewsUpdate: function() {
-            console.log('Firebase 통합 없이 실행 중');
-            // 임시로 비워둠
+            console.log('홈페이지: Firebase 실시간 데이터 로드 준비');
+            // TODO: Firebase 연동 시 실제 데이터 가져오기 구현
         },   
         
         // 스크롤 애니메이션 설정
@@ -326,6 +417,7 @@
     
     // 문서 로드 완료 시 초기화
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('홈페이지: DOM 로드 완료, 초기화 시작');
         window.homePage.init();
     });
 })();
