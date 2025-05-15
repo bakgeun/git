@@ -265,7 +265,7 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="hero-section bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-16">
+    <section class="about-hero hero-section bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-16">
         <div class="container mx-auto px-4">
             <div class="max-w-3xl">
                 <h1 class="text-4xl md:text-5xl font-bold mb-4">센터 개요</h1>
@@ -274,21 +274,21 @@
         </div>
     </section>
 
-    <!-- 내비게이션 탭 -->
-    <div class="bg-white border-b sticky top-0 z-20">
+    <!-- 개선된 내비게이션 탭 -->
+    <div class="navigation-tabs sticky top-0 z-20">
         <div class="container mx-auto px-4">
-            <ul class="flex overflow-x-auto py-4 space-x-6">
-                <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
-                        class="text-blue-600 border-b-2 border-blue-600 pb-2 font-bold whitespace-nowrap">개요</a></li>
-                <li><a href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')"
-                        class="text-gray-700 hover:text-blue-600 pb-2 whitespace-nowrap">목표 및 전략</a></li>
-                <li><a href="javascript:window.location.href=window.adjustPath('pages/about/business.html')"
-                        class="text-gray-700 hover:text-blue-600 pb-2 whitespace-nowrap">사업 내용</a></li>
-                <li><a href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')"
-                        class="text-gray-700 hover:text-blue-600 pb-2 whitespace-nowrap">조직도</a></li>
-                <li><a href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')"
-                        class="text-gray-700 hover:text-blue-600 pb-2 whitespace-nowrap">강사 소개</a></li>
-            </ul>
+            <nav class="flex overflow-x-auto py-2">
+                <a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
+                    class="tab-item active">개요</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')"
+                    class="tab-item">목표 및 전략</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/about/business.html')"
+                    class="tab-item">사업 내용</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')"
+                    class="tab-item">조직도</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')"
+                    class="tab-item">강사 소개</a>
+            </nav>
         </div>
     </div>
 
@@ -322,327 +322,275 @@
         <section class="py-16">
             <div class="container mx-auto px-4">
                 <h2 class="text-3xl font-bold mb-12 text-center">디지털헬스케어센터의 주요 특징</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                        <div class="p-8">
-                            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-card-content">
+                            <div class="feature-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                                 </svg>
                             </div>
-                            <h3 class="text-xl font-bold mb-2">체계적인 교육과정</h3>
-                            <p class="text-gray-600 mb-4">이론과 실습이 결합된 과학적 교육과정을 통해 현장에서 필요한 실무 능력을 갖춘 전문가를 양성합니다.</p>
+                            <h3 class="feature-title">체계적인 교육과정</h3>
+                            <p class="feature-description">이론과 실습이 결합된 과학적 교육과정을 통해 현장에서 필요한 실무 능력을 갖춘 전문가를 양성합니다.</p>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                        <div class="p-8">
-                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="feature-card">
+                        <div class="feature-card-content">
+                            <div class="feature-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                 </svg>
                             </div>
-                            <h3 class="text-xl font-bold mb-2">공신력 있는 인증 시스템</h3>
-                            <p class="text-gray-600 mb-4">엄격한 평가 기준과 체계적인 시험 시스템을 통해 자격증의 가치와 공신력을 보장합니다.</p>
+                            <h3 class="feature-title">공신력 있는 인증 시스템</h3>
+                            <p class="feature-description">엄격한 평가 기준과 체계적인 시험 시스템을 통해 자격증의 가치와 공신력을 보장합니다.</p>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                        <div class="p-8">
-                            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="feature-card">
+                        <div class="feature-card-content">
+                            <div class="feature-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
                             </div>
-                            <h3 class="text-xl font-bold mb-2">최고의 전문가 네트워크</h3>
-                            <p class="text-gray-600 mb-4">각 분야 최고의 전문가들로 구성된 강사진과 함께 최신 트렌드와 실무 지식을 습득할 수 있습니다.</p>
+                            <h3 class="feature-title">최고의 전문가 네트워크</h3>
+                            <p class="feature-description">각 분야 최고의 전문가들로 구성된 강사진과 함께 최신 트렌드와 실무 지식을 습득할 수 있습니다.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 역사와 발전 과정 -->
-        <section class="py-16 bg-gray-50">
+        <!-- 개선된 역사와 발전 과정 -->
+        <section class="history-section py-16 bg-gray-50">
             <div class="container mx-auto px-4">
                 <h2 class="text-3xl font-bold mb-12 text-center">디지털헬스케어센터의 역사</h2>
-                <div class="max-w-4xl mx-auto">
-                    <div class="space-y-8">
-                        <!-- 2021년 -->
-                        <div
-                            class="flex flex-col md:flex-row items-center bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                            <div
-                                class="md:w-24 md:h-24 w-full h-32 bg-blue-500 flex items-center justify-center relative">
-                                <div class="text-white font-bold text-xl">2021</div>
-                                <div
-                                    class="hidden md:block absolute -right-4 top-1/2 transform -translate-y-1/2 w-0 h-0 border-l-8 border-l-blue-500 border-t-8 border-t-transparent border-b-8 border-b-transparent">
-                                </div>
-                            </div>
-                            <div class="p-6 flex-1">
-                                <h3 class="text-xl font-bold mb-2 text-blue-600">센터 설립</h3>
-                                <p class="text-gray-700">
-                                    운동과학 기반 전문인력 양성을 위한 디지털헬스케어센터가 설립되었습니다.
-                                    건강운동처방사와 운동재활전문가 자격증 과정을 시작으로 전문인력 양성을 시작했습니다.
-                                </p>
-                            </div>
+                <div class="history-timeline max-w-5xl mx-auto">
+                    <!-- 2021년 -->
+                    <div class="history-item fade-out">
+                        <div class="history-year-container bg-blue-500"
+                            style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                            <div class="history-year">2021</div>
                         </div>
-
-                        <!-- 2022년 -->
-                        <div
-                            class="flex flex-col md:flex-row-reverse items-center bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                            <div
-                                class="md:w-24 md:h-24 w-full h-32 bg-green-500 flex items-center justify-center relative">
-                                <div class="text-white font-bold text-xl">2022</div>
-                                <div
-                                    class="hidden md:block absolute -left-4 top-1/2 transform -translate-y-1/2 w-0 h-0 border-r-8 border-r-green-500 border-t-8 border-t-transparent border-b-8 border-b-transparent">
-                                </div>
-                            </div>
-                            <div class="p-6 flex-1">
-                                <h3 class="text-xl font-bold mb-2 text-green-600">온라인 플랫폼 구축</h3>
-                                <p class="text-gray-700">
-                                    교육의 접근성을 높이기 위해 온라인 교육 플랫폼을 구축하고,
-                                    필라테스 전문가와 레크리에이션지도자 자격증 과정을 추가하여 교육 분야를 확장했습니다.
-                                </p>
-                            </div>
+                        <div class="history-content">
+                            <h3 class="history-title text-blue-600">센터 설립</h3>
+                            <p class="history-description">
+                                운동과학 기반 전문인력 양성을 위한 디지털헬스케어센터가 설립되었습니다.
+                                건강운동처방사와 운동재활전문가 자격증 과정을 시작으로 전문인력 양성을 시작했습니다.
+                            </p>
                         </div>
+                    </div>
 
-                        <!-- 2023년 -->
-                        <div
-                            class="flex flex-col md:flex-row items-center bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                            <div
-                                class="md:w-24 md:h-24 w-full h-32 bg-purple-500 flex items-center justify-center relative">
-                                <div class="text-white font-bold text-xl">2023</div>
-                                <div
-                                    class="hidden md:block absolute -right-4 top-1/2 transform -translate-y-1/2 w-0 h-0 border-l-8 border-l-purple-500 border-t-8 border-t-transparent border-b-8 border-b-transparent">
-                                </div>
-                            </div>
-                            <div class="p-6 flex-1">
-                                <h3 class="text-xl font-bold mb-2 text-purple-600">파트너십 확대</h3>
-                                <p class="text-gray-700">
-                                    전국 지역 대학, 평생교육원 등과의 협력 네트워크를 구축하고,
-                                    현장 실습 프로그램을 강화하여 교육의 질을 높였습니다.
-                                </p>
-                            </div>
+                    <!-- 2022년 -->
+                    <div class="history-item fade-out">
+                        <div class="history-year-container bg-green-500"
+                            style="background: linear-gradient(135deg, #10b981, #059669);">
+                            <div class="history-year">2022</div>
                         </div>
+                        <div class="history-content">
+                            <h3 class="history-title text-green-600">온라인 플랫폼 구축</h3>
+                            <p class="history-description">
+                                교육의 접근성을 높이기 위해 온라인 교육 플랫폼을 구축하고,
+                                필라테스 전문가와 레크리에이션지도자 자격증 과정을 추가하여 교육 분야를 확장했습니다.
+                            </p>
+                        </div>
+                    </div>
 
-                        <!-- 2024년 -->
-                        <div
-                            class="flex flex-col md:flex-row-reverse items-center bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                            <div
-                                class="md:w-24 md:h-24 w-full h-32 bg-orange-500 flex items-center justify-center relative">
-                                <div class="text-white font-bold text-xl">2024</div>
-                                <div
-                                    class="hidden md:block absolute -left-4 top-1/2 transform -translate-y-1/2 w-0 h-0 border-r-8 border-r-orange-500 border-t-8 border-t-transparent border-b-8 border-b-transparent">
-                                </div>
-                            </div>
-                            <div class="p-6 flex-1">
-                                <h3 class="text-xl font-bold mb-2 text-orange-600">디지털 전환 강화</h3>
-                                <p class="text-gray-700">
-                                    원격 평생교육 디지털 플랫폼을 고도화하고,
-                                    맞춤형 교육 시스템을 구축하여 개인별 최적화된 학습 경험을 제공하고 있습니다.
-                                </p>
-                            </div>
+                    <!-- 2023년 -->
+                    <div class="history-item fade-out">
+                        <div class="history-year-container bg-purple-500"
+                            style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                            <div class="history-year">2023</div>
+                        </div>
+                        <div class="history-content">
+                            <h3 class="history-title text-purple-600">파트너십 확대</h3>
+                            <p class="history-description">
+                                전국 지역 대학, 평생교육원 등과의 협력 네트워크를 구축하고,
+                                현장 실습 프로그램을 강화하여 교육의 질을 높였습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 2024년 -->
+                    <div class="history-item fade-out">
+                        <div class="history-year-container bg-orange-500"
+                            style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <div class="history-year">2024</div>
+                        </div>
+                        <div class="history-content">
+                            <h3 class="history-title text-orange-600">디지털 전환 강화</h3>
+                            <p class="history-description">
+                                원격 평생교육 디지털 플랫폼을 고도화하고,
+                                맞춤형 교육 시스템을 구축하여 개인별 최적화된 학습 경험을 제공하고 있습니다.
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 미션과 가치 -->
-        <section class="py-16">
+        <!-- 미션과 가치 섹션 재디자인 -->
+        <section class="mission-values-section">
             <div class="container mx-auto px-4">
-                <h2 class="text-3xl font-bold mb-12 text-center">미션과 핵심가치</h2>
+                <h2 class="section-title">미션과 핵심가치</h2>
 
-                <!-- 미션 카드 -->
-                <div class="max-w-4xl mx-auto mb-16">
-                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-6">
-                            <h3 class="text-2xl font-bold text-white">미션</h3>
-                        </div>
-                        <div class="px-8 py-6">
-                            <p class="text-lg text-gray-700 mb-6">
-                                디지털헬스케어센터는 운동과학 기반의 전문지식과 실무 능력을 갖춘
-                                건강운동 전문가를 양성하여 국민 건강 증진에 기여합니다.
-                            </p>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div class="bg-blue-50 rounded-lg p-4 flex items-center">
-                                    <div
-                                        class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-4">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    </div>
-                                    <span class="text-sm font-medium text-blue-700">전문적인 교육과 체계적인 자격 인증</span>
+                <!-- 미션 -->
+                <div class="mission-container">
+                    <div class="mission-card">
+                        <h3 class="mission-title">미션</h3>
+                        <p class="mission-content">
+                            디지털헬스케어센터는 운동과학 기반의 전문지식과 실무 능력을 갖춘
+                            건강운동 전문가를 양성하여 국민 건강 증진에 기여합니다.
+                        </p>
+                        <div class="mission-highlights">
+                            <div class="mission-highlight">
+                                <div class="mission-highlight-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
                                 </div>
-                                <div class="bg-green-50 rounded-lg p-4 flex items-center">
-                                    <div
-                                        class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mr-4">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                        </svg>
-                                    </div>
-                                    <span class="text-sm font-medium text-green-700">건강지도전문가 양성을 통한 국민 건강 증진</span>
+                                <span class="mission-highlight-text">전문적인 교육과 체계적인 자격 인증</span>
+                            </div>
+                            <div class="mission-highlight">
+                                <div class="mission-highlight-icon" style="background: #10b981;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                    </svg>
                                 </div>
-                                <div class="bg-purple-50 rounded-lg p-4 flex items-center">
-                                    <div
-                                        class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mr-4">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                                        </svg>
-                                    </div>
-                                    <span class="text-sm font-medium text-purple-700">현장 중심의 실용적인 교육 콘텐츠</span>
+                                <span class="mission-highlight-text">건강지도전문가 양성을 통한 국민 건강 증진</span>
+                            </div>
+                            <div class="mission-highlight">
+                                <div class="mission-highlight-icon" style="background: #8b5cf6;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                    </svg>
                                 </div>
+                                <span class="mission-highlight-text">현장 중심의 실용적인 교육 콘텐츠</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 핵심가치 카드들 -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <!-- 전문성 -->
-                    <div
-                        class="group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                        <div class="h-2 bg-gradient-to-r from-blue-500 to-blue-600"></div>
-                        <div class="p-6 text-center">
-                            <div
-                                class="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-500 transition-colors duration-300">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                    class="h-8 w-8 text-blue-600 group-hover:text-white transition-colors duration-300"
-                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <!-- 핵심가치 -->
+                <div class="values-container">
+                    <div class="values-grid">
+                        <div class="value-card" style="--card-color: #3b82f6; --card-light-color: #dbeafe;">
+                            <div class="value-icon-container">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="value-icon" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                                 </svg>
                             </div>
-                            <h4 class="text-xl font-bold mb-2 text-gray-800">전문성</h4>
-                            <p class="text-gray-600">Expertise</p>
-                            <p class="text-sm text-gray-500 mt-2">최고 수준의 전문지식과 실무능력 배양</p>
+                            <h4 class="value-title">전문성</h4>
+                            <p class="value-subtitle">Expertise</p>
+                            <p class="value-description">최고 수준의 전문지식과 실무능력 배양</p>
                         </div>
-                    </div>
 
-                    <!-- 혁신성 -->
-                    <div
-                        class="group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                        <div class="h-2 bg-gradient-to-r from-green-500 to-green-600"></div>
-                        <div class="p-6 text-center">
-                            <div
-                                class="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-500 transition-colors duration-300">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                    class="h-8 w-8 text-green-600 group-hover:text-white transition-colors duration-300"
-                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="value-card" style="--card-color: #10b981; --card-light-color: #d1fae5;">
+                            <div class="value-icon-container">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="value-icon" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
                             </div>
-                            <h4 class="text-xl font-bold mb-2 text-gray-800">혁신성</h4>
-                            <p class="text-gray-600">Innovation</p>
-                            <p class="text-sm text-gray-500 mt-2">디지털 기술을 활용한 지속적인 교육 혁신</p>
+                            <h4 class="value-title">혁신성</h4>
+                            <p class="value-subtitle">Innovation</p>
+                            <p class="value-description">디지털 기술을 활용한 지속적인 교육 혁신</p>
                         </div>
-                    </div>
 
-                    <!-- 현장성 -->
-                    <div
-                        class="group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                        <div class="h-2 bg-gradient-to-r from-purple-500 to-purple-600"></div>
-                        <div class="p-6 text-center">
-                            <div
-                                class="w-16 h-16 mx-auto mb-4 bg-purple-100 rounded-full flex items-center justify-center group-hover:bg-purple-500 transition-colors duration-300">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                    class="h-8 w-8 text-purple-600 group-hover:text-white transition-colors duration-300"
-                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="value-card" style="--card-color: #8b5cf6; --card-light-color: #e9d5ff;">
+                            <div class="value-icon-container">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="value-icon" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                 </svg>
                             </div>
-                            <h4 class="text-xl font-bold mb-2 text-gray-800">현장성</h4>
-                            <p class="text-gray-600">Practicality</p>
-                            <p class="text-sm text-gray-500 mt-2">현장에서 즉시 적용 가능한 실용적 교육</p>
+                            <h4 class="value-title">현장성</h4>
+                            <p class="value-subtitle">Practicality</p>
+                            <p class="value-description">현장에서 즉시 적용 가능한 실용적 교육</p>
                         </div>
-                    </div>
 
-                    <!-- 공익성 -->
-                    <div
-                        class="group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                        <div class="h-2 bg-gradient-to-r from-orange-500 to-orange-600"></div>
-                        <div class="p-6 text-center">
-                            <div
-                                class="w-16 h-16 mx-auto mb-4 bg-orange-100 rounded-full flex items-center justify-center group-hover:bg-orange-500 transition-colors duration-300">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                    class="h-8 w-8 text-orange-600 group-hover:text-white transition-colors duration-300"
-                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="value-card" style="--card-color: #f59e0b; --card-light-color: #fef3c7;">
+                            <div class="value-icon-container">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="value-icon" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                 </svg>
                             </div>
-                            <h4 class="text-xl font-bold mb-2 text-gray-800">공익성</h4>
-                            <p class="text-gray-600">Public Good</p>
-                            <p class="text-sm text-gray-500 mt-2">국민 건강 증진과 삶의 질 향상 기여</p>
+                            <h4 class="value-title">공익성</h4>
+                            <p class="value-subtitle">Public Good</p>
+                            <p class="value-description">국민 건강 증진과 삶의 질 향상 기여</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 협력 네트워크 -->
-        <section class="py-16 bg-gray-50">
+        <!-- 개선된 협력 네트워크 -->
+        <section class="network-section py-16 bg-gray-50">
             <div class="container mx-auto px-4">
-                <h2 class="text-3xl font-bold mb-6 text-center">협력 네트워크</h2>
-                <p class="text-lg text-gray-700 mb-6 text-center max-w-3xl mx-auto">
-                    디지털헬스케어센터는 다양한 기관들과의 협력을 통해
-                    더 나은 교육 서비스를 제공하고 있습니다. 주요 협력 기관은 다음과 같습니다:
-                </p>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white p-4 rounded-lg shadow-md flex items-center justify-center h-24">
-                        <img src="../../assets/images/about/partner1.png" alt="협력 기관 로고" class="max-h-16">
+                <div class="network-intro">
+                    <h2 class="network-title">협력 네트워크</h2>
+                    <p class="network-description">
+                        디지털헬스케어센터는 다양한 기관들과의 협력을 통해<br>
+                        더 나은 교육 서비스를 제공하고 있습니다. 주요 협력 기관은 다음과 같습니다:
+                    </p>
+                </div>
+                <div class="partner-grid">
+                    <div class="partner-card">
+                        <img src="../../assets/images/about/partner1.png" alt="협력 기관 로고 1" class="partner-logo">
                     </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md flex items-center justify-center h-24">
-                        <img src="../../assets/images/about/partner2.png" alt="협력 기관 로고" class="max-h-16">
+                    <div class="partner-card">
+                        <img src="../../assets/images/about/partner2.png" alt="협력 기관 로고 2" class="partner-logo">
                     </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md flex items-center justify-center h-24">
-                        <img src="../../assets/images/about/partner3.png" alt="협력 기관 로고" class="max-h-16">
+                    <div class="partner-card">
+                        <img src="../../assets/images/about/partner3.png" alt="협력 기관 로고 3" class="partner-logo">
                     </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md flex items-center justify-center h-24">
-                        <img src="../../assets/images/about/partner4.png" alt="협력 기관 로고" class="max-h-16">
+                    <div class="partner-card">
+                        <img src="../../assets/images/about/partner4.png" alt="협력 기관 로고 4" class="partner-logo">
                     </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md flex items-center justify-center h-24">
-                        <img src="../../assets/images/about/partner5.png" alt="협력 기관 로고" class="max-h-16">
+                    <div class="partner-card">
+                        <img src="../../assets/images/about/partner5.png" alt="협력 기관 로고 5" class="partner-logo">
                     </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md flex items-center justify-center h-24">
-                        <img src="../../assets/images/about/partner6.png" alt="협력 기관 로고" class="max-h-16">
+                    <div class="partner-card">
+                        <img src="../../assets/images/about/partner6.png" alt="협력 기관 로고 6" class="partner-logo">
                     </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md flex items-center justify-center h-24">
-                        <img src="../../assets/images/about/partner7.png" alt="협력 기관 로고" class="max-h-16">
+                    <div class="partner-card">
+                        <img src="../../assets/images/about/partner7.png" alt="협력 기관 로고 7" class="partner-logo">
                     </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md flex items-center justify-center h-24">
-                        <img src="../../assets/images/about/partner8.png" alt="협력 기관 로고" class="max-h-16">
+                    <div class="partner-card">
+                        <img src="../../assets/images/about/partner8.png" alt="협력 기관 로고 8" class="partner-logo">
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- CTA 섹션 -->
-    <section
-        class="cta-section py-10 bg-gradient-to-r from-blue-600 to-green-500 rounded-xl p-8 text-white text-center">
-        <div class="container mx-auto px-4 text-center">
-            <h2 class="text-2xl font-bold mb-4">사&rpar;디지털헬스케어센터와 함께<br>건강운동 전문가의 꿈을 이루세요</h2>
-            <p class="text-lg mb-6 max-w-2xl mx-auto">전문적인 교육과 체계적인 자격 인증 시스템을 통해<br>건강한 사회를 만드는 전문가로 성장할 수 있습니다.
-            </p>
-            <div class="flex flex-wrap justify-center gap-4">
+    <!-- 개선된 CTA 섹션 -->
+    <section class="cta-section">
+        <div class="container mx-auto px-4">
+            <h2 class="cta-title">사&rpar;디지털헬스케어센터와 함께<br>건강운동 전문가의 꿈을 이루세요</h2>
+            <p class="cta-description">전문적인 교육과 체계적인 자격 인증 시스템을 통해<br>건강한 사회를 만드는 전문가로 성장할 수 있습니다.</p>
+            <div class="cta-buttons">
                 <a href="javascript:window.location.href=window.adjustPath('pages/auth/signup.html')"
-                    class="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 rounded-md font-medium">회원가입 하기</a>
+                    class="cta-button primary">회원가입 하기</a>
                 <a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
-                    class="bg-transparent hover:bg-blue-700 text-white border border-white px-8 py-3 rounded-md font-medium">교육과정
-                    둘러보기</a>
+                    class="cta-button secondary">교육과정 둘러보기</a>
             </div>
         </div>
     </section>
@@ -741,24 +689,25 @@
         </div>
     </footer>
 
-    <!-- Firebase SDK 템플릿 (script-loader.js에 의해 처리됨) -->
+    <!-- Firebase SDK 템플릿 -->
     <script id="firebase-sdk-template" type="text/template">
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
-    <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
-    <script src="{basePath}assets/js/services/auth-service.js"><\/script>
-    
-    <script src="{basePath}assets/js/services/db-service.js"><\/script>
-    <script src="{basePath}assets/js/services/storage-service.js"><\/script>
-</script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
+        <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
+        <script src="{basePath}assets/js/services/auth-service.js"><\/script>
+        
+        <script src="{basePath}assets/js/services/db-service.js"><\/script>
+        <script src="{basePath}assets/js/services/storage-service.js"><\/script>
+    </script>
 
-    <!-- 추가 스크립트 템플릿 (페이지별 필요한 스크립트) -->
+    <!-- 추가 스크립트 템플릿 -->
     <script id="additional-scripts-template" type="text/template">
-    <script src="{basePath}assets/js/components/header.js"><\/script>
-    <script src="{basePath}assets/js/main.js"><\/script>
-</script>
+        <script src="{basePath}assets/js/components/header.js"><\/script>
+        <script src="{basePath}assets/js/pages/about/overview.js"><\/script>
+        <script src="{basePath}assets/js/main.js"><\/script>
+    </script>
 </body>
 
 </html>

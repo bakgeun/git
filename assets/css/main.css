@@ -37,6 +37,7 @@
 @import url('./pages/auth.css');
 @import url('./pages/mypage.css');
 @import url('./pages/admin.css');
+@import url('./pages/about.css');
 
 /* Utility Styles */
 @import url('./utilities/spacing.css');
