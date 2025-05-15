@@ -1,488 +1,1485 @@
-/**
- * certificate.css
- * 자격증 페이지 전용 스타일
- */
+/* ==============================================
+   CERTIFICATE.CSS - 디지털헬스케어센터 자격증 소개 페이지 스타일
+   ============================================== */
 
-/* ===================================
-   페이지 배너 스타일
-=================================== */
+/* ==============================================
+   1. CSS 변수 및 기본 설정
+   ============================================== */
+:root {
+    /* 색상 체계 - about.css와 동일하게 수정 */
+    --color-primary: #3b82f6;
+    --color-primary-light: #dbeafe;
+    --color-primary-dark: #1d4ed8;
+    --color-secondary: #10b981;
+    --color-secondary-light: #d1fae5;
+    --color-tertiary: #8b5cf6;
+    --color-tertiary-light: #e9d5ff;
+    --color-accent: #f59e0b;
+    --color-accent-light: #fef3c7;
 
-.certificate-banner {
-    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    /* 자격증별 브랜드 색상 */
+    --color-health-exercise: #3b82f6;
+    --color-health-exercise-light: #dbeafe;
+    --color-rehabilitation: #10b981;
+    --color-rehabilitation-light: #d1fae5;
+    --color-pilates: #8b5cf6;
+    --color-pilates-light: #e9d5ff;
+    --color-recreation: #f59e0b;
+    --color-recreation-light: #fef3c7;
+
+    /* 그레이 톤 - 더 진한 색상으로 수정 */
+    --color-gray-50: #f9fafb;
+    --color-gray-100: #f3f4f6;
+    --color-gray-200: #e5e7eb;
+    --color-gray-300: #d1d5db;
+    --color-gray-400: #9ca3af;
+    --color-gray-600: #4b5563;
+    --color-gray-700: #374151;
+    --color-gray-800: #1f2937;
+    --color-gray-900: #111827
+
+    /* 스페이싱 */
+    --spacing-1: 0.25rem;
+    --spacing-2: 0.5rem;
+    --spacing-3: 0.75rem;
+    --spacing-4: 1rem;
+    --spacing-5: 1.25rem;
+    --spacing-6: 1.5rem;
+    --spacing-8: 2rem;
+    --spacing-12: 3rem;
+    --spacing-16: 4rem;
+
+    /* 기타 */
+    --border-radius: 12px;
+    --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    --transition: all 0.3s ease;
+}
+
+/* ==============================================
+   2. 자격증 페이지 공통 스타일
+   ============================================== */
+
+/* 자격증 히어로 섹션 */
+.certificate-hero {
+    background: linear-gradient(to right, rgba(59, 130, 246, 0.9), rgba(99, 102, 241, 0.9));
     color: white;
-    padding: 3rem 0;
+    padding: var(--spacing-16) 0;
+    text-align: center;
 }
 
-.certificate-banner h1 {
-    font-size: 2.25rem;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
+.certificate-hero h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-4);
 }
 
-@media (min-width: 768px) {
-    .certificate-banner h1 {
-        font-size: 2.5rem;
+.certificate-hero p {
+    font-size: 1.125rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* 자격증 전환 탭 - 기존 탭과 동일한 스타일 */
+.certificate-selector-tabs {
+    background: white;
+    border-bottom: 2px solid var(--color-gray-200);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.certificate-selector-tabs .cert-tab-item {
+    display: inline-block;
+    padding: var(--spacing-4) var(--spacing-6);
+    font-weight: 500;
+    color: var(--color-gray-600);
+    text-decoration: none;
+    transition: var(--transition);
+    position: relative;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+}
+
+.certificate-selector-tabs .cert-tab-item:hover {
+    color: var(--color-primary);
+    background: var(--color-gray-50);
+}
+
+.certificate-selector-tabs .cert-tab-item.active {
+    color: var(--color-primary);
+    font-weight: 600;
+    background: var(--color-primary-light);
+    border-bottom-color: var(--color-primary);
+}
+
+.certificate-selector-tabs .cert-tab-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--color-primary);
+    border-radius: 2px 2px 0 0;
+}
+
+/* 탭 간격 조정을 위한 컨테이너 */
+.tabs-container {
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+    .certificate-selector-tabs {
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    
+    .certificate-selector-tabs::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .certificate-selector-tabs nav {
+        white-space: nowrap;
+    }
+    
+    .certificate-selector-tabs .cert-tab-item {
+        white-space: nowrap;
+        padding: var(--spacing-3) var(--spacing-4);
+        font-size: 0.9rem;
     }
 }
 
-.certificate-banner p {
-    font-size: 1.25rem;
-    opacity: 0.95;
-}
-
-/* ===================================
-   탭 네비게이션 스타일
-=================================== */
-
-.tab-navigation {
-    background-color: white;
-    border-bottom: 1px solid #e5e7eb;
-    position: relative;
-}
-
-.tab-navigation.sticky {
+/* 네비게이션 탭 */
+.certificate-tabs {
+    background: white;
+    border-bottom: 2px solid var(--color-gray-200);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
     position: sticky;
     top: 0;
     z-index: 20;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
-.tab-nav {
+.certificate-tabs .tab-item {
+    display: inline-block;
+    padding: var(--spacing-4) var(--spacing-6);
+    font-weight: 500;
+    color: var(--color-gray-600);
+    text-decoration: none;
+    transition: var(--transition);
+    position: relative;
+    border-bottom: 3px solid transparent;
+}
+
+.certificate-tabs .tab-item:hover {
+    color: var(--color-primary);
+    background: var(--color-gray-50);
+}
+
+.certificate-tabs .tab-item.active {
+    color: var(--color-primary);
+    font-weight: 600;
+    background: var(--color-primary-light);
+    border-bottom-color: var(--color-primary);
+}
+
+.certificate-tabs .tab-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--color-primary);
+    border-radius: 2px 2px 0 0;
+}
+
+/* 탭 항목 스타일 */
+.navigation-tabs .tab-item {
+    display: inline-block;
+    padding: var(--spacing-4) var(--spacing-6);
+    font-weight: 500;
+    color: var(--color-gray-600);
+    text-decoration: none;
+    transition: var(--transition);
+    position: relative;
+    border-bottom: 3px solid transparent;
+}
+
+.navigation-tabs .tab-item:hover {
+    color: var(--color-primary);
+    background: var(--color-gray-50);
+}
+
+.navigation-tabs .tab-item.active {
+    color: var(--color-primary);
+    font-weight: 600;
+    background: var(--color-primary-light);
+    border-bottom-color: var(--color-primary);
+}
+
+.navigation-tabs .tab-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--color-primary);
+    border-radius: 2px 2px 0 0;
+}
+
+/* 자격증 전환 버튼 스타일 */
+.certificate-switcher {
+    background: white;
+    border-bottom: 1px solid var(--color-gray-200);
+    border-top: 1px solid var(--color-gray-200);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.certificate-switcher-buttons {
     display: flex;
     flex-wrap: wrap;
-    margin-bottom: -1px;
+    items-center: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
-.tab-nav a {
-    display: inline-block;
-    padding: 1rem;
-    color: #6b7280;
+.certificate-switcher-label {
+    font-size: 0.875rem;
+    color: var(--color-gray-600);
+    margin-right: 0.5rem;
     font-weight: 500;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s ease;
 }
 
-.tab-nav a:hover {
-    color: #2563eb;
+.certificate-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid transparent;
+    text-decoration: none;
 }
 
-.tab-nav a.active {
-    color: #2563eb;
-    border-bottom-color: #2563eb;
+.certificate-button.active {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color: white;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
-/* ===================================
-   탭 컨텐츠 스타일
-=================================== */
+.certificate-button:not(.active) {
+    background: var(--color-gray-100);
+    color: var(--color-gray-700);
+    border-color: var(--color-gray-200);
+}
 
+.certificate-button:not(.active):hover {
+    background: var(--color-gray-200);
+    color: var(--color-gray-800);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 모바일 최적화 */
+@media (max-width: 640px) {
+    .certificate-switcher-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .certificate-switcher-label {
+        margin-right: 0;
+        margin-bottom: 0.25rem;
+    }
+    
+    .certificate-buttons-group {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+}
+
+/* 탭 컨텐츠 */
 .tab-content {
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-.tab-content.hidden {
     display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-@keyframes fadeIn {
+.tab-content.active {
+    display: block;
+    opacity: 1;
+    animation: fadeInUp 0.4s ease forwards;
+}
+
+/* 자격증 정보 카드 */
+.cert-info-card {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-8);
+    box-shadow: var(--box-shadow);
+    margin-bottom: var(--spacing-6);
+    position: relative;
+    overflow: hidden;
+}
+
+.cert-info-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary), var(--color-tertiary));
+}
+
+.cert-feature {
+    display: flex;
+    align-items: start;
+    margin-bottom: var(--spacing-6);
+    padding: var(--spacing-6);
+    background: var(--color-gray-50);
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.cert-feature:hover {
+    background: var(--color-gray-100);
+    transform: translateY(-2px);
+}
+
+.cert-feature-icon {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: var(--spacing-4);
+    flex-shrink: 0;
+    transition: var(--transition);
+}
+
+.cert-feature:hover .cert-feature-icon {
+    background: var(--color-primary);
+    color: white;
+    transform: scale(1.1);
+}
+
+.cert-feature-content h4 {
+    font-weight: 700;
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-2);
+}
+
+.cert-feature-content p {
+    color: var(--color-gray-600);
+    line-height: 1.6;
+}
+
+/* 자격증 세부 정보 사이드바 */
+.cert-sidebar-card {
+    background: var(--color-gray-50);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-6);
+    margin-bottom: var(--spacing-6);
+    position: sticky;
+    top: 100px;
+}
+
+.cert-sidebar-card h3 {
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-4);
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.cert-detail-item {
+    display: flex;
+    margin-bottom: var(--spacing-3);
+}
+
+.cert-detail-label {
+    font-weight: 600;
+    color: var(--color-gray-700);
+    width: 6rem;
+    flex-shrink: 0;
+}
+
+.cert-detail-value {
+    color: var(--color-gray-600);
+}
+
+/* 자격증 신청 CTA */
+.cert-cta-card {
+    background: linear-gradient(135deg, var(--color-secondary-light), #e8f9f5);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-8);
+    text-align: center;
+    position: sticky;
+    top: 300px;
+}
+
+.cert-cta-card h3 {
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-4);
+}
+
+.cert-cta-card p {
+    color: var(--color-gray-600);
+    margin-bottom: var(--spacing-6);
+}
+
+.cert-cta-button {
+    display: block;
+    background: var(--color-primary);
+    color: white;
+    padding: 0.875rem var(--spacing-6);
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    margin-bottom: var(--spacing-3);
+    transition: var(--transition);
+}
+
+.cert-cta-button:hover {
+    background: var(--color-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.cert-cta-button.secondary {
+    background: transparent;
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+}
+
+.cert-cta-button.secondary:hover {
+    background: var(--color-primary);
+    color: white;
+}
+
+/* ==============================================
+   3. 응시 자격 페이지 스타일
+   ============================================== */
+
+.qualification-table {
+    background: white;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--box-shadow);
+    margin: var(--spacing-6) 0;
+}
+
+.qualification-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.qualification-table th {
+    background: var(--color-primary);
+    color: white;
+    padding: var(--spacing-4);
+    font-weight: 600;
+    text-align: left;
+}
+
+.qualification-table td {
+    padding: var(--spacing-4);
+    border-bottom: 1px solid var(--color-gray-200);
+    vertical-align: top;
+}
+
+.qualification-table tr:nth-child(even) {
+    background: var(--color-gray-50);
+}
+
+.qualification-table tr:hover {
+    background: var(--color-gray-100);
+}
+
+.major-list {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-6);
+    border: 1px solid var(--color-gray-200);
+}
+
+.major-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.major-list li {
+    position: relative;
+    padding-left: var(--spacing-6);
+    margin-bottom: var(--spacing-2);
+    color: var(--color-gray-700);
+}
+
+.major-list li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--color-primary);
+    font-weight: bold;
+}
+
+.requirements-card {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-6);
+    box-shadow: var(--box-shadow);
+    margin: var(--spacing-6) 0;
+}
+
+.requirements-card h4 {
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-4);
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.requirements-card ol,
+.requirements-card ul {
+    padding-left: var(--spacing-6);
+}
+
+.requirements-card li {
+    margin-bottom: var(--spacing-2);
+    color: var(--color-gray-700);
+}
+
+/* ==============================================
+   4. 시험 정보 페이지 스타일
+   ============================================== */
+
+.exam-table {
+    background: white;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--box-shadow);
+    margin: var(--spacing-6) 0;
+}
+
+.exam-table th {
+    background: var(--color-primary);
+    color: white;
+    padding: var(--spacing-4);
+    font-weight: 600;
+    text-align: left;
+}
+
+.exam-table td {
+    padding: var(--spacing-4);
+    border-bottom: 1px solid var(--color-gray-200);
+    vertical-align: top;
+}
+
+.exam-table tr:nth-child(even) {
+    background: var(--color-gray-50);
+}
+
+.exam-details-card {
+    background: var(--color-gray-50);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-6);
+    margin: var(--spacing-6) 0;
+}
+
+.exam-details-card h4 {
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-4);
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.exam-process {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-4);
+    justify-content: center;
+    margin: var(--spacing-8) 0;
+}
+
+.process-step {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-6);
+    text-align: center;
+    box-shadow: var(--box-shadow);
+    flex: 1;
+    min-width: 200px;
+    max-width: 300px;
+    transition: var(--transition);
+}
+
+.process-step:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.process-number {
+    width: 3rem;
+    height: 3rem;
+    background: var(--color-primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 auto var(--spacing-4);
+}
+
+.process-step h4 {
+    font-weight: 700;
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-3);
+}
+
+.process-step p {
+    color: var(--color-gray-600);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.exam-cost-table {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-6);
+    margin: var(--spacing-8) 0;
+}
+
+.cost-card {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-6);
+    box-shadow: var(--box-shadow);
+    border: 1px solid var(--color-gray-200);
+}
+
+.cost-card h4 {
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-4);
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.cost-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-2);
+    padding: var(--spacing-2);
+    border-radius: var(--spacing-2);
+    transition: var(--transition);
+}
+
+.cost-item:hover {
+    background: var(--color-gray-50);
+}
+
+.cost-item.total {
+    border-top: 2px solid var(--color-gray-200);
+    margin-top: var(--spacing-4);
+    padding-top: var(--spacing-3);
+    font-weight: 700;
+    color: var(--color-gray-800);
+}
+
+/* ==============================================
+   5. 교육 과정 페이지 스타일
+   ============================================== */
+
+.curriculum-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-6);
+    margin: var(--spacing-8) 0;
+}
+
+.curriculum-card {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-6);
+    box-shadow: var(--box-shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.curriculum-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--color-primary);
+}
+
+.curriculum-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--spacing-4);
+}
+
+.curriculum-card h4 {
+    font-weight: 700;
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-3);
+}
+
+.curriculum-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.curriculum-card li {
+    position: relative;
+    padding-left: var(--spacing-6);
+    margin-bottom: var(--spacing-2);
+    color: var(--color-gray-700);
+}
+
+.curriculum-card li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--color-primary);
+    font-weight: bold;
+}
+
+.curriculum-detail-table {
+    background: white;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--box-shadow);
+    margin: var(--spacing-6) 0;
+}
+
+.curriculum-detail-table h4 {
+    background: var(--color-primary);
+    color: white;
+    padding: var(--spacing-4);
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.curriculum-detail-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.curriculum-detail-table th {
+    background: var(--color-gray-50);
+    padding: var(--spacing-3);
+    font-weight: 600;
+    color: var(--color-gray-700);
+    text-align: left;
+}
+
+.curriculum-detail-table td {
+    padding: var(--spacing-3);
+    border-bottom: 1px solid var(--color-gray-200);
+    vertical-align: top;
+}
+
+.curriculum-detail-table td ul {
+    list-style: disc;
+    padding-left: var(--spacing-5);
+    margin: 0;
+}
+
+.curriculum-detail-table td li {
+    color: var(--color-gray-600);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.curriculum-info-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-6);
+    margin: var(--spacing-8) 0;
+}
+
+.curriculum-info-card {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-6);
+    box-shadow: var(--box-shadow);
+    border: 1px solid var(--color-gray-200);
+}
+
+.curriculum-info-card h4 {
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-4);
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.curriculum-info-item {
+    display: flex;
+    margin-bottom: var(--spacing-3);
+}
+
+.curriculum-info-label {
+    font-weight: 600;
+    color: var(--color-gray-700);
+    width: 6rem;
+    flex-shrink: 0;
+}
+
+.curriculum-info-value {
+    color: var(--color-gray-600);
+}
+
+.curriculum-cta {
+    background: linear-gradient(135deg, var(--color-primary-light), #f0f9ff);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-8);
+    text-align: center;
+    margin-top: var(--spacing-8);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-6);
+}
+
+.curriculum-cta-content {
+    flex: 1;
+}
+
+.curriculum-cta h3 {
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-2);
+}
+
+.curriculum-cta p {
+    color: var(--color-gray-600);
+}
+
+.curriculum-cta-button {
+    background: var(--color-primary);
+    color: white;
+    padding: 0.875rem var(--spacing-6);
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.curriculum-cta-button:hover {
+    background: var(--color-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* ==============================================
+   6. 진로 및 전망 페이지 스타일
+   ============================================== */
+
+.career-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-6);
+    margin: var(--spacing-8) 0;
+}
+
+.career-card {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-6);
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+}
+
+.career-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.career-icon {
+    width: 3rem;
+    height: 3rem;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--spacing-4);
+}
+
+.career-card h4 {
+    font-weight: 700;
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-3);
+}
+
+.career-card p {
+    color: var(--color-gray-600);
+    margin-bottom: var(--spacing-4);
+}
+
+.career-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.career-card li {
+    position: relative;
+    padding-left: var(--spacing-6);
+    margin-bottom: var(--spacing-2);
+    color: var(--color-gray-600);
+    font-size: 0.875rem;
+}
+
+.career-card li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--color-primary);
+    font-weight: bold;
+}
+
+.market-outlook {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-8);
+    box-shadow: var(--box-shadow);
+    margin: var(--spacing-8) 0;
+}
+
+.market-outlook h3 {
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-4);
+}
+
+.market-outlook p {
+    color: var(--color-gray-600);
+    margin-bottom: var(--spacing-6);
+    line-height: 1.7;
+}
+
+.outlook-factors {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-4);
+}
+
+.outlook-factor {
+    border-left: 4px solid var(--color-primary);
+    padding-left: var(--spacing-4);
+}
+
+.outlook-factor h4 {
+    font-weight: 700;
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-2);
+}
+
+.outlook-factor p {
+    color: var(--color-gray-600);
+    font-size: 0.9rem;
+}
+
+.salary-info {
+    background: var(--color-gray-50);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-6);
+    margin: var(--spacing-6) 0;
+}
+
+.salary-info h4 {
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-4);
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.salary-info ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.salary-info li {
+    position: relative;
+    padding-left: var(--spacing-6);
+    margin-bottom: var(--spacing-2);
+    color: var(--color-gray-700);
+}
+
+.salary-info li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--color-primary);
+    font-weight: bold;
+}
+
+.success-stories {
+    background: linear-gradient(135deg, var(--color-primary-light), #f0f9ff);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-8);
+    margin: var(--spacing-8) 0;
+}
+
+.success-stories h4 {
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-6);
+    text-align: center;
+}
+
+.success-stories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: var(--spacing-6);
+}
+
+.success-story {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-6);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.story-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--spacing-4);
+}
+
+.story-avatar {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    margin-right: var(--spacing-4);
+}
+
+.story-info h5 {
+    font-weight: 700;
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-1);
+}
+
+.story-info p {
+    color: var(--color-gray-600);
+    font-size: 0.875rem;
+}
+
+.story-content {
+    color: var(--color-gray-700);
+    font-style: italic;
+    line-height: 1.6;
+}
+
+.benefits-qualifications {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-8);
+    box-shadow: var(--box-shadow);
+    margin: var(--spacing-8) 0;
+}
+
+.benefits-qualifications h3 {
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-6);
+}
+
+.benefits-qualifications h4 {
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-4);
+    margin-top: var(--spacing-6);
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.benefits-qualifications ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.benefits-qualifications li {
+    position: relative;
+    padding-left: var(--spacing-6);
+    margin-bottom: var(--spacing-2);
+    color: var(--color-gray-700);
+}
+
+.benefits-qualifications li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--color-primary);
+    font-weight: bold;
+}
+
+.career-cta {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    border-radius: var(--border-radius);
+    padding: var(--spacing-8);
+    text-align: center;
+    margin-top: var(--spacing-8);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-6);
+}
+
+.career-cta-content {
+    flex: 1;
+    color: white;
+}
+
+.career-cta h3 {
+    color: white;
+    margin-bottom: var(--spacing-2);
+}
+
+.career-cta p {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.career-cta-button {
+    background: white;
+    color: var(--color-primary);
+    padding: 0.875rem var(--spacing-6);
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.career-cta-button:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
+/* ==============================================
+   7. 공통 애니메이션
+   ============================================== */
+
+@keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-/* ===================================
-   자격증 정보 박스
-=================================== */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
 
-.certificate-info-box {
-    background-color: #dbeafe;
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1.5rem;
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.certificate-info-box ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
+/* ==============================================
+   8. 반응형 디자인
+   ============================================== */
 
-.certificate-info-box li {
-    display: flex;
-    align-items: flex-start;
-    padding: 0.5rem 0;
-}
+/* 태블릿 이하 (768px 이하) */
+@media (max-width: 768px) {
+    .certificate-hero {
+        padding: var(--spacing-12) 0;
+    }
 
-.certificate-info-box .info-label {
-    font-weight: bold;
-    width: 6rem;
-    flex-shrink: 0;
-}
+    .certificate-hero h1 {
+        font-size: 2rem;
+    }
 
-/* ===================================
-   특징 박스 스타일
-=================================== */
+    .certificate-hero p {
+        font-size: 1rem;
+    }
 
-.feature-box {
-    background-color: #f3f4f6;
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    margin-bottom: 1.5rem;
-}
+    .certificate-tabs {
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
 
-.feature-item {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 1rem;
-}
+    .certificate-tabs::-webkit-scrollbar {
+        display: none;
+    }
 
-@media (min-width: 768px) {
-    .feature-item {
-        flex-direction: row;
+    .certificate-tabs .tab-item {
+        white-space: nowrap;
+        padding: var(--spacing-3) var(--spacing-4);
+        font-size: 0.9rem;
+    }
+
+    .cert-info-card {
+        padding: var(--spacing-6);
+    }
+
+    .cert-feature {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .cert-feature-icon {
+        margin-right: 0;
+        margin-bottom: var(--spacing-3);
+    }
+
+    .cert-sidebar-card {
+        position: static;
+        margin-top: var(--spacing-6);
+    }
+
+    .cert-cta-card {
+        position: static;
+        margin-top: var(--spacing-6);
+    }
+
+    .qualification-table,
+    .exam-table,
+    .curriculum-detail-table {
+        overflow-x: auto;
+    }
+
+    .exam-process {
+        flex-direction: column;
         align-items: center;
     }
-}
 
-.feature-icon {
-    flex-shrink: 0;
-    background-color: #dbeafe;
-    padding: 0.75rem;
-    border-radius: 50%;
-    margin-bottom: 1rem;
-}
+    .process-step {
+        max-width: 100%;
+    }
 
-@media (min-width: 768px) {
-    .feature-icon {
-        margin-bottom: 0;
-        margin-right: 1rem;
+    .exam-cost-table {
+        grid-template-columns: 1fr;
+    }
+
+    .curriculum-overview {
+        grid-template-columns: 1fr;
+    }
+
+    .curriculum-info-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .curriculum-cta {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .career-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .outlook-factors {
+        grid-template-columns: 1fr;
+    }
+
+    .success-stories-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .career-cta {
+        flex-direction: column;
+        text-align: center;
     }
 }
 
-.feature-icon svg {
-    width: 1.5rem;
-    height: 1.5rem;
-    color: #2563eb;
+/* 모바일 (480px 이하) */
+@media (max-width: 480px) {
+    .certificate-hero {
+        padding: var(--spacing-8) 0;
+    }
+
+    .certificate-hero h1 {
+        font-size: 1.75rem;
+    }
+
+    .cert-info-card {
+        padding: var(--spacing-4);
+    }
+
+    .cert-feature {
+        padding: var(--spacing-4);
+    }
+
+    .cert-sidebar-card,
+    .cert-cta-card {
+        padding: var(--spacing-4);
+    }
+
+    .process-step {
+        padding: var(--spacing-4);
+    }
+
+    .career-card {
+        padding: var(--spacing-4);
+    }
+
+    .success-story {
+        padding: var(--spacing-4);
+    }
+
+    .benefits-qualifications,
+    .market-outlook {
+        padding: var(--spacing-6);
+    }
 }
 
-.feature-content h4 {
-    font-weight: bold;
-    margin-bottom: 0.25rem;
+/* 프린트 스타일 */
+@media print {
+
+    .certificate-tabs,
+    .cert-cta-card,
+    .curriculum-cta,
+    .career-cta {
+        display: none;
+    }
+
+    .cert-sidebar-card {
+        position: static;
+        break-inside: avoid;
+    }
+
+    .cert-info-card,
+    .career-card,
+    .success-story {
+        break-inside: avoid;
+        margin-bottom: var(--spacing-4);
+    }
 }
 
-/* ===================================
-   시험 정보 테이블
-=================================== */
-
-.exam-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 1.5rem;
+/* 접근성 향상 */
+.cert-feature:focus-within,
+.career-card:focus-within,
+.process-step:focus-within {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
 }
 
-.exam-table thead tr {
-    background-color: #2563eb;
-    color: white;
+/* 고 DPI 디스플레이 최적화 */
+@media (-webkit-min-device-pixel-ratio: 2) {
+
+    .cert-info-card::before,
+    .curriculum-card::before {
+        height: 6px;
+    }
+
+    .cert-feature-icon,
+    .career-icon,
+    .curriculum-icon {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
 }
 
-.exam-table th,
-.exam-table td {
-    border: 1px solid #e5e7eb;
-    padding: 0.75rem 1rem;
+
+
+/* 추가 유틸리티 클래스 */
+.text-center {
+    text-align: center;
+}
+
+.text-left {
     text-align: left;
 }
 
-.exam-table tbody tr:nth-child(even) {
-    background-color: #f9fafb;
+.text-right {
+    text-align: right;
 }
 
-.exam-table tbody tr:hover {
-    background-color: #f3f4f6;
+.font-bold {
+    font-weight: 700;
 }
 
-/* ===================================
-   교육과정 카드
-=================================== */
-
-.curriculum-card {
-    background-color: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+.font-semibold {
+    font-weight: 600;
 }
 
-.curriculum-card h4 {
-    font-size: 1.125rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
+.font-medium {
+    font-weight: 500;
 }
 
-.curriculum-list {
-    list-style: disc;
-    padding-left: 1.25rem;
+.grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
 }
 
-.curriculum-list li {
-    margin-bottom: 0.5rem;
+.grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-/* ===================================
-   진로 카드
-=================================== */
-
-.career-card {
-    background-color: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+.grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.career-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.career-icon {
-    width: 3rem;
-    height: 3rem;
-    background-color: #dbeafe;
-    border-radius: 50%;
+.flex {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
 }
 
-.career-icon svg {
-    width: 1.5rem;
-    height: 1.5rem;
-    color: #2563eb;
-}
-
-.career-card h4 {
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-}
-
-.career-card p {
-    color: #4b5563;
-    margin-bottom: 0.75rem;
-    font-size: 0.9rem;
-}
-
-.career-list {
-    list-style: disc;
-    padding-left: 1.25rem;
-    font-size: 0.875rem;
-    color: #6b7280;
-}
-
-/* ===================================
-   프로세스 스텝
-=================================== */
-
-.process-step {
-    background-color: #dbeafe;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    height: 100%;
-    display: flex;
+.flex-col {
     flex-direction: column;
-    align-items: center;
-    text-align: center;
 }
 
-.process-number {
-    width: 3rem;
-    height: 3rem;
-    background-color: #2563eb;
-    color: white;
-    border-radius: 50%;
-    display: flex;
+.items-center {
     align-items: center;
+}
+
+.justify-center {
     justify-content: center;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
 }
 
-.process-step h4 {
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-}
-
-.process-step p {
-    font-size: 0.875rem;
-    color: #4b5563;
-}
-
-/* ===================================
-   응시료 박스
-=================================== */
-
-.fee-box {
-    background-color: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-}
-
-.fee-box h4 {
-    font-weight: bold;
-    margin-bottom: 1rem;
-}
-
-.fee-list li {
-    display: flex;
+.justify-between {
     justify-content: space-between;
-    padding: 0.5rem 0;
 }
 
-.fee-list .total {
-    border-top: 1px solid #e5e7eb;
-    padding-top: 0.5rem;
+.hidden {
+    display: none;
+}
+
+.block {
+    display: block;
+}
+
+.space-y-2>*+* {
     margin-top: 0.5rem;
-    font-weight: bold;
 }
 
-/* ===================================
-   CTA 버튼
-=================================== */
-
-.certificate-cta {
-    background-color: #dbeafe;
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.space-y-3>*+* {
+    margin-top: 0.75rem;
 }
 
-@media (min-width: 768px) {
-    .certificate-cta {
-        flex-direction: row;
-    }
+.space-y-4>*+* {
+    margin-top: 1rem;
 }
 
-.certificate-cta-content {
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-@media (min-width: 768px) {
-    .certificate-cta-content {
-        margin-bottom: 0;
-        text-align: left;
-        padding-right: 1.5rem;
-        width: 66.666667%;
-    }
-}
-
-.certificate-cta-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    justify-content: center;
-}
-
-@media (min-width: 768px) {
-    .certificate-cta-buttons {
-        width: 33.333333%;
-    }
-}
-
-/* ===================================
-   성공 사례
-=================================== */
-
-.success-case {
-    background-color: white;
-    padding: 1rem;
-    border-radius: 0.5rem;
-}
-
-.success-case-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.75rem;
-}
-
-.success-avatar {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    margin-right: 1rem;
-}
-
-.success-info h5 {
-    font-weight: bold;
-}
-
-.success-info p {
-    font-size: 0.875rem;
-    color: #6b7280;
-}
-
-.success-content {
-    color: #4b5563;
-    font-size: 0.9rem;
-}
-
-/* ===================================
-   반응형 디자인
-=================================== */
-
-@media (max-width: 640px) {
-    .tab-nav {
-        justify-content: space-between;
-    }
-    
-    .tab-nav a {
-        padding: 0.75rem 0.5rem;
-        font-size: 0.875rem;
-    }
-    
-    .curriculum-card,
-    .career-card {
-        padding: 1rem;
-    }
-    
-    .exam-table {
-        font-size: 0.875rem;
-    }
-    
-    .exam-table th,
-    .exam-table td {
-        padding: 0.5rem;
-    }
-}
-
-/* ===================================
-   인쇄 스타일
-=================================== */
-
-@media print {
-    .certificate-banner {
-        background: none;
-        color: black;
-        border-bottom: 1px solid #000;
-    }
-    
-    .tab-navigation {
-        display: none;
-    }
-    
-    .tab-content {
-        display: block !important;
-        page-break-after: always;
-    }
-    
-    .certificate-cta-buttons {
-        display: none;
-    }
-}
+/* 파일 끝 */
