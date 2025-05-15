@@ -109,28 +109,26 @@ function initValueCards() {
 
 // 주요특징 카드 호버 효과
 function initFeatureCards() {
-    const featureCards = document.querySelectorAll('.feature-card');
+    const featureCards = document.querySelectorAll('.feature-card-improved');
     
-    featureCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            const icon = this.querySelector('.feature-icon');
-            const svg = this.querySelector('.feature-icon svg');
-            
-            if (icon && svg) {
-                icon.style.transform = 'scale(1.1)';
-                svg.style.transform = 'rotate(5deg)';
+    // Intersection Observer로 스크롤 애니메이션 관리
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
             }
         });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+    
+    featureCards.forEach((card, index) => {
+        // 초기에 애니메이션 일시 정지
+        card.style.animationPlayState = 'paused';
         
-        card.addEventListener('mouseleave', function() {
-            const icon = this.querySelector('.feature-icon');
-            const svg = this.querySelector('.feature-icon svg');
-            
-            if (icon && svg) {
-                icon.style.transform = 'scale(1)';
-                svg.style.transform = 'rotate(0deg)';
-            }
-        });
+        // 기존 호버 효과는 CSS에서 처리
+        observer.observe(card);
     });
 }
 
@@ -160,3 +158,28 @@ function isElementInViewport(el) {
         rect.right <= (window.innerWidth || document.documentElement.clientWidth)
     );
 }
+
+// about.css 와 함께 사용할 JavaScript (선택사항)
+function scrollActiveTabIntoView() {
+    const activeTab = document.querySelector('.navigation-tabs .tab-item.active');
+    if (activeTab && window.innerWidth <= 768) {
+        const container = document.querySelector('.navigation-tabs nav');
+        const containerRect = container.getBoundingClientRect();
+        const tabRect = activeTab.getBoundingClientRect();
+        
+        // 탭을 화면 중앙에 위치시키기
+        const scrollLeft = container.scrollLeft + 
+            tabRect.left - containerRect.left - 
+            (containerRect.width / 2) + (tabRect.width / 2);
+        
+        container.scrollTo({
+            left: scrollLeft,
+            behavior: 'smooth'
+        });
+    }
+}
+
+// 페이지 로드 시 실행
+document.addEventListener('DOMContentLoaded', scrollActiveTabIntoView);
+// 화면 크기 변경 시 실행
+window.addEventListener('resize', scrollActiveTabIntoView);

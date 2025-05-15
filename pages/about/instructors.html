@@ -1,4 +1,3 @@
-<!-- pages/about/instructors.html -->
 <!DOCTYPE html>
 <html lang="ko">
 
@@ -6,52 +5,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>강사 소개 - 디지털헬스케어센터</title>
-    <!-- 파비콘 -->
-    <link rel="shortcut icon" href="../../assets/images/logo/logo.jpeg" type="image/x-icon">
-    <!-- CSS 파일 -->
-    <link rel="stylesheet" href="../../assets/css/main.css">
-    <!-- 노토 산스 KR 폰트 -->
+    <meta name="description" content="디지털헬스케어센터의 각 분야 최고 전문가로 구성된 강사진을 소개합니다.">
+    <link rel="icon" href="../../assets/images/logo/logo.jpeg">
+    <link rel="manifest" href="../../manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/main.css">
     <!-- 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
     <script src="../../assets/js/utils/script-loader.js"></script>
 </head>
 
 <body>
-    <!-- 헤더 영역 -->
-    <header id="main-header" class="bg-white shadow-md">
+    <header id="main-header">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <!-- 로고 -->
-            <div class="logo">
+            <div class="logo flex items-center">
                 <a href="javascript:window.location.href=window.adjustPath('index.html')">
-                    <img src="../../assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" class="logo-image">
+                    <div class="flex items-center">
+                        <img src="../../assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" class="logo-image">
+                        <div class="ml-3">
+                            <span class="organization-name">사&rpar;문경 부설 헬스케어센터</span>
+                        </div>
+                    </div>
                 </a>
             </div>
-
-            <!-- 메인 네비게이션 -->
             <nav class="main-nav hidden md:flex">
                 <ul class="flex space-x-6">
-                    <li class="group relative">
-                        <a href="#" class="text-blue-600 font-bold py-2">기관 소개</a>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-blue-600 font-bold py-2 nav-link">기관 소개</a>
                         <ul
                             class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">개요</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">목표 및 전략</a>
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">개요</a>
                             </li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">목표 및 전략</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/about/business.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600">사업 내용</a></li>
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">사업 내용</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')"
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a>
                             </li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600 font-medium">강사
                                     소개</a></li>
                         </ul>
                     </li>
-                    <li class="group relative">
-                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">자격증 소개</a>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">자격증 소개</a>
                         <ul
                             class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
@@ -64,8 +63,8 @@
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
                         </ul>
                     </li>
-                    <li class="group relative">
-                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">교육 과정</a>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">교육 과정</a>
                         <ul
                             class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
@@ -78,8 +77,8 @@
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">시험 안내</a></li>
                         </ul>
                     </li>
-                    <li class="group relative">
-                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">게시판</a>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">게시판</a>
                         <ul
                             class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')"
@@ -94,619 +93,754 @@
                     </li>
                 </ul>
             </nav>
-
-            <!-- 인증 버튼 영역 -->
             <div class="auth-buttons flex items-center">
                 <a href="javascript:window.location.href=window.adjustPath('pages/auth/login.html')"
                     class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
                 <a href="javascript:window.location.href=window.adjustPath('pages/auth/signup.html')"
                     class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
-                <button id="mobile-menu-button" class="md:hidden ml-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
             </div>
+            <button id="mobile-menu-button" class="md:hidden ml-4 hamburger-menu" aria-expanded="false"
+                aria-controls="mobile-menu-overlay">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
         </div>
 
-        <!-- 모바일 메뉴 -->
-        <div id="mobile-menu" class="hidden md:hidden shadow-md">
-            <div class="container mx-auto px-4 py-3">
-                <!-- 모바일 메뉴 내용은 JavaScript로 동적 생성 -->
+        <!-- Mobile Menu Overlay (KSPO 스타일) -->
+        <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden md:hidden">
+            <div class="bg-white h-full w-full flex flex-col">
+                <!-- 모바일 메뉴 헤더 -->
+                <div class="flex justify-between items-center p-4 bg-blue-600 text-white mobile-menu-header">
+                    <span class="text-lg font-semibold">메뉴</span>
+                    <button id="mobile-menu-close" class="text-2xl font-bold hover:text-gray-200">&times;</button>
+                </div>
+
+                <!-- 모바일 메뉴 컨텐츠 -->
+                <div class="flex-1 overflow-y-auto bg-gray-50 mobile-menu-container">
+                    <div class="p-4">
+                        <!-- 회원 정보 영역 -->
+                        <div class="mb-6 p-4 bg-white rounded-lg shadow-sm mobile-menu-user-info">
+                            <span class="text-blue-600 font-semibold">로그인 해주세요 ></span>
+                        </div>
+
+                        <!-- 메인 메뉴 -->
+                        <div class="space-y-2 mobile-menu-nav">
+                            <!-- 기관 소개 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">🏢</div>
+                                    <div class="menu-text">기관 소개</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')">개요</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')">목표
+                                        및 전략</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/about/business.html')">사업
+                                        내용</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')">조직도</a>
+                                    <a href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')"
+                                        class="active">강사 소개</a>
+                                </div>
+                            </div>
+
+                            <!-- 자격증 소개 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">🎓</div>
+                                    <div class="menu-text">자격증 소개</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')">건강운동처방사</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')">운동재활전문가</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')">필라테스
+                                        전문가</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')">레크리에이션지도자</a>
+                                </div>
+                            </div>
+
+                            <!-- 교육 과정 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">📚</div>
+                                    <div class="menu-text">교육 과정</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')">교육
+                                        과정 안내</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')">교육
+                                        신청</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')">자격증
+                                        신청</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/exam-info.html')">시험
+                                        안내</a>
+                                </div>
+                            </div>
+
+                            <!-- 게시판 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">📋</div>
+                                    <div class="menu-text">게시판</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')">공지사항</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')">칼럼</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/board/materials/index.html')">강의자료</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/board/videos/index.html')">동영상
+                                        강의</a>
+                                </div>
+                            </div>
+
+                            <!-- 마이페이지 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">👤</div>
+                                    <div class="menu-text">마이페이지</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/personal-info.html')">개인정보
+                                        관리</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/course-history.html')">수강
+                                        내역</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/cert-management.html')">자격증
+                                        관리</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/payment-history.html')">결제
+                                        내역</a>
+                                </div>
+                            </div>
+
+                            <!-- 관리자 (조건부 표시) -->
+                            <div class="mobile-menu-item admin-only" style="display: none;">
+                                <button type="button">
+                                    <div class="menu-icon">⚙️</div>
+                                    <div class="menu-text">관리자</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/admin/dashboard.html')">대시보드</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/admin/user-management.html')">회원
+                                        관리</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/admin/course-management.html')">교육
+                                        관리</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/admin/cert-management.html')">자격증
+                                        관리</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- 페이지 제목 영역 -->
-    <div class="bg-gradient-to-r from-blue-600 to-green-500 text-white py-12">
+    <!-- Hero Section -->
+    <section class="about-hero hero-section bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-16">
         <div class="container mx-auto px-4">
-            <h1 class="text-3xl md:text-4xl font-bold mb-2">사업 내용</h1>
-            <p class="text-lg">디지털헬스케어센터가 수행하는 주요 사업을 소개합니다.</p>
-        </div>
-    </div>
-
-    <!-- 내비게이션 탭 -->
-    <div class="bg-white border-b sticky top-0 z-20">
-        <div class="container mx-auto px-4">
-            <ul class="flex overflow-x-auto py-4 space-x-6">
-                <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
-                        class="text-gray-700 hover:text-blue-600 pb-2">개요</a></li>
-                <li><a href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')"
-                        class="text-gray-700 hover:text-blue-600 pb-2">목표 및 전략</a></li>
-                <li><a href="javascript:window.location.href=window.adjustPath('pages/about/business.html')"
-                        class="text-gray-700 hover:text-blue-600 pb-2">사업 내용</a>
-                </li>
-                <li><a href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')"
-                        class="text-gray-700 hover:text-blue-600 pb-2">조직도</a></li>
-                <li><a href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')"
-                        class="text-blue-600 border-b-2 border-blue-600 pb-2 font-bold">강사 소개</a></li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- 메인 콘텐츠 -->
-    <main class="py-12">
-        <div class="container mx-auto px-4">
-            <!-- 강사 소개 -->
-            <div class="mb-16">
-                <h2 class="text-3xl font-bold mb-6 text-center">전문 강사진 소개</h2>
-                <p class="text-lg text-gray-700 mb-8 max-w-4xl mx-auto text-center">
-                    디지털헬스케어센터는 각 분야의 최고 전문가들로 구성된 강사진을 보유하고 있습니다.
-                    교수, 현장 전문가, 기업가 등 다양한 배경을 가진 전문가들이 최신 동향과 실무 지식을
-                    교육생들에게 전달하고 있습니다.
+            <div class="max-w-3xl">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">강사 소개</h1>
+                <p class="text-xl mb-8">각 분야 최고의 전문가로 구성된 디지털헬스케어센터 강사진을 소개합니다.<br>실무 경험과 전문 지식을 바탕으로 최고 수준의 교육을 제공합니다.
                 </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 개선된 내비게이션 탭 -->
+    <div class="navigation-tabs sticky top-0 z-20">
+        <div class="container mx-auto px-4">
+            <nav class="flex overflow-x-auto py-2">
+                <a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
+                    class="tab-item">개요</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')"
+                    class="tab-item">목표 및 전략</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/about/business.html')"
+                    class="tab-item">사업 내용</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')"
+                    class="tab-item">조직도</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')"
+                    class="tab-item active">강사 소개</a>
+            </nav>
+        </div>
+    </div>
+
+    <main>
+        <!-- 강사 소개 섹션 -->
+        <section class="py-16">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold mb-6">전문 강사진 소개</h2>
+                    <p class="text-lg text-gray-700 max-w-4xl mx-auto">
+                        디지털헬스케어센터는 각 분야의 최고 전문가들로 구성된 강사진을 보유하고 있습니다.
+                        교수, 현장 전문가, 기업가 등 다양한 배경을 가진 전문가들이 최신 동향과 실무 지식을
+                        교육생들에게 전달하고 있습니다.
+                    </p>
+                </div>
 
                 <!-- 강사 탭 메뉴 -->
-                <div class="bg-gray-100 rounded-lg p-2 flex justify-between mb-10 max-w-3xl mx-auto">
-                    <button
-                        class="instructor-tab active py-2 px-4 rounded-md bg-white shadow-sm text-blue-600 font-medium w-full"
-                        data-category="all">전체</button>
-                    <button
-                        class="instructor-tab py-2 px-4 rounded-md text-gray-700 hover:bg-white hover:text-blue-600 w-full"
-                        data-category="health">건강운동처방</button>
-                    <button
-                        class="instructor-tab py-2 px-4 rounded-md text-gray-700 hover:bg-white hover:text-blue-600 w-full"
-                        data-category="rehab">운동재활</button>
-                    <button
-                        class="instructor-tab py-2 px-4 rounded-md text-gray-700 hover:bg-white hover:text-blue-600 w-full"
-                        data-category="pilates">필라테스</button>
-                    <button
-                        class="instructor-tab py-2 px-4 rounded-md text-gray-700 hover:bg-white hover:text-blue-600 w-full"
-                        data-category="recreation">레크리에이션</button>
+                <div class="instructor-tabs-container mb-12">
+                    <div class="instructor-tabs flex flex-wrap justify-center gap-4">
+                        <button class="instructor-tab active" data-category="all">전체</button>
+                        <button class="instructor-tab" data-category="health">건강운동처방</button>
+                        <button class="instructor-tab" data-category="rehab">운동재활</button>
+                        <button class="instructor-tab" data-category="pilates">필라테스</button>
+                        <button class="instructor-tab" data-category="recreation">레크리에이션</button>
+                    </div>
                 </div>
 
                 <!-- 강사 프로필 그리드 -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="instructor-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <!-- 건강운동처방 강사 1 -->
-                    <div class="instructor-card bg-white rounded-lg shadow-md overflow-hidden" data-category="health">
-                        <div class="h-64 overflow-hidden">
-                            <img src="../../assets/images/instructors/instructor1.jpg" alt="이건강 교수"
-                                class="w-full h-full object-cover">
+                    <div class="instructor-card" data-category="health">
+                        <div class="instructor-photo">
+                            <img src="../../assets/images/instructors/instructor1.jpg" alt="이건강 교수">
                         </div>
-                        <div class="p-6">
-                            <div class="flex justify-between items-center mb-2">
-                                <h3 class="text-xl font-bold">이건강 교수</h3>
-                                <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">건강운동처방</span>
+                        <div class="instructor-info">
+                            <div class="instructor-header">
+                                <h3 class="instructor-name">이건강 교수</h3>
+                                <span class="instructor-category health-category">건강운동처방</span>
                             </div>
-                            <p class="text-gray-600 mb-4">서울대학교 스포츠의학과 교수</p>
-                            <div class="space-y-2 text-sm text-gray-700">
-                                <p><strong>전문 분야:</strong> 만성질환 운동처방, 노인 건강관리</p>
-                                <p><strong>학력:</strong> 미국 하버드대학교 운동생리학 박사</p>
-                                <p><strong>경력:</strong> 국립스포츠과학원 연구원, 대한운동처방학회 이사</p>
+                            <p class="instructor-position">서울대학교 스포츠의학과 교수</p>
+                            <div class="instructor-details">
+                                <div class="detail-item">
+                                    <strong>전문 분야:</strong> 만성질환 운동처방, 노인 건강관리
+                                </div>
+                                <div class="detail-item">
+                                    <strong>학력:</strong> 미국 하버드대학교 운동생리학 박사
+                                </div>
+                                <div class="detail-item">
+                                    <strong>경력:</strong> 국립스포츠과학원 연구원, 대한운동처방학회 이사
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- 건강운동처방 강사 2 -->
-                    <div class="instructor-card bg-white rounded-lg shadow-md overflow-hidden" data-category="health">
-                        <div class="h-64 overflow-hidden">
-                            <img src="../../assets/images/instructors/instructor2.jpg" alt="김운동 박사"
-                                class="w-full h-full object-cover">
+                    <div class="instructor-card" data-category="health">
+                        <div class="instructor-photo">
+                            <img src="../../assets/images/instructors/instructor2.jpg" alt="김운동 박사">
                         </div>
-                        <div class="p-6">
-                            <div class="flex justify-between items-center mb-2">
-                                <h3 class="text-xl font-bold">김운동 박사</h3>
-                                <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">건강운동처방</span>
+                        <div class="instructor-info">
+                            <div class="instructor-header">
+                                <h3 class="instructor-name">김운동 박사</h3>
+                                <span class="instructor-category health-category">건강운동처방</span>
                             </div>
-                            <p class="text-gray-600 mb-4">건강운동의학센터 대표</p>
-                            <div class="space-y-2 text-sm text-gray-700">
-                                <p><strong>전문 분야:</strong> 심혈관계 질환 운동처방, 대사증후군 관리</p>
-                                <p><strong>학력:</strong> 연세대학교 스포츠과학 박사</p>
-                                <p><strong>경력:</strong> 국가대표 팀 닥터, 건강보험공단 자문위원</p>
+                            <p class="instructor-position">건강운동의학센터 대표</p>
+                            <div class="instructor-details">
+                                <div class="detail-item">
+                                    <strong>전문 분야:</strong> 심혈관계 질환 운동처방, 대사증후군 관리
+                                </div>
+                                <div class="detail-item">
+                                    <strong>학력:</strong> 연세대학교 스포츠과학 박사
+                                </div>
+                                <div class="detail-item">
+                                    <strong>경력:</strong> 국가대표 팀 닥터, 건강보험공단 자문위원
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- 운동재활 강사 1 -->
-                    <div class="instructor-card bg-white rounded-lg shadow-md overflow-hidden" data-category="rehab">
-                        <div class="h-64 overflow-hidden">
-                            <img src="../../assets/images/instructors/instructor3.jpg" alt="박재활 교수"
-                                class="w-full h-full object-cover">
+                    <div class="instructor-card" data-category="rehab">
+                        <div class="instructor-photo">
+                            <img src="../../assets/images/instructors/instructor3.jpg" alt="박재활 교수">
                         </div>
-                        <div class="p-6">
-                            <div class="flex justify-between items-center mb-2">
-                                <h3 class="text-xl font-bold">박재활 교수</h3>
-                                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">운동재활</span>
+                        <div class="instructor-info">
+                            <div class="instructor-header">
+                                <h3 class="instructor-name">박재활 교수</h3>
+                                <span class="instructor-category rehab-category">운동재활</span>
                             </div>
-                            <p class="text-gray-600 mb-4">중앙대학교 스포츠의학과 교수</p>
-                            <div class="space-y-2 text-sm text-gray-700">
-                                <p><strong>전문 분야:</strong> 근골격계 부상 재활, 스포츠 손상 예방</p>
-                                <p><strong>학력:</strong> 고려대학교 의과대학 스포츠의학 박사</p>
-                                <p><strong>경력:</strong> 대한재활의학회 이사, 국제 스포츠재활학회 회원</p>
+                            <p class="instructor-position">중앙대학교 스포츠의학과 교수</p>
+                            <div class="instructor-details">
+                                <div class="detail-item">
+                                    <strong>전문 분야:</strong> 근골격계 부상 재활, 스포츠 손상 예방
+                                </div>
+                                <div class="detail-item">
+                                    <strong>학력:</strong> 고려대학교 의과대학 스포츠의학 박사
+                                </div>
+                                <div class="detail-item">
+                                    <strong>경력:</strong> 대한재활의학회 이사, 국제 스포츠재활학회 회원
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- 운동재활 강사 2 -->
-                    <div class="instructor-card bg-white rounded-lg shadow-md overflow-hidden" data-category="rehab">
-                        <div class="h-64 overflow-hidden">
-                            <img src="../../assets/images/instructors/instructor4.jpg" alt="최병원 원장"
-                                class="w-full h-full object-cover">
+                    <div class="instructor-card" data-category="rehab">
+                        <div class="instructor-photo">
+                            <img src="../../assets/images/instructors/instructor4.jpg" alt="최병원 원장">
                         </div>
-                        <div class="p-6">
-                            <div class="flex justify-between items-center mb-2">
-                                <h3 class="text-xl font-bold">최병원 원장</h3>
-                                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">운동재활</span>
+                        <div class="instructor-info">
+                            <div class="instructor-header">
+                                <h3 class="instructor-name">최병원 원장</h3>
+                                <span class="instructor-category rehab-category">운동재활</span>
                             </div>
-                            <p class="text-gray-600 mb-4">스포츠재활클리닉 대표</p>
-                            <div class="space-y-2 text-sm text-gray-700">
-                                <p><strong>전문 분야:</strong> 척추 재활, 스포츠 손상 회복</p>
-                                <p><strong>학력:</strong> 미국 스탠포드대학교 물리치료학 석사</p>
-                                <p><strong>경력:</strong> 프로스포츠팀 재활트레이너, 대한물리치료사협회 이사</p>
+                            <p class="instructor-position">스포츠재활클리닉 대표</p>
+                            <div class="instructor-details">
+                                <div class="detail-item">
+                                    <strong>전문 분야:</strong> 척추 재활, 스포츠 손상 회복
+                                </div>
+                                <div class="detail-item">
+                                    <strong>학력:</strong> 미국 스탠포드대학교 물리치료학 석사
+                                </div>
+                                <div class="detail-item">
+                                    <strong>경력:</strong> 프로스포츠팀 재활트레이너, 대한물리치료사협회 이사
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- 필라테스 강사 1 -->
-                    <div class="instructor-card bg-white rounded-lg shadow-md overflow-hidden" data-category="pilates">
-                        <div class="h-64 overflow-hidden">
-                            <img src="../../assets/images/instructors/instructor5.jpg" alt="이필라 강사"
-                                class="w-full h-full object-cover">
+                    <div class="instructor-card" data-category="pilates">
+                        <div class="instructor-photo">
+                            <img src="../../assets/images/instructors/instructor5.jpg" alt="이필라 강사">
                         </div>
-                        <div class="p-6">
-                            <div class="flex justify-between items-center mb-2">
-                                <h3 class="text-xl font-bold">이필라 강사</h3>
-                                <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">필라테스</span>
+                        <div class="instructor-info">
+                            <div class="instructor-header">
+                                <h3 class="instructor-name">이필라 강사</h3>
+                                <span class="instructor-category pilates-category">필라테스</span>
                             </div>
-                            <p class="text-gray-600 mb-4">그린필라테스 대표</p>
-                            <div class="space-y-2 text-sm text-gray-700">
-                                <p><strong>전문 분야:</strong> 그룹 필라테스, 임산부 필라테스</p>
-                                <p><strong>학력:</strong> 국제필라테스협회 전문강사 과정 수료</p>
-                                <p><strong>경력:</strong> 10년 이상의 필라테스 강의 경력, 유명 연예인 트레이너</p>
+                            <p class="instructor-position">그린필라테스 대표</p>
+                            <div class="instructor-details">
+                                <div class="detail-item">
+                                    <strong>전문 분야:</strong> 그룹 필라테스, 임산부 필라테스
+                                </div>
+                                <div class="detail-item">
+                                    <strong>학력:</strong> 국제필라테스협회 전문강사 과정 수료
+                                </div>
+                                <div class="detail-item">
+                                    <strong>경력:</strong> 10년 이상의 필라테스 강의 경력, 유명 연예인 트레이너
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- 필라테스 강사 2 -->
-                    <div class="instructor-card bg-white rounded-lg shadow-md overflow-hidden" data-category="pilates">
-                        <div class="h-64 overflow-hidden">
-                            <img src="../../assets/images/instructors/instructor6.jpg" alt="김신체 강사"
-                                class="w-full h-full object-cover">
+                    <div class="instructor-card" data-category="pilates">
+                        <div class="instructor-photo">
+                            <img src="../../assets/images/instructors/instructor6.jpg" alt="김신체 강사">
                         </div>
-                        <div class="p-6">
-                            <div class="flex justify-between items-center mb-2">
-                                <h3 class="text-xl font-bold">김신체 강사</h3>
-                                <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">필라테스</span>
+                        <div class="instructor-info">
+                            <div class="instructor-header">
+                                <h3 class="instructor-name">김신체 강사</h3>
+                                <span class="instructor-category pilates-category">필라테스</span>
                             </div>
-                            <p class="text-gray-600 mb-4">바디밸런스 필라테스 대표</p>
-                            <div class="space-y-2 text-sm text-gray-700">
-                                <p><strong>전문 분야:</strong> 기구 필라테스, 재활 필라테스</p>
-                                <p><strong>학력:</strong> 국제 STOTT 필라테스 Level 5 자격증</p>
-                                <p><strong>경력:</strong> 미국 필라테스 스튜디오 근무 경력, 국내 기업 건강 프로그램 운영</p>
+                            <p class="instructor-position">바디밸런스 필라테스 대표</p>
+                            <div class="instructor-details">
+                                <div class="detail-item">
+                                    <strong>전문 분야:</strong> 기구 필라테스, 재활 필라테스
+                                </div>
+                                <div class="detail-item">
+                                    <strong>학력:</strong> 국제 STOTT 필라테스 Level 5 자격증
+                                </div>
+                                <div class="detail-item">
+                                    <strong>경력:</strong> 미국 필라테스 스튜디오 근무 경력, 국내 기업 건강 프로그램 운영
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- 레크리에이션 강사 1 -->
-                    <div class="instructor-card bg-white rounded-lg shadow-md overflow-hidden"
-                        data-category="recreation">
-                        <div class="h-64 overflow-hidden">
-                            <img src="../../assets/images/instructors/instructor7.jpg" alt="박즐거움 강사"
-                                class="w-full h-full object-cover">
+                    <div class="instructor-card" data-category="recreation">
+                        <div class="instructor-photo">
+                            <img src="../../assets/images/instructors/instructor7.jpg" alt="박즐거움 강사">
                         </div>
-                        <div class="p-6">
-                            <div class="flex justify-between items-center mb-2">
-                                <h3 class="text-xl font-bold">박즐거움 강사</h3>
-                                <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">레크리에이션</span>
+                        <div class="instructor-info">
+                            <div class="instructor-header">
+                                <h3 class="instructor-name">박즐거움 강사</h3>
+                                <span class="instructor-category recreation-category">레크리에이션</span>
                             </div>
-                            <p class="text-gray-600 mb-4">행복레크리에이션협회 이사</p>
-                            <div class="space-y-2 text-sm text-gray-700">
-                                <p><strong>전문 분야:</strong> 실버레크리에이션, 단체 레크리에이션</p>
-                                <p><strong>학력:</strong> 한국체육대학교 레저스포츠학과 석사</p>
-                                <p><strong>경력:</strong> 15년 이상의 레크리에이션 강의 경력, 대기업 연수원 프로그램 개발</p>
+                            <p class="instructor-position">행복레크리에이션협회 이사</p>
+                            <div class="instructor-details">
+                                <div class="detail-item">
+                                    <strong>전문 분야:</strong> 실버레크리에이션, 단체 레크리에이션
+                                </div>
+                                <div class="detail-item">
+                                    <strong>학력:</strong> 한국체육대학교 레저스포츠학과 석사
+                                </div>
+                                <div class="detail-item">
+                                    <strong>경력:</strong> 15년 이상의 레크리에이션 강의 경력, 대기업 연수원 프로그램 개발
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- 레크리에이션 강사 2 -->
-                    <div class="instructor-card bg-white rounded-lg shadow-md overflow-hidden"
-                        data-category="recreation">
-                        <div class="h-64 overflow-hidden">
-                            <img src="../../assets/images/instructors/instructor8.jpg" alt="정웃음 강사"
-                                class="w-full h-full object-cover">
+                    <div class="instructor-card" data-category="recreation">
+                        <div class="instructor-photo">
+                            <img src="../../assets/images/instructors/instructor8.jpg" alt="정웃음 강사">
                         </div>
-                        <div class="p-6">
-                            <div class="flex justify-between items-center mb-2">
-                                <h3 class="text-xl font-bold">정웃음 강사</h3>
-                                <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">레크리에이션</span>
+                        <div class="instructor-info">
+                            <div class="instructor-header">
+                                <h3 class="instructor-name">정웃음 강사</h3>
+                                <span class="instructor-category recreation-category">레크리에이션</span>
                             </div>
-                            <p class="text-gray-600 mb-4">스마일레크 대표</p>
-                            <div class="space-y-2 text-sm text-gray-700">
-                                <p><strong>전문 분야:</strong> 아동 레크리에이션, 팀빌딩 프로그램</p>
-                                <p><strong>학력:</strong> 서울대학교 아동심리학 석사</p>
-                                <p><strong>경력:</strong> 방송 프로그램 MC, 교육청 레크리에이션 프로그램 개발</p>
+                            <p class="instructor-position">스마일레크 대표</p>
+                            <div class="instructor-details">
+                                <div class="detail-item">
+                                    <strong>전문 분야:</strong> 아동 레크리에이션, 팀빌딩 프로그램
+                                </div>
+                                <div class="detail-item">
+                                    <strong>학력:</strong> 서울대학교 아동심리학 석사
+                                </div>
+                                <div class="detail-item">
+                                    <strong>경력:</strong> 방송 프로그램 MC, 교육청 레크리에이션 프로그램 개발
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- 건강운동처방 강사 3 -->
-                    <div class="instructor-card bg-white rounded-lg shadow-md overflow-hidden" data-category="health">
-                        <div class="h-64 overflow-hidden">
-                            <img src="../../assets/images/instructors/instructor9.jpg" alt="송건강 교수"
-                                class="w-full h-full object-cover">
+                    <div class="instructor-card" data-category="health">
+                        <div class="instructor-photo">
+                            <img src="../../assets/images/instructors/instructor9.jpg" alt="송건강 교수">
                         </div>
-                        <div class="p-6">
-                            <div class="flex justify-between items-center mb-2">
-                                <h3 class="text-xl font-bold">송건강 교수</h3>
-                                <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">건강운동처방</span>
+                        <div class="instructor-info">
+                            <div class="instructor-header">
+                                <h3 class="instructor-name">송건강 교수</h3>
+                                <span class="instructor-category health-category">건강운동처방</span>
                             </div>
-                            <p class="text-gray-600 mb-4">국립체육대학교 운동생리학과 교수</p>
-                            <div class="space-y-2 text-sm text-gray-700">
-                                <p><strong>전문 분야:</strong> 체력 측정 및 평가, 체성분 분석</p>
-                                <p><strong>학력:</strong> 독일 쾰른스포츠대학교 운동생리학 박사</p>
-                                <p><strong>경력:</strong> 대한운동학회 회장, 국가 체력 측정 표준화 위원회 위원</p>
+                            <p class="instructor-position">국립체육대학교 운동생리학과 교수</p>
+                            <div class="instructor-details">
+                                <div class="detail-item">
+                                    <strong>전문 분야:</strong> 체력 측정 및 평가, 체성분 분석
+                                </div>
+                                <div class="detail-item">
+                                    <strong>학력:</strong> 독일 쾰른스포츠대학교 운동생리학 박사
+                                </div>
+                                <div class="detail-item">
+                                    <strong>경력:</strong> 대한운동학회 회장, 국가 체력 측정 표준화 위원회 위원
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- 강의 품질 보장 섹션 -->
-            <div class="bg-gray-50 rounded-xl p-8 mb-16">
-                <h2 class="text-2xl font-bold mb-6 text-center">강의 품질 보장 시스템</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 mx-auto">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                            </svg>
+                <!-- 강사 통계 섹션 -->
+                <div class="instructor-stats-section bg-gray-50 rounded-xl p-8 mt-16">
+                    <h2 class="text-2xl font-bold mb-8 text-center">강사진의 우수한 역량</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="stats-card">
+                            <div class="stats-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-600" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">평균 경력</h3>
+                            <p class="text-3xl font-bold text-blue-600 mb-2">15년 이상</p>
+                            <p class="text-gray-600">각 분야별 전문 경력과 실무 노하우를 보유한 강사진</p>
                         </div>
-                        <h3 class="text-xl font-bold mb-2 text-center">철저한 강사 검증</h3>
-                        <p class="text-gray-700 text-center">각 분야 최고 전문가들만 강사로 선발하며, 정기적인 역량 평가와 피드백을 통해 강의 품질을 유지합니다.
+                        <div class="stats-card">
+                            <div class="stats-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-green-600" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">전문 자격</h3>
+                            <p class="text-3xl font-bold text-green-600 mb-2">100%</p>
+                            <p class="text-gray-600">전 강사진이 해당 분야의 국가자격증 또는 국제인증 자격 보유</p>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stats-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-purple-600" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">학생 만족도</h3>
+                            <p class="text-3xl font-bold text-purple-600 mb-2">96%</p>
+                            <p class="text-gray-600">강의 만족도 조사 결과, 학생들의 높은 만족도 평가</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 강사 자격 요건 -->
+                <div class="instructor-requirements-section mt-16">
+                    <h2 class="text-2xl font-bold mb-8">강사 자격 요건</h2>
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <p class="text-gray-700 mb-6">
+                            디지털헬스케어센터는 각 분야의 최고 전문가들만을 강사로 선발합니다.
+                            다음은 각 자격증별 강사 자격 요건입니다:
                         </p>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 mx-auto">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                            </svg>
+                        <div class="overflow-x-auto">
+                            <table class="requirements-table w-full bg-white rounded-lg overflow-hidden">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                            자격증 분야</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                            학력 요건</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                            경력 요건</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                            자격증 요건</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">건강운동처방
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">체육/스포츠과학 관련 석사 이상
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">관련 분야 5년 이상 경력
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">건강운동관리사 또는 관련
+                                            국가자격증</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">운동재활
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">스포츠의학/물리치료학 관련 석사
+                                            이상</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">재활 분야 7년 이상 경력
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">물리치료사 또는 재활 관련
+                                            국가자격증</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">필라테스
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">체육 관련 학사 이상</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">필라테스 지도 경력 5년 이상
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">국제 인증 필라테스 자격증
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">레크리에이션
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">레저스포츠/체육 관련 학사 이상
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">레크리에이션 지도 경력 3년 이상
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">레크리에이션 지도자 자격증
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <h3 class="text-xl font-bold mb-2 text-center">표준화된 커리큘럼</h3>
-                        <p class="text-gray-700 text-center">모든 강좌는 표준화된 커리큘럼에 따라 진행되며, 최신 연구와 현장 트렌드를 반영하여 정기적으로
-                            업데이트됩니다.</p>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4 mx-auto">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-bold mb-2 text-center">수강생 만족도 조사</h3>
-                        <p class="text-gray-700 text-center">모든 교육 과정 종료 후 수강생들의 피드백을 수집하여 교육 품질을 지속적으로 개선하고 있습니다.</p>
                     </div>
                 </div>
-            </div>
 
-            <!-- 강사 자격 요건 -->
-            <div class="mb-16">
-                <h2 class="text-2xl font-bold mb-6">강사 자격 요건</h2>
-                <div class="bg-gray-50 rounded-lg p-6">
-                    <p class="text-gray-700 mb-4">
-                        디지털헬스케어센터는 각 분야의 최고 전문가들만을 강사로 선발합니다.
-                        다음은 각 자격증별 강사 자격 요건입니다:
-                    </p>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white rounded-lg overflow-hidden">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                                        자격증 분야</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                                        학력 요건</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                                        경력 요건</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                                        자격증 요건</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">건강운동처방
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">체육/스포츠과학 관련 석사 이상</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">관련 분야 5년 이상 경력</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">건강운동관리사 또는 관련 국가자격증
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">운동재활</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">스포츠의학/물리치료학 관련 석사 이상
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">재활 분야 7년 이상 경력</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">물리치료사 또는 재활 관련 국가자격증
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">필라테스</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">체육 관련 학사 이상</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">필라테스 지도 경력 5년 이상</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">국제 인증 필라테스 자격증</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">레크리에이션
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">레저스포츠/체육 관련 학사 이상</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">레크리에이션 지도 경력 3년 이상
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">레크리에이션 지도자 자격증</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 강사 채용 안내 -->
-            <div class="mb-16">
-                <h2 class="text-2xl font-bold mb-6">강사 채용 안내</h2>
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <p class="text-gray-700 mb-6">
-                        디지털헬스케어센터는 우수한 강사진을 지속적으로 모집하고 있습니다.
-                        각 분야의 전문성을 갖춘 분들의 많은 지원 바랍니다.
-                    </p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h3 class="text-xl font-bold mb-4">지원 방법</h3>
-                            <ol class="list-decimal list-inside space-y-2 text-gray-700">
-                                <li>지원서 다운로드 및 작성</li>
-                                <li>필요 서류 준비 (이력서, 자격증 사본 등)</li>
-                                <li>이메일 접수: instructor@digitalhealthcare.org</li>
-                                <li>서류 심사 후 면접 진행</li>
-                            </ol>
+                <!-- 강사 채용 안내 -->
+                <div class="instructor-recruitment-section mt-16">
+                    <h2 class="text-2xl font-bold mb-8">강사 채용 안내</h2>
+                    <div class="bg-white rounded-lg shadow-md p-8">
+                        <p class="text-gray-700 mb-6">
+                            디지털헬스케어센터는 우수한 강사진을 지속적으로 모집하고 있습니다.
+                            각 분야의 전문성을 갖춘 분들의 많은 지원 바랍니다.
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="application-process">
+                                <h3 class="text-xl font-bold mb-4 flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 mr-2"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    지원 방법
+                                </h3>
+                                <ol class="list-decimal list-inside space-y-3 text-gray-700">
+                                    <li>지원서 다운로드 및 작성</li>
+                                    <li>필요 서류 준비 (이력서, 자격증 사본 등)</li>
+                                    <li>이메일 접수: instructor@digitalhealthcare.org</li>
+                                    <li>서류 심사 후 면접 진행</li>
+                                    <li>최종 합격 후 계약 체결</li>
+                                </ol>
+                            </div>
+                            <div class="preferred-qualifications">
+                                <h3 class="text-xl font-bold mb-4 flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600 mr-2"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    우대 사항
+                                </h3>
+                                <ul class="list-disc list-inside space-y-3 text-gray-700">
+                                    <li>관련 분야 논문 게재 경험</li>
+                                    <li>대학 강의 경력</li>
+                                    <li>영어 강의 가능자</li>
+                                    <li>디지털 콘텐츠 제작 경험</li>
+                                    <li>온라인 강의 플랫폼 운영 경험</li>
+                                </ul>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="text-xl font-bold mb-4">우대 사항</h3>
-                            <ul class="list-disc list-inside space-y-2 text-gray-700">
-                                <li>관련 분야 논문 게재 경험</li>
-                                <li>대학 강의 경력</li>
-                                <li>영어 강의 가능자</li>
-                                <li>디지털 콘텐츠 제작 경험</li>
-                            </ul>
+                        <div class="text-center mt-8">
+                            <a href="#"
+                                class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 rounded-md transition-colors">
+                                강사 지원서 다운로드
+                            </a>
                         </div>
                     </div>
-                    <div class="mt-6 text-center">
-                        <a href="#"
-                            class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-md">
-                            강사 지원서 다운로드
-                        </a>
-                    </div>
                 </div>
             </div>
-
-            <!-- CTA 섹션 -->
-            <div class="bg-gradient-to-r from-blue-600 to-green-500 rounded-xl p-8 text-white text-center">
-                <h2 class="text-2xl font-bold mb-4">디지털헬스케어센터의 사업에 참여하세요</h2>
-                <p class="text-lg mb-6 max-w-2xl mx-auto">
-                    연구, 교육, 국제협력 등 다양한 사업을 통해 건강운동 분야의
-                    전문가로 성장하고 함께 발전해 나가세요.
-                </p>
-                <div class="flex flex-wrap justify-center gap-4">
-                    <a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
-                        class="bg-white text-blue-600 hover:bg-gray-100 px-6 py-3 rounded-md font-medium">교육 과정 알아보기</a>
-                    <a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
-                        class="bg-transparent hover:bg-white hover:text-blue-600 text-white border border-white px-6 py-3 rounded-md font-medium">자격증
-                        정보 보기</a>
-                </div>
-            </div>
-        </div>
+        </section>
     </main>
 
-    <!-- 푸터 영역 -->
-    <footer class="bg-gray-800 text-white py-12">
+    <!-- 개선된 CTA 섹션 -->
+    <section class="cta-section">
         <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <h2 class="cta-title">최고의 강사진과 함께<br>전문 역량을 키워보세요</h2>
+            <p class="cta-description">각 분야 최고의 전문가들과 함께<br>여러분의 전문성을 한 단계 더 높여보세요</p>
+            <div class="cta-buttons">
+                <a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
+                    class="cta-button primary">교육과정 살펴보기</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
+                    class="cta-button secondary">자격증 정보 보기</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white">
+        <div class="container mx-auto px-4 py-8">
+            <!-- 상단: 메인 정보 섹션 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-6">
+                <!-- 기관 정보 -->
                 <div>
-                    <h3 class="text-lg font-bold mb-4">디지털헬스케어센터</h3>
-                    <p class="text-gray-400 mb-4">운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼</p>
+                    <h3 class="text-lg font-bold mb-4 text-white">디지털헬스케어센터</h3>
+                    <p class="text-gray-400 mb-4 text-sm leading-relaxed">
+                        운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼
+                    </p>
+                    <!-- SNS 링크 -->
                     <div class="flex space-x-4 mt-4">
-                        <a href="#" class="text-gray-400 hover:text-white">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="인스타그램">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="h-5 w-5">
-                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-                            </svg>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="h-5 w-5">
+                                stroke-linejoin="round" class="h-6 w-6">
                                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                <path d="m16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                                 <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                             </svg>
                         </a>
-                        <a href="#" class="text-gray-400 hover:text-white">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="유튜브">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="h-5 w-5">
+                                fill="currentColor" class="h-6 w-6">
                                 <path
-                                    d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
-                                </path>
-                            </svg>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="h-5 w-5">
-                                <path
-                                    d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z">
-                                </path>
-                                <rect x="2" y="9" width="4" height="12"></rect>
-                                <circle cx="4" cy="4" r="2"></circle>
+                                    d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                             </svg>
                         </a>
                     </div>
                 </div>
+
+                <!-- 바로가기 -->
                 <div>
-                    <h3 class="text-lg font-bold mb-4">바로가기</h3>
+                    <h3 class="text-lg font-bold mb-4 text-white">바로가기</h3>
                     <ul class="space-y-2">
-                        <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')" class="text-gray-400 hover:text-white">기관 소개</a></li>
-                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')" class="text-gray-400 hover:text-white">자격증
-                                소개</a></li>
-                        <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')" class="text-gray-400 hover:text-white">교육 과정</a>
-                        </li>
-                        <li><a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')" class="text-gray-400 hover:text-white">공지사항</a></li>
-                        <li><a href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')" class="text-gray-400 hover:text-white">전문가 칼럼</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
+                                class="text-gray-400 hover:text-white transition-colors text-sm">기관 소개</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
+                                class="text-gray-400 hover:text-white transition-colors text-sm">자격증 소개</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
+                                class="text-gray-400 hover:text-white transition-colors text-sm">교육 과정</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')"
+                                class="text-gray-400 hover:text-white transition-colors text-sm">공지사항</a></li>
                     </ul>
                 </div>
+
+                <!-- 자격증 정보 -->
                 <div>
-                    <h3 class="text-lg font-bold mb-4">자격증 정보</h3>
+                    <h3 class="text-lg font-bold mb-4 text-white">자격증 정보</h3>
                     <ul class="space-y-2">
                         <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
-                                class="text-gray-400 hover:text-white">건강운동처방사</a></li>
+                                class="text-gray-400 hover:text-white transition-colors text-sm">건강운동처방사</a></li>
                         <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
-                                class="text-gray-400 hover:text-white">운동재활전문가</a></li>
-                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')" class="text-gray-400 hover:text-white">필라테스 전문가</a>
-                        </li>
+                                class="text-gray-400 hover:text-white transition-colors text-sm">운동재활전문가</a></li>
+                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
+                                class="text-gray-400 hover:text-white transition-colors text-sm">필라테스 전문가</a></li>
                         <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
-                                class="text-gray-400 hover:text-white">레크리에이션지도자</a></li>
+                                class="text-gray-400 hover:text-white transition-colors text-sm">레크리에이션지도자</a></li>
                     </ul>
                 </div>
-                <div>
-                    <h3 class="text-lg font-bold mb-4">고객 지원</h3>
-                    <ul class="space-y-2">
-                        <li class="flex items-center text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="h-4 w-4 mr-2">
-                                <path
-                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
-                                </path>
-                            </svg>
-                            <span>02-123-4567</span>
-                        </li>
-                        <li class="flex items-center text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="h-4 w-4 mr-2">
-                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
-                                </path>
-                                <polyline points="22,6 12,13 2,6"></polyline>
-                            </svg>
-                            <span>info@digitalhealthcare.org</span>
-                        </li>
-                        <li class="flex items-center text-gray-400 mt-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="h-4 w-4 mr-2">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                <circle cx="12" cy="10" r="3"></circle>
-                            </svg>
-                            <span>서울특별시 강남구 테헤란로 123</span>
-                        </li>
-                    </ul>
-                    <div class="mt-4">
-                        <a href="#" class="text-blue-400 hover:text-blue-300">문의하기</a>
+            </div>
+
+            <!-- 중간: 사업자 정보 -->
+            <div class="border-t border-gray-700 pt-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-400">
+                    <div>
+                        <p class="mb-1">상호: 사&rpar;문경 부설 헬스케어센터</p>
+                        <p class="mb-1">주소: 서울특별시 강남구 테헤란로 123</p>
+                        <p class="mb-1">전화: 02-123-4567</p>
+                    </div>
+                    <div>
+                        <p class="mb-1">이메일: info@digitalhealthcare.org</p>
+                        <p class="mb-1">사업자등록번호: 123-45-67890</p>
+                        <p class="mb-1">통신판매신고번호: 제2024-서울강남-1234호</p>
                     </div>
                 </div>
             </div>
-            <div class="border-t border-gray-700 mt-8 pt-8 text-sm text-gray-400">
-                <div class="flex flex-col md:flex-row justify-between">
+
+            <!-- 하단: 저작권 정보 -->
+            <div class="border-t border-gray-700 pt-4">
+                <div class="flex flex-col md:flex-row justify-between items-center">
                     <div class="mb-4 md:mb-0">
-                        <p>&copy; 2025 디지털헬스케어센터. All rights reserved.</p>
+                        <p class="text-sm text-gray-400">&copy; 2025 디지털헬스케어센터. All rights reserved.</p>
                     </div>
-                    <div class="flex space-x-4">
-                        <a href="#" class="hover:text-white">개인정보처리방침</a>
-                        <a href="#" class="hover:text-white">이용약관</a>
-                        <a href="#" class="hover:text-white">사이트맵</a>
+                    <div class="text-right">
+                        <p class="text-xs text-gray-500">
+                            <a href="#" class="hover:text-white transition-colors">문의하기</a>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- Firebase SDK 템플릿 (script-loader.js에 의해 처리됨) -->
+    <!-- Firebase SDK 템플릿 -->
     <script id="firebase-sdk-template" type="text/template">
-        <!-- Firebase SDK - CDN 방식 -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
         <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
         <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
         <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
-
-        <!-- 프로젝트 Firebase 설정 및 서비스 -->
         <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
         <script src="{basePath}assets/js/services/auth-service.js"><\/script>
-
-        <!-- 로컬 테스트용 인증 오버라이드 (개발 완료 후 제거) -->
-        <script src="{basePath}assets/js/services/local-auth-override.js"><\/script>
-
-        <!-- 필요한 서비스 모듈 -->
+        
         <script src="{basePath}assets/js/services/db-service.js"><\/script>
         <script src="{basePath}assets/js/services/storage-service.js"><\/script>
     </script>
 
-    <!-- 추가 스크립트 템플릿 (페이지별 필요한 스크립트) -->
+    <!-- 추가 스크립트 템플릿 -->
     <script id="additional-scripts-template" type="text/template">
-        <!-- 페이지별 필요한 스크립트 -->
-    <script src="{basePath}assets/js/components/header.js"><\/script>
-        <script src="{basePath}assets/js/utils/formatters.js"><\/script>
-        <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
-    </script>
-
-    <!-- 강사 페이지 특정 스크립트 -->
-    <script>
-        // 강사 탭 필터링 기능
-        document.addEventListener('DOMContentLoaded', function () {
-            const instructorTabs = document.querySelectorAll('.instructor-tab');
-            const instructorCards = document.querySelectorAll('.instructor-card');
-
-            instructorTabs.forEach(tab => {
-                tab.addEventListener('click', function () {
-                    // 모든 탭에서 active 클래스 제거
-                    instructorTabs.forEach(t => {
-                        t.classList.remove('active', 'bg-white', 'shadow-sm', 'text-blue-600', 'font-medium');
-                        t.classList.add('text-gray-700', 'hover:bg-white', 'hover:text-blue-600');
-                    });
-
-                    // 클릭된 탭에 active 클래스 추가
-                    this.classList.add('active', 'bg-white', 'shadow-sm', 'text-blue-600', 'font-medium');
-                    this.classList.remove('text-gray-700', 'hover:bg-white', 'hover:text-blue-600');
-
-                    const category = this.getAttribute('data-category');
-
-                    // 강사 카드 필터링
-                    instructorCards.forEach(card => {
-                        if (category === 'all' || card.getAttribute('data-category') === category) {
-                            card.style.display = 'block';
-                        } else {
-                            card.style.display = 'none';
-                        }
-                    });
-                });
-            });
-        });
+        <script src="{basePath}assets/js/components/header.js"><\/script>
+        <script src="{basePath}assets/js/pages/about/instructors.js"><\/script>
+        <script src="{basePath}assets/js/main.js"><\/script>
     </script>
 </body>
 

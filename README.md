@@ -113,7 +113,7 @@ digital-healthcare-center/
 │   │   │   └── pagination.css # 페이지네이션 스타일 ✓
 │   │   │
 │   │   ├── pages/            # 페이지별 스타일
-│   │   │   ├── about.css     # 홈페이지 특정 스타일 ✓
+│   │   │   ├── about.css     # 기관소개페이지 공통 및 특정 스타일 ✓
 │   │   │   ├── home.css      # 홈페이지 특정 스타일 ✓
 │   │   │   ├── certificate.css # 자격증 페이지 스타일 ✓
 │   │   │   ├── education.css # 교육 페이지 스타일 ✓
@@ -163,7 +163,11 @@ digital-healthcare-center/
 │   │       ├── board.js      # 게시판 페이지 스크립트 ✓
 │   │       ├── auth.js       # 인증 페이지 공통 기능 ✓
 │   │       ├── about/         # 기관 소개 개별 페이지 스크립트
-│   │       │   └── overview.js  # 개요 페이지 스크립트 ✓
+│   │       │   ├── business.js  # 사업내용 페이지 스크립트 ✓
+│   │       │   ├── instructors.js # 강사소개 페이지 스크립트 ✓
+│   │       │   ├── organization.js # 조직도 페이지 스크립트 ✓
+│   │       │   ├── overview.js # 개요 페이지 스크립트 ✓
+│   │       │   └── vision.js  # 목표 및 전략 페이지 스크립트 ✓
 │   │       ├── auth/         # 인증 관련 개별 페이지 스크립트
 │   │       │   ├── login.js  # 로그인 페이지 스크립트 ✓
 │   │       │   ├── signup.js # 회원가입 페이지 스크립트 ✓
