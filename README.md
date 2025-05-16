@@ -159,7 +159,13 @@ digital-healthcare-center/
 │   │   └── pages/            # 페이지별 스크립트
 │   │       ├── home.js       # 홈페이지 스크립트 ✓
 │   │       ├── certificate.js # 자격증 페이지 공통 기능 ✓
-│   │       ├── education.js  # 교육 페이지 스크립트 ✓
+│   │       ├── education/  # 교육 페이지 개별 스크립트 ✓
+│   │       │   ├── cert-application.js # 자격증 신청 페이지 스크립트 ✓
+│   │       │   ├── cert-issuance.js #  자격증 발급 페이지 스크립트 ✓
+│   │       │   ├── cert-renew.js # 자격증 갱신 페이지 스크립트 ✓
+│   │       │   ├── course-info.js  # 교육 과정 안내 페이지 스크립트 ✓
+│   │       │   ├── exam-info.js # 시험 안내 페이지 스크립트 ✓
+│   │       │   └── payment.js  # 결제 페이지 스크립트 ✓
 │   │       ├── board.js      # 게시판 페이지 스크립트 ✓
 │   │       ├── auth.js       # 인증 페이지 공통 기능 ✓
 │   │       ├── about/         # 기관 소개 개별 페이지 스크립트

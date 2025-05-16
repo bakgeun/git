@@ -1,10 +1,39 @@
 /**
  * board.js
- * 게시판 관련 공통 기능
+ * 게시판 관련 공통 기능 개선
  */
+
+console.log('=== board.js 파일 로드 시작 ===');
 
 // 즉시 실행 함수 표현식(IIFE)을 사용하여 전역 네임스페이스 오염 방지
 (function() {
+    'use strict';
+    
+    console.log('board.js IIFE 초기화');
+    
+    // Firebase와 서비스 준비 대기
+    async function waitForServices() {
+        console.log('서비스 준비 대기 중...');
+        
+        // Firebase가 로드되기를 기다림
+        while (!window.firebase || !window.dhcFirebase) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        // authService가 로드되기를 기다림
+        while (!window.authService) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        // dbService가 로드되기를 기다림
+        while (!window.dbService) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        console.log('모든 서비스 준비 완료');
+        return true;
+    }
+
     // 게시판 타입별 설정
     const boardConfig = {
         notice: {
@@ -90,25 +119,51 @@
 
     // 권한 확인
     function hasPermission(action, boardType, userId = null, authorId = null) {
-        const user = authService.getCurrentUser();
+        console.log(`권한 확인: ${action}, ${boardType}, ${userId}, ${authorId}`);
+        
         const config = boardConfig[boardType];
-        if (!config) return false;
+        if (!config) {
+            console.log('게시판 설정 없음');
+            return false;
+        }
 
         const permissions = config.permissions[action];
-        if (!permissions) return false;
+        if (!permissions) {
+            console.log('권한 설정 없음');
+            return false;
+        }
 
         // 모든 사용자 허용
-        if (permissions.includes('all')) return true;
+        if (permissions.includes('all')) {
+            console.log('모든 사용자 허용');
+            return true;
+        }
 
         // 로그인하지 않은 사용자
-        if (!user) return false;
+        if (!window.authService || !window.authService.getCurrentUser()) {
+            console.log('로그인 안됨');
+            return false;
+        }
+
+        const user = window.authService.getCurrentUser();
+        if (!user) {
+            console.log('현재 사용자 없음');
+            return false;
+        }
 
         // 특정 역할 확인
-        if (permissions.includes(user.role)) return true;
+        if (permissions.includes(user.role)) {
+            console.log(`역할 매치: ${user.role}`);
+            return true;
+        }
 
         // 작성자 권한 확인
-        if (permissions.includes('author') && userId && authorId && userId === authorId) return true;
+        if (permissions.includes('author') && userId && authorId && userId === authorId) {
+            console.log('작성자 권한 매치');
+            return true;
+        }
 
+        console.log('권한 없음');
         return false;
     }
 
@@ -118,10 +173,31 @@
         return config && config.categories[categoryKey] ? config.categories[categoryKey] : categoryKey;
     }
 
+    // 로딩 표시
+    function showLoading(element) {
+        if (element) {
+            element.innerHTML = `
+                <tr class="loading-row">
+                    <td colspan="6" class="px-6 py-4 text-center">
+                        <div class="loading-spinner"></div>
+                        <span class="ml-2">로딩 중...</span>
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
     // 목록 페이지 초기화
     function initListPage() {
+        console.log('목록 페이지 초기화');
+        
         const boardType = getBoardType();
-        if (!boardType) return;
+        if (!boardType) {
+            console.log('게시판 타입 확인 실패');
+            return;
+        }
+
+        console.log(`게시판 타입: ${boardType}`);
 
         let currentPage = 1;
         let lastDoc = null;
@@ -131,6 +207,17 @@
 
         // 게시글 목록 가져오기
         async function loadPosts(reset = false) {
+            console.log(`게시글 로드: reset=${reset}`);
+            
+            const tbody = document.getElementById('notice-list');
+            if (!tbody) {
+                console.log('게시글 목록 요소 없음');
+                return;
+            }
+
+            // 로딩 표시
+            showLoading(tbody);
+
             if (reset) {
                 currentPage = 1;
                 lastDoc = null;
@@ -149,9 +236,12 @@
             }
 
             try {
+                await waitForServices();
+                
                 let result;
                 if (searchQuery) {
                     // 검색 쿼리가 있는 경우
+                    console.log(`검색 실행: ${searchQuery}`);
                     result = await dbService.searchDocuments(collection, 'title', searchQuery, options);
                 } else {
                     // 일반 페이지네이션
@@ -159,26 +249,38 @@
                 }
 
                 if (result.success) {
-                    if (reset) {
-                        displayPosts(result.data, true);
-                    } else {
-                        displayPosts(result.data, false);
-                    }
-                    
+                    displayPosts(result.data, reset);
                     lastDoc = result.lastDoc;
                     hasMore = result.hasMore;
                     updatePagination();
                 } else {
                     console.error('게시글 로드 실패:', result.error);
+                    showError(tbody, '게시글을 불러오는 중 오류가 발생했습니다.');
                 }
             } catch (error) {
                 console.error('게시글 로드 중 오류:', error);
+                showError(tbody, '게시글을 불러오는 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 오류 표시
+        function showError(tbody, message) {
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-red-500">
+                            ${message}
+                        </td>
+                    </tr>
+                `;
             }
         }
 
         // 게시글 표시
         function displayPosts(posts, reset = false) {
-            const tbody = document.getElementById(`${boardType === 'notice' ? 'notice' : 'post'}-list`);
+            console.log(`게시글 표시: ${posts.length}개, reset=${reset}`);
+            
+            const tbody = document.getElementById('notice-list');
             if (!tbody) return;
 
             if (reset) {
@@ -187,9 +289,15 @@
 
             if (posts.length === 0 && reset) {
                 tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                            등록된 게시글이 없습니다.
+                    <tr class="no-results">
+                        <td colspan="6" class="px-6 py-12 text-center">
+                            <div class="icon">
+                                <svg class="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">검색 결과가 없습니다</h3>
+                            <p class="text-gray-500">다른 검색어로 다시 시도해 보세요.</p>
                         </td>
                     </tr>
                 `;
@@ -198,26 +306,26 @@
 
             posts.forEach((post, index) => {
                 const number = (currentPage - 1) * 10 + index + 1;
-                const date = post.createdAt ? new Date(post.createdAt.seconds * 1000).toLocaleDateString() : '';
+                const date = post.createdAt ? new Date(post.createdAt.seconds * 1000).toLocaleDateString('ko-KR') : '';
                 const categoryText = getCategoryText(boardType, post.category);
                 
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${number}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${number}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="category-badge ${post.category}">
                             ${categoryText}
                         </span>
                     </td>
                     <td class="px-6 py-4">
-                        <a href="view.html?id=${post.id}" class="text-gray-900 hover:text-blue-600">
+                        <a href="view.html?id=${post.id}" class="post-title-link">
                             ${post.title}
-                            ${post.attachments && post.attachments.length > 0 ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>' : ''}
+                            ${post.attachments && post.attachments.length > 0 ? '<svg class="attachment-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>' : ''}
                         </a>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 hidden md:table-cell">${post.authorName || '관리자'}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 hidden md:table-cell">${date}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 hidden md:table-cell">${post.views || 0}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">${post.authorName || '관리자'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">${date}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">${post.views || 0}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -233,7 +341,7 @@
             // 이전 페이지 버튼
             if (currentPage > 1) {
                 const prevButton = document.createElement('button');
-                prevButton.className = 'relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50';
+                prevButton.className = 'relative inline-flex items-center px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50';
                 prevButton.innerHTML = '이전';
                 prevButton.onclick = () => {
                     currentPage--;
@@ -243,15 +351,15 @@
             }
 
             // 페이지 번호
-            const pageButton = document.createElement('span');
-            pageButton.className = 'relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700';
-            pageButton.textContent = `${currentPage}`;
-            pagination.appendChild(pageButton);
+            const pageSpan = document.createElement('span');
+            pageSpan.className = 'relative inline-flex items-center px-4 py-2 border border-gray-300 bg-gray-50 text-sm font-medium text-gray-900';
+            pageSpan.textContent = `${currentPage} 페이지`;
+            pagination.appendChild(pageSpan);
 
             // 다음 페이지 버튼
             if (hasMore) {
                 const nextButton = document.createElement('button');
-                nextButton.className = 'relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50';
+                nextButton.className = 'relative inline-flex items-center px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50';
                 nextButton.innerHTML = '다음';
                 nextButton.onclick = () => {
                     currentPage++;
@@ -263,12 +371,15 @@
 
         // 검색 기능
         function setupSearch() {
+            console.log('검색 기능 설정');
+            
             const searchInput = document.getElementById('search-input');
             const searchButton = document.getElementById('search-button');
             const categorySelect = document.getElementById('category-filter');
 
             if (searchButton) {
                 searchButton.addEventListener('click', () => {
+                    console.log('검색 버튼 클릭');
                     searchQuery = searchInput ? searchInput.value.trim() : '';
                     categoryFilter = categorySelect ? categorySelect.value : '';
                     loadPosts(true);
@@ -278,6 +389,7 @@
             if (searchInput) {
                 searchInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
+                        console.log('검색 엔터키 입력');
                         searchQuery = searchInput.value.trim();
                         categoryFilter = categorySelect ? categorySelect.value : '';
                         loadPosts(true);
@@ -287,6 +399,7 @@
 
             if (categorySelect) {
                 categorySelect.addEventListener('change', () => {
+                    console.log('카테고리 변경');
                     categoryFilter = categorySelect.value;
                     loadPosts(true);
                 });
@@ -294,28 +407,46 @@
         }
 
         // 글쓰기 버튼 권한 확인
-        function checkWritePermission() {
-            const writeButton = document.getElementById('write-button');
-            if (writeButton && hasPermission('write', boardType)) {
-                writeButton.classList.remove('hidden');
-                writeButton.addEventListener('click', () => {
-                    window.location.href = 'write.html';
-                });
+        async function checkWritePermission() {
+            console.log('글쓰기 권한 확인');
+            
+            try {
+                await waitForServices();
+                
+                const writeButton = document.getElementById('write-button');
+                if (writeButton && hasPermission('write', boardType)) {
+                    console.log('글쓰기 권한 있음');
+                    writeButton.classList.remove('hidden');
+                    writeButton.addEventListener('click', () => {
+                        console.log('글쓰기 버튼 클릭');
+                        window.location.href = 'write.html';
+                    });
+                } else {
+                    console.log('글쓰기 권한 없음');
+                }
+            } catch (error) {
+                console.error('글쓰기 권한 확인 오류:', error);
             }
         }
 
         // 총 게시글 수 업데이트
         async function updateTotalCount() {
+            console.log('총 게시글 수 업데이트');
+            
             const collection = boardConfig[boardType].collection;
             const options = categoryFilter ? { where: { field: 'category', operator: '==', value: categoryFilter } } : {};
             
             try {
+                await waitForServices();
+                
                 const result = await dbService.countDocuments(collection, options);
                 if (result.success) {
                     const totalCount = document.getElementById('total-count');
                     if (totalCount) {
                         totalCount.textContent = result.count;
                     }
+                } else {
+                    console.error('게시글 수 조회 실패:', result.error);
                 }
             } catch (error) {
                 console.error('게시글 수 조회 오류:', error);
@@ -323,6 +454,7 @@
         }
 
         // 초기화
+        console.log('목록 페이지 초기화 시작');
         setupSearch();
         checkWritePermission();
         loadPosts(true);
@@ -331,8 +463,13 @@
 
     // 상세보기 페이지 초기화
     function initViewPage() {
+        console.log('상세보기 페이지 초기화');
+        
         const boardType = getBoardType();
-        if (!boardType) return;
+        if (!boardType) {
+            console.log('게시판 타입 확인 실패');
+            return;
+        }
 
         // URL에서 게시글 ID 가져오기
         const urlParams = new URLSearchParams(window.location.search);
@@ -344,18 +481,27 @@
             return;
         }
 
+        console.log(`게시글 ID: ${postId}`);
+
         // 게시글 정보 로드
         async function loadPost() {
+            console.log('게시글 로드 시작');
+            
             const collection = boardConfig[boardType].collection;
             
             try {
+                await waitForServices();
+                
                 const result = await dbService.getDocument(collection, postId);
                 
                 if (result.success) {
+                    console.log('게시글 로드 성공');
                     displayPost(result.data);
                     updateViews(postId);
                     loadPrevNextPost(postId);
+                    checkAdminButtons(result.data);
                 } else {
+                    console.error('게시글 로드 실패:', result.error);
                     alert('게시글을 찾을 수 없습니다.');
                     window.location.href = 'index.html';
                 }
@@ -367,6 +513,8 @@
 
         // 게시글 표시
         function displayPost(post) {
+            console.log('게시글 표시');
+            
             // 제목
             const titleElement = document.getElementById(`${boardType === 'notice' ? 'notice' : 'post'}-title`);
             if (titleElement) titleElement.textContent = post.title;
@@ -377,12 +525,15 @@
             
             // 카테고리
             const categoryElement = document.getElementById(`${boardType === 'notice' ? 'notice' : 'post'}-category`);
-            if (categoryElement) categoryElement.textContent = getCategoryText(boardType, post.category);
+            if (categoryElement) {
+                const categoryText = getCategoryText(boardType, post.category);
+                categoryElement.innerHTML = `<span class="category-badge ${post.category}">${categoryText}</span>`;
+            }
             
             // 작성일
             const dateElement = document.getElementById(`${boardType === 'notice' ? 'notice' : 'post'}-date`);
             if (dateElement && post.createdAt) {
-                dateElement.textContent = new Date(post.createdAt.seconds * 1000).toLocaleDateString();
+                dateElement.textContent = new Date(post.createdAt.seconds * 1000).toLocaleDateString('ko-KR');
             }
             
             // 작성자
@@ -396,21 +547,24 @@
             // 내용
             const contentElement = document.getElementById(`${boardType === 'notice' ? 'notice' : 'post'}-content`);
             if (contentElement) {
-                // XSS 방지를 위한 기본적인 처리
-                contentElement.innerHTML = post.content.replace(/\n/g, '<br>');
+                // XSS 방지를 위한 기본적인 처리 및 줄바꿈 처리
+                contentElement.innerHTML = post.content
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/\n/g, '<br>');
             }
             
             // 첨부파일
             if (post.attachments && post.attachments.length > 0) {
                 displayAttachments(post.attachments);
             }
-            
-            // 관리자 버튼 표시
-            checkAdminButtons(post);
         }
 
         // 조회수 증가
         async function updateViews(postId) {
+            console.log('조회수 증가');
+            
             const collection = boardConfig[boardType].collection;
             
             try {
@@ -420,6 +574,7 @@
                     await dbService.updateDocument(collection, postId, {
                         views: currentViews + 1
                     });
+                    console.log(`조회수 업데이트 완료: ${currentViews + 1}`);
                 }
             } catch (error) {
                 console.error('조회수 업데이트 오류:', error);
@@ -428,6 +583,8 @@
 
         // 첨부파일 표시
         function displayAttachments(attachments) {
+            console.log(`첨부파일 표시: ${attachments.length}개`);
+            
             const attachmentsSection = document.getElementById(`${boardType === 'notice' ? 'notice' : 'post'}-attachments`);
             const attachmentList = document.getElementById('attachment-list');
             
@@ -438,9 +595,9 @@
                 attachments.forEach(attachment => {
                     const li = document.createElement('li');
                     li.innerHTML = `
-                        <a href="${attachment.url}" target="_blank" class="flex items-center text-blue-600 hover:text-blue-800">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        <a href="${attachment.url}" target="_blank" class="flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-200">
+                            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
                             ${attachment.name} (${formatFileSize(attachment.size)})
                         </a>
@@ -460,40 +617,57 @@
         }
 
         // 관리자 버튼 권한 확인
-        function checkAdminButtons(post) {
-            const adminButtons = document.getElementById('admin-buttons');
-            const user = authService.getCurrentUser();
+        async function checkAdminButtons(post) {
+            console.log('관리자 버튼 권한 확인');
             
-            if (adminButtons && user) {
-                if (hasPermission('edit', boardType, user.id, post.authorId)) {
-                    const editButton = document.getElementById('edit-button');
-                    if (editButton) {
-                        editButton.addEventListener('click', () => {
-                            window.location.href = `write.html?id=${postId}`;
-                        });
+            try {
+                await waitForServices();
+                
+                const adminButtons = document.getElementById('admin-buttons');
+                const user = authService.getCurrentUser();
+                
+                if (adminButtons && user) {
+                    let showButtons = false;
+                    
+                    // 수정 버튼
+                    if (hasPermission('edit', boardType, user.id, post.authorId)) {
+                        const editButton = document.getElementById('edit-button');
+                        if (editButton) {
+                            editButton.classList.remove('hidden');
+                            editButton.addEventListener('click', () => {
+                                window.location.href = `write.html?id=${postId}`;
+                            });
+                            showButtons = true;
+                        }
+                    }
+                    
+                    // 삭제 버튼
+                    if (hasPermission('delete', boardType, user.id, post.authorId)) {
+                        const deleteButton = document.getElementById('delete-button');
+                        if (deleteButton) {
+                            deleteButton.classList.remove('hidden');
+                            deleteButton.addEventListener('click', () => {
+                                if (confirm('정말 삭제하시겠습니까?')) {
+                                    deletePost(postId);
+                                }
+                            });
+                            showButtons = true;
+                        }
+                    }
+                    
+                    if (showButtons) {
+                        adminButtons.classList.remove('hidden');
                     }
                 }
-                
-                if (hasPermission('delete', boardType, user.id, post.authorId)) {
-                    const deleteButton = document.getElementById('delete-button');
-                    if (deleteButton) {
-                        deleteButton.addEventListener('click', () => {
-                            if (confirm('정말 삭제하시겠습니까?')) {
-                                deletePost(postId);
-                            }
-                        });
-                    }
-                }
-                
-                if (hasPermission('edit', boardType, user.id, post.authorId) || 
-                    hasPermission('delete', boardType, user.id, post.authorId)) {
-                    adminButtons.classList.remove('hidden');
-                }
+            } catch (error) {
+                console.error('관리자 버튼 권한 확인 오류:', error);
             }
         }
 
         // 게시글 삭제
         async function deletePost(postId) {
+            console.log('게시글 삭제 시도');
+            
             const collection = boardConfig[boardType].collection;
             
             try {
@@ -503,6 +677,7 @@
                     alert('게시글이 삭제되었습니다.');
                     window.location.href = 'index.html';
                 } else {
+                    console.error('게시글 삭제 실패:', result.error);
                     alert('게시글 삭제 중 오류가 발생했습니다.');
                 }
             } catch (error) {
@@ -513,6 +688,8 @@
 
         // 이전글/다음글 로드
         async function loadPrevNextPost(currentPostId) {
+            console.log('이전/다음 게시글 로드');
+            
             const collection = boardConfig[boardType].collection;
             
             try {
@@ -534,7 +711,7 @@
                     displayPrevNextPost('prev', prevResult.data[0]);
                 }
                 
-                // 다음글 (더 오래된 게시글)
+                // 다음글 (더 오래된 게시글)  
                 const nextResult = await dbService.getDocuments(collection, {
                     where: { field: 'createdAt', operator: '<', value: currentDate },
                     orderBy: { field: 'createdAt', direction: 'desc' },
@@ -557,34 +734,61 @@
                 const link = container.querySelector('a');
                 if (link) {
                     link.href = `view.html?id=${post.id}`;
-                    link.querySelector('.flex-1').textContent = post.title;
+                    const titleElement = link.querySelector('.flex-1');
+                    if (titleElement) {
+                        titleElement.textContent = post.title;
+                    }
                 }
             }
         }
 
         // 초기화
+        console.log('상세보기 페이지 초기화 시작');
         loadPost();
     }
 
     // 페이지 초기화
-    function init() {
-        const boardType = getBoardType();
-        if (!boardType) return;
+    async function init() {
+        console.log('board.js 초기화 시작');
+        
+        try {
+            // 서비스 대기
+            await waitForServices();
+            
+            const boardType = getBoardType();
+            if (!boardType) {
+                console.log('게시판 타입 확인 실패');
+                return;
+            }
 
-        if (isListPage()) {
-            initListPage();
-        } else {
-            initViewPage();
+            console.log(`게시판 타입: ${boardType}`);
+
+            if (isListPage()) {
+                console.log('목록 페이지 초기화');
+                initListPage();
+            } else {
+                console.log('상세보기 페이지 초기화');
+                initViewPage();
+            }
+        } catch (error) {
+            console.error('board.js 초기화 오류:', error);
         }
     }
 
     // DOMContentLoaded 이벤트 리스너
-    document.addEventListener('DOMContentLoaded', init);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 
     // 전역 객체에 필요한 함수 노출
     window.boardService = {
         getBoardType,
         hasPermission,
-        getCategoryText
+        getCategoryText,
+        init
     };
+
+    console.log('=== board.js 파일 로드 완료 ===');
 })();

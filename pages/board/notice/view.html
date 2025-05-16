@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,97 +8,298 @@
     <meta name="description" content="디지털헬스케어센터의 공지사항입니다.">
     <link rel="icon" href="../../../assets/images/logo/logo.jpeg">
     <link rel="manifest" href="../../../manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="../../../assets/css/main.css">
+    <!-- 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
+    <script src="../../../assets/js/utils/script-loader.js"></script>
 </head>
+
 <body>
-    <header id="main-header" class="bg-white shadow-md">
+    <!-- 헤더 영역 -->
+    <header id="main-header">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="logo">
-                <a href="../../../index.html">
-                    <img src="../../../assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" class="logo-image">
+            <div class="logo flex items-center">
+                <a href="javascript:window.location.href=window.adjustPath('index.html')">
+                    <div class="flex items-center">
+                        <img src="../../../assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" class="logo-image">
+                        <div class="ml-3">
+                            <span class="organization-name">사&rpar;문경 부설 헬스케어센터</span>
+                        </div>
+                    </div>
                 </a>
             </div>
             <nav class="main-nav hidden md:flex">
                 <ul class="flex space-x-6">
-                    <li class="group relative">
-                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">기관 소개</a>
-                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="../../about/overview.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">개요</a></li>
-                            <li><a href="../../about/vision.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">목표 및 전략</a></li>
-                            <li><a href="../../about/business.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">사업 내용</a></li>
-                            <li><a href="../../about/organization.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
-                            <li><a href="../../about/instructors.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">기관 소개</a>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">개요</a>
+                            </li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">목표 및 전략</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/business.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">사업 내용</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
                         </ul>
                     </li>
-                    <li class="group relative">
-                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">자격증 소개</a>
-                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="../../certificate/health-exercise.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">건강운동처방사</a></li>
-                            <li><a href="../../certificate/rehabilitation.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동재활전문가</a></li>
-                            <li><a href="../../certificate/pilates.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스 전문가</a></li>
-                            <li><a href="../../certificate/recreation.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">자격증 소개</a>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">건강운동처방사</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동재활전문가</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스 전문가</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
                         </ul>
                     </li>
-                    <li class="group relative">
-                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">교육 과정</a>
-                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="../../education/course-info.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 과정 안내</a></li>
-                            <li><a href="../../education/course-application.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
-                            <li><a href="../../education/cert-application.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">자격증 신청</a></li>
-                            <li><a href="../../education/exam-info.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">시험 안내</a></li>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">교육 과정</a>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 과정 안내</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">자격증 신청</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/exam-info.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">시험 안내</a></li>
                         </ul>
                     </li>
-                    <li class="group relative">
-                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2">게시판</a>
-                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="../notice/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md bg-gray-100">공지사항</a></li>
-                            <li><a href="../column/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">칼럼</a></li>
-                            <li><a href="../materials/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">강의자료</a></li>
-                            <li><a href="../videos/index.html" class="block px-4 py-2 hover:bg-gray-100 rounded-md">동영상 강의</a></li>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-blue-600 font-bold py-2 nav-link">게시판</a>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600 font-medium">공지사항</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">칼럼</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/materials/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">강의자료</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/videos/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">동영상 강의</a></li>
                         </ul>
                     </li>
                 </ul>
             </nav>
             <div class="auth-buttons flex items-center">
-                <a href="../../auth/login.html" class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
-                <a href="../../auth/signup.html" class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
-                <button id="mobile-menu-button" class="md:hidden ml-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
+                <!-- Firebase에 의해 동적으로 업데이트됨 -->
+                <a href="javascript:window.location.href=window.adjustPath('pages/auth/login.html')"
+                    class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/auth/signup.html')"
+                    class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
             </div>
+            <button id="mobile-menu-button" class="md:hidden ml-4 hamburger-menu" aria-expanded="false"
+                aria-controls="mobile-menu-overlay">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
         </div>
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg py-4">
-            <div class="container mx-auto px-4">
-                <!-- Mobile navigation menu -->
-                <!-- 내용은 JavaScript에서 동적으로 생성 예정 -->
+
+        <!-- Mobile Menu Overlay (KSPO 스타일) -->
+        <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden md:hidden">
+            <div class="bg-white h-full w-full flex flex-col">
+                <!-- 모바일 메뉴 헤더 -->
+                <div class="flex justify-between items-center p-4 bg-blue-600 text-white mobile-menu-header">
+                    <span class="text-lg font-semibold">메뉴</span>
+                    <button id="mobile-menu-close" class="text-2xl font-bold hover:text-gray-200">&times;</button>
+                </div>
+
+                <!-- 모바일 메뉴 컨텐츠 -->
+                <div class="flex-1 overflow-y-auto bg-gray-50 mobile-menu-container">
+                    <div class="p-4">
+                        <!-- 회원 정보 영역 -->
+                        <div class="mb-6 p-4 bg-white rounded-lg shadow-sm mobile-menu-user-info">
+                            <span class="text-blue-600 font-semibold">로그인 해주세요 ></span>
+                        </div>
+
+                        <!-- 메인 메뉴 -->
+                        <div class="space-y-2 mobile-menu-nav">
+                            <!-- 기관 소개 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">🏢</div>
+                                    <div class="menu-text">기관 소개</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    <a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')">개요</a>
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')">목표
+                                        및 전략</a>
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/about/business.html')">사업
+                                        내용</a>
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')">조직도</a>
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')">강사
+                                        소개</a>
+                                </div>
+                            </div>
+
+                            <!-- 자격증 소개 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">🎓</div>
+                                    <div class="menu-text">자격증 소개</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')">건강운동처방사</a>
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')">운동재활전문가</a>
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')">필라테스
+                                        전문가</a>
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')">레크리에이션지도자</a>
+                                </div>
+                            </div>
+
+                            <!-- 교육 과정 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">📚</div>
+                                    <div class="menu-text">교육 과정</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')">교육
+                                        과정 안내</a>
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')">교육
+                                        신청</a>
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')">자격증
+                                        신청</a>
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/exam-info.html')">시험
+                                        안내</a>
+                                </div>
+                            </div>
+
+                            <!-- 게시판 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">📋</div>
+                                    <div class="menu-text">게시판</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')"
+                                        class="active">공지사항</a>
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')">칼럼</a>
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/board/materials/index.html')">강의자료</a>
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/board/videos/index.html')">동영상
+                                        강의</a>
+                                </div>
+                            </div>
+
+                            <!-- 마이페이지 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">👤</div>
+                                    <div class="menu-text">마이페이지</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/personal-info.html')">개인정보
+                                        관리</a>
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/course-history.html')">수강
+                                        내역</a>
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/cert-management.html')">자격증
+                                        관리</a>
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/payment-history.html')">결제
+                                        내역</a>
+                                </div>
+                            </div>
+
+                            <!-- 관리자 (조건부 표시) -->
+                            <div class="mobile-menu-item admin-only" style="display: none;">
+                                <button type="button">
+                                    <div class="menu-icon">⚙️</div>
+                                    <div class="menu-text">관리자</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/admin/dashboard.html')">대시보드</a>
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/admin/user-management.html')">회원
+                                        관리</a>
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/admin/course-management.html')">교육
+                                        관리</a>
+                                    
+                                        href="javascript:window.location.href=window.adjustPath('pages/admin/cert-management.html')">자격증
+                                        관리</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
 
-    <main class="py-12">
+    <!-- 개선된 내비게이션 탭 -->
+    <div class="navigation-tabs sticky top-0 z-20">
         <div class="container mx-auto px-4">
-            <!-- 경로 표시 -->
+            <nav class="flex overflow-x-auto py-2">
+                <a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')"
+                    class="tab-item active">공지사항</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')"
+                    class="tab-item">칼럼</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/board/materials/index.html')"
+                    class="tab-item">강의자료</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/board/videos/index.html')"
+                    class="tab-item">동영상 강의</a>
+            </nav>
+        </div>
+    </div>
+
+    <main class="py-12 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <!-- 경로 표시 (브레드크럼브) -->
             <nav class="mb-6 text-sm">
-                <ol class="list-none p-0 inline-flex">
+                <ol class="list-none p-0 inline-flex items-center">
                     <li class="flex items-center">
-                        <a href="../../../index.html" class="text-gray-500 hover:text-gray-700">홈</a>
-                        <svg class="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+                        <a href="javascript:window.location.href=window.adjustPath('index.html')" class="text-gray-500 hover:text-gray-700">홈</a>
+                        <svg class="fill-current w-3 h-3 mx-3 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
                             <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"/>
                         </svg>
                     </li>
                     <li class="flex items-center">
                         <a href="#" class="text-gray-500 hover:text-gray-700">게시판</a>
-                        <svg class="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+                        <svg class="fill-current w-3 h-3 mx-3 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
                             <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"/>
                         </svg>
                     </li>
                     <li class="flex items-center">
-                        <a href="index.html" class="text-gray-500 hover:text-gray-700">공지사항</a>
-                        <svg class="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+                        <a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')" class="text-gray-500 hover:text-gray-700">공지사항</a>
+                        <svg class="fill-current w-3 h-3 mx-3 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
                             <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"/>
                         </svg>
                     </li>
@@ -107,15 +309,15 @@
                 </ol>
             </nav>
 
-            <!-- 공지사항 내용 -->
-            <div class="bg-white rounded-lg border overflow-hidden">
+            <!-- 공지사항 내용 - 개선된 디자인 -->
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
                 <!-- 제목 영역 -->
-                <div class="border-b p-6">
-                    <div class="flex items-center justify-between mb-2">
-                        <span id="notice-category" class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">일반공지</span>
+                <div class="border-b p-6 bg-gray-50">
+                    <div class="flex items-center justify-between mb-3">
+                        <span id="notice-category" class="category-badge notice">일반공지</span>
                         <span id="notice-date" class="text-gray-500 text-sm">2025.01.01</span>
                     </div>
-                    <h1 id="notice-title" class="text-2xl font-bold text-gray-900 mb-3">공지사항 제목</h1>
+                    <h1 id="notice-title" class="text-2xl font-bold text-gray-900 mb-4">공지사항 제목</h1>
                     <div class="flex flex-wrap items-center text-sm text-gray-600 gap-4">
                         <div class="flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -134,7 +336,7 @@
                 </div>
 
                 <!-- 내용 영역 -->
-                <div id="notice-content" class="p-6 prose max-w-none">
+                <div id="notice-content" class="p-6 post-content">
                     <!-- JavaScript로 동적 생성 -->
                 </div>
 
@@ -147,148 +349,47 @@
                 </div>
 
                 <!-- 버튼 영역 -->
-                <div class="border-t p-6 flex flex-wrap items-center justify-between gap-4">
-                    <div class="flex gap-2">
-                        <button onclick="history.back()" class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">
-                            이전으로
-                        </button>
-                        <a href="index.html" class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">
-                            목록
-                        </a>
-                    </div>
-                    <div id="admin-buttons" class="flex gap-2 hidden">
-                        <button id="edit-button" class="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-md">
-                            수정
-                        </button>
-                        <button id="delete-button" class="px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-md">
-                            삭제
-                        </button>
+                <div class="border-t p-6 bg-gray-50">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex gap-2">
+                            <button onclick="history.back()" class="px-4 py-2 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-md transition-colors duration-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                                이전으로
+                            </button>
+                            <a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')" class="px-4 py-2 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-md transition-colors duration-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                                </svg>
+                                목록
+                            </a>
+                        </div>
+                        <div id="admin-buttons" class="flex gap-2 hidden">
+                            <button id="edit-button" class="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                수정
+                            </button>
+                            <button id="delete-button" class="px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors duration-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                삭제
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- 이전글/다음글 -->
-            <div class="mt-6 bg-white rounded-lg border overflow-hidden">
+            <div class="mt-6 bg-white rounded-lg shadow-sm overflow-hidden">
                 <div class="divide-y">
-                    <div id="prev-notice" class="p-4 hover:bg-gray-50 hidden">
+                    <div id="prev-notice" class="p-4 hover:bg-gray-50 transition-colors duration-200 hidden">
                         <a href="#" class="flex items-center">
-                            <span class="text-gray-500 mr-3">이전글</span>
-                            <span class="text-gray-900 flex-1"></span>
+                            <span class="text-gray-500 mr-3 font-medium">이전글</span>
+                            <span class="text-gray-900 flex-1 hover:text-blue-600"></span>
                         </a>
                     </div>
-                    <div id="next-notice" class="p-4 hover:bg-gray-50 hidden">
-                        <a href="#" class="flex items-center">
-                            <span class="text-gray-500 mr-3">다음글</span>
-                            <span class="text-gray-900 flex-1"></span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <footer class="bg-gray-800 text-white py-12">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-lg font-bold mb-4">디지털헬스케어센터</h3>
-                    <p class="text-gray-400 mb-4">운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼</p>
-                    <div class="flex space-x-4 mt-4">
-                        <a href="#" class="text-gray-400 hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
-                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-                            </svg>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
-                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                            </svg>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
-                                <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
-                            </svg>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
-                                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-                                <rect x="2" y="9" width="4" height="12"></rect>
-                                <circle cx="4" cy="4" r="2"></circle>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold mb-4">바로가기</h3>
-                    <ul class="space-y-2">
-                        <li><a href="../../about/overview.html" class="text-gray-400 hover:text-white">기관 소개</a></li>
-                        <li><a href="../../certificate/health-exercise.html" class="text-gray-400 hover:text-white">자격증 소개</a></li>
-                        <li><a href="../../education/course-info.html" class="text-gray-400 hover:text-white">교육 과정</a></li>
-                        <li><a href="../notice/index.html" class="text-gray-400 hover:text-white">공지사항</a></li>
-                        <li><a href="../column/index.html" class="text-gray-400 hover:text-white">전문가 칼럼</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold mb-4">자격증 정보</h3>
-                    <ul class="space-y-2">
-                        <li><a href="../../certificate/health-exercise.html" class="text-gray-400 hover:text-white">건강운동처방사</a></li>
-                        <li><a href="../../certificate/rehabilitation.html" class="text-gray-400 hover:text-white">운동재활전문가</a></li>
-                        <li><a href="../../certificate/pilates.html" class="text-gray-400 hover:text-white">필라테스 전문가</a></li>
-                        <li><a href="../../certificate/recreation.html" class="text-gray-400 hover:text-white">레크리에이션지도자</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold mb-4">고객 지원</h3>
-                    <ul class="space-y-2">
-                        <li class="flex items-center text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
-                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                            </svg>
-                            <span>02-123-4567</span>
-                        </li>
-                        <li class="flex items-center text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
-                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                                <polyline points="22,6 12,13 2,6"></polyline>
-                            </svg>
-                            <span>info@digitalhealthcare.org</span>
-                        </li>
-                        <li class="flex items-center text-gray-400 mt-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                <circle cx="12" cy="10" r="3"></circle>
-                            </svg>
-                            <span>서울특별시 강남구 테헤란로 123</span>
-                        </li>
-                    </ul>
-                    <div class="mt-4">
-                        <a href="#" class="text-blue-400 hover:text-blue-300">문의하기</a>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-gray-700 mt-8 pt-8 text-sm text-gray-400">
-                <div class="flex flex-col md:flex-row justify-between">
-                    <div class="mb-4 md:mb-0">
-                        <p>&copy; 2025 디지털헬스케어센터. All rights reserved.</p>
-                    </div>
-                    <div class="flex space-x-4">
-                        <a href="#" class="hover:text-white">개인정보처리방침</a>
-                        <a href="#" class="hover:text-white">이용약관</a>
-                        <a href="#" class="hover:text-white">사이트맵</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- JavaScript 파일 -->
-    <script src="../../../assets/js/config/firebase-config.js"></script>
-    <script src="../../../assets/js/services/auth-service.js"></script>
-    <script src="../../../assets/js/services/db-service.js"></script>
-    <script src="../../../assets/js/components/header.js"></script>
-    <script src="../../../assets/js/pages/board.js"></script>
-    <script src="../../../assets/js/main.js"></script>
-</body>
-</html>
+                    <div id="next-notice" class="p-4 hover:bg-gray-50 transition-colors duration-
