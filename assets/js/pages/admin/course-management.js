@@ -10,6 +10,62 @@ const courseManager = {
     filters: {},
     
     /**
+     * 초기화 함수
+     */
+    init: async function() {
+        try {
+            console.log('교육 관리자 초기화 시작');
+            
+            // 관리자 정보 표시
+            await window.adminAuth.displayAdminInfo();
+            
+            // 검색 필터 설정
+            const filterOptions = {
+                searchField: {
+                    label: '검색',
+                    placeholder: '교육명으로 검색'
+                },
+                selectFilters: [
+                    {
+                        id: 'certificate-type',
+                        label: '자격증',
+                        options: [
+                            { value: 'health-exercise', label: '건강운동처방사' },
+                            { value: 'rehabilitation', label: '운동재활전문가' },
+                            { value: 'pilates', label: '필라테스 전문가' },
+                            { value: 'recreation', label: '레크리에이션지도자' }
+                        ]
+                    },
+                    {
+                        id: 'course-status',
+                        label: '상태',
+                        options: [
+                            { value: 'preparing', label: '준비중' },
+                            { value: 'active', label: '모집중' },
+                            { value: 'closed', label: '마감' },
+                            { value: 'completed', label: '종료' }
+                        ]
+                    }
+                ]
+            };
+            
+            adminUtils.createSearchFilter('course-filter-container', filterOptions, 'courseManager.applyFilters');
+            
+            // 교육 과정 목록 로드
+            await this.loadCourses();
+            
+            console.log('교육 관리자 초기화 완료');
+            return true;
+        } catch (error) {
+            console.error('교육 관리자 초기화 오류:', error);
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('초기화 중 오류가 발생했습니다.', 'error');
+            }
+            return false;
+        }
+    },
+    
+    /**
      * 교육 과정 목록 로드
      */
     loadCourses: async function() {
@@ -646,55 +702,102 @@ const courseManager = {
             'preparing': '<span class="admin-badge admin-badge-warning">준비중</span>'
         };
         return statusBadge[status] || status;
+    },
+    
+    /**
+     * 교육 과정 유형 변경
+     */
+    switchCourseType: function(type) {
+        // 탭 활성화 상태 변경
+        document.querySelectorAll('.course-tab').forEach(tab => {
+            tab.classList.remove('active', 'border-indigo-500', 'text-indigo-600');
+            tab.classList.add('border-transparent', 'text-gray-500');
+        });
+        
+        const selectedTab = document.querySelector(`.course-tab[data-course="${type}"]`);
+        if (selectedTab) {
+            selectedTab.classList.remove('border-transparent', 'text-gray-500');
+            selectedTab.classList.add('active', 'border-indigo-500', 'text-indigo-600');
+        }
+        
+        // 타입별 제목 업데이트
+        document.getElementById('course-type-title').textContent = this.getCertificateName(type);
+        
+        // 필터 적용 및 목록 로드
+        this.filters.certificateType = type;
+        this.currentPage = 1;
+        this.lastDoc = null;
+        this.loadCourses();
     }
 };
 
-// DOMContentLoaded 이벤트 리스너
-document.addEventListener('DOMContentLoaded', async function() {
-    // Firebase 초기화 대기
-    await window.dhcFirebase.initialize();
-    
-    // 관리자 권한 확인
-    const hasAccess = await window.adminAuth.checkAdminAccess();
-    if (!hasAccess) {
-        return; // 권한이 없으면 이미 리디렉션됨
+/**
+ * 교육 관리 페이지 초기화 함수
+ */
+async function initCourseManagement() {
+    try {
+        console.log('교육 관리 페이지 초기화 시작');
+        await courseManager.init();
+        console.log('교육 관리 페이지 초기화 완료');
+    } catch (error) {
+        console.error('교육 관리 페이지 초기화 오류:', error);
     }
-    
-    // 관리자 정보 표시
-    await window.adminAuth.displayAdminInfo();
-    
-    // 검색 필터 설정
-    const filterOptions = {
-        searchField: {
-            label: '검색',
-            placeholder: '교육명으로 검색'
-        },
-        selectFilters: [
-            {
-                id: 'certificate-type',
-                label: '자격증',
-                options: [
-                    { value: 'health-exercise', label: '건강운동처방사' },
-                    { value: 'rehabilitation', label: '운동재활전문가' },
-                    { value: 'pilates', label: '필라테스 전문가' },
-                    { value: 'recreation', label: '레크리에이션지도자' }
-                ]
-            },
-            {
-                id: 'course-status',
-                label: '상태',
-                options: [
-                    { value: 'preparing', label: '준비중' },
-                    { value: 'active', label: '모집중' },
-                    { value: 'closed', label: '마감' },
-                    { value: 'completed', label: '종료' }
-                ]
+}
+
+// 레거시 방식 지원 (DOMContentLoaded 이벤트 리스너)
+// 새로운 스크립트 로더를 사용하지 않는 환경을 위해 유지
+document.addEventListener('DOMContentLoaded', async function() {
+    // 스크립트 로더를 통해 초기화되지 않았을 경우에만 실행
+    if (!window.scriptLoaderInitialized) {
+        // Firebase 초기화 대기
+        if (window.dhcFirebase && typeof window.dhcFirebase.initialize === 'function') {
+            await window.dhcFirebase.initialize();
+        }
+        
+        // 관리자 권한 확인
+        if (window.adminAuth && typeof window.adminAuth.checkAdminAccess === 'function') {
+            const hasAccess = await window.adminAuth.checkAdminAccess();
+            if (!hasAccess) {
+                return; // 권한이 없으면 이미 리디렉션됨
             }
-        ]
-    };
-    
-    adminUtils.createSearchFilter('course-filter-container', filterOptions, 'courseManager.applyFilters');
-    
-    // 교육 과정 목록 로드
-    courseManager.loadCourses();
+            
+            // 관리자 정보 표시
+            await window.adminAuth.displayAdminInfo();
+            
+            // 검색 필터 설정
+            const filterOptions = {
+                searchField: {
+                    label: '검색',
+                    placeholder: '교육명으로 검색'
+                },
+                selectFilters: [
+                    {
+                        id: 'certificate-type',
+                        label: '자격증',
+                        options: [
+                            { value: 'health-exercise', label: '건강운동처방사' },
+                            { value: 'rehabilitation', label: '운동재활전문가' },
+                            { value: 'pilates', label: '필라테스 전문가' },
+                            { value: 'recreation', label: '레크리에이션지도자' }
+                        ]
+                    },
+                    {
+                        id: 'course-status',
+                        label: '상태',
+                        options: [
+                            { value: 'preparing', label: '준비중' },
+                            { value: 'active', label: '모집중' },
+                            { value: 'closed', label: '마감' },
+                            { value: 'completed', label: '종료' }
+                        ]
+                    }
+                ]
+            };
+            
+            adminUtils.createSearchFilter('course-filter-container', filterOptions, 'courseManager.applyFilters');
+            
+            // 교육 과정 목록 로드
+            courseManager.loadCourses();
+        }
+    }
 });

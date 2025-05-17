@@ -173,6 +173,22 @@ console.log('=== board.js 파일 로드 시작 ===');
         return config && config.categories[categoryKey] ? config.categories[categoryKey] : categoryKey;
     }
 
+    // HTML 요소 ID 가져오기 (게시판 타입별)
+    function getElementId(boardType, baseId) {
+        switch (boardType) {
+            case 'notice':
+                return `notice-${baseId}`;
+            case 'column':
+                return `post-${baseId}`;
+            case 'materials':
+                return `materials-${baseId}`;
+            case 'videos':
+                return `videos-${baseId}`;
+            default:
+                return `post-${baseId}`;
+        }
+    }
+
     // 로딩 표시
     function showLoading(element) {
         if (element) {
@@ -209,9 +225,11 @@ console.log('=== board.js 파일 로드 시작 ===');
         async function loadPosts(reset = false) {
             console.log(`게시글 로드: reset=${reset}`);
             
-            const tbody = document.getElementById('notice-list');
+            // 게시판 타입에 따른 올바른 tbody ID 가져오기
+            const listId = getElementId(boardType, 'list');
+            const tbody = document.getElementById(listId);
             if (!tbody) {
-                console.log('게시글 목록 요소 없음');
+                console.log(`게시글 목록 요소 없음: ${listId}`);
                 return;
             }
 
@@ -280,7 +298,8 @@ console.log('=== board.js 파일 로드 시작 ===');
         function displayPosts(posts, reset = false) {
             console.log(`게시글 표시: ${posts.length}개, reset=${reset}`);
             
-            const tbody = document.getElementById('notice-list');
+            const listId = getElementId(boardType, 'list');
+            const tbody = document.getElementById(listId);
             if (!tbody) return;
 
             if (reset) {
@@ -321,9 +340,10 @@ console.log('=== board.js 파일 로드 시작 ===');
                         <a href="view.html?id=${post.id}" class="post-title-link">
                             ${post.title}
                             ${post.attachments && post.attachments.length > 0 ? '<svg class="attachment-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>' : ''}
+                            ${boardType === 'videos' ? '<svg class="attachment-icon text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>' : ''}
                         </a>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">${post.authorName || '관리자'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">${boardType === 'videos' ? (post.instructor || post.authorName || '관리자') : (post.authorName || '관리자')}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">${date}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">${post.views || 0}</td>
                 `;
@@ -516,36 +536,44 @@ console.log('=== board.js 파일 로드 시작 ===');
             console.log('게시글 표시');
             
             // 제목
-            const titleElement = document.getElementById(`${boardType === 'notice' ? 'notice' : 'post'}-title`);
+            const titleElement = document.getElementById(getElementId(boardType, 'title'));
             if (titleElement) titleElement.textContent = post.title;
             
             // 브레드크럼브
-            const breadcrumbTitle = document.getElementById(`${boardType === 'notice' ? 'notice' : 'post'}-title-breadcrumb`);
+            const breadcrumbTitle = document.getElementById(getElementId(boardType, 'title-breadcrumb'));
             if (breadcrumbTitle) breadcrumbTitle.textContent = post.title;
             
             // 카테고리
-            const categoryElement = document.getElementById(`${boardType === 'notice' ? 'notice' : 'post'}-category`);
+            const categoryElement = document.getElementById(getElementId(boardType, 'category'));
             if (categoryElement) {
                 const categoryText = getCategoryText(boardType, post.category);
-                categoryElement.innerHTML = `<span class="category-badge ${post.category}">${categoryText}</span>`;
+                const badgeClass = `category-badge ${post.category}`;
+                categoryElement.innerHTML = `<span class="${badgeClass}">${categoryText}</span>`;
             }
             
             // 작성일
-            const dateElement = document.getElementById(`${boardType === 'notice' ? 'notice' : 'post'}-date`);
+            const dateElement = document.getElementById(getElementId(boardType, 'date'));
             if (dateElement && post.createdAt) {
                 dateElement.textContent = new Date(post.createdAt.seconds * 1000).toLocaleDateString('ko-KR');
             }
             
             // 작성자
-            const authorElement = document.getElementById(`${boardType === 'notice' ? 'notice' : 'post'}-author`);
-            if (authorElement) authorElement.textContent = post.authorName || '관리자';
+            const authorElement = document.getElementById(getElementId(boardType, 'author'));
+            if (authorElement) {
+                // videos 페이지의 경우 강사명 표시
+                if (boardType === 'videos') {
+                    authorElement.textContent = post.instructor || post.authorName || '관리자';
+                } else {
+                    authorElement.textContent = post.authorName || '관리자';
+                }
+            }
             
             // 조회수
-            const viewsElement = document.getElementById(`${boardType === 'notice' ? 'notice' : 'post'}-views`);
+            const viewsElement = document.getElementById(getElementId(boardType, 'views'));
             if (viewsElement) viewsElement.textContent = post.views || 0;
             
             // 내용
-            const contentElement = document.getElementById(`${boardType === 'notice' ? 'notice' : 'post'}-content`);
+            const contentElement = document.getElementById(getElementId(boardType, 'content'));
             if (contentElement) {
                 // XSS 방지를 위한 기본적인 처리 및 줄바꿈 처리
                 contentElement.innerHTML = post.content
@@ -558,6 +586,61 @@ console.log('=== board.js 파일 로드 시작 ===');
             // 첨부파일
             if (post.attachments && post.attachments.length > 0) {
                 displayAttachments(post.attachments);
+            }
+            
+            // 비디오 플레이어 처리 (videos 페이지에만 해당)
+            if (boardType === 'videos' && post.videoUrl) {
+                displayVideoPlayer(post.videoUrl, post.videoType || 'youtube');
+            }
+        }
+
+        // 비디오 플레이어 표시
+        function displayVideoPlayer(videoUrl, videoType) {
+            console.log(`비디오 플레이어 표시: ${videoType}`);
+            
+            const videoContainer = document.getElementById('video-container');
+            if (!videoContainer) return;
+            
+            let embedHtml = '';
+            
+            if (videoType === 'youtube') {
+                // YouTube 동영상 ID 추출
+                const youtubeIdMatch = videoUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+                const youtubeId = youtubeIdMatch ? youtubeIdMatch[1] : null;
+                
+                if (youtubeId) {
+                    embedHtml = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${youtubeId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                }
+            } else if (videoType === 'vimeo') {
+                // Vimeo 동영상 ID 추출
+                const vimeoIdMatch = videoUrl.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+                const vimeoId = vimeoIdMatch ? vimeoIdMatch[1] : null;
+                
+                if (vimeoId) {
+                    embedHtml = `<iframe width="100%" height="100%" src="https://player.vimeo.com/video/${vimeoId}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+                }
+            } else if (videoType === 'direct') {
+                // 직접 업로드 동영상
+                embedHtml = `
+                    <video width="100%" height="100%" controls>
+                        <source src="${videoUrl}" type="video/mp4">
+                        이 브라우저에서는 동영상을 재생할 수 없습니다.
+                    </video>
+                `;
+            }
+            
+            if (embedHtml) {
+                videoContainer.innerHTML = embedHtml;
+            } else {
+                videoContainer.innerHTML = `
+                    <div class="flex flex-col items-center justify-center w-full h-full bg-gray-800 text-white p-8 text-center">
+                        <svg class="w-12 h-12 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <h3 class="text-lg font-medium mb-2">동영상을 불러올 수 없습니다</h3>
+                        <p class="text-gray-300 text-sm">유효하지 않은 동영상 URL입니다.</p>
+                    </div>
+                `;
             }
         }
 
@@ -585,7 +668,7 @@ console.log('=== board.js 파일 로드 시작 ===');
         function displayAttachments(attachments) {
             console.log(`첨부파일 표시: ${attachments.length}개`);
             
-            const attachmentsSection = document.getElementById(`${boardType === 'notice' ? 'notice' : 'post'}-attachments`);
+            const attachmentsSection = document.getElementById(getElementId(boardType, 'attachments'));
             const attachmentList = document.getElementById('attachment-list');
             
             if (attachmentsSection && attachmentList) {
@@ -595,11 +678,12 @@ console.log('=== board.js 파일 로드 시작 ===');
                 attachments.forEach(attachment => {
                     const li = document.createElement('li');
                     li.innerHTML = `
-                        <a href="${attachment.url}" target="_blank" class="flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-200">
-                            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="${attachment.url}" target="_blank" class="download-link">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
-                            ${attachment.name} (${formatFileSize(attachment.size)})
+                            <span class="file-name">${attachment.name}</span>
+                            <span class="file-info">${formatFileSize(attachment.size)}</span>
                         </a>
                     `;
                     attachmentList.appendChild(li);
@@ -728,7 +812,9 @@ console.log('=== board.js 파일 로드 시작 ===');
 
         // 이전글/다음글 표시
         function displayPrevNextPost(type, post) {
-            const container = document.getElementById(`${type}-${boardType === 'notice' ? 'notice' : 'post'}`);
+            const elementId = `${type}-${boardType}`;
+            const container = document.getElementById(elementId);
+            
             if (container) {
                 container.classList.remove('hidden');
                 const link = container.querySelector('a');

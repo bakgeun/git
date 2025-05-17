@@ -10,6 +10,51 @@ const userManager = {
     filters: {},
     
     /**
+     * 초기화 함수
+     */
+    init: async function() {
+        try {
+            console.log('회원 관리자 초기화 시작');
+            
+            // 관리자 정보 표시
+            await window.adminAuth.displayAdminInfo();
+            
+            // 검색 필터 설정
+            const filterOptions = {
+                searchField: {
+                    label: '검색',
+                    placeholder: '이름 또는 이메일로 검색'
+                },
+                selectFilters: [
+                    {
+                        id: 'user-type',
+                        label: '회원유형',
+                        options: [
+                            { value: 'student', label: '수강생' },
+                            { value: 'instructor', label: '강사' },
+                            { value: 'admin', label: '관리자' }
+                        ]
+                    }
+                ]
+            };
+            
+            adminUtils.createSearchFilter('user-filter-container', filterOptions, 'userManager.applyFilters');
+            
+            // 회원 목록 로드
+            await this.loadUsers();
+            
+            console.log('회원 관리자 초기화 완료');
+            return true;
+        } catch (error) {
+            console.error('회원 관리자 초기화 오류:', error);
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('초기화 중 오류가 발생했습니다.', 'error');
+            }
+            return false;
+        }
+    },
+    
+    /**
      * 회원 목록 로드
      */
     loadUsers: async function() {
@@ -404,41 +449,38 @@ const userManager = {
     }
 };
 
-// DOMContentLoaded 이벤트 리스너
-document.addEventListener('DOMContentLoaded', async function() {
-    // Firebase 초기화 대기
-    await window.dhcFirebase.initialize();
-    
-    // 관리자 권한 확인
-    const hasAccess = await window.adminAuth.checkAdminAccess();
-    if (!hasAccess) {
-        return; // 권한이 없으면 이미 리디렉션됨
+/**
+ * 회원 관리 페이지 초기화 함수
+ */
+async function initUserManagement() {
+    try {
+        console.log('회원 관리 페이지 초기화 시작');
+        await userManager.init();
+        console.log('회원 관리 페이지 초기화 완료');
+    } catch (error) {
+        console.error('회원 관리 페이지 초기화 오류:', error);
     }
-    
-    // 관리자 정보 표시
-    await window.adminAuth.displayAdminInfo();
-    
-    // 검색 필터 설정
-    const filterOptions = {
-        searchField: {
-            label: '검색',
-            placeholder: '이름 또는 이메일로 검색'
-        },
-        selectFilters: [
-            {
-                id: 'user-type',
-                label: '회원유형',
-                options: [
-                    { value: 'student', label: '수강생' },
-                    { value: 'instructor', label: '강사' },
-                    { value: 'admin', label: '관리자' }
-                ]
+}
+
+// 레거시 방식 지원 (DOMContentLoaded 이벤트 리스너)
+// 새로운 스크립트 로더를 사용하지 않는 환경을 위해 유지
+document.addEventListener('DOMContentLoaded', async function() {
+    // 스크립트 로더를 통해 초기화되지 않았을 경우에만 실행
+    if (!window.scriptLoaderInitialized) {
+        // Firebase 초기화 대기
+        if (window.dhcFirebase && typeof window.dhcFirebase.initialize === 'function') {
+            await window.dhcFirebase.initialize();
+        }
+        
+        // 관리자 권한 확인
+        if (window.adminAuth && typeof window.adminAuth.checkAdminAccess === 'function') {
+            const hasAccess = await window.adminAuth.checkAdminAccess();
+            if (!hasAccess) {
+                return; // 권한이 없으면 이미 리디렉션됨
             }
-        ]
-    };
-    
-    adminUtils.createSearchFilter('user-filter-container', filterOptions, 'userManager.applyFilters');
-    
-    // 회원 목록 로드
-    userManager.loadUsers();
+            
+            // 페이지 초기화
+            await initUserManagement();
+        }
+    }
 });

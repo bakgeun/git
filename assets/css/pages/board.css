@@ -393,3 +393,202 @@
 .no-results p {
     font-size: 0.875rem;
 }
+
+/* ===================================
+   칼럼 카테고리별 배지 스타일
+=================================== */
+
+.category-badge.health {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.category-badge.exercise {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.category-badge.nutrition {
+    background-color: #fce7f3;
+    color: #be185d;
+}
+
+.category-badge.rehabilitation {
+    background-color: #e0e7ff;
+    color: #4338ca;
+}
+
+/* ===================================
+   강의자료 카테고리별 배지 스타일
+=================================== */
+.category-badge.lecture {
+    background-color: #e0f2fe;
+    color: #0369a1;
+}
+
+.category-badge.reference {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.category-badge.exercise {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.category-badge.exam {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+/* ===================================
+   동영상 강의 카테고리별 배지 스타일
+=================================== */
+.category-badge.theory {
+    background-color: #e0f2fe;
+    color: #0369a1;
+}
+
+.category-badge.practice {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.category-badge.special {
+    background-color: #fce7f3;
+    color: #be185d;
+}
+
+.category-badge.review {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+/* ===================================
+   비디오 플레이어 스타일
+=================================== */
+#video-player {
+    width: 100%;
+    background-color: #000;
+    overflow: hidden;
+}
+
+#video-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#video-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* 비디오 플레이어 비율 유지 래퍼 */
+.video-aspect-ratio-wrapper {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 비율 */
+    height: 0;
+    overflow: hidden;
+}
+
+.video-aspect-ratio-wrapper iframe,
+.video-aspect-ratio-wrapper video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* ===================================
+   자료 다운로드 스타일 개선
+=================================== */
+.download-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    background-color: #f3f4f6;
+    color: #374151;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.download-link:hover {
+    background-color: #e5e7eb;
+    color: #1f2937;
+}
+
+.download-link .icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #6b7280;
+}
+
+.download-link .file-name {
+    font-weight: 500;
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.download-link .file-info {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+/* ===================================
+   첨부파일 목록 스타일
+=================================== */
+#attachment-list {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+#attachment-list li {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+#attachment-list li:last-child {
+    border-bottom: none;
+}
+
+#attachment-list li:hover {
+    background-color: #f9fafb;
+}
+
+#attachment-list .attachment-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #374151;
+    text-decoration: none;
+}
+
+#attachment-list .attachment-link:hover {
+    color: #2563eb;
+}
+
+#attachment-list .attachment-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #6b7280;
+}
+
+#attachment-list .attachment-name {
+    font-weight: 500;
+    flex-grow: 1;
+}
+
+#attachment-list .attachment-size {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
