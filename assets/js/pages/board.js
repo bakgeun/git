@@ -432,43 +432,13 @@ console.log('=== board.js 파일 로드 시작 ===');
             }
         }
 
-        // 글쓰기 버튼 권한 확인
-        async function checkWritePermission() {
-            console.log('글쓰기 권한 확인');
-
-            try {
-                await waitForServices();
-
-                const writeButton = document.getElementById('write-button');
-                if (writeButton) {
-                    // 현재 사용자 정보 확인
-                    const user = window.authService.getCurrentUser();
-
-                    // 관리자인 경우 항상 표시
-                    if (user && user.email === 'gostepexercise@gmail.com') {
-                        console.log('관리자 확인됨, 글쓰기 권한 부여');
-                        writeButton.classList.remove('hidden');
-                        writeButton.addEventListener('click', () => {
-                            console.log('글쓰기 버튼 클릭');
-                            window.location.href = 'write.html';
-                        });
-                        return;
-                    }
-
-                    // 일반 권한 확인
-                    if (hasPermission('write', boardType)) {
-                        console.log('글쓰기 권한 있음');
-                        writeButton.classList.remove('hidden');
-                        writeButton.addEventListener('click', () => {
-                            console.log('글쓰기 버튼 클릭');
-                            window.location.href = 'write.html';
-                        });
-                    } else {
-                        console.log('글쓰기 권한 없음');
-                    }
-                }
-            } catch (error) {
-                console.error('글쓰기 권한 확인 오류:', error);
+        // 글쓰기 버튼 숨김 (기존 코드 비활성화)
+        function hideWriteButton() {
+            console.log('글쓰기 버튼 숨김');
+            
+            const writeButton = document.getElementById('write-button');
+            if (writeButton) {
+                writeButton.style.display = 'none';
             }
         }
 
@@ -499,7 +469,7 @@ console.log('=== board.js 파일 로드 시작 ===');
         // 초기화
         console.log('목록 페이지 초기화 시작');
         setupSearch();
-        checkWritePermission();
+        hideWriteButton(); // 글쓰기 버튼 숨김 (기존 checkWritePermission 대체)
         loadPosts(true);
         updateTotalCount();
     }
@@ -542,7 +512,7 @@ console.log('=== board.js 파일 로드 시작 ===');
                     displayPost(result.data);
                     updateViews(postId);
                     loadPrevNextPost(postId);
-                    checkAdminButtons(result.data);
+                    hideAdminButtons(); // 관리자 버튼 숨김 (기존 checkAdminButtons 대체)
                 } else {
                     console.error('게시글 로드 실패:', result.error);
                     alert('게시글을 찾을 수 없습니다.');
@@ -551,6 +521,16 @@ console.log('=== board.js 파일 로드 시작 ===');
             } catch (error) {
                 console.error('게시글 로드 오류:', error);
                 alert('게시글 로드 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 관리자 버튼 숨김 (기존 코드 비활성화)
+        function hideAdminButtons() {
+            console.log('관리자 버튼 숨김');
+            
+            const adminButtons = document.getElementById('admin-buttons');
+            if (adminButtons) {
+                adminButtons.style.display = 'none';
             }
         }
 
@@ -598,12 +578,8 @@ console.log('=== board.js 파일 로드 시작 ===');
             // 내용
             const contentElement = document.getElementById(getElementId(boardType, 'content'));
             if (contentElement) {
-                // XSS 방지를 위한 기본적인 처리 및 줄바꿈 처리
-                contentElement.innerHTML = post.content
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/\n/g, '<br>');
+                // HTML 내용 그대로 표시 (이미지, 링크 등 포함)
+                contentElement.innerHTML = post.content;
             }
 
             // 첨부파일
@@ -721,76 +697,6 @@ console.log('=== board.js 파일 로드 시작 ===');
             const sizes = ['Bytes', 'KB', 'MB', 'GB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-
-        // 관리자 버튼 권한 확인
-        async function checkAdminButtons(post) {
-            console.log('관리자 버튼 권한 확인');
-
-            try {
-                await waitForServices();
-
-                const adminButtons = document.getElementById('admin-buttons');
-                const user = authService.getCurrentUser();
-
-                if (adminButtons && user) {
-                    let showButtons = false;
-
-                    // 수정 버튼
-                    if (hasPermission('edit', boardType, user.id, post.authorId)) {
-                        const editButton = document.getElementById('edit-button');
-                        if (editButton) {
-                            editButton.classList.remove('hidden');
-                            editButton.addEventListener('click', () => {
-                                window.location.href = `write.html?id=${postId}`;
-                            });
-                            showButtons = true;
-                        }
-                    }
-
-                    // 삭제 버튼
-                    if (hasPermission('delete', boardType, user.id, post.authorId)) {
-                        const deleteButton = document.getElementById('delete-button');
-                        if (deleteButton) {
-                            deleteButton.classList.remove('hidden');
-                            deleteButton.addEventListener('click', () => {
-                                if (confirm('정말 삭제하시겠습니까?')) {
-                                    deletePost(postId);
-                                }
-                            });
-                            showButtons = true;
-                        }
-                    }
-
-                    if (showButtons) {
-                        adminButtons.classList.remove('hidden');
-                    }
-                }
-            } catch (error) {
-                console.error('관리자 버튼 권한 확인 오류:', error);
-            }
-        }
-
-        // 게시글 삭제
-        async function deletePost(postId) {
-            console.log('게시글 삭제 시도');
-
-            const collection = boardConfig[boardType].collection;
-
-            try {
-                const result = await dbService.deleteDocument(collection, postId);
-
-                if (result.success) {
-                    alert('게시글이 삭제되었습니다.');
-                    window.location.href = 'index.html';
-                } else {
-                    console.error('게시글 삭제 실패:', result.error);
-                    alert('게시글 삭제 중 오류가 발생했습니다.');
-                }
-            } catch (error) {
-                console.error('게시글 삭제 오류:', error);
-                alert('게시글 삭제 중 오류가 발생했습니다.');
-            }
         }
 
         // 이전글/다음글 로드

@@ -3,57 +3,49 @@
  */
 
 // 교육 관리 객체
-const courseManager = {
+window.courseManager = {
+    currentCourseType: 'health-exercise',
     currentPage: 1,
     pageSize: 10,
     lastDoc: null,
-    filters: {},
-    
+
     /**
      * 초기화 함수
      */
-    init: async function() {
+    init: async function () {
         try {
             console.log('교육 관리자 초기화 시작');
-            
-            // 관리자 정보 표시
-            await window.adminAuth.displayAdminInfo();
-            
-            // 검색 필터 설정
-            const filterOptions = {
-                searchField: {
-                    label: '검색',
-                    placeholder: '교육명으로 검색'
-                },
-                selectFilters: [
-                    {
-                        id: 'certificate-type',
-                        label: '자격증',
-                        options: [
-                            { value: 'health-exercise', label: '건강운동처방사' },
-                            { value: 'rehabilitation', label: '운동재활전문가' },
-                            { value: 'pilates', label: '필라테스 전문가' },
-                            { value: 'recreation', label: '레크리에이션지도자' }
-                        ]
-                    },
-                    {
-                        id: 'course-status',
-                        label: '상태',
-                        options: [
-                            { value: 'preparing', label: '준비중' },
-                            { value: 'active', label: '모집중' },
-                            { value: 'closed', label: '마감' },
-                            { value: 'completed', label: '종료' }
-                        ]
+
+            // 교육 관리 탭 이벤트 리스너 설정
+            document.querySelectorAll('.course-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const courseType = tab.getAttribute('data-course');
+                    this.switchCourseType(courseType);
+                });
+            });
+
+            // 폼 제출 이벤트 리스너 설정
+            const courseForm = document.getElementById('course-form');
+            if (courseForm) {
+                courseForm.addEventListener('submit', this.handleAddCourse.bind(this));
+            }
+
+            // 검색 필터 이벤트 리스너
+            const searchInput = document.getElementById('search-course-name');
+            const statusFilter = document.getElementById('filter-status');
+            const instructorFilter = document.getElementById('filter-instructor');
+
+            if (searchInput) {
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.search();
                     }
-                ]
-            };
-            
-            adminUtils.createSearchFilter('course-filter-container', filterOptions, 'courseManager.applyFilters');
-            
+                });
+            }
+
             // 교육 과정 목록 로드
             await this.loadCourses();
-            
+
             console.log('교육 관리자 초기화 완료');
             return true;
         } catch (error) {
@@ -64,624 +56,763 @@ const courseManager = {
             return false;
         }
     },
-    
+
     /**
      * 교육 과정 목록 로드
      */
-    loadCourses: async function() {
-        adminUtils.showLoadingOverlay(true);
-        
+    loadCourses: async function () {
         try {
-            // 필터 옵션 설정
+            // 로딩 표시
+            document.querySelector('#course-table tbody').innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center py-4 text-gray-500">데이터 로딩 중...</td>
+            </tr>
+        `;
+
+            // 필터 옵션 설정 - 인덱스 오류 방지를 위해 단순화된 쿼리 사용
             const options = {
-                orderBy: { field: 'createdAt', direction: 'desc' },
-                pageSize: this.pageSize
+                where: [
+                    { field: 'certificateType', operator: '==', value: this.currentCourseType }
+                ]
+                // orderBy는 인덱스 오류를 방지하기 위해 제거함
+                // orderBy: [{ field: 'createdAt', direction: 'desc' }]
             };
-            
-            // 필터 적용
-            if (this.filters.certificateType) {
-                options.where = options.where || [];
-                options.where.push({ field: 'certificateType', operator: '==', value: this.filters.certificateType });
-            }
-            
-            if (this.filters.status) {
-                options.where = options.where || [];
-                options.where.push({ field: 'status', operator: '==', value: this.filters.status });
-            }
-            
+
             // 검색어 필터
-            let searchResults;
-            if (this.filters.searchKeyword) {
-                searchResults = await dbService.searchDocuments('courses', 'title', this.filters.searchKeyword, options);
-            } else {
-                searchResults = await dbService.getPaginatedDocuments('courses', options, this.currentPage > 1 ? this.lastDoc : null);
+            const searchKeyword = document.getElementById('search-course-name')?.value;
+            if (searchKeyword) {
+                options.where.push({ field: 'title', operator: '>=', value: searchKeyword });
+                options.where.push({ field: 'title', operator: '<=', value: searchKeyword + '\uf8ff' });
             }
-            
-            if (searchResults.success) {
-                // 테이블 업데이트
-                this.updateCourseTable(searchResults.data);
-                
-                // 페이지네이션 업데이트
-                if (!this.filters.searchKeyword) {
-                    this.lastDoc = searchResults.lastDoc;
-                    
-                    // 전체 과정 수 계산
-                    const totalCount = await dbService.countDocuments('courses', { where: options.where });
-                    const totalPages = Math.ceil(totalCount.count / this.pageSize);
-                    
-                    adminUtils.createPagination('course-pagination', this.currentPage, totalPages, 'courseManager.changePage');
+
+            // 상태 필터
+            const statusFilter = document.getElementById('filter-status')?.value;
+            if (statusFilter) {
+                options.where.push({ field: 'status', operator: '==', value: statusFilter });
+            }
+
+            // 강사 필터
+            const instructorFilter = document.getElementById('filter-instructor')?.value;
+            if (instructorFilter) {
+                options.where.push({ field: 'instructor', operator: '==', value: instructorFilter });
+            }
+
+            // 데이터 가져오기
+            let courses = [];
+
+            // 실제 Firebase 연동 시 사용할 코드
+            if (window.dhcFirebase && window.dhcFirebase.db) {
+                let query = window.dhcFirebase.db.collection('courses');
+
+                // where 조건 적용 - certificateType만 필터링
+                query = query.where('certificateType', '==', this.currentCourseType);
+
+                // 상태 필터가 있는 경우에만 추가
+                if (statusFilter) {
+                    query = query.where('status', '==', statusFilter);
+                }
+
+                // 검색 키워드가 있으면 다른 접근법 사용 (인덱스 문제 방지)
+                if (searchKeyword || instructorFilter) {
+                    // 우선 모든 데이터 가져오고 클라이언트에서 필터링
+                    const snapshot = await query.get();
+
+                    if (!snapshot.empty) {
+                        snapshot.forEach(doc => {
+                            const data = doc.data();
+                            // 클라이언트 필터링
+                            let include = true;
+
+                            if (searchKeyword && !data.title.includes(searchKeyword)) {
+                                include = false;
+                            }
+
+                            if (instructorFilter && data.instructor !== instructorFilter) {
+                                include = false;
+                            }
+
+                            if (include) {
+                                courses.push({
+                                    id: doc.id,
+                                    ...data
+                                });
+                            }
+                        });
+                    }
+
+                    // 클라이언트 측에서 정렬 (최신 생성일 기준)
+                    courses.sort((a, b) => {
+                        const dateA = a.createdAt?.seconds || 0;
+                        const dateB = b.createdAt?.seconds || 0;
+                        return dateB - dateA;
+                    });
+
+                    // 페이지네이션 처리 (클라이언트 측)
+                    const startIndex = (this.currentPage - 1) * this.pageSize;
+                    courses = courses.slice(startIndex, startIndex + this.pageSize);
+                } else {
+                    // 필터가 없는 경우는 단순 쿼리 실행
+                    // 정렬은 클라이언트에서 나중에 처리
+                    const snapshot = await query.get();
+
+                    if (!snapshot.empty) {
+                        snapshot.forEach(doc => {
+                            courses.push({
+                                id: doc.id,
+                                ...doc.data()
+                            });
+                        });
+
+                        // 클라이언트 측에서 정렬 (최신 생성일 기준)
+                        courses.sort((a, b) => {
+                            const dateA = a.createdAt?.seconds || 0;
+                            const dateB = b.createdAt?.seconds || 0;
+                            return dateB - dateA;
+                        });
+                    }
                 }
             } else {
-                console.error('교육 과정 목록 로드 실패:', searchResults.error);
-                adminAuth.showNotification('교육 과정 목록을 불러오는데 실패했습니다.', 'error');
+                // 테스트용 더미 데이터
+                courses = [
+                    {
+                        id: '1',
+                        title: '건강운동처방사 기본과정',
+                        certificateType: 'health-exercise',
+                        instructor: '김운동',
+                        startDate: new Date('2025-05-01'),
+                        endDate: new Date('2025-06-30'),
+                        price: 350000,
+                        capacity: 30,
+                        enrolledCount: 15,
+                        status: 'active'
+                    },
+                    {
+                        id: '2',
+                        title: '건강운동처방사 심화과정',
+                        certificateType: 'health-exercise',
+                        instructor: '이헬스',
+                        startDate: new Date('2025-07-01'),
+                        endDate: new Date('2025-08-31'),
+                        price: 450000,
+                        capacity: 20,
+                        enrolledCount: 5,
+                        status: 'preparing'
+                    }
+                ];
             }
+
+            // 테이블 업데이트
+            this.updateCourseTable(courses);
+
         } catch (error) {
             console.error('교육 과정 목록 로드 오류:', error);
-            adminAuth.showNotification('오류가 발생했습니다.', 'error');
-        } finally {
-            adminUtils.showLoadingOverlay(false);
+
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('교육 과정 목록을 불러오는데 실패했습니다.', 'error');
+            }
+
+            // 오류 메시지 표시
+            document.querySelector('#course-table tbody').innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center py-4 text-red-500">
+                    데이터를 불러오는 중 오류가 발생했습니다.
+                </td>
+            </tr>
+        `;
         }
     },
-    
+
     /**
      * 교육 과정 테이블 업데이트
      */
-    updateCourseTable: function(courses) {
-        const columns = {
-            title: { label: '교육명' },
-            certificateType: { 
-                label: '자격증',
-                formatter: (value) => {
-                    const types = {
-                        'health-exercise': '건강운동처방사',
-                        'rehabilitation': '운동재활전문가',
-                        'pilates': '필라테스 전문가',
-                        'recreation': '레크리에이션지도자'
-                    };
-                    return types[value] || value;
-                }
-            },
-            period: { 
-                label: '기간',
-                formatter: (value, course) => {
-                    const startDate = course.startDate ? formatters.formatDate(course.startDate.toDate()) : '-';
-                    const endDate = course.endDate ? formatters.formatDate(course.endDate.toDate()) : '-';
-                    return `${startDate} ~ ${endDate}`;
-                }
-            },
-            price: { 
-                label: '수강료',
-                formatter: (value) => formatters.formatCurrency(value)
-            },
-            capacity: { 
-                label: '정원',
-                formatter: (value, course) => {
-                    const enrolled = course.enrolledCount || 0;
-                    return `${enrolled}/${value}명`;
-                }
-            },
-            status: { 
-                label: '상태',
-                formatter: (value) => {
-                    const statusBadge = {
-                        'active': '<span class="admin-badge admin-badge-success">모집중</span>',
-                        'closed': '<span class="admin-badge admin-badge-danger">마감</span>',
-                        'completed': '<span class="admin-badge admin-badge-info">종료</span>',
-                        'preparing': '<span class="admin-badge admin-badge-warning">준비중</span>'
-                    };
-                    return statusBadge[value] || value;
-                }
-            }
-        };
-        
-        const actions = [
-            { label: '상세', type: 'info', handler: 'courseManager.viewCourse' },
-            { label: '수정', type: 'primary', handler: 'courseManager.editCourse' },
-            { label: '삭제', type: 'danger', handler: 'courseManager.deleteCourse' }
-        ];
-        
-        adminUtils.createDataTable('course-table', courses, columns, { actions });
+    updateCourseTable: function (courses) {
+        const tbody = document.querySelector('#course-table tbody');
+
+        if (!courses || courses.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center py-4 text-gray-500">
+                        데이터가 없습니다.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        let html = '';
+
+        courses.forEach(course => {
+            const startDate = course.startDate instanceof Date ? course.startDate : new Date(course.startDate?.seconds * 1000 || 0);
+            const endDate = course.endDate instanceof Date ? course.endDate : new Date(course.endDate?.seconds * 1000 || 0);
+
+            const formatDate = (date) => {
+                return date.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\. /g, '-').replace('.', '');
+            };
+
+            const formatCurrency = (value) => {
+                return new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(value).replace('₩', '') + '원';
+            };
+
+            const getStatusBadge = (status) => {
+                const badges = {
+                    'active': '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">모집중</span>',
+                    'closed': '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">마감</span>',
+                    'completed': '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">종료</span>',
+                    'preparing': '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">준비중</span>'
+                };
+                return badges[status] || status;
+            };
+
+            html += `
+                <tr>
+                    <td>${course.title}</td>
+                    <td>${course.instructor}</td>
+                    <td>${formatDate(startDate)} ~ ${formatDate(endDate)}</td>
+                    <td>${formatCurrency(course.price)}</td>
+                    <td>${course.enrolledCount || 0}/${course.capacity}명</td>
+                    <td>${getStatusBadge(course.status)}</td>
+                    <td>
+                        <div class="flex space-x-2">
+                            <button onclick="courseManager.viewCourse('${course.id}')" class="text-blue-600 hover:text-blue-800">
+                                상세
+                            </button>
+                            <button onclick="courseManager.editCourse('${course.id}')" class="text-indigo-600 hover:text-indigo-800">
+                                수정
+                            </button>
+                            <button onclick="courseManager.deleteCourse('${course.id}')" class="text-red-600 hover:text-red-800">
+                                삭제
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tbody.innerHTML = html;
     },
-    
+
     /**
-     * 페이지 변경
+     * 검색 기능
      */
-    changePage: function(page) {
-        if (page < 1) return;
-        this.currentPage = page;
+    search: function () {
+        this.currentPage = 1;
+        this.lastDoc = null;
         this.loadCourses();
     },
-    
+
     /**
      * 교육 과정 추가 모달 표시
      */
-    showAddCourseModal: function() {
-        const modalContent = `
-            <form id="course-form" onsubmit="courseManager.handleAddCourse(event)">
-                <div class="admin-form-group">
-                    <label class="admin-form-label">교육명 <span class="text-red-500">*</span></label>
-                    <input type="text" name="title" class="admin-form-control" required>
-                </div>
-                
-                <div class="admin-form-group">
-                    <label class="admin-form-label">자격증 종류 <span class="text-red-500">*</span></label>
-                    <select name="certificateType" class="admin-form-control" required>
-                        <option value="">선택하세요</option>
-                        <option value="health-exercise">건강운동처방사</option>
-                        <option value="rehabilitation">운동재활전문가</option>
-                        <option value="pilates">필라테스 전문가</option>
-                        <option value="recreation">레크리에이션지도자</option>
-                    </select>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">시작일 <span class="text-red-500">*</span></label>
-                        <input type="date" name="startDate" class="admin-form-control" required>
-                    </div>
-                    
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">종료일 <span class="text-red-500">*</span></label>
-                        <input type="date" name="endDate" class="admin-form-control" required>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">수강료 <span class="text-red-500">*</span></label>
-                        <input type="number" name="price" class="admin-form-control" min="0" required>
-                    </div>
-                    
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">정원 <span class="text-red-500">*</span></label>
-                        <input type="number" name="capacity" class="admin-form-control" min="1" required>
-                    </div>
-                </div>
-                
-                <div class="admin-form-group">
-                    <label class="admin-form-label">강사 <span class="text-red-500">*</span></label>
-                    <input type="text" name="instructor" class="admin-form-control" required>
-                </div>
-                
-                <div class="admin-form-group">
-                    <label class="admin-form-label">교육 장소</label>
-                    <input type="text" name="location" class="admin-form-control">
-                </div>
-                
-                <div class="admin-form-group">
-                    <label class="admin-form-label">상태 <span class="text-red-500">*</span></label>
-                    <select name="status" class="admin-form-control" required>
-                        <option value="preparing">준비중</option>
-                        <option value="active">모집중</option>
-                        <option value="closed">마감</option>
-                        <option value="completed">종료</option>
-                    </select>
-                </div>
-                
-                <div class="admin-form-group">
-                    <label class="admin-form-label">교육 내용</label>
-                    <textarea name="description" rows="4" class="admin-form-control"></textarea>
-                </div>
-            </form>
-        `;
-        
-        adminUtils.showModal({
-            title: '교육 과정 추가',
-            content: modalContent,
-            buttons: [
-                { label: '취소', type: 'secondary', handler: 'adminUtils.closeModal()' },
-                { label: '추가', type: 'primary', handler: 'document.getElementById("course-form").submit()' }
-            ]
-        });
+    showAddCourseModal: function () {
+        const modal = document.getElementById('course-modal');
+        if (modal) {
+            // 폼 초기화
+            const form = document.getElementById('course-form');
+            if (form) {
+                form.reset();
+                form.removeAttribute('data-course-id'); // 추가 모드임을 보장
+            }
+
+            // 모달 제목 설정
+            const modalTitle = document.getElementById('course-modal-title');
+            if (modalTitle) {
+                modalTitle.textContent = '교육 과정 추가';
+            }
+
+            // 모달 표시
+            modal.classList.remove('hidden');
+        }
     },
-    
+
+    /**
+     * 교육 과정 모달 닫기
+     */
+    closeCourseModal: function () {
+        const modal = document.getElementById('course-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+
+            // 폼 리셋 및 데이터 속성 제거
+            const form = document.getElementById('course-form');
+            if (form) {
+                form.reset();
+                form.removeAttribute('data-course-id');
+            }
+
+            // 모달 제목 초기화
+            const modalTitle = document.getElementById('course-modal-title');
+            if (modalTitle) {
+                modalTitle.textContent = '교육 과정 추가';
+            }
+        }
+    },
+
     /**
      * 교육 과정 추가 처리
      */
-    handleAddCourse: async function(event) {
+    handleAddCourse: async function (event) {
         event.preventDefault();
-        const form = event.target;
-        const formData = new FormData(form);
-        
-        // 유효성 검사
-        const startDate = new Date(formData.get('startDate'));
-        const endDate = new Date(formData.get('endDate'));
-        
-        if (endDate <= startDate) {
-            adminAuth.showNotification('종료일은 시작일보다 이후여야 합니다.', 'error');
-            return;
-        }
-        
-        adminUtils.showLoadingOverlay(true);
-        
+
         try {
-            const courseData = {
-                title: formData.get('title'),
-                certificateType: formData.get('certificateType'),
-                startDate: window.dhcFirebase.firebase.firestore.Timestamp.fromDate(startDate),
-                endDate: window.dhcFirebase.firebase.firestore.Timestamp.fromDate(endDate),
-                price: parseInt(formData.get('price')),
-                capacity: parseInt(formData.get('capacity')),
-                instructor: formData.get('instructor'),
-                location: formData.get('location') || '',
-                status: formData.get('status'),
-                description: formData.get('description') || '',
-                enrolledCount: 0
-            };
-            
-            const result = await dbService.addDocument('courses', courseData);
-            
-            if (result.success) {
-                adminAuth.showNotification('교육 과정이 추가되었습니다.', 'success');
-                adminUtils.closeModal();
-                this.loadCourses();
-            } else {
-                adminAuth.showNotification('교육 과정 추가에 실패했습니다.', 'error');
+            const form = event.target;
+
+            // 폼 데이터 수집
+            const name = form.querySelector('#course-name').value;
+            const certificateType = form.querySelector('#course-type').value;
+            const description = form.querySelector('#course-description').value;
+            const price = parseInt(form.querySelector('#course-price').value);
+            const capacity = parseInt(form.querySelector('#course-capacity').value);
+            const duration = parseInt(form.querySelector('#course-duration').value);
+            const startDate = new Date(form.querySelector('#course-start-date').value);
+            const endDate = new Date(form.querySelector('#course-end-date').value);
+            const instructor = form.querySelector('#course-instructor').value;
+
+            // 상태 필드가 있으면 가져옴
+            const statusField = form.querySelector('#course-status');
+            const status = statusField ? statusField.value : 'preparing';
+
+            // 유효성 검사
+            if (!name || !certificateType || !price || !capacity || !startDate || !endDate || !instructor) {
+                window.adminAuth?.showNotification('모든 필수 항목을 입력하세요.', 'error');
+                return;
             }
+
+            if (endDate <= startDate) {
+                window.adminAuth?.showNotification('종료일은 시작일보다 이후여야 합니다.', 'error');
+                return;
+            }
+
+            // 과정 데이터 생성
+            const courseData = {
+                title: name,
+                certificateType: certificateType,
+                description: description,
+                price: price,
+                capacity: capacity,
+                duration: duration,
+                instructor: instructor,
+                status: status
+            };
+
+            // Firebase 연동 시 
+            if (window.dhcFirebase && window.dhcFirebase.db) {
+                // 타임스탬프로 변환
+                courseData.startDate = window.dhcFirebase.firebase.firestore.Timestamp.fromDate(startDate);
+                courseData.endDate = window.dhcFirebase.firebase.firestore.Timestamp.fromDate(endDate);
+
+                // 수정 모드인지 확인 (폼에 data-course-id 속성이 있으면 수정 모드)
+                const courseId = form.getAttribute('data-course-id');
+
+                if (courseId) {
+                    // 수정 모드
+                    console.log('교육 과정 수정 모드:', courseId);
+                    courseData.updatedAt = window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp();
+
+                    // Firestore 문서 업데이트
+                    await window.dhcFirebase.db.collection('courses').doc(courseId).update(courseData);
+                    window.adminAuth?.showNotification('교육 과정이 성공적으로 수정되었습니다.', 'success');
+                } else {
+                    // 추가 모드
+                    console.log('교육 과정 추가 모드');
+                    courseData.createdAt = window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp();
+                    courseData.enrolledCount = 0;
+
+                    // Firestore에 새 문서 추가
+                    await window.dhcFirebase.db.collection('courses').add(courseData);
+                    window.adminAuth?.showNotification('교육 과정이 성공적으로 추가되었습니다.', 'success');
+                }
+            } else {
+                // 테스트 환경
+                console.log('테스트 환경에서 과정 처리:', courseData);
+                window.adminAuth?.showNotification('테스트 환경에서 처리되었습니다.', 'success');
+            }
+
+            // 모달 닫기
+            this.closeCourseModal();
+
+            // 목록 새로고침
+            this.loadCourses();
+
         } catch (error) {
-            console.error('교육 과정 추가 오류:', error);
-            adminAuth.showNotification('오류가 발생했습니다.', 'error');
-        } finally {
-            adminUtils.showLoadingOverlay(false);
+            console.error('교육 과정 처리 오류:', error);
+            window.adminAuth?.showNotification('교육 과정 처리 중 오류가 발생했습니다.', 'error');
         }
     },
-    
+
     /**
      * 교육 과정 상세 보기
      */
-    viewCourse: async function(courseId) {
+    viewCourse: async function (courseId) {
         try {
-            const courseDoc = await dbService.getDocument('courses', courseId);
-            
-            if (!courseDoc.success) {
-                adminAuth.showNotification('교육 과정을 불러올 수 없습니다.', 'error');
-                return;
+            let course;
+
+            // 데이터 가져오기
+            if (window.dhcFirebase && window.dhcFirebase.db) {
+                const doc = await window.dhcFirebase.db.collection('courses').doc(courseId).get();
+
+                if (doc.exists) {
+                    course = {
+                        id: doc.id,
+                        ...doc.data()
+                    };
+                } else {
+                    if (window.adminAuth && window.adminAuth.showNotification) {
+                        window.adminAuth.showNotification('해당 교육 과정을 찾을 수 없습니다.', 'error');
+                    } else {
+                        alert('해당 교육 과정을 찾을 수 없습니다.');
+                    }
+                    return;
+                }
+            } else {
+                // 테스트용 더미 데이터
+                course = {
+                    id: courseId,
+                    title: '건강운동처방사 기본과정',
+                    certificateType: 'health-exercise',
+                    instructor: '김운동',
+                    startDate: new Date('2025-05-01'),
+                    endDate: new Date('2025-06-30'),
+                    price: 350000,
+                    capacity: 30,
+                    enrolledCount: 15,
+                    status: 'active',
+                    description: '건강운동처방사 자격증 취득을 위한 기본 과정입니다.'
+                };
             }
-            
-            const course = courseDoc.data;
-            
-            // 수강생 목록 조회
-            const enrollments = await dbService.getDocuments('enrollments', {
-                where: { field: 'courseId', operator: '==', value: courseId }
-            });
-            
-            let enrollmentListHtml = '<p class="text-gray-500">수강생이 없습니다.</p>';
-            
-            if (enrollments.success && enrollments.data.length > 0) {
-                // 수강생 정보 로드
-                const userPromises = enrollments.data.map(enrollment => 
-                    dbService.getDocument('users', enrollment.userId)
-                );
-                const users = await Promise.all(userPromises);
-                
-                enrollmentListHtml = `
-                    <table class="w-full mt-4">
-                        <thead>
-                            <tr class="border-b">
-                                <th class="text-left pb-2">이름</th>
-                                <th class="text-left pb-2">이메일</th>
-                                <th class="text-left pb-2">신청일</th>
-                                <th class="text-left pb-2">상태</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${enrollments.data.map((enrollment, index) => {
-                                const user = users[index].success ? users[index].data : null;
-                                return `
-                                    <tr class="border-b">
-                                        <td class="py-2">${user?.displayName || '알 수 없음'}</td>
-                                        <td class="py-2">${user?.email || '알 수 없음'}</td>
-                                        <td class="py-2">${formatters.formatDate(enrollment.createdAt?.toDate())}</td>
-                                        <td class="py-2">
-                                            <span class="admin-badge admin-badge-${enrollment.status === 'completed' ? 'success' : 'info'}">
-                                                ${enrollment.status === 'completed' ? '수료' : '수강중'}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                `;
-                            }).join('')}
-                        </tbody>
-                    </table>
-                `;
-            }
-            
-            const modalContent = `
-                <div class="space-y-4">
-                    <div>
-                        <h4 class="font-medium text-gray-700">교육명</h4>
-                        <p>${course.title}</p>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <h4 class="font-medium text-gray-700">자격증</h4>
-                            <p>${this.getCertificateName(course.certificateType)}</p>
-                        </div>
-                        <div>
-                            <h4 class="font-medium text-gray-700">강사</h4>
-                            <p>${course.instructor}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <h4 class="font-medium text-gray-700">기간</h4>
-                            <p>${formatters.formatDate(course.startDate?.toDate())} ~ ${formatters.formatDate(course.endDate?.toDate())}</p>
-                        </div>
-                        <div>
-                            <h4 class="font-medium text-gray-700">수강료</h4>
-                            <p>${formatters.formatCurrency(course.price)}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <h4 class="font-medium text-gray-700">정원</h4>
-                            <p>${course.enrolledCount || 0}/${course.capacity}명</p>
-                        </div>
-                        <div>
-                            <h4 class="font-medium text-gray-700">상태</h4>
-                            <p>${this.getStatusBadge(course.status)}</p>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-medium text-gray-700">교육 장소</h4>
-                        <p>${course.location || '-'}</p>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-medium text-gray-700">교육 내용</h4>
-                        <p>${course.description || '-'}</p>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-medium text-gray-700 mb-2">수강생 목록</h4>
-                        ${enrollmentListHtml}
-                    </div>
-                </div>
-            `;
-            
-            adminUtils.showModal({
-                title: '교육 과정 상세',
-                content: modalContent,
-                buttons: [
-                    { label: '닫기', type: 'secondary', handler: 'adminUtils.closeModal()' }
-                ]
-            });
+
+            // 알림창으로 정보 표시 (실제로는 모달 등으로 구현)
+            alert(`
+                교육명: ${course.title}
+                자격증: ${this.getCertificateName(course.certificateType)}
+                강사: ${course.instructor}
+                기간: ${this.formatDate(course.startDate)} ~ ${this.formatDate(course.endDate)}
+                수강료: ${this.formatCurrency(course.price)}
+                정원: ${course.enrolledCount || 0}/${course.capacity}명
+                상태: ${course.status}
+                설명: ${course.description || '내용 없음'}
+            `);
+
         } catch (error) {
             console.error('교육 과정 상세 보기 오류:', error);
-            adminAuth.showNotification('오류가 발생했습니다.', 'error');
+
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('교육 과정 정보를 불러오는데 실패했습니다.', 'error');
+            } else {
+                alert('교육 과정 정보를 불러오는데 실패했습니다.');
+            }
         }
     },
-    
+
     /**
      * 교육 과정 수정
      */
-    editCourse: async function(courseId) {
+    editCourse: async function (courseId) {
         try {
-            const courseDoc = await dbService.getDocument('courses', courseId);
-            
-            if (!courseDoc.success) {
-                adminAuth.showNotification('교육 과정을 불러올 수 없습니다.', 'error');
-                return;
+            let course = null;
+
+            // Firebase에서 과정 정보 가져오기
+            if (window.dhcFirebase && window.dhcFirebase.db) {
+                try {
+                    const docRef = window.dhcFirebase.db.collection('courses').doc(courseId);
+                    const docSnap = await docRef.get();
+
+                    if (docSnap.exists) {
+                        course = {
+                            id: docSnap.id,
+                            ...docSnap.data()
+                        };
+                    } else {
+                        window.adminAuth?.showNotification('교육 과정을 찾을 수 없습니다.', 'error');
+                        return;
+                    }
+                } catch (error) {
+                    console.error('교육 과정 조회 오류:', error);
+                    window.adminAuth?.showNotification('교육 과정을 불러올 수 없습니다.', 'error');
+                    return;
+                }
+            } else {
+                // 테스트 데이터
+                course = {
+                    id: courseId,
+                    title: '건강운동처방사 기본과정',
+                    certificateType: 'health-exercise',
+                    instructor: '김운동',
+                    startDate: new Date('2025-05-01'),
+                    endDate: new Date('2025-06-30'),
+                    price: 350000,
+                    capacity: 30,
+                    duration: 120,
+                    enrolledCount: 15,
+                    status: 'active',
+                    description: '건강운동처방사 자격증 취득을 위한 기본 과정입니다.'
+                };
             }
-            
-            const course = courseDoc.data;
-            
-            const modalContent = `
-                <form id="edit-course-form" onsubmit="courseManager.handleEditCourse(event, '${courseId}')">
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">교육명 <span class="text-red-500">*</span></label>
-                        <input type="text" name="title" class="admin-form-control" value="${course.title}" required>
-                    </div>
-                    
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">자격증 종류 <span class="text-red-500">*</span></label>
-                        <select name="certificateType" class="admin-form-control" required>
-                            <option value="health-exercise" ${course.certificateType === 'health-exercise' ? 'selected' : ''}>건강운동처방사</option>
-                            <option value="rehabilitation" ${course.certificateType === 'rehabilitation' ? 'selected' : ''}>운동재활전문가</option>
-                            <option value="pilates" ${course.certificateType === 'pilates' ? 'selected' : ''}>필라테스 전문가</option>
-                            <option value="recreation" ${course.certificateType === 'recreation' ? 'selected' : ''}>레크리에이션지도자</option>
-                        </select>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="admin-form-group">
-                            <label class="admin-form-label">시작일 <span class="text-red-500">*</span></label>
-                            <input type="date" name="startDate" class="admin-form-control" 
-                                value="${course.startDate ? formatters.formatDateForInput(course.startDate.toDate()) : ''}" required>
-                        </div>
-                        
-                        <div class="admin-form-group">
-                            <label class="admin-form-label">종료일 <span class="text-red-500">*</span></label>
-                            <input type="date" name="endDate" class="admin-form-control" 
-                                value="${course.endDate ? formatters.formatDateForInput(course.endDate.toDate()) : ''}" required>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="admin-form-group">
-                            <label class="admin-form-label">수강료 <span class="text-red-500">*</span></label>
-                            <input type="number" name="price" class="admin-form-control" value="${course.price}" min="0" required>
-                        </div>
-                        
-                        <div class="admin-form-group">
-                            <label class="admin-form-label">정원 <span class="text-red-500">*</span></label>
-                            <input type="number" name="capacity" class="admin-form-control" value="${course.capacity}" min="1" required>
-                        </div>
-                    </div>
-                    
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">강사 <span class="text-red-500">*</span></label>
-                        <input type="text" name="instructor" class="admin-form-control" value="${course.instructor}" required>
-                    </div>
-                    
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">교육 장소</label>
-                        <input type="text" name="location" class="admin-form-control" value="${course.location || ''}">
-                    </div>
-                    
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">상태 <span class="text-red-500">*</span></label>
-                        <select name="status" class="admin-form-control" required>
-                            <option value="preparing" ${course.status === 'preparing' ? 'selected' : ''}>준비중</option>
-                            <option value="active" ${course.status === 'active' ? 'selected' : ''}>모집중</option>
-                            <option value="closed" ${course.status === 'closed' ? 'selected' : ''}>마감</option>
-                            <option value="completed" ${course.status === 'completed' ? 'selected' : ''}>종료</option>
-                        </select>
-                    </div>
-                    
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">교육 내용</label>
-                        <textarea name="description" rows="4" class="admin-form-control">${course.description || ''}</textarea>
-                    </div>
-                </form>
-            `;
-            
-            adminUtils.showModal({
-                title: '교육 과정 수정',
-                content: modalContent,
-                buttons: [
-                    { label: '취소', type: 'secondary', handler: 'adminUtils.closeModal()' },
-                    { label: '저장', type: 'primary', handler: 'document.getElementById("edit-course-form").submit()' }
-                ]
-            });
+
+            // 모달 표시 및 데이터 채우기
+            const modal = document.getElementById('course-modal');
+            if (modal) {
+                // 모달 제목 변경
+                document.getElementById('course-modal-title').textContent = '교육 과정 수정';
+
+                // 폼 데이터 채우기
+                const form = document.getElementById('course-form');
+                form.querySelector('#course-name').value = course.title || '';
+                form.querySelector('#course-type').value = course.certificateType || '';
+                form.querySelector('#course-description').value = course.description || '';
+                form.querySelector('#course-price').value = course.price || '';
+                form.querySelector('#course-capacity').value = course.capacity || '';
+                form.querySelector('#course-duration').value = course.duration || '';
+
+                // 날짜 형식 처리
+                const formatDate = (date) => {
+                    if (!date) return '';
+
+                    const d = date instanceof Date ? date :
+                        (date.toDate ? date.toDate() : new Date(date));
+
+                    return d.toISOString().split('T')[0];
+                };
+
+                form.querySelector('#course-start-date').value = formatDate(course.startDate);
+                form.querySelector('#course-end-date').value = formatDate(course.endDate);
+
+                // 강사 설정
+                form.querySelector('#course-instructor').value = course.instructor || '';
+
+                // 상태 설정 (만약 상태 필드가 있다면)
+                const statusField = form.querySelector('#course-status');
+                if (statusField) {
+                    statusField.value = course.status || 'preparing';
+                }
+
+                // 중요: 폼에 courseId 데이터 속성 추가 (수정 처리를 위해)
+                form.setAttribute('data-course-id', courseId);
+
+                // 모달 표시
+                modal.classList.remove('hidden');
+            }
         } catch (error) {
-            console.error('교육 과정 수정 오류:', error);
-            adminAuth.showNotification('오류가 발생했습니다.', 'error');
+            console.error('교육 과정 수정 준비 오류:', error);
+            window.adminAuth?.showNotification('교육 과정 정보를 불러오는데 실패했습니다.', 'error');
         }
     },
-    
+
     /**
      * 교육 과정 수정 처리
      */
-    handleEditCourse: async function(event, courseId) {
-        event.preventDefault();
-        const form = event.target;
-        const formData = new FormData(form);
-        
-        // 유효성 검사
-        const startDate = new Date(formData.get('startDate'));
-        const endDate = new Date(formData.get('endDate'));
-        
-        if (endDate <= startDate) {
-            adminAuth.showNotification('종료일은 시작일보다 이후여야 합니다.', 'error');
-            return;
-        }
-        
-        adminUtils.showLoadingOverlay(true);
-        
+    handleEditCourse: async function (courseId) {
         try {
-            const updateData = {
-                title: formData.get('title'),
-                certificateType: formData.get('certificateType'),
-                startDate: window.dhcFirebase.firebase.firestore.Timestamp.fromDate(startDate),
-                endDate: window.dhcFirebase.firebase.firestore.Timestamp.fromDate(endDate),
-                price: parseInt(formData.get('price')),
-                capacity: parseInt(formData.get('capacity')),
-                instructor: formData.get('instructor'),
-                location: formData.get('location') || '',
-                status: formData.get('status'),
-                description: formData.get('description') || ''
+            // 로딩 표시
+            if (window.adminUtils?.showLoadingOverlay) {
+                window.adminUtils.showLoadingOverlay(true);
+            }
+
+            // 폼 데이터 수집
+            const form = document.getElementById('course-form');
+            const name = form.querySelector('#course-name').value;
+            const certificateType = form.querySelector('#course-type').value;
+            const description = form.querySelector('#course-description').value;
+            const price = parseInt(form.querySelector('#course-price').value);
+            const capacity = parseInt(form.querySelector('#course-capacity').value);
+            const duration = parseInt(form.querySelector('#course-duration').value);
+            const startDate = new Date(form.querySelector('#course-start-date').value);
+            const endDate = new Date(form.querySelector('#course-end-date').value);
+            const instructor = form.querySelector('#course-instructor').value;
+            const status = form.querySelector('#course-status')?.value || 'preparing';
+
+            // 유효성 검사
+            if (!name || !certificateType || !price || !capacity || !startDate || !endDate || !instructor) {
+                if (window.adminAuth && window.adminAuth.showNotification) {
+                    window.adminAuth.showNotification('모든 필수 항목을 입력하세요.', 'error');
+                } else {
+                    alert('모든 필수 항목을 입력하세요.');
+                }
+                return;
+            }
+
+            if (endDate <= startDate) {
+                if (window.adminAuth && window.adminAuth.showNotification) {
+                    window.adminAuth.showNotification('종료일은 시작일보다 이후여야 합니다.', 'error');
+                } else {
+                    alert('종료일은 시작일보다 이후여야 합니다.');
+                }
+                return;
+            }
+
+            // 수정할 데이터
+            const courseData = {
+                title: name,
+                certificateType: certificateType,
+                description: description,
+                price: price,
+                capacity: capacity,
+                duration: duration,
+                instructor: instructor,
+                status: status,
+                updatedAt: new Date()
             };
-            
-            const result = await dbService.updateDocument('courses', courseId, updateData);
-            
-            if (result.success) {
-                adminAuth.showNotification('교육 과정이 수정되었습니다.', 'success');
-                adminUtils.closeModal();
-                this.loadCourses();
+
+            // Firebase 저장
+            if (window.dhcFirebase && window.dhcFirebase.db) {
+                // 타임스탬프로 변환
+                courseData.startDate = window.dhcFirebase.firebase.firestore.Timestamp.fromDate(startDate);
+                courseData.endDate = window.dhcFirebase.firebase.firestore.Timestamp.fromDate(endDate);
+                courseData.updatedAt = window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp();
+
+                try {
+                    // 기존 문서 업데이트
+                    await window.dhcFirebase.db.collection('courses').doc(courseId).update(courseData);
+
+                    // 성공 메시지
+                    if (window.adminAuth && window.adminAuth.showNotification) {
+                        window.adminAuth.showNotification('교육 과정이 수정되었습니다.', 'success');
+                    } else {
+                        alert('교육 과정이 수정되었습니다.');
+                    }
+
+                    // 모달 닫기
+                    this.closeCourseModal();
+
+                    // 목록 새로고침
+                    this.loadCourses();
+                } catch (error) {
+                    console.error('교육 과정 수정 오류:', error);
+                    if (window.adminAuth && window.adminAuth.showNotification) {
+                        window.adminAuth.showNotification('교육 과정 수정 중 오류가 발생했습니다.', 'error');
+                    } else {
+                        alert('교육 과정 수정 중 오류가 발생했습니다.');
+                    }
+                }
             } else {
-                adminAuth.showNotification('교육 과정 수정에 실패했습니다.', 'error');
+                // 테스트 환경에서는 성공으로 처리
+                setTimeout(() => {
+                    if (window.adminAuth && window.adminAuth.showNotification) {
+                        window.adminAuth.showNotification('교육 과정이 수정되었습니다.', 'success');
+                    } else {
+                        alert('교육 과정이 수정되었습니다.');
+                    }
+
+                    // 모달 닫기
+                    this.closeCourseModal();
+
+                    // 목록 새로고침
+                    this.loadCourses();
+                }, 1000);
             }
         } catch (error) {
             console.error('교육 과정 수정 처리 오류:', error);
-            adminAuth.showNotification('오류가 발생했습니다.', 'error');
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('교육 과정 수정 중 오류가 발생했습니다.', 'error');
+            } else {
+                alert('교육 과정 수정 중 오류가 발생했습니다.');
+            }
         } finally {
-            adminUtils.showLoadingOverlay(false);
+            // 로딩 종료
+            if (window.adminUtils?.showLoadingOverlay) {
+                window.adminUtils.showLoadingOverlay(false);
+            }
         }
     },
-    
+
+    /**
+     * 날짜를 input[type="date"]용으로 포맷팅
+     */
+    formatDateToInput: function (date) {
+        if (!date) return '';
+
+        try {
+            // Date 객체 확인
+            if (!(date instanceof Date)) {
+                date = new Date(date);
+            }
+
+            // 유효한 날짜인지 확인
+            if (isNaN(date.getTime())) {
+                return '';
+            }
+
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+
+            return `${yyyy}-${mm}-${dd}`;
+        } catch (error) {
+            console.error('날짜 포맷팅 오류:', error);
+            return '';
+        }
+    },
+
     /**
      * 교육 과정 삭제
      */
-    deleteCourse: function(courseId) {
-        adminUtils.confirmDialog(
-            '정말로 이 교육 과정을 삭제하시겠습니까? 수강생 정보도 함께 삭제됩니다.',
-            () => this.handleDeleteCourse(courseId)
-        );
+    deleteCourse: function (courseId) {
+        if (confirm('정말로 이 교육 과정을 삭제하시겠습니까?')) {
+            this.handleDeleteCourse(courseId);
+        }
     },
-    
+
     /**
      * 교육 과정 삭제 처리
      */
-    handleDeleteCourse: async function(courseId) {
-        adminUtils.showLoadingOverlay(true);
-        
+    handleDeleteCourse: async function (courseId) {
         try {
-            // 관련 수강생 정보 삭제
-            const enrollments = await dbService.getDocuments('enrollments', {
-                where: { field: 'courseId', operator: '==', value: courseId }
-            });
-            
-            if (enrollments.success && enrollments.data.length > 0) {
-                // 배치 삭제
-                await dbService.runBatch(batch => {
-                    enrollments.data.forEach(enrollment => {
-                        const enrollmentRef = window.dhcFirebase.db.collection('enrollments').doc(enrollment.id);
-                        batch.delete(enrollmentRef);
-                    });
-                });
+            // Firebase 삭제
+            if (window.dhcFirebase && window.dhcFirebase.db) {
+                await window.dhcFirebase.db.collection('courses').doc(courseId).delete();
             }
-            
-            // 교육 과정 삭제
-            const result = await dbService.deleteDocument('courses', courseId);
-            
-            if (result.success) {
-                adminAuth.showNotification('교육 과정이 삭제되었습니다.', 'success');
-                this.loadCourses();
+
+            // 성공 메시지
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('교육 과정이 삭제되었습니다.', 'success');
             } else {
-                adminAuth.showNotification('교육 과정 삭제에 실패했습니다.', 'error');
+                alert('교육 과정이 삭제되었습니다.');
             }
+
+            // 목록 새로고침
+            this.loadCourses();
+
         } catch (error) {
             console.error('교육 과정 삭제 오류:', error);
-            adminAuth.showNotification('오류가 발생했습니다.', 'error');
-        } finally {
-            adminUtils.showLoadingOverlay(false);
+
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('교육 과정 삭제 중 오류가 발생했습니다.', 'error');
+            } else {
+                alert('교육 과정 삭제 중 오류가 발생했습니다.');
+            }
         }
     },
-    
+
     /**
-     * 검색 필터 적용
+     * 교육 과정 유형 변경
      */
-    applyFilters: function() {
-        this.filters = {
-            searchKeyword: document.getElementById('search-keyword')?.value || '',
-            certificateType: document.getElementById('certificate-type')?.value || '',
-            status: document.getElementById('course-status')?.value || ''
-        };
-        
+    switchCourseType: function (type) {
+        // 타입 저장
+        this.currentCourseType = type;
+
+        // 탭 활성화 상태 변경
+        document.querySelectorAll('.course-tab').forEach(tab => {
+            if (tab.getAttribute('data-course') === type) {
+                tab.classList.remove('border-transparent', 'text-gray-500');
+                tab.classList.add('border-indigo-500', 'text-indigo-600');
+            } else {
+                tab.classList.remove('border-indigo-500', 'text-indigo-600');
+                tab.classList.add('border-transparent', 'text-gray-500');
+            }
+        });
+
+        // 타입별 제목 업데이트
+        document.getElementById('course-type-title').textContent = this.getCertificateName(type);
+
+        // 목록 새로고침
         this.currentPage = 1;
         this.lastDoc = null;
         this.loadCourses();
     },
-    
-    /**
-     * 검색 필터 초기화
-     */
-    resetFilters: function() {
-        adminUtils.resetFilters();
-        this.filters = {};
-        this.currentPage = 1;
-        this.lastDoc = null;
-        this.loadCourses();
-    },
-    
+
     /**
      * 자격증 이름 반환
      */
-    getCertificateName: function(type) {
+    getCertificateName: function (type) {
         const types = {
             'health-exercise': '건강운동처방사',
             'rehabilitation': '운동재활전문가',
@@ -690,114 +821,51 @@ const courseManager = {
         };
         return types[type] || type;
     },
-    
+
     /**
-     * 상태 뱃지 반환
+     * 날짜 포맷팅
      */
-    getStatusBadge: function(status) {
-        const statusBadge = {
-            'active': '<span class="admin-badge admin-badge-success">모집중</span>',
-            'closed': '<span class="admin-badge admin-badge-danger">마감</span>',
-            'completed': '<span class="admin-badge admin-badge-info">종료</span>',
-            'preparing': '<span class="admin-badge admin-badge-warning">준비중</span>'
-        };
-        return statusBadge[status] || status;
+    formatDate: function (date) {
+        if (!date) return '-';
+
+        const d = date instanceof Date ? date : new Date(date?.seconds * 1000 || 0);
+        return d.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\. /g, '-').replace('.', '');
     },
-    
+
     /**
-     * 교육 과정 유형 변경
+     * input 요소용 날짜 포맷팅
      */
-    switchCourseType: function(type) {
-        // 탭 활성화 상태 변경
-        document.querySelectorAll('.course-tab').forEach(tab => {
-            tab.classList.remove('active', 'border-indigo-500', 'text-indigo-600');
-            tab.classList.add('border-transparent', 'text-gray-500');
-        });
-        
-        const selectedTab = document.querySelector(`.course-tab[data-course="${type}"]`);
-        if (selectedTab) {
-            selectedTab.classList.remove('border-transparent', 'text-gray-500');
-            selectedTab.classList.add('active', 'border-indigo-500', 'text-indigo-600');
-        }
-        
-        // 타입별 제목 업데이트
-        document.getElementById('course-type-title').textContent = this.getCertificateName(type);
-        
-        // 필터 적용 및 목록 로드
-        this.filters.certificateType = type;
-        this.currentPage = 1;
-        this.lastDoc = null;
-        this.loadCourses();
+    formatDateForInput: function (date) {
+        if (!date) return '';
+
+        const d = date instanceof Date ? date : new Date(date?.seconds * 1000 || 0);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
+    },
+
+    /**
+     * 금액 포맷팅
+     */
+    formatCurrency: function (value) {
+        return new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(value).replace('₩', '') + '원';
     }
 };
 
-/**
- * 교육 관리 페이지 초기화 함수
- */
-async function initCourseManagement() {
-    try {
-        console.log('교육 관리 페이지 초기화 시작');
-        await courseManager.init();
-        console.log('교육 관리 페이지 초기화 완료');
-    } catch (error) {
-        console.error('교육 관리 페이지 초기화 오류:', error);
-    }
-}
-
-// 레거시 방식 지원 (DOMContentLoaded 이벤트 리스너)
-// 새로운 스크립트 로더를 사용하지 않는 환경을 위해 유지
-document.addEventListener('DOMContentLoaded', async function() {
-    // 스크립트 로더를 통해 초기화되지 않았을 경우에만 실행
+// 페이지 로드 완료 후 실행
+window.addEventListener('DOMContentLoaded', function () {
+    // 이미 script-loader.js에 의해 초기화되지 않았을 경우에만 실행
     if (!window.scriptLoaderInitialized) {
-        // Firebase 초기화 대기
-        if (window.dhcFirebase && typeof window.dhcFirebase.initialize === 'function') {
-            await window.dhcFirebase.initialize();
-        }
-        
-        // 관리자 권한 확인
-        if (window.adminAuth && typeof window.adminAuth.checkAdminAccess === 'function') {
-            const hasAccess = await window.adminAuth.checkAdminAccess();
-            if (!hasAccess) {
-                return; // 권한이 없으면 이미 리디렉션됨
-            }
-            
-            // 관리자 정보 표시
-            await window.adminAuth.displayAdminInfo();
-            
-            // 검색 필터 설정
-            const filterOptions = {
-                searchField: {
-                    label: '검색',
-                    placeholder: '교육명으로 검색'
-                },
-                selectFilters: [
-                    {
-                        id: 'certificate-type',
-                        label: '자격증',
-                        options: [
-                            { value: 'health-exercise', label: '건강운동처방사' },
-                            { value: 'rehabilitation', label: '운동재활전문가' },
-                            { value: 'pilates', label: '필라테스 전문가' },
-                            { value: 'recreation', label: '레크리에이션지도자' }
-                        ]
-                    },
-                    {
-                        id: 'course-status',
-                        label: '상태',
-                        options: [
-                            { value: 'preparing', label: '준비중' },
-                            { value: 'active', label: '모집중' },
-                            { value: 'closed', label: '마감' },
-                            { value: 'completed', label: '종료' }
-                        ]
-                    }
-                ]
-            };
-            
-            adminUtils.createSearchFilter('course-filter-container', filterOptions, 'courseManager.applyFilters');
-            
-            // 교육 과정 목록 로드
-            courseManager.loadCourses();
-        }
+        console.log('교육 관리 페이지 초기화 (DOMContentLoaded)');
+
+        // 전역 스코프에 courseManager 객체 추가
+        window.courseManager = courseManager;
+
+        // 초기화
+        courseManager.init().catch(error => {
+            console.error('교육 관리 페이지 초기화 오류:', error);
+        });
     }
 });

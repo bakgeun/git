@@ -2,6 +2,39 @@
  * 자격증 관리 페이지 스크립트
  */
 
+// formatters.js에 formatDateToInput 함수가 없으면 추가
+if (window.formatters && !window.formatters.formatDateToInput) {
+    window.formatters.formatDateToInput = function(date) {
+        if (!date) return '';
+        
+        try {
+            // Firebase Timestamp인 경우
+            if (typeof date.toDate === 'function') {
+                date = date.toDate();
+            } else if (typeof date === 'string') {
+                // YYYY-MM-DD 형식인지 확인
+                if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+                    return date;
+                }
+                // 다른 형식의 문자열일 경우 Date 객체로 변환
+                date = new Date(date);
+            }
+            
+            // Date 객체인 경우
+            if (date instanceof Date) {
+                const yyyy = date.getFullYear();
+                const mm = String(date.getMonth() + 1).padStart(2, '0');
+                const dd = String(date.getDate()).padStart(2, '0');
+                return `${yyyy}-${mm}-${dd}`;
+            }
+        } catch (error) {
+            console.error('날짜 포맷팅 오류:', error);
+        }
+        
+        return '';
+    };
+}
+
 // 자격증 관리 객체
 window.certManager = {
     currentPage: 1,
@@ -120,52 +153,90 @@ window.certManager = {
             // Firebase가 초기화되었는지 확인
             if (window.dhcFirebase && window.dhcFirebase.db) {
                 try {
-                    // 필터 옵션 설정
-                    const options = {
-                        where: [
-                            { field: 'certificateType', operator: '==', value: this.currentCertType }
-                        ],
-                        orderBy: { field: 'issueDate', direction: 'desc' },
-                        pageSize: this.pageSize
-                    };
+                    // 필터 옵션 설정 - 인덱스 오류 방지를 위해 단순화된 쿼리 사용
+                    let query = window.dhcFirebase.db.collection('certificates')
+                        .where('certificateType', '==', this.currentCertType);
                     
-                    // 검색 조건 적용
-                    const nameSearch = document.getElementById('search-name')?.value.trim();
-                    const certNumberSearch = document.getElementById('search-cert-number')?.value.trim();
+                    // 상태 필터 적용 (선택적)
                     const statusFilter = document.getElementById('filter-status')?.value;
-                    
                     if (statusFilter) {
-                        options.where.push({ field: 'status', operator: '==', value: statusFilter });
+                        query = query.where('status', '==', statusFilter);
                     }
                     
-                    // 검색어로 검색
-                    if (nameSearch || certNumberSearch) {
-                        let searchResults = [];
+                    // 검색어 필터
+                    const nameSearch = document.getElementById('search-name')?.value.trim();
+                    const certNumberSearch = document.getElementById('search-cert-number')?.value.trim();
+                    
+                    // 검색어가 없으면 기본 쿼리 실행
+                    if (!nameSearch && !certNumberSearch) {
+                        const snapshot = await query.get();
                         
-                        if (nameSearch) {
-                            // 이름으로 검색
-                            const nameResults = await window.dbService.searchDocuments('certificates', 'holderName', nameSearch, options);
-                            if (nameResults.success) {
-                                searchResults = searchResults.concat(nameResults.data);
-                            }
+                        if (!snapshot.empty) {
+                            snapshot.forEach(doc => {
+                                certificates.push({
+                                    id: doc.id,
+                                    ...doc.data()
+                                });
+                            });
+                            
+                            // 클라이언트 측에서 정렬 (최신 발급일 기준)
+                            certificates.sort((a, b) => {
+                                const dateA = a.issueDate?.seconds || 0;
+                                const dateB = b.issueDate?.seconds || 0;
+                                return dateB - dateA;
+                            });
+                            
+                            // 페이지네이션 처리 (클라이언트 측)
+                            const startIndex = (this.currentPage - 1) * this.pageSize;
+                            certificates = certificates.slice(startIndex, startIndex + this.pageSize);
                         }
-                        
-                        if (certNumberSearch) {
-                            // 자격증 번호로 검색
-                            const certNumberResults = await window.dbService.searchDocuments('certificates', 'certificateNumber', certNumberSearch, options);
-                            if (certNumberResults.success) {
-                                searchResults = searchResults.concat(certNumberResults.data);
-                            }
-                        }
-                        
-                        // 중복 제거
-                        certificates = Array.from(new Map(searchResults.map(item => [item.id, item])).values());
                     } else {
-                        // 페이지네이션을 위한 쿼리
-                        const results = await window.dbService.getPaginatedDocuments('certificates', options, this.currentPage > 1 ? this.lastDoc : null);
-                        if (results.success) {
-                            certificates = results.data;
-                            this.lastDoc = results.lastDoc;
+                        // 검색어가 있으면 전체 데이터를 가져와서 클라이언트에서 필터링
+                        const snapshot = await window.dhcFirebase.db.collection('certificates')
+                            .where('certificateType', '==', this.currentCertType)
+                            .get();
+                        
+                        if (!snapshot.empty) {
+                            const allCerts = [];
+                            snapshot.forEach(doc => {
+                                allCerts.push({
+                                    id: doc.id,
+                                    ...doc.data()
+                                });
+                            });
+                            
+                            // 클라이언트 측에서 필터링
+                            certificates = allCerts.filter(cert => {
+                                // 상태 필터
+                                if (statusFilter && cert.status !== statusFilter) {
+                                    return false;
+                                }
+                                
+                                // 이름 검색
+                                if (nameSearch && 
+                                   !(cert.holderName && cert.holderName.includes(nameSearch))) {
+                                    return false;
+                                }
+                                
+                                // 자격증 번호 검색
+                                if (certNumberSearch && 
+                                   !(cert.certificateNumber && cert.certificateNumber.includes(certNumberSearch))) {
+                                    return false;
+                                }
+                                
+                                return true;
+                            });
+                            
+                            // 클라이언트 측에서 정렬 (최신 발급일 기준)
+                            certificates.sort((a, b) => {
+                                const dateA = a.issueDate?.seconds || 0;
+                                const dateB = b.issueDate?.seconds || 0;
+                                return dateB - dateA;
+                            });
+                            
+                            // 페이지네이션 처리 (클라이언트 측)
+                            const startIndex = (this.currentPage - 1) * this.pageSize;
+                            certificates = certificates.slice(startIndex, startIndex + this.pageSize);
                         }
                     }
                 } catch (error) {
@@ -181,22 +252,48 @@ window.certManager = {
             this.updateCertificateTable(certificates);
             
             // 페이지네이션 업데이트
-            // Firebase에서 전체 개수 가져오기 (검색어가 없을 때만)
+            // 기존 페이지네이션 로직을 클라이언트 측으로 변경
             let totalCount = 0;
             
-            if (window.dhcFirebase && window.dhcFirebase.db && !nameSearch && !certNumberSearch) {
+            if (window.dhcFirebase && window.dhcFirebase.db) {
                 try {
-                    const countOptions = {
-                        where: [{ field: 'certificateType', operator: '==', value: this.currentCertType }]
-                    };
+                    // 전체 개수만 계산 (인덱스 문제 없는 간단한 쿼리)
+                    const snapshot = await window.dhcFirebase.db.collection('certificates')
+                        .where('certificateType', '==', this.currentCertType)
+                        .get();
                     
-                    if (statusFilter) {
-                        countOptions.where.push({ field: 'status', operator: '==', value: statusFilter });
-                    }
+                    totalCount = snapshot.size;
                     
-                    const countResult = await window.dbService.countDocuments('certificates', countOptions);
-                    if (countResult.success) {
-                        totalCount = countResult.count;
+                    // 필터링된 경우는 클라이언트 측에서 계산
+                    const statusFilter = document.getElementById('filter-status')?.value;
+                    const nameSearch = document.getElementById('search-name')?.value.trim();
+                    const certNumberSearch = document.getElementById('search-cert-number')?.value.trim();
+                    
+                    if (statusFilter || nameSearch || certNumberSearch) {
+                        // 매우 많은 데이터일 경우 여기서 최적화가 필요할 수 있음
+                        // 현재는 단순하게 메모리에서 필터링
+                        totalCount = snapshot.docs.filter(doc => {
+                            const data = doc.data();
+                            
+                            // 상태 필터
+                            if (statusFilter && data.status !== statusFilter) {
+                                return false;
+                            }
+                            
+                            // 이름 검색
+                            if (nameSearch && 
+                               !(data.holderName && data.holderName.includes(nameSearch))) {
+                                return false;
+                            }
+                            
+                            // 자격증 번호 검색
+                            if (certNumberSearch && 
+                               !(data.certificateNumber && data.certificateNumber.includes(certNumberSearch))) {
+                                return false;
+                            }
+                            
+                            return true;
+                        }).length;
                     }
                 } catch (error) {
                     console.error('문서 수 계산 오류:', error);
@@ -241,11 +338,11 @@ window.certManager = {
         
         certificates.forEach(cert => {
             const issueDate = cert.issueDate && typeof cert.issueDate.toDate === 'function' 
-                ? window.formatters.formatDate(cert.issueDate.toDate()) 
+                ? this.formatDate(cert.issueDate.toDate()) 
                 : cert.issueDate || '-';
                 
             const expiryDate = cert.expiryDate && typeof cert.expiryDate.toDate === 'function'
-                ? window.formatters.formatDate(cert.expiryDate.toDate())
+                ? this.formatDate(cert.expiryDate.toDate())
                 : cert.expiryDate || '-';
             
             tableHtml += `
@@ -381,7 +478,8 @@ window.certManager = {
             // 오늘 날짜로 발급일 설정
             const issueDateInput = document.getElementById('issue-completion-date');
             if (issueDateInput) {
-                issueDateInput.value = window.formatters?.formatDateToInput(new Date()) || new Date().toISOString().split('T')[0];
+                const today = new Date();
+                issueDateInput.value = this.formatDateToInput(today);
             }
             
             // 3년 후 날짜로 만료일 설정
@@ -389,7 +487,7 @@ window.certManager = {
             if (expiryDateInput) {
                 const expiryDate = new Date();
                 expiryDate.setFullYear(expiryDate.getFullYear() + 3);
-                expiryDateInput.value = window.formatters?.formatDateToInput(expiryDate) || expiryDate.toISOString().split('T')[0];
+                expiryDateInput.value = this.formatDateToInput(expiryDate);
             }
         }
     },
@@ -538,20 +636,38 @@ window.certManager = {
             let courses = [];
             
             // Firebase 연동 시
-            if (window.dhcFirebase && window.dhcFirebase.db && window.dbService) {
-                // 현재 자격증 유형에 맞는 교육 과정만 조회
-                const options = {
-                    where: [
-                        { field: 'certificateType', operator: '==', value: this.currentCertType },
-                        { field: 'status', operator: '==', value: 'completed' }
-                    ],
-                    orderBy: { field: 'endDate', direction: 'desc' }
-                };
-                
-                const result = await window.dbService.getDocuments('courses', options);
-                
-                if (result.success) {
-                    courses = result.data;
+            if (window.dhcFirebase && window.dhcFirebase.db) {
+                try {
+                    // 현재 자격증 유형에 맞는 교육 과정만 조회 - 단순 쿼리로 수정
+                    const query = window.dhcFirebase.db.collection('courses')
+                        .where('certificateType', '==', this.currentCertType);
+                    
+                    const snapshot = await query.get();
+                    
+                    if (!snapshot.empty) {
+                        snapshot.forEach(doc => {
+                            courses.push({
+                                id: doc.id,
+                                ...doc.data()
+                            });
+                        });
+                        
+                        // 클라이언트 측에서 추가 필터링 및 정렬
+                        courses = courses.filter(course => 
+                            course.status === 'completed' || course.status === 'closed'
+                        );
+                        
+                        // 최신 종료일 기준 정렬
+                        courses.sort((a, b) => {
+                            const dateA = a.endDate?.seconds || 0;
+                            const dateB = b.endDate?.seconds || 0;
+                            return dateB - dateA;
+                        });
+                    }
+                } catch (error) {
+                    console.error('교육 과정 쿼리 오류:', error);
+                    // 오류 발생 시 빈 배열 사용
+                    courses = [];
                 }
             } else {
                 // 테스트 데이터
@@ -567,10 +683,10 @@ window.certManager = {
                 
                 courses.forEach(course => {
                     const startDate = typeof course.startDate === 'string' ? course.startDate : 
-                        (course.startDate?.toDate ? window.formatters.formatDate(course.startDate.toDate()) : '-');
+                        (course.startDate?.toDate ? this.formatDate(course.startDate.toDate()) : '-');
                     
                     const endDate = typeof course.endDate === 'string' ? course.endDate : 
-                        (course.endDate?.toDate ? window.formatters.formatDate(course.endDate.toDate()) : '-');
+                        (course.endDate?.toDate ? this.formatDate(course.endDate.toDate()) : '-');
                     
                     courseSelect.innerHTML += `
                         <option value="${course.id}">${course.title} (${startDate} ~ ${endDate})</option>
@@ -620,7 +736,7 @@ window.certManager = {
             const count = await this.getCertificateCount(this.currentCertType, year);
             const certificateNumber = `${certTypePrefix}-${year}-${String(count + 1).padStart(4, '0')}`;
             
-            if (window.dhcFirebase && window.dhcFirebase.db && window.dbService) {
+            if (window.dhcFirebase && window.dhcFirebase.db) {
                 // 자격증 데이터 생성
                 const certData = {
                     certificateNumber: certificateNumber,
@@ -631,14 +747,13 @@ window.certManager = {
                     issueDate: window.dhcFirebase.firebase.firestore.Timestamp.fromDate(new Date(completionDate)),
                     expiryDate: window.dhcFirebase.firebase.firestore.Timestamp.fromDate(new Date(expiryDate)),
                     status: 'active',
-                    createdAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
+                    createdAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
                 };
                 
                 // Firebase에 저장
-                const result = await window.dbService.addDocument('certificates', certData);
-                
-                if (result.success) {
+                try {
+                    const docRef = await window.dhcFirebase.db.collection('certificates').add(certData);
+                    
                     // 성공
                     window.adminAuth?.showNotification('자격증이 성공적으로 발급되었습니다.', 'success');
                     
@@ -647,7 +762,8 @@ window.certManager = {
                     
                     // 목록 새로고침
                     this.loadCertificates();
-                } else {
+                } catch (error) {
+                    console.error('자격증 저장 오류:', error);
                     window.adminAuth?.showNotification('자격증 발급에 실패했습니다.', 'error');
                 }
             } else {
@@ -679,20 +795,31 @@ window.certManager = {
      */
     getCertificateCount: async function(certType, year) {
         try {
-            if (window.dhcFirebase && window.dhcFirebase.db && window.dbService) {
+            if (window.dhcFirebase && window.dhcFirebase.db) {
                 const startOfYear = new Date(year, 0, 1);
                 const endOfYear = new Date(year + 1, 0, 1);
                 
-                const countOptions = {
-                    where: [
-                        { field: 'certificateType', operator: '==', value: certType },
-                        { field: 'issueDate', operator: '>=', value: startOfYear },
-                        { field: 'issueDate', operator: '<', value: endOfYear }
-                    ]
-                };
+                // 단순 쿼리로 변경 (인덱스 문제 해결)
+                const query = window.dhcFirebase.db.collection('certificates')
+                    .where('certificateType', '==', certType);
                 
-                const countResult = await window.dbService.countDocuments('certificates', countOptions);
-                return countResult.success ? countResult.count : 0;
+                const snapshot = await query.get();
+                
+                // 클라이언트 측에서 필터링 (연도별)
+                let count = 0;
+                
+                if (!snapshot.empty) {
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const issueDate = data.issueDate?.toDate ? data.issueDate.toDate() : null;
+                        
+                        if (issueDate && issueDate >= startOfYear && issueDate < endOfYear) {
+                            count++;
+                        }
+                    });
+                }
+                
+                return count;
             }
             
             // 테스트 환경에서는 0 반환 (첫 번째 자격증 번호는 0001이 됨)
@@ -729,30 +856,52 @@ window.certManager = {
             let userEmail = '-';
             
             // Firebase 연동 시
-            if (window.dhcFirebase && window.dhcFirebase.db && window.dbService) {
+            if (window.dhcFirebase && window.dhcFirebase.db) {
                 // 자격증 정보 조회
-                const certResult = await window.dbService.getDocument('certificates', certId);
-                
-                if (certResult.success) {
-                    cert = certResult.data;
+                try {
+                    const docRef = window.dhcFirebase.db.collection('certificates').doc(certId);
+                    const docSnap = await docRef.get();
                     
-                    // 교육 과정 정보 조회 (선택적)
-                    if (cert.courseId) {
-                        const courseResult = await window.dbService.getDocument('courses', cert.courseId);
-                        if (courseResult.success) {
-                            courseName = courseResult.data.title || '-';
+                    if (docSnap.exists) {
+                        cert = {
+                            id: docSnap.id,
+                            ...docSnap.data()
+                        };
+                        
+                        // 교육 과정 정보 조회 (선택적)
+                        if (cert.courseId) {
+                            try {
+                                const courseRef = window.dhcFirebase.db.collection('courses').doc(cert.courseId);
+                                const courseSnap = await courseRef.get();
+                                
+                                if (courseSnap.exists) {
+                                    courseName = courseSnap.data().title || '-';
+                                }
+                            } catch (error) {
+                                console.error('교육 과정 조회 오류:', error);
+                            }
                         }
-                    }
-                    
-                    // 사용자 정보 조회 (선택적)
-                    if (cert.userId) {
-                        const userResult = await window.dbService.getDocument('users', cert.userId);
-                        if (userResult.success) {
-                            userName = userResult.data.displayName || '-';
-                            userEmail = userResult.data.email || '-';
+                        
+                        // 사용자 정보 조회 (선택적)
+                        if (cert.userId) {
+                            try {
+                                const userRef = window.dhcFirebase.db.collection('users').doc(cert.userId);
+                                const userSnap = await userRef.get();
+                                
+                                if (userSnap.exists) {
+                                    userName = userSnap.data().displayName || '-';
+                                    userEmail = userSnap.data().email || '-';
+                                }
+                            } catch (error) {
+                                console.error('사용자 정보 조회 오류:', error);
+                            }
                         }
+                    } else {
+                        window.adminAuth?.showNotification('자격증 정보를 찾을 수 없습니다.', 'error');
+                        return;
                     }
-                } else {
+                } catch (error) {
+                    console.error('자격증 정보 조회 오류:', error);
                     window.adminAuth?.showNotification('자격증 정보를 불러올 수 없습니다.', 'error');
                     return;
                 }
@@ -871,13 +1020,23 @@ window.certManager = {
             let cert = null;
             
             // Firebase 연동 시
-            if (window.dhcFirebase && window.dhcFirebase.db && window.dbService) {
+            if (window.dhcFirebase && window.dhcFirebase.db) {
                 // 자격증 정보 조회
-                const certResult = await window.dbService.getDocument('certificates', certId);
-                
-                if (certResult.success) {
-                    cert = certResult.data;
-                } else {
+                try {
+                    const docRef = window.dhcFirebase.db.collection('certificates').doc(certId);
+                    const docSnap = await docRef.get();
+                    
+                    if (docSnap.exists) {
+                        cert = {
+                            id: docSnap.id,
+                            ...docSnap.data()
+                        };
+                    } else {
+                        window.adminAuth?.showNotification('자격증 정보를 찾을 수 없습니다.', 'error');
+                        return;
+                    }
+                } catch (error) {
+                    console.error('자격증 정보 조회 오류:', error);
                     window.adminAuth?.showNotification('자격증 정보를 불러올 수 없습니다.', 'error');
                     return;
                 }
@@ -992,7 +1151,7 @@ window.certManager = {
             }
             
             // Firebase 연동 시
-            if (window.dhcFirebase && window.dhcFirebase.db && window.dbService) {
+            if (window.dhcFirebase && window.dhcFirebase.db) {
                 // 업데이트 데이터
                 const updateData = {
                     issueDate: window.dhcFirebase.firebase.firestore.Timestamp.fromDate(new Date(issueDate)),
@@ -1003,9 +1162,10 @@ window.certManager = {
                 };
                 
                 // Firebase에 업데이트
-                const result = await window.dbService.updateDocument('certificates', certId, updateData);
-                
-                if (result.success) {
+                try {
+                    const docRef = window.dhcFirebase.db.collection('certificates').doc(certId);
+                    await docRef.update(updateData);
+                    
                     // 모달 닫기
                     if (window.adminUtils?.closeModal) {
                         window.adminUtils.closeModal();
@@ -1016,7 +1176,8 @@ window.certManager = {
                     
                     // 목록 새로고침
                     this.loadCertificates();
-                } else {
+                } catch (error) {
+                    console.error('자격증 정보 업데이트 오류:', error);
                     window.adminAuth?.showNotification('자격증 정보 수정에 실패했습니다.', 'error');
                 }
             } else {
@@ -1085,7 +1246,7 @@ window.certManager = {
             }
             
             // Firebase 연동 시
-            if (window.dhcFirebase && window.dhcFirebase.db && window.dbService) {
+            if (window.dhcFirebase && window.dhcFirebase.db) {
                 // 업데이트 데이터
                 const updateData = {
                     status: 'revoked',
@@ -1094,15 +1255,17 @@ window.certManager = {
                 };
                 
                 // Firebase에 업데이트
-                const result = await window.dbService.updateDocument('certificates', certId, updateData);
-                
-                if (result.success) {
+                try {
+                    const docRef = window.dhcFirebase.db.collection('certificates').doc(certId);
+                    await docRef.update(updateData);
+                    
                     // 성공 메시지
                     window.adminAuth?.showNotification('자격증이 성공적으로 취소되었습니다.', 'success');
                     
                     // 목록 새로고침
                     this.loadCertificates();
-                } else {
+                } catch (error) {
+                    console.error('자격증 취소 오류:', error);
                     window.adminAuth?.showNotification('자격증 취소에 실패했습니다.', 'error');
                 }
             } else {
@@ -1169,23 +1332,17 @@ window.certManager = {
             
             // Date 객체인 경우
             if (date instanceof Date) {
-                if (window.formatters && window.formatters.formatDate) {
-                    return includeTime ? 
-                        window.formatters.formatDateTime(date) : 
-                        window.formatters.formatDate(date);
+                // 기본 포맷팅
+                const yyyy = date.getFullYear();
+                const mm = String(date.getMonth() + 1).padStart(2, '0');
+                const dd = String(date.getDate()).padStart(2, '0');
+                
+                if (includeTime) {
+                    const hh = String(date.getHours()).padStart(2, '0');
+                    const mi = String(date.getMinutes()).padStart(2, '0');
+                    return `${yyyy}-${mm}-${dd} ${hh}:${mi}`;
                 } else {
-                    // 기본 포맷팅
-                    const yyyy = date.getFullYear();
-                    const mm = String(date.getMonth() + 1).padStart(2, '0');
-                    const dd = String(date.getDate()).padStart(2, '0');
-                    
-                    if (includeTime) {
-                        const hh = String(date.getHours()).padStart(2, '0');
-                        const mi = String(date.getMinutes()).padStart(2, '0');
-                        return `${yyyy}-${mm}-${dd} ${hh}:${mi}`;
-                    } else {
-                        return `${yyyy}-${mm}-${dd}`;
-                    }
+                    return `${yyyy}-${mm}-${dd}`;
                 }
             }
         } catch (error) {
@@ -1216,15 +1373,10 @@ window.certManager = {
             
             // Date 객체인 경우
             if (date instanceof Date) {
-                if (window.formatters && window.formatters.formatDateToInput) {
-                    return window.formatters.formatDateToInput(date);
-                } else {
-                    // 기본 포맷팅
-                    const yyyy = date.getFullYear();
-                    const mm = String(date.getMonth() + 1).padStart(2, '0');
-                    const dd = String(date.getDate()).padStart(2, '0');
-                    return `${yyyy}-${mm}-${dd}`;
-                }
+                const yyyy = date.getFullYear();
+                const mm = String(date.getMonth() + 1).padStart(2, '0');
+                const dd = String(date.getDate()).padStart(2, '0');
+                return `${yyyy}-${mm}-${dd}`;
             }
         } catch (error) {
             console.error('날짜 포맷팅 오류:', error);

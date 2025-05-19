@@ -129,6 +129,43 @@ service firebase.storage {
       allow delete: if isAdmin();
     }
     
+    // 게시판 이미지 업로드를 위한 규칙 추가 - 각 게시판 타입별 규칙
+    match /notice_images/{userId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && 
+                      (isAdmin() || request.auth.uid == userId) &&
+                      request.resource.contentType.matches('image/.*') && 
+                      request.resource.size < 10 * 1024 * 1024;
+      allow delete: if isAdmin() || request.auth.uid == userId;
+    }
+    
+    match /column_images/{userId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && 
+                      (isAdmin() || request.auth.uid == userId) &&
+                      request.resource.contentType.matches('image/.*') && 
+                      request.resource.size < 10 * 1024 * 1024;
+      allow delete: if isAdmin() || request.auth.uid == userId;
+    }
+    
+    match /materials_images/{userId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && 
+                      (isAdmin() || request.auth.uid == userId) &&
+                      request.resource.contentType.matches('image/.*') && 
+                      request.resource.size < 10 * 1024 * 1024;
+      allow delete: if isAdmin() || request.auth.uid == userId;
+    }
+    
+    match /videos_images/{userId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && 
+                      (isAdmin() || request.auth.uid == userId) &&
+                      request.resource.contentType.matches('image/.*') && 
+                      request.resource.size < 10 * 1024 * 1024;
+      allow delete: if isAdmin() || request.auth.uid == userId;
+    }
+    
     // 기본 거부 규칙
     match /{allPaths=**} {
       allow read, write: if false;

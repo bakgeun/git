@@ -137,7 +137,8 @@
             <div class="bg-white rounded-lg shadow-md p-4 mb-6">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
-                        <label for="search-course-name" class="block text-sm font-medium text-gray-700 mb-2">교육명 검색</label>
+                        <label for="search-course-name" class="block text-sm font-medium text-gray-700 mb-2">교육명
+                            검색</label>
                         <input type="text" id="search-course-name" placeholder="교육명을 입력하세요"
                             class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                     </div>
@@ -216,7 +217,8 @@
                         <h3 class="text-xl font-semibold" id="course-modal-title">교육 과정 추가</h3>
                         <button onclick="courseManager.closeCourseModal()" class="text-gray-400 hover:text-gray-600">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
                         </button>
                     </div>
@@ -240,13 +242,26 @@
                             </div>
                         </div>
                         <div>
-                            <label for="course-description" class="block text-sm font-medium text-gray-700">교육 설명</label>
+                            <label for="course-status" class="block text-sm font-medium text-gray-700">상태 <span
+                                    class="text-red-500">*</span></label>
+                            <select id="course-status" name="status" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="preparing">준비중</option>
+                                <option value="active">모집중</option>
+                                <option value="closed">마감</option>
+                                <option value="completed">종료</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="course-description" class="block text-sm font-medium text-gray-700">교육
+                                설명</label>
                             <textarea id="course-description" name="description" rows="4"
                                 class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"></textarea>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label for="course-price" class="block text-sm font-medium text-gray-700">수강료 (원)</label>
+                                <label for="course-price" class="block text-sm font-medium text-gray-700">수강료
+                                    (원)</label>
                                 <input type="number" id="course-price" name="price" required
                                     class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                             </div>
@@ -256,14 +271,16 @@
                                     class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                             </div>
                             <div>
-                                <label for="course-duration" class="block text-sm font-medium text-gray-700">교육 기간 (시간)</label>
+                                <label for="course-duration" class="block text-sm font-medium text-gray-700">교육 기간
+                                    (시간)</label>
                                 <input type="number" id="course-duration" name="duration" required
                                     class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label for="course-start-date" class="block text-sm font-medium text-gray-700">시작일</label>
+                                <label for="course-start-date"
+                                    class="block text-sm font-medium text-gray-700">시작일</label>
                                 <input type="date" id="course-start-date" name="startDate" required
                                     class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                             </div>
@@ -275,10 +292,9 @@
                         </div>
                         <div>
                             <label for="course-instructor" class="block text-sm font-medium text-gray-700">강사</label>
-                            <select id="course-instructor" name="instructor" required
+                            <input type="text" id="course-instructor" name="instructor" required
+                                placeholder="강사 이름을 입력하세요"
                                 class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                <option value="">강사를 선택하세요</option>
-                            </select>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">교육 자료</label>
@@ -286,7 +302,8 @@
                                 class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
                         </div>
                         <div class="flex justify-end space-x-3">
-                            <button type="button" onclick="courseManager.closeCourseModal()" class="admin-btn admin-btn-secondary">
+                            <button type="button" onclick="courseManager.closeCourseModal()"
+                                class="admin-btn admin-btn-secondary">
                                 취소
                             </button>
                             <button type="submit" class="admin-btn admin-btn-primary">
@@ -323,46 +340,46 @@
     <!-- 초기화 스크립트 -->
     <script>
         // 페이지 로드 시 실행
-        window.addEventListener('load', async function() {
+        window.addEventListener('load', async function () {
             try {
                 console.log('교육 관리 페이지 초기화 시작');
-                
+
                 // 스크립트 로드 완료 대기
                 let retryCount = 0;
                 const maxRetries = 50;
-                
+
                 while (!window.adminAuth && retryCount < maxRetries) {
                     await new Promise(resolve => setTimeout(resolve, 100));
                     retryCount++;
                 }
-                
+
                 if (!window.adminAuth) {
                     console.error('관리자 인증 스크립트 로드 실패');
                     alert('시스템 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
                     return;
                 }
-                
+
                 console.log('관리자 권한 확인 시작');
-                
+
                 // 관리자 권한 확인
                 const hasAccess = await window.adminAuth.checkAdminAccess();
-                
+
                 if (hasAccess) {
                     console.log('관리자 권한 확인 완료');
-                    
+
                     // 관리자 정보 표시
                     window.adminAuth.displayAdminInfo();
-                    
+
                     // 교육 관리자 초기화
                     console.log('교육 관리자 초기화 시작');
-                    
+
                     // courseManager 로드 완료 대기
                     let courseRetryCount = 0;
                     while (!window.courseManager && courseRetryCount < maxRetries) {
                         await new Promise(resolve => setTimeout(resolve, 100));
                         courseRetryCount++;
                     }
-                    
+
                     if (window.courseManager) {
                         await window.courseManager.init();
                         console.log('교육 관리자 초기화 완료');
@@ -375,7 +392,7 @@
                 }
             } catch (error) {
                 console.error('교육 관리 페이지 초기화 오류:', error);
-                
+
                 if (window.adminAuth && window.adminAuth.showNotification) {
                     window.adminAuth.showNotification('페이지 로드 중 오류가 발생했습니다.', 'error');
                 } else {
