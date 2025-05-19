@@ -110,22 +110,22 @@
             <!-- 게시판 선택 탭 -->
             <div class="border-b border-gray-200 mb-6">
                 <nav class="-mb-px flex space-x-8" id="board-tabs">
-                    <button onclick="boardManager.switchBoard('notice')"
+                    <button id="tab-notice"
                         class="board-tab active border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
                         data-board="notice">
                         공지사항
                     </button>
-                    <button onclick="boardManager.switchBoard('column')"
+                    <button id="tab-column"
                         class="board-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
                         data-board="column">
                         칼럼
                     </button>
-                    <button onclick="boardManager.switchBoard('materials')"
+                    <button id="tab-materials"
                         class="board-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
                         data-board="materials">
                         강의자료
                     </button>
-                    <button onclick="boardManager.switchBoard('videos')"
+                    <button id="tab-videos"
                         class="board-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
                         data-board="videos">
                         동영상 강의
@@ -134,7 +134,9 @@
             </div>
 
             <!-- 검색 필터 -->
-            <div id="board-filter-container"></div>
+            <div id="board-filter-container">
+                <!-- 이 부분은 JavaScript에서 동적으로 생성됩니다 -->
+            </div>
 
             <!-- 게시글 목록 테이블 -->
             <div class="bg-white rounded-lg shadow-md">
@@ -142,7 +144,7 @@
                     <h2 class="text-xl font-semibold text-gray-800">
                         <span id="board-title">공지사항</span> 목록
                     </h2>
-                    <button onclick="boardManager.showAddPostModal()" class="admin-btn admin-btn-primary">
+                    <button id="add-post-button" class="admin-btn admin-btn-primary">
                         <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -151,20 +153,20 @@
                     </button>
                 </div>
                 <div class="overflow-x-auto">
-                    <table id="board-table" class="admin-table">
+                    <table id="board-table" class="admin-table w-full">
                         <thead>
                             <tr>
-                                <th>제목</th>
-                                <th>작성자</th>
-                                <th>조회수</th>
-                                <th>작성일</th>
-                                <th>상태</th>
-                                <th>작업</th>
+                                <th class="py-3 px-4 text-left">제목</th>
+                                <th class="py-3 px-4 text-center">작성자</th>
+                                <th class="py-3 px-4 text-center">조회수</th>
+                                <th class="py-3 px-4 text-center">작성일</th>
+                                <th class="py-3 px-4 text-center">상태</th>
+                                <th class="py-3 px-4 text-center">작업</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td colspan="6" class="text-center py-4 text-gray-500">데이터 로딩 중...</td>
+                                <td colspan="6" class="py-4 text-center text-gray-500">데이터 로딩 중...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -185,7 +187,8 @@
                         <h3 class="text-xl font-semibold" id="modal-title">게시글 추가</h3>
                         <button onclick="boardManager.closePostModal()" class="text-gray-400 hover:text-gray-600">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
                         </button>
                     </div>
@@ -206,7 +209,8 @@
                                 class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
                         </div>
                         <div class="flex justify-end space-x-3">
-                            <button type="button" onclick="boardManager.closePostModal()" class="admin-btn admin-btn-secondary">
+                            <button type="button" onclick="boardManager.closePostModal()"
+                                class="admin-btn admin-btn-secondary">
                                 취소
                             </button>
                             <button type="submit" class="admin-btn admin-btn-primary">
@@ -243,46 +247,46 @@
     <!-- 초기화 스크립트 -->
     <script>
         // 페이지 로드 시 실행
-        window.addEventListener('load', async function() {
+        window.addEventListener('load', async function () {
             try {
                 console.log('게시판 관리 페이지 초기화 시작');
-                
+
                 // 스크립트 로드 완료 대기
                 let retryCount = 0;
                 const maxRetries = 50;
-                
+
                 while (!window.adminAuth && retryCount < maxRetries) {
                     await new Promise(resolve => setTimeout(resolve, 100));
                     retryCount++;
                 }
-                
+
                 if (!window.adminAuth) {
                     console.error('관리자 인증 스크립트 로드 실패');
                     alert('시스템 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
                     return;
                 }
-                
+
                 console.log('관리자 권한 확인 시작');
-                
+
                 // 관리자 권한 확인
                 const hasAccess = await window.adminAuth.checkAdminAccess();
-                
+
                 if (hasAccess) {
                     console.log('관리자 권한 확인 완료');
-                    
+
                     // 관리자 정보 표시
                     window.adminAuth.displayAdminInfo();
-                    
+
                     // 게시판 관리자 초기화
                     console.log('게시판 관리자 초기화 시작');
-                    
+
                     // boardManager 로드 완료 대기
                     let boardRetryCount = 0;
                     while (!window.boardManager && boardRetryCount < maxRetries) {
                         await new Promise(resolve => setTimeout(resolve, 100));
                         boardRetryCount++;
                     }
-                    
+
                     if (window.boardManager) {
                         await window.boardManager.init();
                         console.log('게시판 관리자 초기화 완료');
@@ -290,7 +294,7 @@
                         console.error('게시판 관리자 스크립트 로드 실패');
                         window.adminAuth.showNotification('게시판 관리자 초기화에 실패했습니다.', 'error');
                     }
-                    
+
                     // 추가 페이지별 초기화 함수 실행
                     if (typeof window.initPage === 'function') {
                         window.initPage();
@@ -300,7 +304,7 @@
                 }
             } catch (error) {
                 console.error('게시판 관리 페이지 초기화 오류:', error);
-                
+
                 if (window.adminAuth && window.adminAuth.showNotification) {
                     window.adminAuth.showNotification('페이지 로드 중 오류가 발생했습니다.', 'error');
                 } else {

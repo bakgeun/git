@@ -120,7 +120,8 @@
                         <select id="filter-role"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <option value="">전체</option>
-                            <option value="user">일반 회원</option>
+                            <option value="student">수강생</option>
+                            <option value="instructor">강사</option>
                             <option value="admin">관리자</option>
                         </select>
                     </div>
@@ -136,16 +137,16 @@
                 </div>
                 <div class="mt-4 flex justify-between">
                     <div>
-                        <button id="search-button"
+                        <button onclick="userManager.applyFilters()" id="search-button"
                             class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
                             검색
                         </button>
-                        <button id="reset-button"
+                        <button onclick="userManager.resetFilters()" id="reset-button"
                             class="ml-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
                             초기화
                         </button>
                     </div>
-                    <button id="add-user-button"
+                    <button onclick="userManager.showAddUserModal()" id="add-user-button"
                         class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center">
                         <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -214,7 +215,7 @@
     <!-- 사용자 추가/수정 모달 -->
     <div id="user-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
         <div class="bg-white rounded-lg w-full max-w-md p-6 relative">
-            <button id="close-modal"
+            <button onclick="userManager.closeUserModal()" id="close-modal"
                 class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
@@ -222,7 +223,7 @@
                 </svg>
             </button>
             <h2 class="text-2xl font-bold mb-6" id="modal-title">회원 추가</h2>
-            <form id="user-form">
+            <form id="user-form" onsubmit="userManager.handleAddUser(event)">
                 <div class="mb-4">
                     <label for="user-name" class="block text-sm font-medium text-gray-700">이름</label>
                     <input type="text" id="user-name" name="name" required
@@ -243,7 +244,8 @@
                     <label for="user-role" class="block text-sm font-medium text-gray-700">회원 유형</label>
                     <select id="user-role" name="role" required
                         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="user">일반 회원</option>
+                        <option value="student">수강생</option>
+                        <option value="instructor">강사</option>
                         <option value="admin">관리자</option>
                     </select>
                 </div>
@@ -256,7 +258,7 @@
                     </select>
                 </div>
                 <div class="mt-6 flex justify-end">
-                    <button type="button" id="cancel-button"
+                    <button type="button" onclick="userManager.closeUserModal()" id="cancel-button"
                         class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 mr-2">
                         취소
                     </button>
