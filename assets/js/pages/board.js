@@ -6,30 +6,30 @@
 console.log('=== board.js 파일 로드 시작 ===');
 
 // 즉시 실행 함수 표현식(IIFE)을 사용하여 전역 네임스페이스 오염 방지
-(function() {
+(function () {
     'use strict';
-    
+
     console.log('board.js IIFE 초기화');
-    
+
     // Firebase와 서비스 준비 대기
     async function waitForServices() {
         console.log('서비스 준비 대기 중...');
-        
+
         // Firebase가 로드되기를 기다림
         while (!window.firebase || !window.dhcFirebase) {
             await new Promise(resolve => setTimeout(resolve, 100));
         }
-        
+
         // authService가 로드되기를 기다림
         while (!window.authService) {
             await new Promise(resolve => setTimeout(resolve, 100));
         }
-        
+
         // dbService가 로드되기를 기다림
         while (!window.dbService) {
             await new Promise(resolve => setTimeout(resolve, 100));
         }
-        
+
         console.log('모든 서비스 준비 완료');
         return true;
     }
@@ -120,7 +120,7 @@ console.log('=== board.js 파일 로드 시작 ===');
     // 권한 확인
     function hasPermission(action, boardType, userId = null, authorId = null) {
         console.log(`권한 확인: ${action}, ${boardType}, ${userId}, ${authorId}`);
-        
+
         const config = boardConfig[boardType];
         if (!config) {
             console.log('게시판 설정 없음');
@@ -149,6 +149,12 @@ console.log('=== board.js 파일 로드 시작 ===');
         if (!user) {
             console.log('현재 사용자 없음');
             return false;
+        }
+
+        // 관리자는 항상 모든 권한 가짐
+        if (user.email === 'gostepexercise@gmail.com') {
+            console.log('관리자 권한 확인');
+            return true;
         }
 
         // 특정 역할 확인
@@ -206,7 +212,7 @@ console.log('=== board.js 파일 로드 시작 ===');
     // 목록 페이지 초기화
     function initListPage() {
         console.log('목록 페이지 초기화');
-        
+
         const boardType = getBoardType();
         if (!boardType) {
             console.log('게시판 타입 확인 실패');
@@ -224,7 +230,7 @@ console.log('=== board.js 파일 로드 시작 ===');
         // 게시글 목록 가져오기
         async function loadPosts(reset = false) {
             console.log(`게시글 로드: reset=${reset}`);
-            
+
             // 게시판 타입에 따른 올바른 tbody ID 가져오기
             const listId = getElementId(boardType, 'list');
             const tbody = document.getElementById(listId);
@@ -255,7 +261,7 @@ console.log('=== board.js 파일 로드 시작 ===');
 
             try {
                 await waitForServices();
-                
+
                 let result;
                 if (searchQuery) {
                     // 검색 쿼리가 있는 경우
@@ -297,7 +303,7 @@ console.log('=== board.js 파일 로드 시작 ===');
         // 게시글 표시
         function displayPosts(posts, reset = false) {
             console.log(`게시글 표시: ${posts.length}개, reset=${reset}`);
-            
+
             const listId = getElementId(boardType, 'list');
             const tbody = document.getElementById(listId);
             if (!tbody) return;
@@ -327,7 +333,7 @@ console.log('=== board.js 파일 로드 시작 ===');
                 const number = (currentPage - 1) * 10 + index + 1;
                 const date = post.createdAt ? new Date(post.createdAt.seconds * 1000).toLocaleDateString('ko-KR') : '';
                 const categoryText = getCategoryText(boardType, post.category);
-                
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${number}</td>
@@ -392,7 +398,7 @@ console.log('=== board.js 파일 로드 시작 ===');
         // 검색 기능
         function setupSearch() {
             console.log('검색 기능 설정');
-            
+
             const searchInput = document.getElementById('search-input');
             const searchButton = document.getElementById('search-button');
             const categorySelect = document.getElementById('category-filter');
@@ -429,20 +435,37 @@ console.log('=== board.js 파일 로드 시작 ===');
         // 글쓰기 버튼 권한 확인
         async function checkWritePermission() {
             console.log('글쓰기 권한 확인');
-            
+
             try {
                 await waitForServices();
-                
+
                 const writeButton = document.getElementById('write-button');
-                if (writeButton && hasPermission('write', boardType)) {
-                    console.log('글쓰기 권한 있음');
-                    writeButton.classList.remove('hidden');
-                    writeButton.addEventListener('click', () => {
-                        console.log('글쓰기 버튼 클릭');
-                        window.location.href = 'write.html';
-                    });
-                } else {
-                    console.log('글쓰기 권한 없음');
+                if (writeButton) {
+                    // 현재 사용자 정보 확인
+                    const user = window.authService.getCurrentUser();
+
+                    // 관리자인 경우 항상 표시
+                    if (user && user.email === 'gostepexercise@gmail.com') {
+                        console.log('관리자 확인됨, 글쓰기 권한 부여');
+                        writeButton.classList.remove('hidden');
+                        writeButton.addEventListener('click', () => {
+                            console.log('글쓰기 버튼 클릭');
+                            window.location.href = 'write.html';
+                        });
+                        return;
+                    }
+
+                    // 일반 권한 확인
+                    if (hasPermission('write', boardType)) {
+                        console.log('글쓰기 권한 있음');
+                        writeButton.classList.remove('hidden');
+                        writeButton.addEventListener('click', () => {
+                            console.log('글쓰기 버튼 클릭');
+                            window.location.href = 'write.html';
+                        });
+                    } else {
+                        console.log('글쓰기 권한 없음');
+                    }
                 }
             } catch (error) {
                 console.error('글쓰기 권한 확인 오류:', error);
@@ -452,13 +475,13 @@ console.log('=== board.js 파일 로드 시작 ===');
         // 총 게시글 수 업데이트
         async function updateTotalCount() {
             console.log('총 게시글 수 업데이트');
-            
+
             const collection = boardConfig[boardType].collection;
             const options = categoryFilter ? { where: { field: 'category', operator: '==', value: categoryFilter } } : {};
-            
+
             try {
                 await waitForServices();
-                
+
                 const result = await dbService.countDocuments(collection, options);
                 if (result.success) {
                     const totalCount = document.getElementById('total-count');
@@ -484,7 +507,7 @@ console.log('=== board.js 파일 로드 시작 ===');
     // 상세보기 페이지 초기화
     function initViewPage() {
         console.log('상세보기 페이지 초기화');
-        
+
         const boardType = getBoardType();
         if (!boardType) {
             console.log('게시판 타입 확인 실패');
@@ -494,7 +517,7 @@ console.log('=== board.js 파일 로드 시작 ===');
         // URL에서 게시글 ID 가져오기
         const urlParams = new URLSearchParams(window.location.search);
         const postId = urlParams.get('id');
-        
+
         if (!postId) {
             alert('잘못된 접근입니다.');
             window.location.href = 'index.html';
@@ -506,14 +529,14 @@ console.log('=== board.js 파일 로드 시작 ===');
         // 게시글 정보 로드
         async function loadPost() {
             console.log('게시글 로드 시작');
-            
+
             const collection = boardConfig[boardType].collection;
-            
+
             try {
                 await waitForServices();
-                
+
                 const result = await dbService.getDocument(collection, postId);
-                
+
                 if (result.success) {
                     console.log('게시글 로드 성공');
                     displayPost(result.data);
@@ -534,15 +557,15 @@ console.log('=== board.js 파일 로드 시작 ===');
         // 게시글 표시
         function displayPost(post) {
             console.log('게시글 표시');
-            
+
             // 제목
             const titleElement = document.getElementById(getElementId(boardType, 'title'));
             if (titleElement) titleElement.textContent = post.title;
-            
+
             // 브레드크럼브
             const breadcrumbTitle = document.getElementById(getElementId(boardType, 'title-breadcrumb'));
             if (breadcrumbTitle) breadcrumbTitle.textContent = post.title;
-            
+
             // 카테고리
             const categoryElement = document.getElementById(getElementId(boardType, 'category'));
             if (categoryElement) {
@@ -550,13 +573,13 @@ console.log('=== board.js 파일 로드 시작 ===');
                 const badgeClass = `category-badge ${post.category}`;
                 categoryElement.innerHTML = `<span class="${badgeClass}">${categoryText}</span>`;
             }
-            
+
             // 작성일
             const dateElement = document.getElementById(getElementId(boardType, 'date'));
             if (dateElement && post.createdAt) {
                 dateElement.textContent = new Date(post.createdAt.seconds * 1000).toLocaleDateString('ko-KR');
             }
-            
+
             // 작성자
             const authorElement = document.getElementById(getElementId(boardType, 'author'));
             if (authorElement) {
@@ -567,11 +590,11 @@ console.log('=== board.js 파일 로드 시작 ===');
                     authorElement.textContent = post.authorName || '관리자';
                 }
             }
-            
+
             // 조회수
             const viewsElement = document.getElementById(getElementId(boardType, 'views'));
             if (viewsElement) viewsElement.textContent = post.views || 0;
-            
+
             // 내용
             const contentElement = document.getElementById(getElementId(boardType, 'content'));
             if (contentElement) {
@@ -582,12 +605,12 @@ console.log('=== board.js 파일 로드 시작 ===');
                     .replace(/>/g, '&gt;')
                     .replace(/\n/g, '<br>');
             }
-            
+
             // 첨부파일
             if (post.attachments && post.attachments.length > 0) {
                 displayAttachments(post.attachments);
             }
-            
+
             // 비디오 플레이어 처리 (videos 페이지에만 해당)
             if (boardType === 'videos' && post.videoUrl) {
                 displayVideoPlayer(post.videoUrl, post.videoType || 'youtube');
@@ -597,17 +620,17 @@ console.log('=== board.js 파일 로드 시작 ===');
         // 비디오 플레이어 표시
         function displayVideoPlayer(videoUrl, videoType) {
             console.log(`비디오 플레이어 표시: ${videoType}`);
-            
+
             const videoContainer = document.getElementById('video-container');
             if (!videoContainer) return;
-            
+
             let embedHtml = '';
-            
+
             if (videoType === 'youtube') {
                 // YouTube 동영상 ID 추출
                 const youtubeIdMatch = videoUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
                 const youtubeId = youtubeIdMatch ? youtubeIdMatch[1] : null;
-                
+
                 if (youtubeId) {
                     embedHtml = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${youtubeId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
                 }
@@ -615,7 +638,7 @@ console.log('=== board.js 파일 로드 시작 ===');
                 // Vimeo 동영상 ID 추출
                 const vimeoIdMatch = videoUrl.match(/vimeo\.com\/(?:video\/)?(\d+)/);
                 const vimeoId = vimeoIdMatch ? vimeoIdMatch[1] : null;
-                
+
                 if (vimeoId) {
                     embedHtml = `<iframe width="100%" height="100%" src="https://player.vimeo.com/video/${vimeoId}" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
                 }
@@ -628,7 +651,7 @@ console.log('=== board.js 파일 로드 시작 ===');
                     </video>
                 `;
             }
-            
+
             if (embedHtml) {
                 videoContainer.innerHTML = embedHtml;
             } else {
@@ -647,9 +670,9 @@ console.log('=== board.js 파일 로드 시작 ===');
         // 조회수 증가
         async function updateViews(postId) {
             console.log('조회수 증가');
-            
+
             const collection = boardConfig[boardType].collection;
-            
+
             try {
                 const result = await dbService.getDocument(collection, postId);
                 if (result.success) {
@@ -667,14 +690,14 @@ console.log('=== board.js 파일 로드 시작 ===');
         // 첨부파일 표시
         function displayAttachments(attachments) {
             console.log(`첨부파일 표시: ${attachments.length}개`);
-            
+
             const attachmentsSection = document.getElementById(getElementId(boardType, 'attachments'));
             const attachmentList = document.getElementById('attachment-list');
-            
+
             if (attachmentsSection && attachmentList) {
                 attachmentsSection.classList.remove('hidden');
                 attachmentList.innerHTML = '';
-                
+
                 attachments.forEach(attachment => {
                     const li = document.createElement('li');
                     li.innerHTML = `
@@ -703,16 +726,16 @@ console.log('=== board.js 파일 로드 시작 ===');
         // 관리자 버튼 권한 확인
         async function checkAdminButtons(post) {
             console.log('관리자 버튼 권한 확인');
-            
+
             try {
                 await waitForServices();
-                
+
                 const adminButtons = document.getElementById('admin-buttons');
                 const user = authService.getCurrentUser();
-                
+
                 if (adminButtons && user) {
                     let showButtons = false;
-                    
+
                     // 수정 버튼
                     if (hasPermission('edit', boardType, user.id, post.authorId)) {
                         const editButton = document.getElementById('edit-button');
@@ -724,7 +747,7 @@ console.log('=== board.js 파일 로드 시작 ===');
                             showButtons = true;
                         }
                     }
-                    
+
                     // 삭제 버튼
                     if (hasPermission('delete', boardType, user.id, post.authorId)) {
                         const deleteButton = document.getElementById('delete-button');
@@ -738,7 +761,7 @@ console.log('=== board.js 파일 로드 시작 ===');
                             showButtons = true;
                         }
                     }
-                    
+
                     if (showButtons) {
                         adminButtons.classList.remove('hidden');
                     }
@@ -751,12 +774,12 @@ console.log('=== board.js 파일 로드 시작 ===');
         // 게시글 삭제
         async function deletePost(postId) {
             console.log('게시글 삭제 시도');
-            
+
             const collection = boardConfig[boardType].collection;
-            
+
             try {
                 const result = await dbService.deleteDocument(collection, postId);
-                
+
                 if (result.success) {
                     alert('게시글이 삭제되었습니다.');
                     window.location.href = 'index.html';
@@ -773,35 +796,35 @@ console.log('=== board.js 파일 로드 시작 ===');
         // 이전글/다음글 로드
         async function loadPrevNextPost(currentPostId) {
             console.log('이전/다음 게시글 로드');
-            
+
             const collection = boardConfig[boardType].collection;
-            
+
             try {
                 // 현재 게시글 정보 가져오기
                 const currentResult = await dbService.getDocument(collection, currentPostId);
                 if (!currentResult.success) return;
-                
+
                 const currentPost = currentResult.data;
                 const currentDate = currentPost.createdAt;
-                
+
                 // 이전글 (더 최근 게시글)
                 const prevResult = await dbService.getDocuments(collection, {
                     where: { field: 'createdAt', operator: '>', value: currentDate },
                     orderBy: { field: 'createdAt', direction: 'asc' },
                     limit: 1
                 });
-                
+
                 if (prevResult.success && prevResult.data.length > 0) {
                     displayPrevNextPost('prev', prevResult.data[0]);
                 }
-                
+
                 // 다음글 (더 오래된 게시글)  
                 const nextResult = await dbService.getDocuments(collection, {
                     where: { field: 'createdAt', operator: '<', value: currentDate },
                     orderBy: { field: 'createdAt', direction: 'desc' },
                     limit: 1
                 });
-                
+
                 if (nextResult.success && nextResult.data.length > 0) {
                     displayPrevNextPost('next', nextResult.data[0]);
                 }
@@ -814,7 +837,7 @@ console.log('=== board.js 파일 로드 시작 ===');
         function displayPrevNextPost(type, post) {
             const elementId = `${type}-${boardType}`;
             const container = document.getElementById(elementId);
-            
+
             if (container) {
                 container.classList.remove('hidden');
                 const link = container.querySelector('a');
@@ -836,11 +859,11 @@ console.log('=== board.js 파일 로드 시작 ===');
     // 페이지 초기화
     async function init() {
         console.log('board.js 초기화 시작');
-        
+
         try {
             // 서비스 대기
             await waitForServices();
-            
+
             const boardType = getBoardType();
             if (!boardType) {
                 console.log('게시판 타입 확인 실패');

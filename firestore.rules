@@ -44,6 +44,42 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
     
+    // 게시판 공지사항 컬렉션 규칙
+    match /board_notice/{noticeId} {
+      // 읽기: 모든 인증된 사용자
+      allow read: if isAuthenticated();
+      
+      // 생성, 업데이트, 삭제: 관리자만
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // 게시판 칼럼 컬렉션 규칙
+    match /board_column/{columnId} {
+      // 읽기: 모든 인증된 사용자
+      allow read: if isAuthenticated();
+      
+      // 생성, 업데이트, 삭제: 관리자만
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // 게시판 강의자료 컬렉션 규칙
+    match /board_materials/{materialId} {
+      // 읽기: 인증된 사용자 (교육과정 수강생 확인 로직 추가 가능)
+      allow read: if isAuthenticated();
+      
+      // 생성, 업데이트, 삭제: 관리자만
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // 게시판 동영상 강의 컬렉션 규칙
+    match /board_videos/{videoId} {
+      // 읽기: 인증된 사용자 (교육과정 수강생 확인 로직 추가 가능)
+      allow read: if isAuthenticated();
+      
+      // 생성, 업데이트, 삭제: 관리자만
+      allow create, update, delete: if isAdmin();
+    }
+    
     // 공지사항 컬렉션 규칙
     match /notices/{noticeId} {
       // 읽기: 모든 인증된 사용자
