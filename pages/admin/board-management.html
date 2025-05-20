@@ -15,15 +15,40 @@
 
 <body class="bg-gray-100">
     <!-- 관리자 헤더 -->
-    <header class="bg-indigo-800 text-white">
+    <header class="bg-indigo-800 text-white admin-header">
+        <style>
+            /* 인라인 스타일로 깜빡임 방지 */
+            .admin-user-info {
+                display: flex !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+
+            #admin-name,
+            #admin-email,
+            #admin-logout-button {
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+        </style>
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
+                <!-- 토글 버튼 추가 -->
+                <button class="admin-toggle-button" id="admin-sidebar-toggle" aria-label="메뉴 토글">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+
                 <div class="flex items-center">
-                    <a href="javascript:window.location.href=window.adjustPath('index.html')" class="text-xl font-bold">
-                        디지털헬스케어센터 관리자
+                    <a href="javascript:window.location.href=window.adjustPath('index.html')" class="admin-title">
+                        관리자 페이지
                     </a>
                 </div>
-                <div class="flex items-center space-x-4">
+
+                <!-- 사용자 정보 (모바일에서 숨김) -->
+                <div class="flex items-center space-x-4 admin-user-info">
                     <span id="admin-name">관리자</span>
                     <span id="admin-email" class="text-sm text-indigo-200">gostepexercise@gmail.com</span>
                     <button id="admin-logout-button"
@@ -35,9 +60,37 @@
         </div>
     </header>
 
+    <!-- 사이드바 오버레이 (모바일용) -->
+    <div id="sidebar-overlay" class="admin-sidebar-overlay"></div>
+
     <div class="flex">
         <!-- 사이드바 -->
-        <aside class="w-64 bg-indigo-900 min-h-screen text-white">
+        <aside class="w-64 bg-indigo-900 min-h-screen text-white admin-sidebar">
+            <style>
+                /* 사이드바 사용자 정보 인라인 스타일 */
+                .sidebar-user-info {
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                    padding: 1rem;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                    margin-bottom: 1rem;
+                    background-color: rgba(0, 0, 0, 0.2);
+                }
+            </style>
+
+            <!-- 사이드바 사용자 정보 (초기에 미리 추가) -->
+            <div class="sidebar-user-info" style="opacity: 1 !important; visibility: visible !important;">
+                <div class="text-white mb-2">
+                    <div class="font-bold" style="opacity: 1 !important;">관리자</div>
+                    <div class="text-indigo-200 text-sm" style="opacity: 1 !important;">gostepexercise@gmail.com</div>
+                </div>
+                <button id="sidebar-logout-button"
+                    class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md text-sm text-white w-full"
+                    style="opacity: 1 !important;">
+                    로그아웃
+                </button>
+            </div>
+
             <nav class="mt-8 admin-nav">
                 <a href="javascript:window.location.href=window.adjustPath('pages/admin/dashboard.html')"
                     class="block px-6 py-3 text-indigo-300 hover:bg-indigo-600 hover:text-white transition duration-200">
@@ -97,36 +150,36 @@
         </aside>
 
         <!-- 메인 콘텐츠 -->
-        <main class="flex-1 p-8">
+        <main class="flex-1 p-4 md:p-8 admin-content">
             <!-- 알림 영역 -->
             <div id="admin-notification" style="display: none;"></div>
 
             <!-- 페이지 헤더 -->
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-800">게시판 관리</h1>
+            <div class="mb-6 md:mb-8">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800">게시판 관리</h1>
                 <p class="text-gray-600 mt-2">게시판별 게시글을 관리합니다.</p>
             </div>
 
             <!-- 게시판 선택 탭 -->
             <div class="border-b border-gray-200 mb-6">
-                <nav class="-mb-px flex space-x-8" id="board-tabs">
-                    <button id="tab-notice"
-                        class="board-tab active border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                <nav class="-mb-px flex" id="board-tabs">
+                    <button onclick="boardManager.switchBoard('notice')"
+                        class="board-tab active border-indigo-500 text-indigo-600 whitespace-nowrap py-3 md:py-4 px-4 border-b-2 font-medium text-sm"
                         data-board="notice">
                         공지사항
                     </button>
-                    <button id="tab-column"
-                        class="board-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                    <button onclick="boardManager.switchBoard('column')"
+                        class="board-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 md:py-4 px-4 border-b-2 font-medium text-sm"
                         data-board="column">
                         칼럼
                     </button>
-                    <button id="tab-materials"
-                        class="board-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                    <button onclick="boardManager.switchBoard('materials')"
+                        class="board-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 md:py-4 px-4 border-b-2 font-medium text-sm"
                         data-board="materials">
                         강의자료
                     </button>
-                    <button id="tab-videos"
-                        class="board-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                    <button onclick="boardManager.switchBoard('videos')"
+                        class="board-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 md:py-4 px-4 border-b-2 font-medium text-sm"
                         data-board="videos">
                         동영상 강의
                     </button>
@@ -134,17 +187,17 @@
             </div>
 
             <!-- 검색 필터 -->
-            <div id="board-filter-container">
-                <!-- 이 부분은 JavaScript에서 동적으로 생성됩니다 -->
-            </div>
+            <div id="board-filter-container"></div>
 
             <!-- 게시글 목록 테이블 -->
             <div class="bg-white rounded-lg shadow-md">
-                <div class="p-6 border-b border-gray-200 flex justify-between items-center">
-                    <h2 class="text-xl font-semibold text-gray-800">
+                <div
+                    class="p-4 md:p-6 border-b border-gray-200 flex flex-col md:flex-row justify-between md:items-center gap-4">
+                    <h2 class="text-lg md:text-xl font-semibold text-gray-800">
                         <span id="board-title">공지사항</span> 목록
                     </h2>
-                    <button id="add-post-button" class="admin-btn admin-btn-primary">
+                    <button onclick="boardManager.showAddPostModal()"
+                        class="admin-btn admin-btn-primary whitespace-nowrap">
                         <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -153,20 +206,20 @@
                     </button>
                 </div>
                 <div class="overflow-x-auto">
-                    <table id="board-table" class="admin-table w-full">
+                    <table id="board-table" class="admin-table">
                         <thead>
                             <tr>
-                                <th class="py-3 px-4 text-left">제목</th>
-                                <th class="py-3 px-4 text-center">작성자</th>
-                                <th class="py-3 px-4 text-center">조회수</th>
-                                <th class="py-3 px-4 text-center">작성일</th>
-                                <th class="py-3 px-4 text-center">상태</th>
-                                <th class="py-3 px-4 text-center">작업</th>
+                                <th>제목</th>
+                                <th>작성자</th>
+                                <th>조회수</th>
+                                <th>작성일</th>
+                                <th>상태</th>
+                                <th>작업</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td colspan="6" class="py-4 text-center text-gray-500">데이터 로딩 중...</td>
+                                <td colspan="6" class="text-center py-4 text-gray-500">데이터 로딩 중...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -177,56 +230,49 @@
         </main>
     </div>
 
-    <!-- 게시글 작성/수정 모달 -->
-    <div id="post-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
-        <div class="absolute inset-0 bg-black opacity-50"></div>
-        <div class="relative bg-white rounded-lg w-full max-w-4xl max-h-screen overflow-auto p-6">
-            <div class="flex justify-between items-start mb-4">
-                <h2 id="modal-title" class="text-xl font-semibold">게시글 작성</h2>
-                <button type="button" class="text-gray-500 hover:text-gray-800" onclick="boardManager.closePostModal()">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                        </path>
-                    </svg>
-                </button>
+    <!-- 게시글 추가/수정 모달 -->
+    <div id="post-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-black opacity-50" onclick="boardManager.closePostModal()"></div>
+            <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-4 md:p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg md:text-xl font-semibold" id="modal-title">게시글 추가</h3>
+                        <button onclick="boardManager.closePostModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <form id="post-form" class="space-y-4">
+                        <div>
+                            <label for="post-title" class="block text-sm font-medium text-gray-700">제목</label>
+                            <input type="text" id="post-title" name="title" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label for="post-content" class="block text-sm font-medium text-gray-700">내용</label>
+                            <textarea id="post-content" name="content" rows="10" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">파일 첨부</label>
+                            <input type="file" id="post-files" multiple
+                                class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                        </div>
+                        <div class="flex justify-end space-x-3">
+                            <button type="button" onclick="boardManager.closePostModal()"
+                                class="admin-btn admin-btn-secondary">
+                                취소
+                            </button>
+                            <button type="submit" class="admin-btn admin-btn-primary">
+                                저장
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            <form id="post-form" class="space-y-4">
-                <div class="form-group">
-                    <label for="post-category" class="block text-sm font-medium text-gray-700 mb-1">카테고리</label>
-                    <select id="post-category" name="category"
-                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
-                        <option value="">-- 카테고리 선택 --</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="post-title" class="block text-sm font-medium text-gray-700 mb-1">제목</label>
-                    <input type="text" id="post-title" name="title"
-                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                        placeholder="제목을 입력하세요">
-                </div>
-
-                <div class="form-group content-group">
-                    <label for="post-content" class="block text-sm font-medium text-gray-700 mb-1">내용</label>
-                    <textarea id="post-content" name="content" rows="10"
-                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                        placeholder="내용을 입력하세요"></textarea>
-                    <p class="text-xs text-gray-500 mt-1">HTML 태그 사용이 가능합니다. (이미지, 링크 등)</p>
-                </div>
-
-                <div class="flex justify-end space-x-3">
-                    <button type="button"
-                        class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
-                        onclick="boardManager.closePostModal()">
-                        취소
-                    </button>
-                    <button type="submit"
-                        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none">
-                        저장
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 
@@ -284,27 +330,40 @@
                     // 관리자 정보 표시
                     window.adminAuth.displayAdminInfo();
 
-                    // 게시판 관리자 초기화
-                    console.log('게시판 관리자 초기화 시작');
-
-                    // boardManager 로드 완료 대기
-                    let boardRetryCount = 0;
-                    while (!window.boardManager && boardRetryCount < maxRetries) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                        boardRetryCount++;
+                    // 사이드바 토글 기능 초기화
+                    if (typeof adminUtils !== 'undefined' && adminUtils.initAdminSidebar) {
+                        adminUtils.initAdminSidebar();
                     }
 
-                    if (window.boardManager) {
-                        await window.boardManager.init();
-                        console.log('게시판 관리자 초기화 완료');
-                    } else {
-                        console.error('게시판 관리자 스크립트 로드 실패');
-                        window.adminAuth.showNotification('게시판 관리자 초기화에 실패했습니다.', 'error');
-                    }
+                    // 검색 필터 설정 (이 부분은 DOMContentLoaded에서 이미 실행되었을 수 있음)
+                    if (typeof boardManager !== 'undefined' && !document.querySelector('#board-filter-container .admin-filter-row')) {
+                        const filterOptions = {
+                            searchField: {
+                                label: '검색',
+                                placeholder: '제목으로 검색'
+                            },
+                            selectFilters: [
+                                {
+                                    id: 'post-status',
+                                    label: '상태',
+                                    options: [
+                                        { value: 'published', label: '게시' },
+                                        { value: 'draft', label: '임시저장' },
+                                        { value: 'hidden', label: '숨김' }
+                                    ]
+                                }
+                            ]
+                        };
 
-                    // 추가 페이지별 초기화 함수 실행
-                    if (typeof window.initPage === 'function') {
-                        window.initPage();
+                        if (typeof adminUtils !== 'undefined' && adminUtils.createSearchFilter) {
+                            adminUtils.createSearchFilter('board-filter-container', filterOptions, 'boardManager.applyFilters');
+                        }
+
+                        // 게시글 목록 로드 (중복 호출 방지)
+                        if (typeof boardManager !== 'undefined' && boardManager.loadPosts) {
+                            console.log('게시글 목록 로드 시작');
+                            boardManager.loadPosts();
+                        }
                     }
                 } else {
                     console.log('관리자 권한 없음');
@@ -317,6 +376,19 @@
                 } else {
                     alert('페이지 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
                 }
+            }
+
+            // 사이드바 토글 기능 초기화
+            if (typeof adminUtils !== 'undefined' && adminUtils.initAdminSidebar) {
+                adminUtils.initAdminSidebar();
+            }
+
+            // adminUtils가 로드되었는지 확인 후 초기화 호출
+            if (window.adminUtils && window.adminUtils.initAdminPage) {
+                console.log('adminUtils.initAdminPage 호출');
+                window.adminUtils.initAdminPage();
+            } else {
+                console.warn('adminUtils가 로드되지 않았거나 initAdminPage가 없습니다.');
             }
         });
     </script>

@@ -6,6 +6,40 @@
 console.log('script-loader.js 파일이 로드되었습니다.');
 
 (function () {
+    // 페이지 로드 전 사용자 정보 초기화
+    function preloadUserInfo() {
+        // 세션 스토리지에서 사용자 정보 확인
+        const savedAdminName = sessionStorage.getItem('admin_name') || '관리자';
+        const savedAdminEmail = sessionStorage.getItem('admin_email') || 'gostepexercise@gmail.com';
+
+        // DOM 로드 전에 인라인 스크립트로 삽입
+        document.write(`
+            <script>
+                (function() {
+                    // 페이지 로드 즉시 사용자 정보 설정 함수
+                    function setInitialUserInfo() {
+                        var adminNameElem = document.getElementById('admin-name');
+                        var adminEmailElem = document.getElementById('admin-email');
+                        
+                        if (adminNameElem) adminNameElem.textContent = "${savedAdminName}";
+                        if (adminEmailElem) adminEmailElem.textContent = "${savedAdminEmail}";
+                    }
+                    
+                    // DOMContentLoaded 이벤트 리스너 (DOM 구성 완료 즉시 실행)
+                    document.addEventListener('DOMContentLoaded', setInitialUserInfo);
+                    
+                    // 이미 DOM이 로드되었다면 즉시 실행
+                    if (document.readyState !== 'loading') {
+                        setInitialUserInfo();
+                    }
+                })();
+            <\/script>
+        `);
+    }
+
+    // 사용자 정보 미리 로딩
+    preloadUserInfo();
+
     // 현재 경로에 따른 기본 경로 계산
     function getBasePath() {
         const currentPath = window.location.pathname;

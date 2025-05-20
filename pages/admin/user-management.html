@@ -15,15 +15,40 @@
 
 <body class="bg-gray-100">
     <!-- 관리자 헤더 -->
-    <header class="bg-indigo-800 text-white">
+    <header class="bg-indigo-800 text-white admin-header">
+        <style>
+            /* 인라인 스타일로 깜빡임 방지 */
+            .admin-user-info {
+                display: flex !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+
+            #admin-name,
+            #admin-email,
+            #admin-logout-button {
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+        </style>
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
+                <!-- 토글 버튼 추가 -->
+                <button class="admin-toggle-button" id="admin-sidebar-toggle" aria-label="메뉴 토글">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+
                 <div class="flex items-center">
-                    <a href="javascript:window.location.href=window.adjustPath('index.html')" class="text-xl font-bold">
-                        디지털헬스케어센터 관리자
+                    <a href="javascript:window.location.href=window.adjustPath('index.html')" class="admin-title">
+                        관리자 페이지
                     </a>
                 </div>
-                <div class="flex items-center space-x-4">
+
+                <!-- 사용자 정보 (모바일에서 숨김) -->
+                <div class="flex items-center space-x-4 admin-user-info">
                     <span id="admin-name">관리자</span>
                     <span id="admin-email" class="text-sm text-indigo-200">gostepexercise@gmail.com</span>
                     <button id="admin-logout-button"
@@ -35,9 +60,37 @@
         </div>
     </header>
 
+    <!-- 사이드바 오버레이 (모바일용) -->
+    <div id="sidebar-overlay" class="admin-sidebar-overlay"></div>
+
     <div class="flex">
         <!-- 사이드바 -->
-        <aside class="w-64 bg-indigo-900 min-h-screen text-white">
+        <aside class="w-64 bg-indigo-900 min-h-screen text-white admin-sidebar">
+            <style>
+                /* 사이드바 사용자 정보 인라인 스타일 */
+                .sidebar-user-info {
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                    padding: 1rem;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                    margin-bottom: 1rem;
+                    background-color: rgba(0, 0, 0, 0.2);
+                }
+            </style>
+
+            <!-- 사이드바 사용자 정보 (초기에 미리 추가) -->
+            <div class="sidebar-user-info" style="opacity: 1 !important; visibility: visible !important;">
+                <div class="text-white mb-2">
+                    <div class="font-bold" style="opacity: 1 !important;">관리자</div>
+                    <div class="text-indigo-200 text-sm" style="opacity: 1 !important;">gostepexercise@gmail.com</div>
+                </div>
+                <button id="sidebar-logout-button"
+                    class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md text-sm text-white w-full"
+                    style="opacity: 1 !important;">
+                    로그아웃
+                </button>
+            </div>
+
             <nav class="mt-8 admin-nav">
                 <a href="javascript:window.location.href=window.adjustPath('pages/admin/dashboard.html')"
                     class="block px-6 py-3 text-indigo-300 hover:bg-indigo-600 hover:text-white transition duration-200">
@@ -301,6 +354,19 @@
                 initUserManagement();
             } else {
                 console.error('user-management.js의 initUserManagement 함수를 찾을 수 없습니다.');
+            }
+
+            // 사이드바 토글 기능 초기화
+            if (typeof adminUtils !== 'undefined' && adminUtils.initAdminSidebar) {
+                adminUtils.initAdminSidebar();
+            }
+
+            // adminUtils가 로드되었는지 확인 후 초기화 호출
+            if (window.adminUtils && window.adminUtils.initAdminPage) {
+                console.log('adminUtils.initAdminPage 호출');
+                window.adminUtils.initAdminPage();
+            } else {
+                console.warn('adminUtils가 로드되지 않았거나 initAdminPage가 없습니다.');
             }
         });
     </script>
