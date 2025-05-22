@@ -1,0 +1,46 @@
+/* 
+ * 스크롤 TOP 버튼 스타일
+ */
+
+#scroll-top-btn {
+    z-index: 99;
+    transition: opacity 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transform: translateY(100px);
+    opacity: 0;
+}
+
+#scroll-top-btn.visible {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+#scroll-top-btn:hover {
+    transform: translateY(-5px);
+    opacity: 1;
+}
+
+#scroll-top-btn:active {
+    transform: translateY(-2px);
+}
+
+/* 모바일에서는 조금 더 작게 표시 */
+@media (max-width: 640px) {
+    #scroll-top-btn {
+        height: 40px;
+        width: 40px;
+        bottom: 16px;
+        right: 16px;
+    }
+    
+    #scroll-top-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* 접근성 개선: 키보드 포커스 시 시각적 표시 */
+#scroll-top-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}

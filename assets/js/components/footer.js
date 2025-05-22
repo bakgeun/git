@@ -3,14 +3,14 @@
  * 웹사이트 하단 푸터 관련 기능
  */
 
-(function() {
+(function () {
     'use strict';
 
     window.Footer = {
         /**
          * 푸터 초기화
          */
-        init: function() {
+        init: function () {
             this.setupEventListeners();
             this.updateCopyright();
             this.loadFooterContent();
@@ -21,7 +21,7 @@
         /**
          * 이벤트 리스너 설정
          */
-        setupEventListeners: function() {
+        setupEventListeners: function () {
             // 뉴스레터 구독 폼
             const newsletterForm = document.getElementById('newsletter-form');
             if (newsletterForm) {
@@ -44,7 +44,7 @@
         /**
          * 저작권 연도 업데이트
          */
-        updateCopyright: function() {
+        updateCopyright: function () {
             const copyrightYear = document.getElementById('copyright-year');
             if (copyrightYear) {
                 copyrightYear.textContent = new Date().getFullYear();
@@ -54,17 +54,9 @@
         /**
          * 동적 푸터 콘텐츠 로드
          */
-        loadFooterContent: async function() {
+        loadFooterContent: async function () {
             try {
-                // 최근 공지사항 로드
-                const recentNotices = await this.loadRecentNotices();
-                this.renderRecentNotices(recentNotices);
-
-                // 인기 자격증 정보 로드
-                const popularCertificates = await this.loadPopularCertificates();
-                this.renderPopularCertificates(popularCertificates);
-
-                // 연락처 정보 업데이트
+                // 연락처 정보만 업데이트하고 다른 동적 콘텐츠는 제거
                 const contactInfo = await this.loadContactInfo();
                 this.updateContactInfo(contactInfo);
             } catch (error) {
@@ -73,9 +65,21 @@
         },
 
         /**
+         * 연락처 정보 로드
+         */
+        loadContactInfo: async function () {
+            // 간소화된 연락처 정보
+            return {
+                address: '서울특별시 노원구 한글비석로 233, 새롬스타빌 706호',
+                phone: '02-123-4567',
+                email: 'info@digitalhealthcare.org'
+            };
+        },
+
+        /**
          * 최근 공지사항 로드
          */
-        loadRecentNotices: async function() {
+        loadRecentNotices: async function () {
             try {
                 const result = await dbService.getDocuments('board_notice', {
                     where: [{ field: 'status', operator: '==', value: 'published' }],
@@ -93,7 +97,7 @@
         /**
          * 최근 공지사항 렌더링
          */
-        renderRecentNotices: function(notices) {
+        renderRecentNotices: function (notices) {
             const container = document.getElementById('footer-recent-notices');
             if (!container) return;
 
@@ -117,7 +121,7 @@
         /**
          * 인기 자격증 정보 로드
          */
-        loadPopularCertificates: async function() {
+        loadPopularCertificates: async function () {
             // 실제로는 통계 데이터를 기반으로 인기 자격증을 조회
             // 여기서는 하드코딩된 데이터 반환
             return [
@@ -130,7 +134,7 @@
         /**
          * 인기 자격증 렌더링
          */
-        renderPopularCertificates: function(certificates) {
+        renderPopularCertificates: function (certificates) {
             const container = document.getElementById('footer-popular-certificates');
             if (!container) return;
 
@@ -149,7 +153,7 @@
         /**
          * 연락처 정보 로드
          */
-        loadContactInfo: async function() {
+        loadContactInfo: async function () {
             // 실제로는 Firestore에서 연락처 정보를 로드
             // 여기서는 하드코딩된 데이터 반환
             return {
@@ -163,7 +167,7 @@
         /**
          * 연락처 정보 업데이트
          */
-        updateContactInfo: function(info) {
+        updateContactInfo: function (info) {
             const elements = {
                 address: document.getElementById('footer-address'),
                 phone: document.getElementById('footer-phone'),
@@ -181,7 +185,7 @@
         /**
          * 뉴스레터 구독 처리
          */
-        handleNewsletterSubmit: async function(event) {
+        handleNewsletterSubmit: async function (event) {
             event.preventDefault();
             const form = event.target;
             const email = form.querySelector('input[type="email"]').value;
@@ -194,7 +198,7 @@
 
                 // 구독 처리
                 const result = await this.subscribeNewsletter(email);
-                
+
                 if (result.success) {
                     this.showNotification('뉴스레터 구독이 완료되었습니다.', 'success');
                     form.reset();
@@ -209,7 +213,7 @@
         /**
          * 뉴스레터 구독 API 호출
          */
-        subscribeNewsletter: async function(email) {
+        subscribeNewsletter: async function (email) {
             try {
                 // Firebase Functions 또는 외부 API 호출
                 const result = await apiService.post('/api/newsletter/subscribe', { email });
@@ -223,10 +227,10 @@
         /**
          * 푸터 링크 클릭 처리
          */
-        handleFooterLinkClick: function(event) {
+        handleFooterLinkClick: function (event) {
             const link = event.currentTarget;
             const href = link.getAttribute('href');
-            
+
             // 외부 링크인 경우 새 창에서 열기
             if (href.startsWith('http') && !href.includes(window.location.hostname)) {
                 event.preventDefault();
@@ -243,10 +247,10 @@
         /**
          * 소셜 미디어 링크 클릭 처리
          */
-        handleSocialLinkClick: function(event) {
+        handleSocialLinkClick: function (event) {
             const link = event.currentTarget;
             const platform = link.dataset.platform || link.getAttribute('aria-label');
-            
+
             // 분석 이벤트 전송
             this.trackEvent('social_link_click', {
                 platform: platform,
@@ -257,7 +261,7 @@
         /**
          * 맨 위로 스크롤 버튼 설정
          */
-        setupScrollToTop: function() {
+        setupScrollToTop: function () {
             const scrollToTopBtn = document.getElementById('scroll-to-top');
             if (!scrollToTopBtn) return;
 
@@ -278,7 +282,7 @@
                     top: 0,
                     behavior: 'smooth'
                 });
-                
+
                 this.trackEvent('scroll_to_top_click');
             });
         },
@@ -286,7 +290,7 @@
         /**
          * 푸터 링크 추적
          */
-        trackFooterLinks: function() {
+        trackFooterLinks: function () {
             // 푸터 내의 모든 링크에 대한 추적 설정
             const footer = document.querySelector('footer');
             if (!footer) return;
@@ -307,12 +311,12 @@
         /**
          * 이벤트 추적
          */
-        trackEvent: function(eventName, eventData = {}) {
+        trackEvent: function (eventName, eventData = {}) {
             // Google Analytics 또는 기타 분석 도구로 이벤트 전송
             if (window.gtag) {
                 window.gtag('event', eventName, eventData);
             }
-            
+
             // 개발 모드에서는 콘솔에 로그
             if (window.location.hostname === 'localhost') {
                 console.log('Footer Event:', eventName, eventData);
@@ -322,7 +326,7 @@
         /**
          * 알림 표시
          */
-        showNotification: function(message, type = 'info') {
+        showNotification: function (message, type = 'info') {
             // 기존 알림 제거
             const existingNotification = document.querySelector('.footer-notification');
             if (existingNotification) {
@@ -338,7 +342,7 @@
             const footer = document.querySelector('footer');
             if (footer) {
                 footer.insertBefore(notification, footer.firstChild);
-                
+
                 // 3초 후 제거
                 setTimeout(() => {
                     notification.remove();
@@ -349,14 +353,14 @@
         /**
          * 푸터 데이터 새로고침
          */
-        refresh: function() {
+        refresh: function () {
             this.loadFooterContent();
         },
 
         /**
          * 푸터 상태 초기화
          */
-        reset: function() {
+        reset: function () {
             // 뉴스레터 폼 초기화
             const newsletterForm = document.getElementById('newsletter-form');
             if (newsletterForm) {
@@ -371,12 +375,12 @@
         /**
          * 모바일 푸터 메뉴 토글
          */
-        toggleMobileMenu: function(section) {
+        toggleMobileMenu: function (section) {
             const menuContent = document.querySelector(`.footer-mobile-menu[data-section="${section}"]`);
             if (!menuContent) return;
 
             const isExpanded = menuContent.classList.contains('expanded');
-            
+
             // 모든 메뉴 닫기
             document.querySelectorAll('.footer-mobile-menu').forEach(menu => {
                 menu.classList.remove('expanded');
@@ -395,7 +399,7 @@
     };
 
     // DOMContentLoaded 이벤트에서 초기화
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         Footer.init();
     });
 

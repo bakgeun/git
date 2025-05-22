@@ -435,13 +435,8 @@ function createMobileMenu() {
         {
             title: '기관 소개',
             icon: '🏢',
-            items: [
-                { name: '개요', url: 'pages/about/overview.html' },
-                { name: '목표 및 전략', url: 'pages/about/vision.html' },
-                { name: '사업 내용', url: 'pages/about/business.html' },
-                { name: '조직도', url: 'pages/about/organization.html' },
-                { name: '강사 소개', url: 'pages/about/instructors.html' }
-            ]
+            url: 'pages/about.html',
+            items: [] // 빈 배열 추가
         },
         {
             title: '자격증 소개',
@@ -460,7 +455,8 @@ function createMobileMenu() {
                 { name: '교육 과정 안내', url: 'pages/education/course-info.html' },
                 { name: '교육 신청', url: 'pages/education/course-application.html' },
                 { name: '자격증 신청', url: 'pages/education/cert-application.html' },
-                { name: '시험 안내', url: 'pages/education/exam-info.html' }
+                { name: '시험 안내', url: 'pages/education/exam-info.html' },
+                { name: '강사 소개', url: 'pages/education/instructors.html' }
             ]
         },
         {
@@ -510,9 +506,23 @@ function createMobileMenu() {
         const menuDiv = document.createElement('div');
         menuDiv.className = 'mobile-menu-item';
 
-        const menuButton = document.createElement('button');
-        menuButton.className = 'w-full text-left p-3 bg-white rounded-lg shadow-sm font-semibold text-gray-800 flex justify-between items-center';
-        menuButton.innerHTML = `
+        // items가 없거나 빈 배열인 경우 (직접 링크)
+        if (!menu.items || menu.items.length === 0) {
+            const link = document.createElement('a');
+            link.className = 'w-full text-left p-3 bg-white rounded-lg shadow-sm font-semibold text-gray-800 flex items-center';
+            link.href = window.adjustPath ? window.adjustPath(menu.url) : menu.url;
+            link.onclick = () => closeMobileMenu();
+            link.innerHTML = `
+            <span class="mr-2">${menu.icon}</span>
+            ${menu.title}
+        `;
+            menuDiv.appendChild(link);
+        }
+        // items가 있는 경우 (드롭다운 메뉴)
+        else {
+            const menuButton = document.createElement('button');
+            menuButton.className = 'w-full text-left p-3 bg-white rounded-lg shadow-sm font-semibold text-gray-800 flex justify-between items-center';
+            menuButton.innerHTML = `
             <span class="flex items-center">
                 <span class="mr-2">${menu.icon}</span>
                 ${menu.title}
@@ -520,47 +530,49 @@ function createMobileMenu() {
             <span class="toggle-icon">▷</span>
         `;
 
-        const submenuDiv = document.createElement('div');
-        submenuDiv.className = 'mobile-submenu mt-2 ml-4 space-y-1 hidden';
+            const submenuDiv = document.createElement('div');
+            submenuDiv.className = 'mobile-submenu mt-2 ml-4 space-y-1 hidden';
 
-        menu.items.forEach(item => {
-            const link = document.createElement('a');
-            link.className = 'block p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded';
-            link.href = window.adjustPath ? window.adjustPath(item.url) : item.url;
-            link.textContent = item.name;
-            link.onclick = () => closeMobileMenu();
-            submenuDiv.appendChild(link);
-        });
-
-        menuButton.onclick = () => {
-            const toggleIcon = menuButton.querySelector('.toggle-icon');
-            const isOpen = !submenuDiv.classList.contains('hidden');
-
-            // 다른 메뉴 닫기
-            menuContainer.querySelectorAll('.mobile-submenu').forEach(sub => {
-                if (sub !== submenuDiv) {
-                    sub.classList.add('hidden');
-                    sub.parentElement.querySelector('.toggle-icon').textContent = '▷';
-                    sub.parentElement.querySelector('.toggle-icon').classList.remove('open');
-                }
+            menu.items.forEach(item => {
+                const link = document.createElement('a');
+                link.className = 'block p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded';
+                link.href = window.adjustPath ? window.adjustPath(item.url) : item.url;
+                link.textContent = item.name;
+                link.onclick = () => closeMobileMenu();
+                submenuDiv.appendChild(link);
             });
 
-            // 현재 메뉴 토글
-            submenuDiv.classList.toggle('hidden');
-            if (submenuDiv.classList.contains('hidden')) {
-                toggleIcon.textContent = '▷';
-                toggleIcon.classList.remove('open');
-            } else {
-                toggleIcon.textContent = '▽';
-                toggleIcon.classList.add('open');
-            }
-            
-            // CSS에서 애니메이션 처리
-            submenuDiv.classList.add('open');
-        };
+            menuButton.onclick = () => {
+                const toggleIcon = menuButton.querySelector('.toggle-icon');
+                const isOpen = !submenuDiv.classList.contains('hidden');
 
-        menuDiv.appendChild(menuButton);
-        menuDiv.appendChild(submenuDiv);
+                // 다른 메뉴 닫기
+                menuContainer.querySelectorAll('.mobile-submenu').forEach(sub => {
+                    if (sub !== submenuDiv) {
+                        sub.classList.add('hidden');
+                        sub.parentElement.querySelector('.toggle-icon').textContent = '▷';
+                        sub.parentElement.querySelector('.toggle-icon').classList.remove('open');
+                    }
+                });
+
+                // 현재 메뉴 토글
+                submenuDiv.classList.toggle('hidden');
+                if (submenuDiv.classList.contains('hidden')) {
+                    toggleIcon.textContent = '▷';
+                    toggleIcon.classList.remove('open');
+                } else {
+                    toggleIcon.textContent = '▽';
+                    toggleIcon.classList.add('open');
+                }
+
+                // CSS에서 애니메이션 처리
+                submenuDiv.classList.add('open');
+            };
+
+            menuDiv.appendChild(menuButton);
+            menuDiv.appendChild(submenuDiv);
+        }
+
         menuContainer.appendChild(menuDiv);
     });
 }
