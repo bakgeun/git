@@ -1,40 +1,62 @@
 /**
- * 스크롤 TOP 버튼 기능
- * 페이지 스크롤 시 상단으로 이동하는 버튼 제어
+ * 스크롤 TOP 버튼 기능 - 디버깅 버전
  */
 
-// 전역 네임스페이스로 함수 노출
+console.log('scroll-top.js 로드됨');
+
 window.ScrollTopBtn = {
     init: function() {
+        console.log('ScrollTopBtn 초기화 시작');
+        const scrollTopBtn = document.getElementById('scroll-top-btn');
+        console.log('TOP 버튼 요소:', scrollTopBtn);
+        
+        if (!scrollTopBtn) {
+            console.error('TOP 버튼 요소를 찾을 수 없음');
+            return;
+        }
+        
         this.bindEvents();
-        this.checkScroll(); // 초기 상태 설정
+        this.checkScroll();
+        console.log('ScrollTopBtn 초기화 완료');
     },
     
     bindEvents: function() {
         const scrollTopBtn = document.getElementById('scroll-top-btn');
         if (!scrollTopBtn) return;
         
+        console.log('이벤트 바인딩 시작');
+        
         // 스크롤 이벤트
-        window.addEventListener('scroll', this.checkScroll.bind(this));
+        window.addEventListener('scroll', () => {
+            this.checkScroll();
+        });
         
         // 클릭 이벤트
-        scrollTopBtn.addEventListener('click', this.scrollToTop.bind(this));
+        scrollTopBtn.addEventListener('click', () => {
+            console.log('TOP 버튼 클릭됨');
+            this.scrollToTop();
+        });
+        
+        console.log('이벤트 바인딩 완료');
     },
     
     checkScroll: function() {
         const scrollTopBtn = document.getElementById('scroll-top-btn');
         if (!scrollTopBtn) return;
         
-        if (window.pageYOffset > 300) {
-            scrollTopBtn.style.opacity = '1';
-            scrollTopBtn.style.transform = 'translateY(0)';
+        const scrollY = window.pageYOffset || window.scrollY;
+        
+        if (scrollY > 300) {
+            scrollTopBtn.classList.add('visible');
+            console.log('TOP 버튼 표시, 스크롤 위치:', scrollY);
         } else {
-            scrollTopBtn.style.opacity = '0';
-            scrollTopBtn.style.transform = 'translateY(100px)';
+            scrollTopBtn.classList.remove('visible');
+            console.log('TOP 버튼 숨김, 스크롤 위치:', scrollY);
         }
     },
     
     scrollToTop: function() {
+        console.log('페이지 상단으로 스크롤');
         window.scrollTo({
             top: 0,
             behavior: 'smooth'
@@ -42,12 +64,18 @@ window.ScrollTopBtn = {
     }
 };
 
-// 문서가 로드되었을 때 초기화
+// DOM 로드 후 초기화
 document.addEventListener('DOMContentLoaded', function() {
-    window.ScrollTopBtn.init();
+    console.log('DOMContentLoaded 이벤트 발생');
+    if (window.ScrollTopBtn) {
+        window.ScrollTopBtn.init();
+    }
 });
 
-// 이미 문서가 로드되었다면 즉시 초기화
-if (document.readyState === 'complete' || document.readyState !== 'loading') {
-    window.ScrollTopBtn.init();
+// 이미 로드된 경우 즉시 초기화
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    console.log('문서 이미 로드됨, 즉시 초기화');
+    if (window.ScrollTopBtn) {
+        window.ScrollTopBtn.init();
+    }
 }

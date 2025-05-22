@@ -18,9 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // TOP 버튼 초기화
     initScrollToTop();
-    
-    // 페이지 내 앵커 스크롤 초기화
-    initSmoothAnchorScroll();
 });
 
 // 페이지 초기화
@@ -62,13 +59,14 @@ function initValueCards() {
             const icon = this.querySelector('.value-icon');
             if (icon) {
                 icon.style.transform = 'scale(1.1) rotate(5deg)';
+                icon.style.transition = 'transform 0.3s ease';
             }
         });
         
         card.addEventListener('mouseleave', function() {
             const icon = this.querySelector('.value-icon');
             if (icon) {
-                icon.style.transform = 'scale(1)';
+                icon.style.transform = 'scale(1) rotate(0deg)';
             }
         });
     });
@@ -83,13 +81,14 @@ function initBusinessCards() {
             const icon = this.querySelector('.business-area-icon');
             if (icon) {
                 icon.style.transform = 'scale(1.1) rotate(5deg)';
+                icon.style.transition = 'transform 0.3s ease';
             }
         });
         
         card.addEventListener('mouseleave', function() {
             const icon = this.querySelector('.business-area-icon');
             if (icon) {
-                icon.style.transform = 'scale(1)';
+                icon.style.transform = 'scale(1) rotate(0deg)';
             }
         });
     });
@@ -103,10 +102,19 @@ function initPartnerLogos() {
         img.addEventListener('error', function() {
             // 이미지 로딩 실패 시 대체 텍스트 표시
             const placeholder = document.createElement('div');
-            placeholder.className = 'w-full h-full flex items-center justify-center bg-gray-100 text-gray-500 text-sm';
+            placeholder.className = 'w-full h-full flex items-center justify-center bg-gray-100 text-gray-500 text-sm font-medium';
             placeholder.textContent = '협력 기관';
             
             this.parentNode.replaceChild(placeholder, this);
+        });
+        
+        // 이미지 로딩 시 부드러운 페이드인 효과
+        img.addEventListener('load', function() {
+            this.style.opacity = '0';
+            this.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => {
+                this.style.opacity = '1';
+            }, 100);
         });
     });
 }
@@ -117,14 +125,26 @@ function initScrollToTop() {
     if (!scrollTopBtn) return;
     
     // 스크롤 이벤트 리스너
+    let isScrolling = false;
+    
     window.addEventListener('scroll', () => {
-        if (window.pageYOffset > 300) {
-            scrollTopBtn.classList.remove('hidden');
-            scrollTopBtn.classList.add('show');
-        } else {
-            scrollTopBtn.classList.remove('show');
-            scrollTopBtn.classList.add('hidden');
+        if (!isScrolling) {
+            window.requestAnimationFrame(() => {
+                if (window.pageYOffset > 300) {
+                    scrollTopBtn.classList.remove('hidden');
+                    scrollTopBtn.classList.add('show');
+                    scrollTopBtn.style.opacity = '1';
+                    scrollTopBtn.style.transform = 'translateY(0)';
+                } else {
+                    scrollTopBtn.classList.remove('show');
+                    scrollTopBtn.classList.add('hidden');
+                    scrollTopBtn.style.opacity = '0';
+                    scrollTopBtn.style.transform = 'translateY(100px)';
+                }
+                isScrolling = false;
+            });
         }
+        isScrolling = true;
     });
     
     // 클릭 이벤트 리스너
@@ -136,60 +156,87 @@ function initScrollToTop() {
     });
 }
 
-// 페이지 내 앵커 스크롤 초기화
-function initSmoothAnchorScroll() {
-    const anchorLinks = document.querySelectorAll('a[href^="#"]');
+
+
+// 섹션별 애니메이션 효과 추가
+function addSectionAnimations() {
+    const sections = document.querySelectorAll('section');
     
-    anchorLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            const targetId = this.getAttribute('href').substring(1);
-            const targetElement = document.getElementById(targetId);
-            
-            if (targetElement) {
-                // 상단 내비게이션 바의 높이 고려
-                const navHeight = 60;
-                const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navHeight;
+    const sectionObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('section-visible');
                 
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
+                // 각 섹션 내 요소들에 순차적 애니메이션 적용
+                const animateElements = entry.target.querySelectorAll('.value-card, .business-area-card, .partner-card');
+                animateElements.forEach((el, index) => {
+                    setTimeout(() => {
+                        el.classList.add('animate-fade-in');
+                    }, index * 100);
                 });
             }
         });
+    }, {
+        threshold: 0.2
+    });
+    
+    sections.forEach(section => {
+        sectionObserver.observe(section);
     });
 }
 
-// 페이지 내 탭이 있을 경우 활성 탭 처리
-function handleActiveTab() {
-    // 현재 스크롤 위치 기준으로 어떤 섹션이 보이는지 확인
-    const sections = document.querySelectorAll('section[id]');
-    const scrollPosition = window.scrollY;
+// 조직도 이미지 반응형 처리
+function handleOrganizationChart() {
+    const orgChart = document.querySelector('.org-chart-image img');
+    if (!orgChart) return;
     
-    // 현재 보이는 섹션 찾기
-    let currentSection = '';
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop - 100;
-        const sectionHeight = section.offsetHeight;
-        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-            currentSection = section.getAttribute('id');
-        }
-    });
-    
-    // 해당 섹션의 탭 활성화
-    if (currentSection) {
-        const tabLinks = document.querySelectorAll('.page-nav a');
-        tabLinks.forEach(link => {
-            const href = link.getAttribute('href').substring(1);
-            if (href === currentSection) {
-                link.classList.add('active');
+    // 모바일에서 조직도 이미지 확대/축소 기능
+    if (window.innerWidth <= 768) {
+        let isZoomed = false;
+        
+        orgChart.style.cursor = 'zoom-in';
+        orgChart.addEventListener('click', function() {
+            if (!isZoomed) {
+                this.style.transform = 'scale(1.5)';
+                this.style.cursor = 'zoom-out';
+                this.style.transition = 'transform 0.3s ease';
+                isZoomed = true;
             } else {
-                link.classList.remove('active');
+                this.style.transform = 'scale(1)';
+                this.style.cursor = 'zoom-in';
+                isZoomed = false;
             }
         });
     }
 }
 
-// 스크롤 이벤트에 탭 활성화 함수 연결
-window.addEventListener('scroll', handleActiveTab);
+// 페이지 로드 완료 후 추가 초기화
+window.addEventListener('load', function() {
+    addSectionAnimations();
+    handleOrganizationChart();
+});
+
+// 윈도우 리사이즈 처리
+window.addEventListener('resize', function() {
+    // 리사이즈 시 조직도 이미지 리셋
+    const orgChart = document.querySelector('.org-chart-image img');
+    if (orgChart) {
+        orgChart.style.transform = 'scale(1)';
+    }
+    
+    // 리사이즈 후 조직도 처리 재초기화
+    setTimeout(handleOrganizationChart, 100);
+});
+
+// 성능 최적화를 위한 디바운스 함수
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}

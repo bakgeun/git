@@ -10,6 +10,8 @@
     <link rel="manifest" href="../../manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
         rel="stylesheet">
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <!-- 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
     <script src="../../assets/js/utils/script-loader.js"></script>
@@ -31,21 +33,9 @@
             </div>
             <nav class="main-nav hidden md:flex">
                 <ul class="flex space-x-6">
-                    <li class="group relative nav-item">
-                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">기관 소개</a>
-                        <ul
-                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">개요</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">목표 및 전략</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/business.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">사업 내용</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
-                        </ul>
+                    <li class="nav-item">
+                        <a href="javascript:window.location.href=window.adjustPath('pages/about.html')"
+                            class="text-blue-600 font-bold py-2 nav-link">기관 소개</a>
                     </li>
                     <li class="group relative nav-item">
                         <a href="#" class="text-blue-600 font-bold py-2 nav-link">자격증 소개</a>
@@ -55,7 +45,8 @@
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">건강운동처방사</a>
                             </li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600 font-medium">운동재활전문가</a></li>
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600 font-medium">운동재활전문가</a>
+                            </li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스 전문가</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
@@ -126,28 +117,22 @@
 
                         <!-- 메인 메뉴 -->
                         <div class="space-y-2 mobile-menu-nav">
+                            <!-- 홈 링크 추가 -->
+                            <div class="mobile-menu-item">
+                                <a href="javascript:window.location.href=window.adjustPath('index.html')"
+                                    class="p-3 bg-white rounded-lg shadow-sm flex items-center">
+                                    <div class="menu-icon">🏠</div>
+                                    <div class="menu-text">홈</div>
+                                </a>
+                            </div>
+                            
                             <!-- 기관 소개 -->
                             <div class="mobile-menu-item">
-                                <button type="button">
+                                <a href="javascript:window.location.href=window.adjustPath('pages/about.html')"
+                                    class="p-3 bg-white rounded-lg shadow-sm flex items-center">
                                     <div class="menu-icon">🏢</div>
                                     <div class="menu-text">기관 소개</div>
-                                    <div class="toggle-icon">▶</div>
-                                </button>
-                                <div class="mobile-submenu">
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')">개요</a>
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')">목표
-                                        및 전략</a>
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/about/business.html')">사업
-                                        내용</a>
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')">조직도</a>
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')">강사
-                                        소개</a>
-                                </div>
+                                </a>
                             </div>
 
                             <!-- 자격증 소개 -->
@@ -158,14 +143,16 @@
                                     <div class="toggle-icon">▶</div>
                                 </button>
                                 <div class="mobile-submenu">
-                                    <a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')">건강운동처방사</a>
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')" class="active">운동재활전문가</a>
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')">필라테스
-                                        전문가</a>
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')">레크리에이션지도자</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')">건강운동처방사</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
+                                    class="active">운동재활전문가</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')">필라테스
+                                    전문가</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')">레크리에이션지도자</a>
                                 </div>
                             </div>
 
@@ -177,18 +164,18 @@
                                     <div class="toggle-icon">▶</div>
                                 </button>
                                 <div class="mobile-submenu">
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')">교육
-                                        과정 안내</a>
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')">교육
-                                        신청</a>
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')">자격증
-                                        신청</a>
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/education/exam-info.html')">시험
-                                        안내</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')">교육
+                                    과정 안내</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')">교육
+                                    신청</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')">자격증
+                                    신청</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/education/exam-info.html')">시험
+                                    안내</a>
                                 </div>
                             </div>
 
@@ -200,15 +187,15 @@
                                     <div class="toggle-icon">▶</div>
                                 </button>
                                 <div class="mobile-submenu">
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')">공지사항</a>
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')">칼럼</a>
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/board/materials/index.html')">강의자료</a>
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/board/videos/index.html')">동영상
-                                        강의</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')">공지사항</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')">칼럼</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/board/materials/index.html')">강의자료</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/board/videos/index.html')">동영상
+                                    강의</a>
                                 </div>
                             </div>
 
@@ -220,18 +207,18 @@
                                     <div class="toggle-icon">▶</div>
                                 </button>
                                 <div class="mobile-submenu">
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/personal-info.html')">개인정보
-                                        관리</a>
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/course-history.html')">수강
-                                        내역</a>
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/cert-management.html')">자격증
-                                        관리</a>
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/payment-history.html')">결제
-                                        내역</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/mypage/personal-info.html')">개인정보
+                                    관리</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/mypage/course-history.html')">수강
+                                    내역</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/mypage/cert-management.html')">자격증
+                                    관리</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/mypage/payment-history.html')">결제
+                                    내역</a>
                                 </div>
                             </div>
 
@@ -243,17 +230,17 @@
                                     <div class="toggle-icon">▶</div>
                                 </button>
                                 <div class="mobile-submenu">
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/admin/dashboard.html')">대시보드</a>
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/admin/user-management.html')">회원
-                                        관리</a>
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/admin/course-management.html')">교육
-                                        관리</a>
-                                    
-                                        href="javascript:window.location.href=window.adjustPath('pages/admin/cert-management.html')">자격증
-                                        관리</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/admin/dashboard.html')">대시보드</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/admin/user-management.html')">회원
+                                    관리</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/admin/course-management.html')">교육
+                                    관리</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/admin/cert-management.html')">자격증
+                                    관리</a>
                                 </div>
                             </div>
                         </div>
@@ -537,7 +524,8 @@
                                         <td class="font-medium">1급</td>
                                         <td>
                                             <ul class="list-disc pl-5 space-y-1">
-                                                <li>재활 또는 관련 전공 학사학위 이상 소지자로서 운동재활전문가 2급 자격 취득 후 관련 분야 실무경력 3년 이상인 자</li>
+                                                <li>재활 또는 관련 전공 학사학위 이상 소지자로서 운동재활전문가 2급 자격 취득 후 관련 분야 실무경력 3년 이상인 자
+                                                </li>
                                                 <li>물리치료사, 작업치료사 면허 소지자로서 관련 분야 실무경력 3년 이상인 자</li>
                                                 <li>운동재활전문가 2급 자격 취득 후 관련 분야 실무경력 5년 이상인 자</li>
                                                 <li>디지털헬스케어센터 지정 교육기관에서 1급 교육과정을 이수한 자</li>
@@ -833,7 +821,8 @@
 
                     <div class="mb-8">
                         <h3 class="text-xl font-bold mb-4">교육 개요</h3>
-                        <p class="mb-4">디지털헬스케어센터의 운동재활전문가 교육과정은 체계적인 이론 교육과 실무 중심의 실습 교육을 통해 현장에서 즉시 활용 가능한 재활 전문가를 양성합니다.</p>
+                        <p class="mb-4">디지털헬스케어센터의 운동재활전문가 교육과정은 체계적인 이론 교육과 실무 중심의 실습 교육을 통해 현장에서 즉시 활용 가능한 재활 전문가를
+                            양성합니다.</p>
 
                         <div class="curriculum-overview">
                             <div class="curriculum-card">
@@ -1093,7 +1082,8 @@
                             <div class="space-y-3">
                                 <div class="curriculum-info-item">
                                     <span class="curriculum-info-label">교육비</span>
-                                    <span class="curriculum-info-value">온/오프라인 전체과정: 1,500,000원<br>온라인 이론과정: 800,000원<br>오프라인 실습과정: 800,000원</span>
+                                    <span class="curriculum-info-value">온/오프라인 전체과정: 1,500,000원<br>온라인 이론과정:
+                                        800,000원<br>오프라인 실습과정: 800,000원</span>
                                 </div>
                                 <div class="curriculum-info-item">
                                     <span class="curriculum-info-label">교재</span>
@@ -1101,7 +1091,8 @@
                                 </div>
                                 <div class="curriculum-info-item">
                                     <span class="curriculum-info-label">할인혜택</span>
-                                    <span class="curriculum-info-value">조기 신청: 10% 할인<br>학생할인: 15% 할인<br>단체접수(5인 이상): 20% 할인</span>
+                                    <span class="curriculum-info-value">조기 신청: 10% 할인<br>학생할인: 15% 할인<br>단체접수(5인 이상):
+                                        20% 할인</span>
                                 </div>
                             </div>
                         </div>
@@ -1235,7 +1226,8 @@
                     <div class="mb-8">
                         <h3 class="text-xl font-bold mb-4">운동재활전문가의 시장 전망</h3>
                         <div class="market-outlook">
-                            <p class="mb-4">급속한 고령화와 스포츠 인구 증가로 운동재활전문가의 수요는 지속적으로 증가하고 있습니다. 특히 다음과 같은 요인들이 운동재활전문가의 직업 전망을 밝게 하고 있습니다:</p>
+                            <p class="mb-4">급속한 고령화와 스포츠 인구 증가로 운동재활전문가의 수요는 지속적으로 증가하고 있습니다. 특히 다음과 같은 요인들이 운동재활전문가의 직업
+                                전망을 밝게 하고 있습니다:</p>
 
                             <div class="outlook-factors mb-6">
                                 <div class="outlook-factor">
@@ -1278,7 +1270,8 @@
                                             <p>대학병원 재활의학과 운동재활전문가</p>
                                         </div>
                                     </div>
-                                    <p class="story-content">"물리치료학을 전공하고 운동재활전문가 자격증을 취득한 후 대학병원 재활의학과에서 8년째 근무하고 있습니다. 현재는 스포츠재활팀장으로 프로 운동선수들의 재활을 전담하고 있으며, 매우 보람된 일을 하고 있습니다."</p>
+                                    <p class="story-content">"물리치료학을 전공하고 운동재활전문가 자격증을 취득한 후 대학병원 재활의학과에서 8년째 근무하고 있습니다.
+                                        현재는 스포츠재활팀장으로 프로 운동선수들의 재활을 전담하고 있으며, 매우 보람된 일을 하고 있습니다."</p>
                                 </div>
                                 <div class="success-story">
                                     <div class="story-header">
@@ -1288,7 +1281,8 @@
                                             <p>스포츠재활센터 대표</p>
                                         </div>
                                     </div>
-                                    <p class="story-content">"운동재활전문가로 병원에서 7년간 경력을 쌓은 후 스포츠재활센터를 개업했습니다. 현재는 3명의 직원과 함께 하루 평균 40명의 환자를 관리하며, 지역에서 가장 신뢰받는 재활센터로 성장했습니다."</p>
+                                    <p class="story-content">"운동재활전문가로 병원에서 7년간 경력을 쌓은 후 스포츠재활센터를 개업했습니다. 현재는 3명의 직원과 함께
+                                        하루 평균 40명의 환자를 관리하며, 지역에서 가장 신뢰받는 재활센터로 성장했습니다."</p>
                                 </div>
                             </div>
                         </div>
@@ -1334,101 +1328,47 @@
     </main>
 
     <footer class="bg-gray-800 text-white">
-        <div class="container mx-auto px-4 py-8">
-            <!-- 상단: 메인 정보 섹션 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-6">
-                <!-- 기관 정보 -->
-                <div>
-                    <h3 class="text-lg font-bold mb-4 text-white">디지털헬스케어센터</h3>
-                    <p class="text-gray-400 mb-4 text-sm leading-relaxed">
-                        운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼
-                    </p>
-                    <!-- SNS 링크 -->
-                    <div class="flex space-x-4 mt-4">
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="인스타그램">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="h-6 w-6">
-                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                                <path d="m16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                            </svg>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="유튜브">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="currentColor" class="h-6 w-6">
-                                <path
-                                    d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                                </svg>
-                            </a>
-                        </div>
+        <div class="container mx-auto px-4 py-6">
+            <!-- 기관 정보 및 소셜 링크 -->
+            <div class="mb-6">
+                <h3 class="text-lg font-bold mb-3 text-white">디지털헬스케어센터</h3>
+                <p class="text-gray-400 mb-4 text-sm leading-relaxed max-w-2xl">
+                    운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼
+                </p>
+            </div>
+
+            <!-- 사업자 정보 섹션 -->
+            <div class="border-t border-gray-700 pt-5 mb-5">
+                <div class="flex flex-wrap gap-y-2 gap-x-8">
+                    <div class="min-w-[200px]">
+                        <p class="text-sm text-gray-400 mb-1">상호: 사&rpar;문경 부설 헬스케어센터</p>
+                        <p class="text-sm text-gray-400 mb-1">주소: 서울특별시 노원구 한글비석로 233, 새롬스타빌 706호</p>
+                        <p class="text-sm text-gray-400 mb-1">전화: 02-123-4567</p>
                     </div>
-    
-                    <!-- 바로가기 -->
-                    <div>
-                        <h3 class="text-lg font-bold mb-4 text-white">바로가기</h3>
-                        <ul class="space-y-2">
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
-                                    class="text-gray-400 hover:text-white transition-colors text-sm">기관 소개</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
-                                    class="text-gray-400 hover:text-white transition-colors text-sm">자격증 소개</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
-                                    class="text-gray-400 hover:text-white transition-colors text-sm">교육 과정</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')"
-                                    class="text-gray-400 hover:text-white transition-colors text-sm">공지사항</a></li>
-                        </ul>
-                    </div>
-    
-                    <!-- 자격증 정보 -->
-                    <div>
-                        <h3 class="text-lg font-bold mb-4 text-white">자격증 정보</h3>
-                        <ul class="space-y-2">
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
-                                    class="text-gray-400 hover:text-white transition-colors text-sm">건강운동처방사</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
-                                    class="text-gray-400 hover:text-white transition-colors text-sm">운동재활전문가</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
-                                    class="text-gray-400 hover:text-white transition-colors text-sm">필라테스 전문가</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
-                                    class="text-gray-400 hover:text-white transition-colors text-sm">레크리에이션지도자</a></li>
-                        </ul>
-                    </div>
-                </div>
-    
-                <!-- 중간: 사업자 정보 -->
-                <div class="border-t border-gray-700 pt-6 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-400">
-                        <div>
-                            <p class="mb-1">상호: 사&rpar;문경 부설 디지털헬스케어센터</p>
-                            <p class="mb-1">주소: 서울특별시 강남구 테헤란로 123</p>
-                            <p class="mb-1">전화: 02-123-4567</p>
-                        </div>
-                        <div>
-                            <p class="mb-1">이메일: info@digitalhealthcare.org</p>
-                            <p class="mb-1">사업자등록번호: 123-45-67890</p>
-                            <p class="mb-1">통신판매신고번호: 제2024-서울강남-1234호</p>
-                        </div>
-                    </div>
-                </div>
-    
-                <!-- 하단: 저작권 정보 -->
-                <div class="border-t border-gray-700 pt-4">
-                    <div class="flex flex-col md:flex-row justify-between items-center">
-                        <div class="mb-4 md:mb-0">
-                            <p class="text-sm text-gray-400">&copy; 2025 디지털헬스케어센터. All rights reserved.</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-xs text-gray-500">
-                                <a href="#" class="hover:text-white transition-colors">문의하기</a>
-                            </p>
-                        </div>
+                    <div class="min-w-[200px]">
+                        <p class="text-sm text-gray-400 mb-1">이메일: info@digitalhealthcare.org</p>
+                        <p class="text-sm text-gray-400 mb-1">사업자등록번호: 217-82-07188</p>
+                        <p class="text-sm text-gray-400 mb-1">통신판매신고번호: 제2024-서울강남-1234호</p>
                     </div>
                 </div>
             </div>
-        </footer>
-    
-        <!-- Firebase SDK 템플릿 -->
-        <script id="firebase-sdk-template" type="text/template">
+
+            <!-- 저작권 정보 -->
+            <div class="border-t border-gray-700 pt-4">
+                <p class="text-sm text-gray-400">&copy; 2025 디지털헬스케어센터. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- TOP 버튼 -->
+    <button id="scroll-top-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>
+    </button>
+
+    <!-- Firebase SDK 템플릿 -->
+    <script id="firebase-sdk-template" type="text/template">
             <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
             <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
             <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
@@ -1439,14 +1379,15 @@
             <script src="{basePath}assets/js/services/db-service.js"><\/script>
             <script src="{basePath}assets/js/services/storage-service.js"><\/script>
         </script>
-    
-        <!-- 추가 스크립트 템플릿 -->
-        <script id="additional-scripts-template" type="text/template">
+
+    <!-- 추가 스크립트 템플릿 -->
+    <script id="additional-scripts-template" type="text/template">
             <script src="{basePath}assets/js/components/header.js"><\/script>
+            <script src="{basePath}assets/js/components/scroll-top.js"><\/script>
             <script src="{basePath}assets/js/pages/certificate.js"><\/script>
             <script src="{basePath}assets/js/pages/certificate/rehabilitation.js"><\/script>
             <script src="{basePath}assets/js/main.js"><\/script>
         </script>
-    </body>
-    
-    </html>
+</body>
+
+</html>

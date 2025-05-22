@@ -3,7 +3,9 @@
  * 이 파일은 메인 페이지 전용 스타일을 정의합니다.
  */
 
-/* 히어로 섹션 */
+/* ==========================================
+ * 히어로 섹션
+ * ========================================== */
 .hero-section {
   background-image: linear-gradient(to right, rgba(37, 99, 235, 0.9), rgba(79, 70, 229, 0.9)), url('../images/banners/hero-bg.jpg');
   background-position: center;
@@ -25,562 +27,6 @@
   font-size: 1.25rem;
   margin-bottom: 2rem;
   transition: opacity 0.5s ease;
-}
-
-/* 반응형 히어로 섹션 */
-@media (min-width: 768px) {
-  .hero-section {
-    padding: 6rem 0;
-  }
-  
-  .hero-section h1 {
-    font-size: 3rem;
-  }
-}
-
-/* 중간 화면에서의 히어로 조정 */
-@media (max-width: 1199px) {
-  .hero-section h1 {
-    font-size: 2.2rem;
-  }
-  
-  .hero-section p {
-    font-size: 1.1rem;
-  }
-}
-
-@media (max-width: 767px) {
-  .hero-section {
-    padding: 4rem 0;
-  }
-  
-  .hero-section h1 {
-    font-size: 1.8rem;
-  }
-  
-  .hero-section p {
-    font-size: 1rem;
-  }
-  
-  /* 히어로 버튼 모바일 스타일 */
-  .hero-section .flex {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  
-  .hero-section .flex a {
-    width: 100%;
-    text-align: center;
-    justify-content: center;
-  }
-}
-
-/* 슬라이더 내비게이션 도트 */
-.slider-nav {
-  display: flex;
-  justify-content: center;
-  margin-top: 2rem;
-}
-
-.slider-nav-dot {
-  background-color: rgba(255, 255, 255, 0.5);
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  height: 0.75rem;
-  margin: 0 0.25rem;
-  padding: 0;
-  transition: background-color 0.3s ease;
-  width: 0.75rem;
-}
-
-.slider-nav-dot:hover, .slider-nav-dot:focus {
-  background-color: rgba(255, 255, 255, 0.75);
-}
-
-.slider-nav-dot.active {
-  background-color: white;
-}
-
-/* 자격증 소개 섹션 */
-.certificate-section {
-  background-color: var(--background-light);
-  padding: 4rem 0;
-}
-
-.certificate-section h2 {
-  margin-bottom: 3rem;
-  text-align: center;
-}
-
-.certificate-section .card {
-  height: 100%;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.certificate-section .card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-5px);
-}
-
-.certificate-section .card h3 {
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-}
-
-/* 중간 화면에서의 자격증 섹션 조정 */
-@media (max-width: 1199px) {
-  .certificate-section {
-    padding: 3rem 0;
-  }
-  
-  .certificate-section h2 {
-    margin-bottom: 2rem;
-  }
-}
-
-/* 모바일에서의 자격증 섹션 조정 */
-@media (max-width: 767px) {
-  .certificate-section {
-    padding: 2.5rem 0;
-  }
-  
-  /* 자격증 카드 이미지 높이 조정 */
-  .certificate-section .h-48 {
-    height: 10rem;
-  }
-}
-
-/* 교육 과정 섹션 */
-.courses-section {
-  padding: 4rem 0;
-}
-
-.courses-section h2 {
-  margin-bottom: 3rem;
-  text-align: center;
-}
-
-.courses-section .card {
-  height: 100%;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.courses-section .card:hover {
-  box-shadow: var(--shadow-md);
-}
-
-.courses-section .card img {
-  height: 12rem;
-  object-fit: cover;
-}
-
-/* 중간 화면에서의 교육 과정 섹션 조정 */
-@media (max-width: 1199px) {
-  .courses-section {
-    padding: 3rem 0;
-  }
-  
-  .courses-section h2 {
-    margin-bottom: 2rem;
-  }
-  
-  .courses-section .card img {
-    height: 10rem;
-  }
-}
-
-/* 모바일에서의 교육 과정 섹션 조정 */
-@media (max-width: 767px) {
-  .courses-section {
-    padding: 2.5rem 0;
-  }
-  
-  .courses-section .card img {
-    height: 8rem;
-  }
-}
-
-/* 공지사항 & 칼럼 섹션 */
-.notice-column-section {
-  background-color: var(--background-light);
-  padding: 4rem 0;
-}
-
-.notice-column-section h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.notice-column-section .card {
-  margin-bottom: 1rem;
-}
-
-/* 중간 화면에서의 공지사항 섹션 조정 */
-@media (max-width: 1199px) {
-  .notice-column-section {
-    padding: 3rem 0;
-  }
-}
-
-/* 모바일에서의 공지사항 섹션 조정 */
-@media (max-width: 767px) {
-  .notice-column-section {
-    padding: 2.5rem 0;
-  }
-  
-  .notice-column-section h2 {
-    font-size: 1.3rem;
-  }
-  
-  /* 칼럼 섹션 이미지 크기 조정 */
-  .notice-column-section .w-24.h-24 {
-    width: 4rem;
-    height: 4rem;
-  }
-}
-
-/* CTA 섹션 */
-.cta-section {
-  background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
-  color: white;
-  padding: 4rem 0;
-  text-align: center;
-  border-radius: 12px;
-  margin: 2rem 0;
-}
-
-.cta-section h2 {
- font-size: 2rem;
- margin-bottom: 1rem;
-}
-
-.cta-section p {
- font-size: 1.25rem;
- margin: 0 auto 2rem;
- max-width: 800px;
-}
-
-/* 중간 화면에서의 CTA 섹션 조정 */
-@media (max-width: 1199px) {
- .cta-section {
-   padding: 3rem 0;
- }
- 
- .cta-section h2 {
-   font-size: 1.75rem;
- }
- 
- .cta-section p {
-   font-size: 1.1rem;
- }
-}
-
-/* 모바일에서의 CTA 섹션 조정 */
-@media (max-width: 767px) {
- .cta-section {
-   padding: 2.5rem 0;
-   border-radius: 8px;
-   margin: 1rem 0;
- }
- 
- .cta-section h2 {
-   font-size: 1.5rem;
- }
- 
- .cta-section p {
-   font-size: 1rem;
- }
- 
- /* CTA 섹션 버튼 모바일 스타일 */
- .cta-section .flex {
-   flex-direction: column;
-   gap: 0.75rem;
- }
- 
- .cta-section .flex a {
-   width: 100%;
-   text-align: center;
-   justify-content: center;
- }
-}
-
-/* 추가 섹션 */
-.stats-section {
- padding: 4rem 0;
- text-align: center;
-}
-
-.stats-section .stat-item {
- margin-bottom: 2rem;
-}
-
-.stats-section .stat-number {
- color: var(--primary-color);
- font-size: 2.5rem;
- font-weight: 700;
- margin-bottom: 0.5rem;
-}
-
-.stats-section .stat-label {
- color: var(--text-secondary);
- font-size: 1.1rem;
-}
-
-/* 중간 화면에서의 통계 섹션 조정 */
-@media (max-width: 1199px) {
- .stats-section {
-   padding: 3rem 0;
- }
- 
- .stats-section .stat-number {
-   font-size: 2rem;
- }
-}
-
-.testimonials-section {
- background-color: var(--background-light);
- padding: 4rem 0;
-}
-
-.testimonials-section .testimonial {
- background-color: white;
- border-radius: var(--border-radius);
- box-shadow: var(--shadow);
- margin-bottom: 2rem;
- padding: 2rem;
-}
-
-.testimonials-section .testimonial-content {
- font-style: italic;
- margin-bottom: 1.5rem;
-}
-
-.testimonials-section .testimonial-author {
- align-items: center;
- display: flex;
-}
-
-.testimonials-section .testimonial-avatar {
- border-radius: 50%;
- height: 3rem;
- margin-right: 1rem;
- width: 3rem;
-}
-
-.testimonials-section .testimonial-name {
- font-weight: 600;
-}
-
-.testimonials-section .testimonial-role {
- color: var(--text-secondary);
- font-size: 0.875rem;
-}
-
-/* 중간 화면에서의 후기 섹션 조정 */
-@media (max-width: 1199px) {
- .testimonials-section {
-   padding: 3rem 0;
- }
- 
- .testimonials-section .testimonial {
-   padding: 1.5rem;
- }
-}
-
-/* 캐러셀 */
-.carousel {
- position: relative;
-}
-
-.carousel-wrapper {
- display: flex;
- transition: transform 0.3s ease;
-}
-
-.carousel-item {
- flex: 0 0 100%;
- width: 100%;
-}
-
-.carousel-prev,
-.carousel-next {
- align-items: center;
- background-color: white;
- border-radius: 50%;
- box-shadow: var(--shadow);
- display: flex;
- height: 2.5rem;
- justify-content: center;
- position: absolute;
- top: 50%;
- transform: translateY(-50%);
- width: 2.5rem;
- z-index: 10;
-}
-
-.carousel-prev {
- left: 0.5rem;
-}
-
-.carousel-next {
- right: 0.5rem;
-}
-
-/* 애니메이션 */
-.animate-on-scroll {
- opacity: 0;
- transform: translateY(20px);
- transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.animate-on-scroll.active {
- opacity: 1;
- transform: translateY(0);
-}
-
-/* 그리드 레이아웃 개선 */
-@media (min-width: 896px) and (max-width: 1199px) {
- /* 자격증 섹션 - 3열로 변경 */
- .certificate-section .grid {
-   grid-template-columns: repeat(3, 1fr);
-   gap: 1.5rem;
- }
- 
- /* 교육 과정 섹션 - 2열로 변경 */
- .courses-section .grid {
-   grid-template-columns: repeat(2, 1fr);
-   gap: 1.5rem;
- }
-}
-
-/* 매우 작은 화면에서의 추가 조정 */
-@media (max-width: 480px) {
- .hero-section h1 {
-   font-size: 1.5rem;
- }
- 
- .hero-section p {
-   font-size: 0.9rem;
- }
- 
- .cta-section h2 {
-   font-size: 1.3rem;
- }
- 
- .cta-section p {
-   font-size: 0.9rem;
- }
- 
- /* 자격증 카드 높이 더 줄이기 */
- .certificate-section .h-48 {
-   height: 8rem;
- }
- 
- /* 교육 과정 카드 높이 더 줄이기 */
- .courses-section .card img {
-   height: 6rem;
- }
-}
-
-/* 특정 Tailwind 클래스 덮어쓰기 */
-@media (max-width: 1023px) {
- /* 공지사항 & 칼럼 섹션 1열로 변경 */
- .notice-column-section .lg\:grid-cols-2 {
-   grid-template-columns: 1fr !important;
- }
-}
-
-@media (max-width: 767px) {
- /* 모바일에서 교육 과정 카드 1열로 변경 */
- .courses-section .md\:grid-cols-3 {
-   grid-template-columns: 1fr !important;
- }
- 
- /* 모바일에서 자격증 카드 1열로 변경 */
- .certificate-section .lg\:grid-cols-4 {
-   grid-template-columns: 1fr !important;
- }
-}
-
-/* 모바일에서 카드 간격 조정 */
-@media (max-width: 767px) {
- .certificate-section .grid,
- .courses-section .grid,
- .notice-column-section .grid {
-   gap: 1rem !important;
- }
-}
-
-/* 추가적인 반응형 조정 */
-@media (min-width: 640px) and (max-width: 767px) {
- /* 태블릿에서 자격증 2열 */
- .certificate-section .lg\:grid-cols-4 {
-   grid-template-columns: repeat(2, 1fr) !important;
- }
- 
- /* 태블릿에서 교육 과정 2열 */
- .courses-section .md\:grid-cols-3 {
-   grid-template-columns: repeat(2, 1fr) !important;
- }
-}
-
-/* 이미지 최적화 */
-@media (max-width: 767px) {
- /* 자격증 아이콘 크기 조정 */
- .certificate-section .h-24 {
-   height: 4rem;
- }
- 
- /* 칼럼 이미지 크기 조정 */
- .notice-column-section .w-24 {
-   width: 4rem;
-   height: 4rem;
- }
-}
-
-/* 텍스트 크기 반응형 조정 */
-@media (max-width: 480px) {
- .certificate-section h3 {
-   font-size: 1.1rem;
- }
- 
- .certificate-section p {
-   font-size: 0.9rem;
- }
- 
- .courses-section h3 {
-   font-size: 1.1rem;
- }
- 
- .courses-section p {
-   font-size: 0.9rem;
- }
-}
-
-/* 호버 효과 모바일에서 제거 */
-@media (hover: none) and (pointer: coarse) {
- .certificate-section .card:hover,
- .courses-section .card:hover {
-   transform: none;
-   box-shadow: initial;
- }
-}
-
-/* 홈페이지 푸터 최적화 */
-@media (max-width: 1023px) {
-    footer {
-        padding: 1.5rem 0;
-    }
-    
-    footer .grid-cols-1 {
-        gap: 1rem;
-    }
-    
-    footer .border-t {
-        margin-top: 1rem;
-        padding-top: 1rem;
-    }
 }
 
 /* 히어로 섹션 버튼 스타일 개선 */
@@ -660,4 +106,645 @@
 .hero-section .bg-white.text-blue-600:hover {
   background-color: rgba(255, 255, 255, 0.9) !important;
   color: #1d4ed8 !important;
+}
+
+/* ==========================================
+ * 자격증 소개 섹션
+ * ========================================== */
+.certificate-section {
+  background-color: var(--background-light);
+  padding: 4rem 0;
+}
+
+.certificate-section h2 {
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.certificate-section .card {
+  height: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.certificate-section .card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-5px);
+}
+
+.certificate-section .card h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+/* 자격증 카드 아이콘 컨테이너 */
+.certificate-section .h-48 {
+    height: 12rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    position: relative !important;
+}
+
+/* 자격증 아이콘 이미지 크기 조정 */
+.certificate-section .h-24 {
+    height: 10rem !important;
+    width: 10rem !important;
+    max-height: 10rem !important;
+    max-width: 10rem !important;
+    object-fit: contain !important;
+    object-position: center !important;
+}
+
+/* 아이콘이 SVG인 경우 추가 조정 */
+.certificate-section .h-24 svg {
+    height: 100% !important;
+    width: 100% !important;
+    max-height: inherit !important;
+    max-width: inherit !important;
+}
+
+/* 아이콘 컨테이너 패딩 조정 */
+.certificate-section .bg-blue-500,
+.certificate-section .bg-green-500,
+.certificate-section .bg-purple-500,
+.certificate-section .bg-yellow-400 {
+    padding: 1rem !important;
+}
+
+/* ==========================================
+ * 교육 과정 섹션
+ * ========================================== */
+.courses-section {
+  padding: 4rem 0;
+}
+
+.courses-section h2 {
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.courses-section .card {
+  height: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.courses-section .card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.courses-section .card img {
+  height: 12rem;
+  object-fit: cover;
+}
+
+/* ==========================================
+ * 공지사항 & 칼럼 섹션
+ * ========================================== */
+.notice-column-section {
+  background-color: var(--background-light);
+  padding: 4rem 0;
+}
+
+.notice-column-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.notice-column-section .card {
+  margin-bottom: 1rem;
+}
+
+/* ==========================================
+ * CTA 섹션
+ * ========================================== */
+.cta-section {
+  background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+  color: white;
+  padding: 4rem 0;
+  text-align: center;
+  border-radius: 12px;
+  margin: 2rem 0;
+}
+
+.cta-section h2 {
+ font-size: 2rem;
+ margin-bottom: 1rem;
+}
+
+.cta-section p {
+ font-size: 1.25rem;
+ margin: 0 auto 2rem;
+ max-width: 800px;
+}
+
+/* ==========================================
+ * 슬라이더 내비게이션 도트
+ * ========================================== */
+.slider-nav {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.slider-nav-dot {
+  background-color: rgba(255, 255, 255, 0.5);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  height: 0.75rem;
+  margin: 0 0.25rem;
+  padding: 0;
+  transition: background-color 0.3s ease;
+  width: 0.75rem;
+}
+
+.slider-nav-dot:hover, .slider-nav-dot:focus {
+  background-color: rgba(255, 255, 255, 0.75);
+}
+
+.slider-nav-dot.active {
+  background-color: white;
+}
+
+/* ==========================================
+ * 추가 섹션
+ * ========================================== */
+.stats-section {
+ padding: 4rem 0;
+ text-align: center;
+}
+
+.stats-section .stat-item {
+ margin-bottom: 2rem;
+}
+
+.stats-section .stat-number {
+ color: var(--primary-color);
+ font-size: 2.5rem;
+ font-weight: 700;
+ margin-bottom: 0.5rem;
+}
+
+.stats-section .stat-label {
+ color: var(--text-secondary);
+ font-size: 1.1rem;
+}
+
+.testimonials-section {
+ background-color: var(--background-light);
+ padding: 4rem 0;
+}
+
+.testimonials-section .testimonial {
+ background-color: white;
+ border-radius: var(--border-radius);
+ box-shadow: var(--shadow);
+ margin-bottom: 2rem;
+ padding: 2rem;
+}
+
+.testimonials-section .testimonial-content {
+ font-style: italic;
+ margin-bottom: 1.5rem;
+}
+
+.testimonials-section .testimonial-author {
+ align-items: center;
+ display: flex;
+}
+
+.testimonials-section .testimonial-avatar {
+ border-radius: 50%;
+ height: 3rem;
+ margin-right: 1rem;
+ width: 3rem;
+}
+
+.testimonials-section .testimonial-name {
+ font-weight: 600;
+}
+
+.testimonials-section .testimonial-role {
+ color: var(--text-secondary);
+ font-size: 0.875rem;
+}
+
+/* ==========================================
+ * 캐러셀
+ * ========================================== */
+.carousel {
+ position: relative;
+}
+
+.carousel-wrapper {
+ display: flex;
+ transition: transform 0.3s ease;
+}
+
+.carousel-item {
+ flex: 0 0 100%;
+ width: 100%;
+}
+
+.carousel-prev,
+.carousel-next {
+ align-items: center;
+ background-color: white;
+ border-radius: 50%;
+ box-shadow: var(--shadow);
+ display: flex;
+ height: 2.5rem;
+ justify-content: center;
+ position: absolute;
+ top: 50%;
+ transform: translateY(-50%);
+ width: 2.5rem;
+ z-index: 10;
+}
+
+.carousel-prev {
+ left: 0.5rem;
+}
+
+.carousel-next {
+ right: 0.5rem;
+}
+
+/* ==========================================
+ * 애니메이션
+ * ========================================== */
+.animate-on-scroll {
+ opacity: 0;
+ transform: translateY(20px);
+ transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.animate-on-scroll.active {
+ opacity: 1;
+ transform: translateY(0);
+}
+
+/* ==========================================
+ * 강제 Grid 레이아웃 적용
+ * ========================================== */
+
+/* 자격증 섹션 강제 그리드 적용 */
+.certificate-section .grid,
+.certificate-section div[class*="grid"] {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+}
+
+@media (min-width: 768px) {
+    .certificate-section .grid,
+    .certificate-section div[class*="grid"] {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .certificate-section .grid,
+    .certificate-section div[class*="grid"] {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+}
+
+/* 교육과정 섹션 강제 그리드 적용 */
+.courses-section .grid,
+.courses-section div[class*="grid"] {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+}
+
+@media (min-width: 768px) {
+    .courses-section .grid,
+    .courses-section div[class*="grid"] {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+}
+
+/* 카드 스타일 재설정 */
+.certificate-section .grid > div,
+.courses-section .grid > div {
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Tailwind 클래스 강제 적용 */
+.grid {
+    display: grid !important;
+}
+
+.grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+}
+
+.grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+.gap-6 {
+    gap: 1.5rem !important;
+}
+
+/* 반응형 클래스 강제 적용 */
+@media (min-width: 768px) {
+    .md\:grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+    
+    .md\:grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .lg\:grid-cols-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    }
+}
+
+/* ==========================================
+ * 반응형 조정
+ * ========================================== */
+
+/* 반응형 히어로 섹션 */
+@media (min-width: 768px) {
+  .hero-section {
+    padding: 6rem 0;
+  }
+  
+  .hero-section h1 {
+    font-size: 3rem;
+  }
+}
+
+/* 중간 화면에서의 히어로 조정 */
+@media (max-width: 1199px) {
+  .hero-section h1 {
+    font-size: 2.2rem;
+  }
+  
+  .hero-section p {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero-section {
+    padding: 4rem 0;
+  }
+  
+  .hero-section h1 {
+    font-size: 1.8rem;
+  }
+  
+  .hero-section p {
+    font-size: 1rem;
+  }
+  
+  /* 히어로 버튼 모바일 스타일 */
+  .hero-section .flex {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .hero-section .flex a {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+/* 중간 화면에서의 자격증 섹션 조정 */
+@media (max-width: 1199px) {
+  .certificate-section {
+    padding: 3rem 0;
+  }
+  
+  .certificate-section h2 {
+    margin-bottom: 2rem;
+  }
+}
+
+/* 모바일에서의 자격증 섹션 조정 */
+@media (max-width: 767px) {
+  .certificate-section {
+    padding: 2.5rem 0;
+  }
+  
+  /* 자격증 카드 이미지 높이 조정 */
+  .certificate-section .h-48 {
+    height: 8rem !important;
+  }
+  
+  .certificate-section .h-24 {
+    height: 6rem !important;
+    width: 6rem !important;
+    max-height: 6rem !important;
+    max-width: 6rem !important;
+  }
+}
+
+/* 태블릿에서의 자격증 아이콘 조정 */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .certificate-section .h-48 {
+    height: 10rem !important;
+  }
+  
+  .certificate-section .h-24 {
+    height: 8rem !important;
+    width: 8rem !important;
+    max-height: 8rem !important;
+    max-width: 8rem !important;
+  }
+}
+
+/* 중간 화면에서의 교육 과정 섹션 조정 */
+@media (max-width: 1199px) {
+  .courses-section {
+    padding: 3rem 0;
+  }
+  
+  .courses-section h2 {
+    margin-bottom: 2rem;
+  }
+  
+  .courses-section .card img {
+    height: 10rem;
+  }
+}
+
+/* 모바일에서의 교육 과정 섹션 조정 */
+@media (max-width: 767px) {
+  .courses-section {
+    padding: 2.5rem 0;
+  }
+  
+  .courses-section .card img {
+    height: 8rem;
+  }
+}
+
+/* 중간 화면에서의 공지사항 섹션 조정 */
+@media (max-width: 1199px) {
+  .notice-column-section {
+    padding: 3rem 0;
+  }
+}
+
+/* 모바일에서의 공지사항 섹션 조정 */
+@media (max-width: 767px) {
+  .notice-column-section {
+    padding: 2.5rem 0;
+  }
+  
+  .notice-column-section h2 {
+    font-size: 1.3rem;
+  }
+  
+  /* 칼럼 섹션 이미지 크기 조정 */
+  .notice-column-section .w-24.h-24 {
+    width: 4rem;
+    height: 4rem;
+  }
+}
+
+/* 중간 화면에서의 CTA 섹션 조정 */
+@media (max-width: 1199px) {
+ .cta-section {
+   padding: 3rem 0;
+ }
+ 
+ .cta-section h2 {
+   font-size: 1.75rem;
+ }
+ 
+ .cta-section p {
+   font-size: 1.1rem;
+ }
+}
+
+/* 모바일에서의 CTA 섹션 조정 */
+@media (max-width: 767px) {
+ .cta-section {
+   padding: 2.5rem 0;
+   border-radius: 8px;
+   margin: 1rem 0;
+ }
+ 
+ .cta-section h2 {
+   font-size: 1.5rem;
+ }
+ 
+ .cta-section p {
+   font-size: 1rem;
+ }
+ 
+ /* CTA 섹션 버튼 모바일 스타일 */
+ .cta-section .flex {
+   flex-direction: column;
+   gap: 0.75rem;
+ }
+ 
+ .cta-section .flex a {
+   width: 100%;
+   text-align: center;
+   justify-content: center;
+ }
+}
+
+/* 중간 화면에서의 통계 섹션 조정 */
+@media (max-width: 1199px) {
+ .stats-section {
+   padding: 3rem 0;
+ }
+ 
+ .stats-section .stat-number {
+   font-size: 2rem;
+ }
+}
+
+/* 중간 화면에서의 후기 섹션 조정 */
+@media (max-width: 1199px) {
+ .testimonials-section {
+   padding: 3rem 0;
+ }
+ 
+ .testimonials-section .testimonial {
+   padding: 1.5rem;
+ }
+}
+
+/* 매우 작은 화면에서의 추가 조정 */
+@media (max-width: 480px) {
+ .hero-section h1 {
+   font-size: 1.5rem;
+ }
+ 
+ .hero-section p {
+   font-size: 0.9rem;
+ }
+ 
+ .cta-section h2 {
+   font-size: 1.3rem;
+ }
+ 
+ .cta-section p {
+   font-size: 0.9rem;
+ }
+ 
+ /* 자격증 카드 높이 더 줄이기 */
+ .certificate-section .h-48 {
+   height: 6rem !important;
+ }
+ 
+ .certificate-section .h-24 {
+   height: 4rem !important;
+   width: 4rem !important;
+   max-height: 4rem !important;
+   max-width: 4rem !important;
+ }
+ 
+ /* 교육 과정 카드 높이 더 줄이기 */
+ .courses-section .card img {
+   height: 6rem;
+ }
+}
+
+/* 호버 효과 모바일에서 제거 */
+@media (hover: none) and (pointer: coarse) {
+ .certificate-section .card:hover,
+ .courses-section .card:hover {
+   transform: none;
+   box-shadow: initial;
+ }
+}
+
+/* 홈페이지 푸터 최적화 */
+@media (max-width: 1023px) {
+    footer {
+        padding: 1.5rem 0;
+    }
+    
+    footer .grid-cols-1 {
+        gap: 1rem;
+    }
+    
+    footer .border-t {
+        margin-top: 1rem;
+        padding-top: 1rem;
+    }
 }

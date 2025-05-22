@@ -6,7 +6,7 @@
    1. CSS 변수 및 기본 설정
    ============================================== */
 :root {
-    /* 색상 체계 - about.css와 동일하게 수정 */
+    /* 색상 체계 */
     --color-primary: #3b82f6;
     --color-primary-light: #dbeafe;
     --color-primary-dark: #1d4ed8;
@@ -27,7 +27,7 @@
     --color-recreation: #f59e0b;
     --color-recreation-light: #fef3c7;
 
-    /* 그레이 톤 - 더 진한 색상으로 수정 */
+    /* 그레이 톤 */
     --color-gray-50: #f9fafb;
     --color-gray-100: #f3f4f6;
     --color-gray-200: #e5e7eb;
@@ -36,7 +36,7 @@
     --color-gray-600: #4b5563;
     --color-gray-700: #374151;
     --color-gray-800: #1f2937;
-    --color-gray-900: #111827
+    --color-gray-900: #111827;
 
     /* 스페이싱 */
     --spacing-1: 0.25rem;
@@ -56,7 +56,113 @@
 }
 
 /* ==============================================
-   2. 자격증 페이지 공통 스타일
+   2. 레이아웃 및 컨테이너
+   ============================================== */
+
+/* 컨테이너 최대 폭 설정 */
+.cert-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-4);
+    width: 100%;
+}
+
+/* 데스크톱에서 컨테이너 폭 조정 */
+@media (min-width: 1200px) {
+    .cert-container {
+        padding: 0 var(--spacing-6);
+    }
+}
+
+/* 태블릿에서 컨테이너 폭 제한 */
+@media (min-width: 768px) and (max-width: 1199px) {
+    .cert-container {
+        max-width: 800px;
+        padding: 0 var(--spacing-6);
+    }
+}
+
+/* 섹션 패딩 통일 */
+.cert-section {
+    padding: var(--spacing-16) 0;
+}
+
+/* 메인 그리드 컨테이너 */
+.cert-main-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-6);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* 데스크톱에서만 2열 레이아웃 (1200px 이상) */
+@media (min-width: 1200px) {
+    .cert-main-grid {
+        grid-template-columns: 2.5fr 1fr;
+        gap: var(--spacing-8);
+    }
+}
+
+/* 1024px~1199px: 1열 유지하되 최대폭 제한 */
+@media (min-width: 1024px) and (max-width: 1199px) {
+    .cert-main-grid {
+        grid-template-columns: 1fr;
+        max-width: 800px;
+        gap: var(--spacing-6);
+    }
+}
+
+/* 메인 컨텐츠 영역 */
+.cert-main-content {
+    min-width: 0; /* 그리드 오버플로우 방지 */
+}
+
+/* 사이드바 영역 */
+.cert-sidebar {
+    min-width: 0; /* 그리드 오버플로우 방지 */
+}
+
+/* 모바일과 태블릿에서 사이드바 sticky 해제 */
+@media (max-width: 1199px) {
+    .cert-sidebar-card,
+    .cert-cta-card {
+        margin-top: var(--spacing-6);
+    }
+    
+    .cert-main-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* 태블릿에서 최대폭 제한 */
+    .cert-container {
+        max-width: 800px;
+    }
+}
+
+/* 모바일에서 추가 조정 */
+@media (max-width: 768px) {
+    .cert-container {
+        max-width: 100%;
+        padding: 0 var(--spacing-4);
+    }
+    
+    .cert-main-grid {
+        gap: var(--spacing-4);
+    }
+    
+    .cert-info-card {
+        padding: var(--spacing-6);
+    }
+    
+    .cert-sidebar-card,
+    .cert-cta-card {
+        padding: var(--spacing-4);
+    }
+}
+
+/* ==============================================
+   3. 자격증 페이지 공통 스타일
    ============================================== */
 
 /* 자격증 히어로 섹션 */
@@ -80,7 +186,7 @@
     margin: 0 auto;
 }
 
-/* 자격증 전환 탭 - 기존 탭과 동일한 스타일 */
+/* 자격증 전환 탭 */
 .certificate-selector-tabs {
     background: white;
     border-bottom: 2px solid var(--color-gray-200);
@@ -122,36 +228,8 @@
     border-radius: 2px 2px 0 0;
 }
 
-/* 탭 간격 조정을 위한 컨테이너 */
-.tabs-container {
-    border-bottom: 1px solid var(--color-gray-200);
-}
-
-/* 모바일 반응형 */
-@media (max-width: 768px) {
-    .certificate-selector-tabs {
-        overflow-x: auto;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-    
-    .certificate-selector-tabs::-webkit-scrollbar {
-        display: none;
-    }
-    
-    .certificate-selector-tabs nav {
-        white-space: nowrap;
-    }
-    
-    .certificate-selector-tabs .cert-tab-item {
-        white-space: nowrap;
-        padding: var(--spacing-3) var(--spacing-4);
-        font-size: 0.9rem;
-    }
-}
-
 /* 네비게이션 탭 */
-.certificate-tabs {
+.navigation-tabs {
     background: white;
     border-bottom: 2px solid var(--color-gray-200);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
@@ -160,41 +238,6 @@
     z-index: 20;
 }
 
-.certificate-tabs .tab-item {
-    display: inline-block;
-    padding: var(--spacing-4) var(--spacing-6);
-    font-weight: 500;
-    color: var(--color-gray-600);
-    text-decoration: none;
-    transition: var(--transition);
-    position: relative;
-    border-bottom: 3px solid transparent;
-}
-
-.certificate-tabs .tab-item:hover {
-    color: var(--color-primary);
-    background: var(--color-gray-50);
-}
-
-.certificate-tabs .tab-item.active {
-    color: var(--color-primary);
-    font-weight: 600;
-    background: var(--color-primary-light);
-    border-bottom-color: var(--color-primary);
-}
-
-.certificate-tabs .tab-item.active::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--color-primary);
-    border-radius: 2px 2px 0 0;
-}
-
-/* 탭 항목 스타일 */
 .navigation-tabs .tab-item {
     display: inline-block;
     padding: var(--spacing-4) var(--spacing-6);
@@ -229,80 +272,6 @@
     border-radius: 2px 2px 0 0;
 }
 
-/* 자격증 전환 버튼 스타일 */
-.certificate-switcher {
-    background: white;
-    border-bottom: 1px solid var(--color-gray-200);
-    border-top: 1px solid var(--color-gray-200);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.certificate-switcher-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    items-center: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.certificate-switcher-label {
-    font-size: 0.875rem;
-    color: var(--color-gray-600);
-    margin-right: 0.5rem;
-    font-weight: 500;
-}
-
-.certificate-button {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    border-radius: 1.5rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    border: 1px solid transparent;
-    text-decoration: none;
-}
-
-.certificate-button.active {
-    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-    color: white;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-}
-
-.certificate-button:not(.active) {
-    background: var(--color-gray-100);
-    color: var(--color-gray-700);
-    border-color: var(--color-gray-200);
-}
-
-.certificate-button:not(.active):hover {
-    background: var(--color-gray-200);
-    color: var(--color-gray-800);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* 모바일 최적화 */
-@media (max-width: 640px) {
-    .certificate-switcher-buttons {
-        flex-direction: column;
-        align-items: center;
-        gap: 0.75rem;
-    }
-    
-    .certificate-switcher-label {
-        margin-right: 0;
-        margin-bottom: 0.25rem;
-    }
-    
-    .certificate-buttons-group {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.5rem;
-    }
-}
-
 /* 탭 컨텐츠 */
 .tab-content {
     display: none;
@@ -316,6 +285,37 @@
     animation: fadeInUp 0.4s ease forwards;
 }
 
+/* 모바일 반응형 탭 */
+@media (max-width: 768px) {
+    .certificate-selector-tabs,
+    .navigation-tabs {
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    
+    .certificate-selector-tabs::-webkit-scrollbar,
+    .navigation-tabs::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .certificate-selector-tabs nav,
+    .navigation-tabs nav {
+        white-space: nowrap;
+    }
+    
+    .certificate-selector-tabs .cert-tab-item,
+    .navigation-tabs .tab-item {
+        white-space: nowrap;
+        padding: var(--spacing-3) var(--spacing-4);
+        font-size: 0.9rem;
+    }
+}
+
+/* ==============================================
+   4. 카드 및 콘텐츠 스타일
+   ============================================== */
+
 /* 자격증 정보 카드 */
 .cert-info-card {
     background: white;
@@ -325,6 +325,8 @@
     margin-bottom: var(--spacing-6);
     position: relative;
     overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .cert-info-card::before {
@@ -337,6 +339,7 @@
     background: linear-gradient(90deg, var(--color-primary), var(--color-secondary), var(--color-tertiary));
 }
 
+/* 자격증 특징 카드 */
 .cert-feature {
     display: flex;
     align-items: start;
@@ -345,6 +348,8 @@
     background: var(--color-gray-50);
     border-radius: var(--border-radius);
     transition: var(--transition);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .cert-feature:hover {
@@ -372,6 +377,11 @@
     transform: scale(1.1);
 }
 
+.cert-feature-content {
+    flex: 1;
+    min-width: 0;
+}
+
 .cert-feature-content h4 {
     font-weight: 700;
     color: var(--color-gray-800);
@@ -383,14 +393,14 @@
     line-height: 1.6;
 }
 
-/* 자격증 세부 정보 사이드바 */
+/* 사이드바 카드들 */
 .cert-sidebar-card {
     background: var(--color-gray-50);
     border-radius: var(--border-radius);
     padding: var(--spacing-6);
     margin-bottom: var(--spacing-6);
-    position: sticky;
-    top: 100px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .cert-sidebar-card h3 {
@@ -400,30 +410,43 @@
     font-weight: 700;
 }
 
+/* 상세 정보 아이템 */
 .cert-detail-item {
     display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
     margin-bottom: var(--spacing-3);
+    padding: var(--spacing-2) 0;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+.cert-detail-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
 }
 
 .cert-detail-label {
     font-weight: 600;
     color: var(--color-gray-700);
-    width: 6rem;
+    min-width: 5rem;
     flex-shrink: 0;
 }
 
 .cert-detail-value {
     color: var(--color-gray-600);
+    text-align: right;
+    flex: 1;
+    margin-left: var(--spacing-4);
 }
 
-/* 자격증 신청 CTA */
+/* CTA 카드 */
 .cert-cta-card {
     background: linear-gradient(135deg, var(--color-secondary-light), #e8f9f5);
     border-radius: var(--border-radius);
     padding: var(--spacing-8);
     text-align: center;
-    position: sticky;
-    top: 300px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .cert-cta-card h3 {
@@ -436,6 +459,7 @@
     margin-bottom: var(--spacing-6);
 }
 
+/* CTA 버튼 */
 .cert-cta-button {
     display: block;
     background: var(--color-primary);
@@ -446,6 +470,9 @@
     text-decoration: none;
     margin-bottom: var(--spacing-3);
     transition: var(--transition);
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .cert-cta-button:hover {
@@ -466,7 +493,7 @@
 }
 
 /* ==============================================
-   3. 응시 자격 페이지 스타일
+   5. 응시 자격 페이지 스타일
    ============================================== */
 
 .qualification-table {
@@ -559,7 +586,7 @@
 }
 
 /* ==============================================
-   4. 시험 정보 페이지 스타일
+   6. 시험 정보 페이지 스타일
    ============================================== */
 
 .exam-table {
@@ -697,7 +724,7 @@
 }
 
 /* ==============================================
-   5. 교육 과정 페이지 스타일
+   7. 교육 과정 페이지 스타일
    ============================================== */
 
 .curriculum-overview {
@@ -893,46 +920,8 @@
 }
 
 /* ==============================================
-   6. 진로 및 전망 페이지 스타일
+   8. 진로 및 전망 페이지 스타일 (계속)
    ============================================== */
-
-.career-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--spacing-6);
-    margin: var(--spacing-8) 0;
-}
-
-.career-card {
-    background: white;
-    border-radius: var(--border-radius);
-    padding: var(--spacing-6);
-    box-shadow: var(--box-shadow);
-    transition: var(--transition);
-}
-
-.career-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-}
-
-.career-icon {
-    width: 3rem;
-    height: 3rem;
-    background: var(--color-primary-light);
-    color: var(--color-primary);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: var(--spacing-4);
-}
-
-.career-card h4 {
-    font-weight: 700;
-    color: var(--color-gray-800);
-    margin-bottom: var(--spacing-3);
-}
 
 .career-card p {
     color: var(--color-gray-600);
@@ -1180,7 +1169,63 @@
 }
 
 /* ==============================================
-   7. 공통 애니메이션
+   9. 자격증 전환 버튼 스타일
+   ============================================== */
+
+.certificate-switcher {
+    background: white;
+    border-bottom: 1px solid var(--color-gray-200);
+    border-top: 1px solid var(--color-gray-200);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.certificate-switcher-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.certificate-switcher-label {
+    font-size: 0.875rem;
+    color: var(--color-gray-600);
+    margin-right: 0.5rem;
+    font-weight: 500;
+}
+
+.certificate-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid transparent;
+    text-decoration: none;
+}
+
+.certificate-button.active {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color: white;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.certificate-button:not(.active) {
+    background: var(--color-gray-100);
+    color: var(--color-gray-700);
+    border-color: var(--color-gray-200);
+}
+
+.certificate-button:not(.active):hover {
+    background: var(--color-gray-200);
+    color: var(--color-gray-800);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ==============================================
+   10. 공통 애니메이션
    ============================================== */
 
 @keyframes fadeInUp {
@@ -1188,7 +1233,6 @@
         opacity: 0;
         transform: translateY(30px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -1200,7 +1244,6 @@
         opacity: 0;
         transform: translateY(-20px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -1208,7 +1251,7 @@
 }
 
 /* ==============================================
-   8. 반응형 디자인
+   11. 모바일 반응형 최적화
    ============================================== */
 
 /* 태블릿 이하 (768px 이하) */
@@ -1225,26 +1268,6 @@
         font-size: 1rem;
     }
 
-    .certificate-tabs {
-        overflow-x: auto;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-
-    .certificate-tabs::-webkit-scrollbar {
-        display: none;
-    }
-
-    .certificate-tabs .tab-item {
-        white-space: nowrap;
-        padding: var(--spacing-3) var(--spacing-4);
-        font-size: 0.9rem;
-    }
-
-    .cert-info-card {
-        padding: var(--spacing-6);
-    }
-
     .cert-feature {
         flex-direction: column;
         text-align: center;
@@ -1253,16 +1276,6 @@
     .cert-feature-icon {
         margin-right: 0;
         margin-bottom: var(--spacing-3);
-    }
-
-    .cert-sidebar-card {
-        position: static;
-        margin-top: var(--spacing-6);
-    }
-
-    .cert-cta-card {
-        position: static;
-        margin-top: var(--spacing-6);
     }
 
     .qualification-table,
@@ -1313,6 +1326,24 @@
         flex-direction: column;
         text-align: center;
     }
+
+    .certificate-switcher-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .certificate-switcher-label {
+        margin-right: 0;
+        margin-bottom: 0.25rem;
+    }
+    
+    .certificate-buttons-group {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
 }
 
 /* 모바일 (480px 이하) */
@@ -1325,20 +1356,7 @@
         font-size: 1.75rem;
     }
 
-    .cert-info-card {
-        padding: var(--spacing-4);
-    }
-
     .cert-feature {
-        padding: var(--spacing-4);
-    }
-
-    .cert-sidebar-card,
-    .cert-cta-card {
-        padding: var(--spacing-4);
-    }
-
-    .process-step {
         padding: var(--spacing-4);
     }
 
@@ -1356,30 +1374,10 @@
     }
 }
 
-/* 프린트 스타일 */
-@media print {
+/* ==============================================
+   12. 접근성 향상
+   ============================================== */
 
-    .certificate-tabs,
-    .cert-cta-card,
-    .curriculum-cta,
-    .career-cta {
-        display: none;
-    }
-
-    .cert-sidebar-card {
-        position: static;
-        break-inside: avoid;
-    }
-
-    .cert-info-card,
-    .career-card,
-    .success-story {
-        break-inside: avoid;
-        margin-bottom: var(--spacing-4);
-    }
-}
-
-/* 접근성 향상 */
 .cert-feature:focus-within,
 .career-card:focus-within,
 .process-step:focus-within {
@@ -1389,7 +1387,6 @@
 
 /* 고 DPI 디스플레이 최적화 */
 @media (-webkit-min-device-pixel-ratio: 2) {
-
     .cert-info-card::before,
     .curriculum-card::before {
         height: 6px;
@@ -1403,9 +1400,35 @@
     }
 }
 
+/* ==============================================
+   13. 프린트 스타일
+   ============================================== */
 
+@media print {
+    .certificate-tabs,
+    .navigation-tabs,
+    .cert-cta-card,
+    .curriculum-cta,
+    .career-cta {
+        display: none;
+    }
 
-/* 추가 유틸리티 클래스 */
+    .cert-sidebar-card {
+        break-inside: avoid;
+    }
+
+    .cert-info-card,
+    .career-card,
+    .success-story {
+        break-inside: avoid;
+        margin-bottom: var(--spacing-4);
+    }
+}
+
+/* ==============================================
+   14. 추가 유틸리티 클래스
+   ============================================== */
+
 .text-center {
     text-align: center;
 }
@@ -1470,16 +1493,21 @@
     display: block;
 }
 
-.space-y-2>*+* {
+.space-y-2 > * + * {
     margin-top: 0.5rem;
 }
 
-.space-y-3>*+* {
+.space-y-3 > * + * {
     margin-top: 0.75rem;
 }
 
-.space-y-4>*+* {
+.space-y-4 > * + * {
     margin-top: 1rem;
 }
 
+.space-y-6 > * + * {
+    margin-top: 1.5rem;
+}
+
 /* 파일 끝 */
+

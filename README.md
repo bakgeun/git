@@ -30,12 +30,7 @@
 digital-healthcare-center/
 ├── index.html                # 메인 페이지
 ├── pages/                    # 서브 페이지들
-│   ├── about/                # 기관 소개 관련 페이지들
-│   │   ├── overview.html     # 개요 ✓
-│   │   ├── vision.html       # 목표 및 전략 ✓
-│   │   ├── business.html     # 사업 내용 ✓
-│   │   ├── organization.html # 조직도 ✓
-│   │   └── instructors.html  # 강사 소개 ✓
+│   ├── about.htmnl           # 기관 소개 페이지 ✓
 │   │
 │   ├── certificate/          # 자격증 관련 페이지들
 │   │   ├── health-exercise.html  # 건강운동처방사 ✓
@@ -50,7 +45,8 @@ digital-healthcare-center/
 │   │   ├── payment.html          # 결제 페이지 ✓
 │   │   ├── exam-info.html        # 시험 안내 ✓
 │   │   ├── cert-issuance.html    # 자격증 발급 ✓
-│   │   └── cert-renewal.html     # 자격증 갱신 ✓
+│   │   ├── cert-renewal.html     # 자격증 갱신 ✓
+│   │   └── instructors.html  # 강사 소개 ✓
 │   │
 │   ├── board/                # 게시판 관련 페이지들
 │   │   ├── notice/           # 공지사항
@@ -165,15 +161,12 @@ digital-healthcare-center/
 │   │       │   ├── cert-renew.js # 자격증 갱신 페이지 스크립트 ✓
 │   │       │   ├── course-info.js  # 교육 과정 안내 페이지 스크립트 ✓
 │   │       │   ├── exam-info.js # 시험 안내 페이지 스크립트 ✓
+│   │       │   ├── instructors.js # 강사소개 페이지 스크립트 ✓
 │   │       │   └── payment.js  # 결제 페이지 스크립트 ✓
 │   │       ├── board.js      # 게시판 페이지 스크립트 ✓
 │   │       ├── auth.js       # 인증 페이지 공통 기능 ✓
-│   │       ├── about/         # 기관 소개 개별 페이지 스크립트
-│   │       │   ├── business.js  # 사업내용 페이지 스크립트 ✓
-│   │       │   ├── instructors.js # 강사소개 페이지 스크립트 ✓
-│   │       │   ├── organization.js # 조직도 페이지 스크립트 ✓
-│   │       │   ├── overview.js # 개요 페이지 스크립트 ✓
-│   │       │   └── vision.js  # 목표 및 전략 페이지 스크립트 ✓
+│   │       ├── about/         
+│   │       │   └── about.js  # 기관 소개 페이지 스크립트 ✓
 │   │       ├── auth/         # 인증 관련 개별 페이지 스크립트
 │   │       │   ├── login.js  # 로그인 페이지 스크립트 ✓
 │   │       │   ├── signup.js # 회원가입 페이지 스크립트 ✓
@@ -203,7 +196,6 @@ digital-healthcare-center/
 │   └── videos/               # 동영상 파일들
 │
 ├── lib/                      # 외부 라이브러리
-│   ├── tailwind/             # Tailwind CSS
 │   └── firebase/             # Firebase SDK
 │
 ├── favicon.ico               # 파비콘

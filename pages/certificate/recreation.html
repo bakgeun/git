@@ -10,6 +10,8 @@
     <link rel="manifest" href="../../manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
         rel="stylesheet">
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <!-- 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
     <script src="../../assets/js/utils/script-loader.js"></script>
@@ -31,964 +33,951 @@
             </div>
             <nav class="main-nav hidden md:flex">
                 <ul class="flex space-x-6">
+                    <li class="nav-item">
+                        <a href="javascript:window.location.href=window.adjustPath('pages/about.html')"
+                            class="text-blue-600 font-bold py-2 nav-link">기관 소개</a>
+                    </li>
                     <li class="group relative nav-item">
-                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">기관 소개</a>
+                        <a href="#" class="text-blue-600 font-bold py-2 nav-link">자격증 소개</a>
                         <ul
                             class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">개요</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">목표 및 전략</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/business.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">사업 내용</a></li>
-                                    <li><a href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')"
-                                        class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
-                                <li><a href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')"
-                                        class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
-                            </ul>
-                        </li>
-                        <li class="group relative nav-item">
-                            <a href="#" class="text-blue-600 font-bold py-2 nav-link">자격증 소개</a>
-                            <ul
-                                class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                                <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
-                                        class="block px-4 py-2 hover:bg-gray-100 rounded-md">건강운동처방사</a>
-                                </li>
-                                <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
-                                        class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동재활전문가</a></li>
-                                <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
-                                        class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스 전문가</a></li>
-                                <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
-                                        class="block px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600 font-medium">레크리에이션지도자</a></li>
-                            </ul>
-                        </li>
-                        <li class="group relative nav-item">
-                            <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">교육 과정</a>
-                            <ul
-                                class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                                <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
-                                        class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 과정 안내</a></li>
-                                <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
-                                        class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
-                                <li><a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')"
-                                        class="block px-4 py-2 hover:bg-gray-100 rounded-md">자격증 신청</a></li>
-                                <li><a href="javascript:window.location.href=window.adjustPath('pages/education/exam-info.html')"
-                                        class="block px-4 py-2 hover:bg-gray-100 rounded-md">시험 안내</a></li>
-                            </ul>
-                        </li>
-                        <li class="group relative nav-item">
-                            <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">게시판</a>
-                            <ul
-                                class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                                <li><a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')"
-                                        class="block px-4 py-2 hover:bg-gray-100 rounded-md">공지사항</a></li>
-                                <li><a href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')"
-                                        class="block px-4 py-2 hover:bg-gray-100 rounded-md">칼럼</a></li>
-                                <li><a href="javascript:window.location.href=window.adjustPath('pages/board/materials/index.html')"
-                                        class="block px-4 py-2 hover:bg-gray-100 rounded-md">강의자료</a></li>
-                                <li><a href="javascript:window.location.href=window.adjustPath('pages/board/videos/index.html')"
-                                        class="block px-4 py-2 hover:bg-gray-100 rounded-md">동영상 강의</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </nav>
-                <div class="auth-buttons flex items-center">
-                    <!-- Firebase에 의해 동적으로 업데이트됨 -->
-                    <a href="javascript:window.location.href=window.adjustPath('pages/auth/login.html')"
-                        class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
-                    <a href="javascript:window.location.href=window.adjustPath('pages/auth/signup.html')"
-                        class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
-                </div>
-                <button id="mobile-menu-button" class="md:hidden ml-4 hamburger-menu" aria-expanded="false"
-                    aria-controls="mobile-menu-overlay">
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
-                </button>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">건강운동처방사</a>
+                            </li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동재활전문가</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스 전문가</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600 font-medium">레크리에이션지도자</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">교육 과정</a>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 과정 안내</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">자격증 신청</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/exam-info.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">시험 안내</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">게시판</a>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">공지사항</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">칼럼</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/materials/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">강의자료</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/videos/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">동영상 강의</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <div class="auth-buttons flex items-center">
+                <!-- Firebase에 의해 동적으로 업데이트됨 -->
+                <a href="javascript:window.location.href=window.adjustPath('pages/auth/login.html')"
+                    class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/auth/signup.html')"
+                    class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
             </div>
-    
-            <!-- Mobile Menu Overlay -->
-            <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden md:hidden">
-                <div class="bg-white h-full w-full flex flex-col">
-                    <!-- 모바일 메뉴 헤더 -->
-                    <div class="flex justify-between items-center p-4 bg-blue-600 text-white mobile-menu-header">
-                        <span class="text-lg font-semibold">메뉴</span>
-                        <button id="mobile-menu-close" class="text-2xl font-bold hover:text-gray-200">&times;</button>
-                    </div>
-    
-                    <!-- 모바일 메뉴 컨텐츠 -->
-                    <div class="flex-1 overflow-y-auto bg-gray-50 mobile-menu-container">
-                        <div class="p-4">
-                            <!-- 회원 정보 영역 -->
-                            <div class="mb-6 p-4 bg-white rounded-lg shadow-sm mobile-menu-user-info">
-                                <span class="text-blue-600 font-semibold">로그인 해주세요 ></span>
+            <button id="mobile-menu-button" class="md:hidden ml-4 hamburger-menu" aria-expanded="false"
+                aria-controls="mobile-menu-overlay">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+
+        <!-- Mobile Menu Overlay -->
+        <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden md:hidden">
+            <div class="bg-white h-full w-full flex flex-col">
+                <!-- 모바일 메뉴 헤더 -->
+                <div class="flex justify-between items-center p-4 bg-blue-600 text-white mobile-menu-header">
+                    <span class="text-lg font-semibold">메뉴</span>
+                    <button id="mobile-menu-close" class="text-2xl font-bold hover:text-gray-200">&times;</button>
+                </div>
+
+                <!-- 모바일 메뉴 컨텐츠 -->
+                <div class="flex-1 overflow-y-auto bg-gray-50 mobile-menu-container">
+                    <div class="p-4">
+                        <!-- 회원 정보 영역 -->
+                        <div class="mb-6 p-4 bg-white rounded-lg shadow-sm mobile-menu-user-info">
+                            <span class="text-blue-600 font-semibold">로그인 해주세요 ></span>
+                        </div>
+
+                        <!-- 메인 메뉴 -->
+                        <div class="space-y-2 mobile-menu-nav">
+                            <!-- 홈 링크 추가 -->
+                            <div class="mobile-menu-item">
+                                <a href="javascript:window.location.href=window.adjustPath('index.html')"
+                                    class="p-3 bg-white rounded-lg shadow-sm flex items-center">
+                                    <div class="menu-icon">🏠</div>
+                                    <div class="menu-text">홈</div>
+                                </a>
                             </div>
-    
-                            <!-- 메인 메뉴 -->
-                            <div class="space-y-2 mobile-menu-nav">
-                                <!-- 기관 소개 -->
-                                <div class="mobile-menu-item">
-                                    <button type="button">
-                                        <div class="menu-icon">🏢</div>
-                                        <div class="menu-text">기관 소개</div>
-                                        <div class="toggle-icon">▶</div>
-                                    </button>
-                                    <div class="mobile-submenu">
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')">개요</a>
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')">목표
-                                            및 전략</a>
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/about/business.html')">사업
-                                            내용</a>
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')">조직도</a>
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')">강사
-                                            소개</a>
-                                    </div>
+                            
+                            <!-- 기관 소개 -->
+                            <div class="mobile-menu-item">
+                                <a href="javascript:window.location.href=window.adjustPath('pages/about.html')"
+                                    class="p-3 bg-white rounded-lg shadow-sm flex items-center">
+                                    <div class="menu-icon">🏢</div>
+                                    <div class="menu-text">기관 소개</div>
+                                </a>
+                            </div>
+
+                            <!-- 자격증 소개 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">🎓</div>
+                                    <div class="menu-text">자격증 소개</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')">건강운동처방사</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')">운동재활전문가</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')">필라테스
+                                    전문가</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
+                                    class="active">레크리에이션지도자</a>
                                 </div>
-    
-                                <!-- 자격증 소개 -->
-                                <div class="mobile-menu-item">
-                                    <button type="button">
-                                        <div class="menu-icon">🎓</div>
-                                        <div class="menu-text">자격증 소개</div>
-                                        <div class="toggle-icon">▶</div>
-                                    </button>
-                                    <div class="mobile-submenu">
-                                        <a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')">건강운동처방사</a>
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')">운동재활전문가</a>
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')">필라테스
-                                            전문가</a>
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')" class="active">레크리에이션지도자</a>
-                                    </div>
+                            </div>
+
+                            <!-- 교육 과정 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">📚</div>
+                                    <div class="menu-text">교육 과정</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')">교육
+                                    과정 안내</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')">교육
+                                    신청</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')">자격증
+                                    신청</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/education/exam-info.html')">시험
+                                    안내</a>
                                 </div>
-    
-                                <!-- 교육 과정 -->
-                                <div class="mobile-menu-item">
-                                    <button type="button">
-                                        <div class="menu-icon">📚</div>
-                                        <div class="menu-text">교육 과정</div>
-                                        <div class="toggle-icon">▶</div>
-                                    </button>
-                                    <div class="mobile-submenu">
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')">교육
-                                            과정 안내</a>
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')">교육
-                                            신청</a>
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')">자격증
-                                            신청</a>
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/education/exam-info.html')">시험
-                                            안내</a>
-                                    </div>
+                            </div>
+
+                            <!-- 게시판 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">📋</div>
+                                    <div class="menu-text">게시판</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')">공지사항</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')">칼럼</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/board/materials/index.html')">강의자료</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/board/videos/index.html')">동영상
+                                    강의</a>
                                 </div>
-    
-                                <!-- 게시판 -->
-                                <div class="mobile-menu-item">
-                                    <button type="button">
-                                        <div class="menu-icon">📋</div>
-                                        <div class="menu-text">게시판</div>
-                                        <div class="toggle-icon">▶</div>
-                                    </button>
-                                    <div class="mobile-submenu">
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')">공지사항</a>
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')">칼럼</a>
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/board/materials/index.html')">강의자료</a>
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/board/videos/index.html')">동영상
-                                            강의</a>
-                                    </div>
+                            </div>
+
+                            <!-- 마이페이지 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">👤</div>
+                                    <div class="menu-text">마이페이지</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/mypage/personal-info.html')">개인정보
+                                    관리</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/mypage/course-history.html')">수강
+                                    내역</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/mypage/cert-management.html')">자격증
+                                    관리</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/mypage/payment-history.html')">결제
+                                    내역</a>
                                 </div>
-    
-                                <!-- 마이페이지 -->
-                                <div class="mobile-menu-item">
-                                    <button type="button">
-                                        <div class="menu-icon">👤</div>
-                                        <div class="menu-text">마이페이지</div>
-                                        <div class="toggle-icon">▶</div>
-                                    </button>
-                                    <div class="mobile-submenu">
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/mypage/personal-info.html')">개인정보
-                                            관리</a>
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/mypage/course-history.html')">수강
-                                            내역</a>
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/mypage/cert-management.html')">자격증
-                                            관리</a>
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/mypage/payment-history.html')">결제
-                                            내역</a>
-                                    </div>
-                                </div>
-    
-                                <!-- 관리자 (조건부 표시) -->
-                                <div class="mobile-menu-item admin-only" style="display: none;">
-                                    <button type="button">
-                                        <div class="menu-icon">⚙️</div>
-                                        <div class="menu-text">관리자</div>
-                                        <div class="toggle-icon">▶</div>
-                                    </button>
-                                    <div class="mobile-submenu">
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/admin/dashboard.html')">대시보드</a>
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/admin/user-management.html')">회원
-                                            관리</a>
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/admin/course-management.html')">교육
-                                            관리</a>
-                                        
-                                            href="javascript:window.location.href=window.adjustPath('pages/admin/cert-management.html')">자격증
-                                            관리</a>
-                                    </div>
+                            </div>
+
+                            <!-- 관리자 (조건부 표시) -->
+                            <div class="mobile-menu-item admin-only" style="display: none;">
+                                <button type="button">
+                                    <div class="menu-icon">⚙️</div>
+                                    <div class="menu-text">관리자</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/admin/dashboard.html')">대시보드</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/admin/user-management.html')">회원
+                                    관리</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/admin/course-management.html')">교육
+                                    관리</a>
+
+                                    href="javascript:window.location.href=window.adjustPath('pages/admin/cert-management.html')">자격증
+                                    관리</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </header>
-    
-        <!-- Hero Section -->
-        <section class="about-hero hero-section bg-gradient-to-r from-amber-500 to-orange-600 text-white py-16">
-            <div class="container mx-auto px-4">
-                <div class="max-w-3xl">
-                    <h1 class="text-4xl md:text-5xl font-bold mb-4">레크리에이션지도자</h1>
-                    <p class="text-xl mb-8">건강한 여가생활과 삶의 질 향상을 위한 지도 전문가<br>즐거운 레크리에이션 활동을 통해 행복을 나누는 지도자를 양성합니다.</p>
-                </div>
-            </div>
-        </section>
-    
-        <!-- 자격증 선택 탭 -->
-        <div class="certificate-selector-tabs">
-            <div class="container mx-auto px-4">
-                <nav class="flex overflow-x-auto py-2">
-                    <a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
-                        class="cert-tab-item">건강운동처방사</a>
-                    <a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
-                        class="cert-tab-item">운동재활전문가</a>
-                    <a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
-                        class="cert-tab-item">필라테스 전문가</a>
-                    <a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
-                        class="cert-tab-item active">레크리에이션지도자</a>
-                </nav>
             </div>
         </div>
-    
-        <!-- 개선된 내비게이션 탭 -->
-        <div class="navigation-tabs sticky top-0 z-20">
-            <div class="container mx-auto px-4">
-                <nav class="flex overflow-x-auto py-2">
-                    <a href="javascript:void(0)" data-tab="overview" class="tab-item active">자격증 개요</a>
-                    <a href="javascript:void(0)" data-tab="qualification" class="tab-item">응시 자격</a>
-                    <a href="javascript:void(0)" data-tab="exam" class="tab-item">시험 정보</a>
-                    <a href="javascript:void(0)" data-tab="curriculum" class="tab-item">교육 과정</a>
-                    <a href="javascript:void(0)" data-tab="career" class="tab-item">진로 및 전망</a>
-                </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="about-hero hero-section bg-gradient-to-r from-amber-500 to-orange-600 text-white py-16">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">레크리에이션지도자</h1>
+                <p class="text-xl mb-8">건강한 여가생활과 삶의 질 향상을 위한 지도 전문가<br>즐거운 레크리에이션 활동을 통해 행복을 나누는 지도자를 양성합니다.</p>
             </div>
         </div>
-    
-        <main>
-            <!-- 자격증 개요 탭 컨텐츠 -->
-            <div id="overview-content" class="tab-content active">
-                <section class="py-16">
-                    <div class="container mx-auto px-4">
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                            <div class="lg:col-span-2">
-                                <div class="cert-info-card">
-                                    <h2 class="text-3xl font-bold mb-6 text-gray-900">레크리에이션지도자란?</h2>
-                                    <p class="text-lg text-gray-700 mb-4">
-                                        레크리에이션지도자는 개인이나 집단이 여가 활동을 통해 신체적, 정신적, 사회적 복지를 증진할 수 있도록 도움을 주는 전문가입니다.
-                                        다양한 놀이와 게임, 문화예술 활동, 스포츠 등을 통해 사람들의 건강한 여가생활을 지원하고 삶의 질 향상에 기여합니다.
-                                    </p>
-                                    <p class="text-lg text-gray-700 mb-6">
-                                        디지털헬스케어센터의 레크리에이션지도자 자격증은 창의적이고 체계적인 교육과정을 통해 다양한 연령층과 상황에 맞는
-                                        레크리에이션 프로그램을 기획·운영할 수 있는 전문 지도자를 양성합니다.
-                                    </p>
-    
-                                    <h3 class="text-xl font-bold mb-4">주요 업무 및 역할</h3>
-                                    <ul class="space-y-3 mb-8">
-                                        <li class="flex items-start">
-                                            <svg class="h-6 w-6 text-amber-600 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24"
-                                                stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            <span class="text-gray-700">개인 및 집단 특성에 맞는 레크리에이션 프로그램 기획</span>
-                                        </li>
-                                        <li class="flex items-start">
-                                            <svg class="h-6 w-6 text-amber-600 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24"
-                                                stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            <span class="text-gray-700">다양한 놀이 및 게임 활동 지도</span>
-                                        </li>
-                                        <li class="flex items-start">
-                                            <svg class="h-6 w-6 text-amber-600 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24"
-                                                stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            <span class="text-gray-700">문화예술 활동 및 체험 프로그램 진행</span>
-                                        </li>
-                                        <li class="flex items-start">
-                                            <svg class="h-6 w-6 text-amber-600 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24"
-                                                stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            <span class="text-gray-700">레크리에이션 시설 및 자원 관리</span>
-                                        </li>
-                                        <li class="flex items-start">
-                                            <svg class="h-6 w-6 text-amber-600 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24"
-                                                stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            <span class="text-gray-700">특수 대상별 레크리에이션 활동 지도</span>
-                                        </li>
-                                    </ul>
-    
-                                    <h3 class="text-xl font-bold mb-4">자격증의 특징</h3>
-                                    <div class="space-y-6">
-                                        <div class="cert-feature">
-                                            <div class="cert-feature-icon">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            </div>
-                                            <div class="cert-feature-content">
-                                                <h4 class="font-bold mb-2">다양한 분야 활용</h4>
-                                                <p>복지기관, 교육기관, 의료기관 등 다양한 분야에서 활용 가능한 자격증입니다.</p>
-                                            </div>
-                                        </div>
-    
-                                        <div class="cert-feature">
-                                            <div class="cert-feature-icon">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                                                </svg>
-                                            </div>
-                                            <div class="cert-feature-content">
-                                                <h4 class="font-bold mb-2">창의적 프로그램</h4>
-                                                <p>창의적이고 즐거운 활동을 통해 참여자의 만족도를 높이는 프로그램을 개발합니다.</p>
-                                            </div>
-                                        </div>
-    
-                                        <div class="cert-feature">
-                                            <div class="cert-feature-icon">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                                    viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                                </svg>
-                                            </div>
-                                            <div class="cert-feature-content">
-                                                <h4 class="font-bold mb-2">전문성 인정</h4>
-                                                <p>체계적인 교육과정과 검증된 평가를 통해 전문성을 인정받는 자격증입니다.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-    
-                                    <h3 class="text-xl font-bold mb-4">활용 분야</h3>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                                        <ul class="space-y-2">
-                                            <li class="flex items-start">
-                                                <span class="text-amber-600 mr-2">●</span>
-                                                <span class="text-gray-700">사회복지시설</span>
-                                            </li>
-                                            <li class="flex items-start">
-                                                <span class="text-amber-600 mr-2">●</span>
-                                                <span class="text-gray-700">청소년수련시설</span>
-                                            </li>
-                                            <li class="flex items-start">
-                                                <span class="text-amber-600 mr-2">●</span>
-                                                <span class="text-gray-700">문화센터</span>
-                                            </li>
-                                            <li class="flex items-start">
-                                                <span class="text-amber-600 mr-2">●</span>
-                                                <span class="text-gray-700">교육기관</span>
-                                            </li>
-                                        </ul>
-                                        <ul class="space-y-2">
-                                            <li class="flex items-start">
-                                                <span class="text-amber-600 mr-2">●</span>
-                                                <span class="text-gray-700">의료기관 (의료복지시설)</span>
-                                            </li>
-                                            <li class="flex items-start">
-                                                <span class="text-amber-600 mr-2">●</span>
-                                                <span class="text-gray-700">기업체 복리후생시설</span>
-                                            </li>
-                                            <li class="flex items-start">
-                                                <span class="text-amber-600 mr-2">●</span>
-                                                <span class="text-gray-700">스포츠센터</span>
-                                            </li>
-                                            <li class="flex items-start">
-                                                <span class="text-amber-600 mr-2">●</span>
-                                                <span class="text-gray-700">관광업체</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-    
-                            <div class="lg:col-span-1">
-                                <div class="cert-sidebar-card">
-                                    <h3 class="text-xl font-bold mb-4">자격증 정보</h3>
-                                    <div class="space-y-3">
-                                        <div class="cert-detail-item">
-                                            <span class="cert-detail-label">자격명</span>
-                                            <span class="cert-detail-value">레크리에이션지도자</span>
-                                        </div>
-                                        <div class="cert-detail-item">
-                                            <span class="cert-detail-label">등록번호</span>
-                                            <span class="cert-detail-value">제2023-12348호</span>
-                                        </div>
-                                        <div class="cert-detail-item">
-                                            <span class="cert-detail-label">등급</span>
-                                            <span class="cert-detail-value">1급, 2급</span>
-                                        </div>
-                                        <div class="cert-detail-item">
-                                            <span class="cert-detail-label">주관기관</span>
-                                            <span class="cert-detail-value">디지털헬스케어센터</span>
-                                        </div>
-                                        <div class="cert-detail-item">
-                                            <span class="cert-detail-label">자격유형</span>
-                                            <span class="cert-detail-value">등록 민간자격</span>
-                                        </div>
-                                    </div>
-                                </div>
-    
-                                <div class="cert-sidebar-card">
-                                    <h3 class="text-xl font-bold mb-4">시험 일정</h3>
-                                    <div class="space-y-3">
-                                        <div class="cert-detail-item">
-                                            <span class="cert-detail-label">접수기간</span>
-                                            <span class="cert-detail-value">2025.05.01-2025.05.31</span>
-                                        </div>
-                                        <div class="cert-detail-item">
-                                            <span class="cert-detail-label">시험일자</span>
-                                            <span class="cert-detail-value">2025.06.30 (일)</span>
-                                        </div>
-                                        <div class="cert-detail-item">
-                                            <span class="cert-detail-label">합격발표</span>
-                                            <span class="cert-detail-value">2025.07.15</span>
-                                        </div>
-                                        <div class="cert-detail-item">
-                                            <span class="cert-detail-label">시험장소</span>
-                                            <span class="cert-detail-value">서울, 대전, 대구, 광주</span>
-                                        </div>
-                                    </div>
-                                </div>
-    
-                                <div class="cert-cta-card">
-                                    <h3 class="text-xl font-bold mb-4">자격증 신청</h3>
-                                    <p class="mb-4">레크리에이션지도자 자격증 취득을 위한 교육 및 시험 안내입니다.</p>
-                                    <a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
-                                        class="cert-cta-button">교육 과정 신청하기</a>
-                                    <a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')"
-                                        class="cert-cta-button secondary">자격증 시험 신청하기</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-    
-            <!-- 응시 자격 탭 컨텐츠 -->
-            <div id="qualification-content" class="tab-content">
-                <section class="py-16">
-                    <div class="container mx-auto px-4">
-                        <h2 class="text-3xl font-bold mb-6">응시 자격</h2>
-    
-                        <div class="bg-amber-50 p-6 rounded-lg mb-8">
-                            <h3 class="text-xl font-bold mb-4">레크리에이션지도자 응시 자격 요건</h3>
-                            <p class="mb-4">레크리에이션지도자 자격증 시험에 응시하기 위해서는 다음 중 하나 이상의 조건을 충족해야 합니다:</p>
-    
-                            <div class="qualification-table">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>등급</th>
-                                            <th>응시 자격</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="font-medium">1급</td>
-                                            <td>
-                                                <ul class="list-disc pl-5 space-y-1">
-                                                    <li>체육 또는 관련 전공 학사학위 이상 소지자로서 레크리에이션지도자 2급 자격 취득 후 관련 분야 실무경력 2년 이상인 자</li>
-                                                    <li>사회체육 또는 평생교육 관련 전공자로서 레크리에이션지도자 2급 자격 취득 후 관련 분야 실무경력 3년 이상인 자</li>
-                                                    <li>디지털헬스케어센터 지정 교육기관에서 1급 교육과정을 이수한 자</li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-medium">2급</td>
-                                            <td>
-                                                <ul class="list-disc pl-5 space-y-1">
-                                                    <li>고등학교 졸업 이상 학력 소지자</li>
-                                                    <li>레크리에이션 관련 분야 실무경력 1년 이상인 자</li>
-                                                    <li>사회복지사, 평생교육사, 청소년지도사 자격 소지자</li>
-                                                    <li>디지털헬스케어센터 지정 교육기관에서 2급 교육과정을 이수한 자</li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-    
-                        <h3 class="text-xl font-bold mb-4">관련 전공 인정 범위</h3>
-                        <p class="mb-4">다음의 전공분야는 레크리에이션지도자 자격 시험 응시를 위한 관련 전공으로 인정됩니다:</p>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                            <div class="major-list">
-                                <ul>
-                                    <li>체육학</li>
-                                    <li>사회체육학</li>
-                                    <li>레크리에이션학</li>
-                                    <li>여가체육학</li>
-                                    <li>생활체육학</li>
-                                    <li>건강관리학</li>
+    </section>
+
+    <!-- 자격증 선택 탭 -->
+    <div class="certificate-selector-tabs">
+        <div class="container mx-auto px-4">
+            <nav class="flex overflow-x-auto py-2">
+                <a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
+                    class="cert-tab-item">건강운동처방사</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
+                    class="cert-tab-item">운동재활전문가</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
+                    class="cert-tab-item">필라테스 전문가</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
+                    class="cert-tab-item active">레크리에이션지도자</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- 개선된 내비게이션 탭 -->
+    <div class="navigation-tabs sticky top-0 z-20">
+        <div class="container mx-auto px-4">
+            <nav class="flex overflow-x-auto py-2">
+                <a href="javascript:void(0)" data-tab="overview" class="tab-item active">자격증 개요</a>
+                <a href="javascript:void(0)" data-tab="qualification" class="tab-item">응시 자격</a>
+                <a href="javascript:void(0)" data-tab="exam" class="tab-item">시험 정보</a>
+                <a href="javascript:void(0)" data-tab="curriculum" class="tab-item">교육 과정</a>
+                <a href="javascript:void(0)" data-tab="career" class="tab-item">진로 및 전망</a>
+            </nav>
+        </div>
+    </div>
+
+    <main>
+        <!-- 자격증 개요 탭 컨텐츠 -->
+        <div id="overview-content" class="tab-content active">
+            <section class="py-16">
+                <div class="container mx-auto px-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                        <div class="lg:col-span-2">
+                            <div class="cert-info-card">
+                                <h2 class="text-3xl font-bold mb-6 text-gray-900">레크리에이션지도자란?</h2>
+                                <p class="text-lg text-gray-700 mb-4">
+                                    레크리에이션지도자는 개인이나 집단이 여가 활동을 통해 신체적, 정신적, 사회적 복지를 증진할 수 있도록 도움을 주는 전문가입니다.
+                                    다양한 놀이와 게임, 문화예술 활동, 스포츠 등을 통해 사람들의 건강한 여가생활을 지원하고 삶의 질 향상에 기여합니다.
+                                </p>
+                                <p class="text-lg text-gray-700 mb-6">
+                                    디지털헬스케어센터의 레크리에이션지도자 자격증은 창의적이고 체계적인 교육과정을 통해 다양한 연령층과 상황에 맞는
+                                    레크리에이션 프로그램을 기획·운영할 수 있는 전문 지도자를 양성합니다.
+                                </p>
+
+                                <h3 class="text-xl font-bold mb-4">주요 업무 및 역할</h3>
+                                <ul class="space-y-3 mb-8">
+                                    <li class="flex items-start">
+                                        <svg class="h-6 w-6 text-amber-600 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span class="text-gray-700">개인 및 집단 특성에 맞는 레크리에이션 프로그램 기획</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <svg class="h-6 w-6 text-amber-600 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span class="text-gray-700">다양한 놀이 및 게임 활동 지도</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <svg class="h-6 w-6 text-amber-600 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span class="text-gray-700">문화예술 활동 및 체험 프로그램 진행</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <svg class="h-6 w-6 text-amber-600 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span class="text-gray-700">레크리에이션 시설 및 자원 관리</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <svg class="h-6 w-6 text-amber-600 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span class="text-gray-700">특수 대상별 레크리에이션 활동 지도</span>
+                                    </li>
                                 </ul>
-                            </div>
-                            <div class="major-list">
-                                <ul>
-                                    <li>사회복지학</li>
-                                    <li>평생교육학</li>
-                                    <li>청소년지도학</li>
-                                    <li>사회교육학</li>
-                                    <li>아동학</li>
-                                    <li>기타 여가 관련 학과</li>
-                                </ul>
-                            </div>
-                        </div>
-    
-                        <h3 class="text-xl font-bold mb-4">관련 분야 실무경력 인정 범위</h3>
-                        <p class="mb-4">다음 기관 및 시설에서의 레크리에이션 지도 관련 경력은 실무경력으로 인정됩니다:</p>
-                        <div class="requirements-card">
-                            <ul>
-                                <li>사회복지시설 (노인, 장애인, 아동 복지시설 등)</li>
-                                <li>청소년수련시설 및 청소년단체</li>
-                                <li>문화센터, 복지관, 체육관</li>
-                                <li>평생교육기관 및 성인교육시설</li>
-                                <li>스포츠센터 및 피트니스클럽</li>
-                                <li>기업체 복리후생시설</li>
-                                <li>병원 및 의료복지시설</li>
-                                <li>기타 레크리에이션 프로그램을 운영하는 기관 및 시설</li>
-                            </ul>
-                        </div>
-    
-                        <h3 class="text-xl font-bold mb-4">필요 서류</h3>
-                        <p class="mb-4">자격증 시험 응시를 위해 다음의 서류를 준비해야 합니다:</p>
-                        <div class="requirements-card">
-                            <ol>
-                                <li>응시원서 (온라인 접수 시스템에서 작성)</li>
-                                <li>신분증 사본 (주민등록증, 운전면허증, 여권 중 택1)</li>
-                                <li>최종학력증명서 (졸업증명서 또는 재학증명서)</li>
-                                <li>경력증명서 (해당자에 한함)</li>
-                                <li>관련 자격증 사본 (해당자에 한함)</li>
-                                <li>교육과정 이수증 (해당자에 한함)</li>
-                                <li>증명사진 (3개월 이내 촬영, 3x4cm)</li>
-                                <li>개인정보 수집·이용 동의서</li>
-                            </ol>
-                        </div>
-                    </div>
-                </section>
-            </div>
-    
-            <!-- 시험 정보 탭 컨텐츠 -->
-            <div id="exam-content" class="tab-content">
-                <section class="py-16">
-                    <div class="container mx-auto px-4">
-                        <h2 class="text-3xl font-bold mb-6">시험 정보</h2>
-    
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-                            <div class="lg:col-span-2">
-                                <h3 class="text-xl font-bold mb-4">시험 구성</h3>
-                                <p class="mb-4">레크리에이션지도자 자격 시험은 이론 시험(필기)과 실기 시험으로 구성되어 있습니다.</p>
-    
-                                <div class="mb-6">
-                                    <h4 class="font-bold mb-3">1. 이론 시험 (필기)</h4>
-                                    <div class="exam-table">
-                                        <table>
-                                            <thead>
-                                                <tr>
-                                                    <th>과목</th>
-                                                    <th>내용</th>
-                                                    <th>문항 수</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td class="font-medium">레크리에이션 개론</td>
-                                                    <td>레크리에이션의 개념, 역사, 이론</td>
-                                                    <td>15문항</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-medium">레크리에이션 프로그램</td>
-                                                    <td>프로그램 기획, 진행, 평가 방법</td>
-                                                    <td>20문항</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-medium">집단 활동과 리더십</td>
-                                                    <td>집단 역학, 리더십 이론 및 기법</td>
-                                                    <td>15문항</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-medium">놀이와 게임</td>
-                                                    <td>놀이 이론, 게임 종류 및 지도법</td>
-                                                    <td>15문항</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-medium">안전관리</td>
-                                                    <td>안전사고 예방, 응급처치, 위험관리</td>
-                                                    <td>10문항</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-medium">특수집단 레크리에이션</td>
-                                                    <td>연령별, 계층별 특성화 프로그램</td>
-                                                    <td>10문항</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-medium">합계</td>
-                                                    <td>-</td>
-                                                    <td>85문항</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-    
-                                <div class="mb-6">
-                                    <h4 class="font-bold mb-3">2. 실기 시험</h4>
-                                    <div class="exam-table">
-                                        <table>
-                                            <thead>
-                                                <tr>
-                                                    <th>영역</th>
-                                                    <th>평가 내용</th>
-                                                    <th>배점</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td class="font-medium">프로그램 기획</td>
-                                                    <td>주어진 상황에 맞는 레크리에이션 프로그램 기획</td>
-                                                    <td>30점</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-medium">활동 진행</td>
-                                                    <td>놀이 또는 게임 활동의 실제 진행</td>
-                                                    <td>40점</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-medium">리더십 발휘</td>
-                                                    <td>집단 관리, 분위기 조성, 참여 유도</td>
-                                                    <td>30점</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-medium">합계</td>
-                                                    <td>-</td>
-                                                    <td>100점</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-    
-                            <div class="lg:col-span-1">
-                                <div class="exam-details-card">
-                                    <h3 class="text-xl font-bold mb-4">시험 진행 방식</h3>
-                                    <div class="space-y-3">
-                                        <div class="cert-detail-item">
-                                            <span class="cert-detail-label">필기시험</span>
-                                            <span class="cert-detail-value">객관식 85문항 (4지선다형), 시험시간 120분</span>
+
+                                <h3 class="text-xl font-bold mb-4">자격증의 특징</h3>
+                                <div class="space-y-6">
+                                    <div class="cert-feature">
+                                        <div class="cert-feature-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
                                         </div>
-                                        <div class="cert-detail-item">
-                                            <span class="cert-detail-label">실기시험</span>
-                                            <span class="cert-detail-value">그룹 활동 진행 및 개별 발표, 시험시간 30분</span>
+                                        <div class="cert-feature-content">
+                                            <h4 class="font-bold mb-2">다양한 분야 활용</h4>
+                                            <p>복지기관, 교육기관, 의료기관 등 다양한 분야에서 활용 가능한 자격증입니다.</p>
                                         </div>
-                                        <div class="cert-detail-item">
-                                            <span class="cert-detail-label">합격기준</span>
-                                            <span class="cert-detail-value">필기시험 70% 이상, 실기시험 80% 이상 득점</span>
+                                    </div>
+
+                                    <div class="cert-feature">
+                                        <div class="cert-feature-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                            </svg>
+                                        </div>
+                                        <div class="cert-feature-content">
+                                            <h4 class="font-bold mb-2">창의적 프로그램</h4>
+                                            <p>창의적이고 즐거운 활동을 통해 참여자의 만족도를 높이는 프로그램을 개발합니다.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="cert-feature">
+                                        <div class="cert-feature-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        <div class="cert-feature-content">
+                                            <h4 class="font-bold mb-2">전문성 인정</h4>
+                                            <p>체계적인 교육과정과 검증된 평가를 통해 전문성을 인정받는 자격증입니다.</p>
                                         </div>
                                     </div>
                                 </div>
-    
-                                <div class="exam-details-card">
-                                    <h3 class="text-xl font-bold mb-4">시험 유의사항</h3>
+
+                                <h3 class="text-xl font-bold mb-4">활용 분야</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                     <ul class="space-y-2">
-                                        <li>• 시험 당일 신분증을 반드시 지참해야 합니다.</li>
-                                        <li>• 실기시험을 위한 편안한 복장을 준비해야 합니다.</li>
-                                        <li>• 실기시험 시 소도구 사용 가능 (개인 준비)</li>
-                                        <li>• 실기시험은 그룹으로 진행되며, 상호 참여가 필요합니다.</li>
-                                        <li>• 시험 시작 30분 전까지 입실해야 합니다.</li>
-                                        <li>• 필기시험 합격자에 한해 실기시험에 응시할 수 있습니다.</li>
+                                        <li class="flex items-start">
+                                            <span class="text-amber-600 mr-2">●</span>
+                                            <span class="text-gray-700">사회복지시설</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-amber-600 mr-2">●</span>
+                                            <span class="text-gray-700">청소년수련시설</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-amber-600 mr-2">●</span>
+                                            <span class="text-gray-700">문화센터</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-amber-600 mr-2">●</span>
+                                            <span class="text-gray-700">교육기관</span>
+                                        </li>
+                                    </ul>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-start">
+                                            <span class="text-amber-600 mr-2">●</span>
+                                            <span class="text-gray-700">의료기관 (의료복지시설)</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-amber-600 mr-2">●</span>
+                                            <span class="text-gray-700">기업체 복리후생시설</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-amber-600 mr-2">●</span>
+                                            <span class="text-gray-700">스포츠센터</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-amber-600 mr-2">●</span>
+                                            <span class="text-gray-700">관광업체</span>
+                                        </li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
-    
-                        <h3 class="text-xl font-bold mb-4">자격증 취득 절차</h3>
-                        <div class="exam-process">
-                            <div class="process-step">
-                                <div class="process-number">1</div>
-                                <h4 class="font-bold mb-2">교육과정 이수</h4>
-                                <p>과정에 따라 60-120시간의 이론 및 실습 교육 이수</p>
-                            </div>
-                            <div class="process-step">
-                                <div class="process-number">2</div>
-                                <h4 class="font-bold mb-2">자격 시험 접수</h4>
-                                <p>온라인으로 시험 접수 및 응시료 납부</p>
-                            </div>
-                            <div class="process-step">
-                                <div class="process-number">3</div>
-                                <h4 class="font-bold mb-2">필기시험</h4>
-                                <p>85문항 객관식, 70% 이상 득점시 합격</p>
-                            </div>
-                            <div class="process-step">
-                                <div class="process-number">4</div>
-                                <h4 class="font-bold mb-2">실기시험</h4>
-                                <p>레크리에이션 활동 기획 및 진행 실습</p>
-                            </div>
-                            <div class="process-step">
-                                <div class="process-number">5</div>
-                                <h4 class="font-bold mb-2">자격증 발급</h4>
-                                <p>필기 및 실기 시험 합격 후 자격증 발급</p>
-                            </div>
-                        </div>
-    
-                        <h3 class="text-xl font-bold mb-4">응시료 및 갱신 정보</h3>
-                        <div class="exam-cost-table">
-                            <div class="cost-card">
-                                <h4 class="font-bold mb-4">응시료</h4>
-                                <div class="space-y-2">
-                                    <div class="cost-item">
-                                        <span>필기시험</span>
-                                        <span class="font-medium">40,000원</span>
+
+                        <div class="lg:col-span-1">
+                            <div class="cert-sidebar-card">
+                                <h3 class="text-xl font-bold mb-4">자격증 정보</h3>
+                                <div class="space-y-3">
+                                    <div class="cert-detail-item">
+                                        <span class="cert-detail-label">자격명</span>
+                                        <span class="cert-detail-value">레크리에이션지도자</span>
                                     </div>
-                                    <div class="cost-item">
-                                        <span>실기시험</span>
-                                        <span class="font-medium">50,000원</span>
+                                    <div class="cert-detail-item">
+                                        <span class="cert-detail-label">등록번호</span>
+                                        <span class="cert-detail-value">제2023-12348호</span>
                                     </div>
-                                    <div class="cost-item">
-                                        <span>자격증 발급비</span>
-                                        <span class="font-medium">20,000원</span>
+                                    <div class="cert-detail-item">
+                                        <span class="cert-detail-label">등급</span>
+                                        <span class="cert-detail-value">1급, 2급</span>
                                     </div>
-                                    <div class="cost-item total">
-                                        <span>총 비용</span>
-                                        <span>110,000원</span>
+                                    <div class="cert-detail-item">
+                                        <span class="cert-detail-label">주관기관</span>
+                                        <span class="cert-detail-value">디지털헬스케어센터</span>
+                                    </div>
+                                    <div class="cert-detail-item">
+                                        <span class="cert-detail-label">자격유형</span>
+                                        <span class="cert-detail-value">등록 민간자격</span>
                                     </div>
                                 </div>
                             </div>
-                            <div class="cost-card">
-                                <h4 class="font-bold mb-4">자격 갱신</h4>
-                                <div class="space-y-2">
-                                    <div class="cost-item">
-                                        <span>유효기간</span>
-                                        <span class="font-medium">3년</span>
+
+                            <div class="cert-sidebar-card">
+                                <h3 class="text-xl font-bold mb-4">시험 일정</h3>
+                                <div class="space-y-3">
+                                    <div class="cert-detail-item">
+                                        <span class="cert-detail-label">접수기간</span>
+                                        <span class="cert-detail-value">2025.05.01-2025.05.31</span>
                                     </div>
-                                    <div class="cost-item">
-                                        <span>갱신 조건</span>
-                                        <span class="font-medium">보수교육 15시간 이상 이수</span>
+                                    <div class="cert-detail-item">
+                                        <span class="cert-detail-label">시험일자</span>
+                                        <span class="cert-detail-value">2025.06.30 (일)</span>
                                     </div>
-                                    <div class="cost-item">
-                                        <span>갱신 비용</span>
-                                        <span class="font-medium">25,000원</span>
+                                    <div class="cert-detail-item">
+                                        <span class="cert-detail-label">합격발표</span>
+                                        <span class="cert-detail-value">2025.07.15</span>
                                     </div>
+                                    <div class="cert-detail-item">
+                                        <span class="cert-detail-label">시험장소</span>
+                                        <span class="cert-detail-value">서울, 대전, 대구, 광주</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="cert-cta-card">
+                                <h3 class="text-xl font-bold mb-4">자격증 신청</h3>
+                                <p class="mb-4">레크리에이션지도자 자격증 취득을 위한 교육 및 시험 안내입니다.</p>
+                                <a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
+                                    class="cert-cta-button">교육 과정 신청하기</a>
+                                <a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')"
+                                    class="cert-cta-button secondary">자격증 시험 신청하기</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 응시 자격 탭 컨텐츠 -->
+        <div id="qualification-content" class="tab-content">
+            <section class="py-16">
+                <div class="container mx-auto px-4">
+                    <h2 class="text-3xl font-bold mb-6">응시 자격</h2>
+
+                    <div class="bg-amber-50 p-6 rounded-lg mb-8">
+                        <h3 class="text-xl font-bold mb-4">레크리에이션지도자 응시 자격 요건</h3>
+                        <p class="mb-4">레크리에이션지도자 자격증 시험에 응시하기 위해서는 다음 중 하나 이상의 조건을 충족해야 합니다:</p>
+
+                        <div class="qualification-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>등급</th>
+                                        <th>응시 자격</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="font-medium">1급</td>
+                                        <td>
+                                            <ul class="list-disc pl-5 space-y-1">
+                                                <li>체육 또는 관련 전공 학사학위 이상 소지자로서 레크리에이션지도자 2급 자격 취득 후 관련 분야 실무경력 2년 이상인 자
+                                                </li>
+                                                <li>사회체육 또는 평생교육 관련 전공자로서 레크리에이션지도자 2급 자격 취득 후 관련 분야 실무경력 3년 이상인 자</li>
+                                                <li>디지털헬스케어센터 지정 교육기관에서 1급 교육과정을 이수한 자</li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-medium">2급</td>
+                                        <td>
+                                            <ul class="list-disc pl-5 space-y-1">
+                                                <li>고등학교 졸업 이상 학력 소지자</li>
+                                                <li>레크리에이션 관련 분야 실무경력 1년 이상인 자</li>
+                                                <li>사회복지사, 평생교육사, 청소년지도사 자격 소지자</li>
+                                                <li>디지털헬스케어센터 지정 교육기관에서 2급 교육과정을 이수한 자</li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold mb-4">관련 전공 인정 범위</h3>
+                    <p class="mb-4">다음의 전공분야는 레크리에이션지도자 자격 시험 응시를 위한 관련 전공으로 인정됩니다:</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                        <div class="major-list">
+                            <ul>
+                                <li>체육학</li>
+                                <li>사회체육학</li>
+                                <li>레크리에이션학</li>
+                                <li>여가체육학</li>
+                                <li>생활체육학</li>
+                                <li>건강관리학</li>
+                            </ul>
+                        </div>
+                        <div class="major-list">
+                            <ul>
+                                <li>사회복지학</li>
+                                <li>평생교육학</li>
+                                <li>청소년지도학</li>
+                                <li>사회교육학</li>
+                                <li>아동학</li>
+                                <li>기타 여가 관련 학과</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold mb-4">관련 분야 실무경력 인정 범위</h3>
+                    <p class="mb-4">다음 기관 및 시설에서의 레크리에이션 지도 관련 경력은 실무경력으로 인정됩니다:</p>
+                    <div class="requirements-card">
+                        <ul>
+                            <li>사회복지시설 (노인, 장애인, 아동 복지시설 등)</li>
+                            <li>청소년수련시설 및 청소년단체</li>
+                            <li>문화센터, 복지관, 체육관</li>
+                            <li>평생교육기관 및 성인교육시설</li>
+                            <li>스포츠센터 및 피트니스클럽</li>
+                            <li>기업체 복리후생시설</li>
+                            <li>병원 및 의료복지시설</li>
+                            <li>기타 레크리에이션 프로그램을 운영하는 기관 및 시설</li>
+                        </ul>
+                    </div>
+
+                    <h3 class="text-xl font-bold mb-4">필요 서류</h3>
+                    <p class="mb-4">자격증 시험 응시를 위해 다음의 서류를 준비해야 합니다:</p>
+                    <div class="requirements-card">
+                        <ol>
+                            <li>응시원서 (온라인 접수 시스템에서 작성)</li>
+                            <li>신분증 사본 (주민등록증, 운전면허증, 여권 중 택1)</li>
+                            <li>최종학력증명서 (졸업증명서 또는 재학증명서)</li>
+                            <li>경력증명서 (해당자에 한함)</li>
+                            <li>관련 자격증 사본 (해당자에 한함)</li>
+                            <li>교육과정 이수증 (해당자에 한함)</li>
+                            <li>증명사진 (3개월 이내 촬영, 3x4cm)</li>
+                            <li>개인정보 수집·이용 동의서</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 시험 정보 탭 컨텐츠 -->
+        <div id="exam-content" class="tab-content">
+            <section class="py-16">
+                <div class="container mx-auto px-4">
+                    <h2 class="text-3xl font-bold mb-6">시험 정보</h2>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                        <div class="lg:col-span-2">
+                            <h3 class="text-xl font-bold mb-4">시험 구성</h3>
+                            <p class="mb-4">레크리에이션지도자 자격 시험은 이론 시험(필기)과 실기 시험으로 구성되어 있습니다.</p>
+
+                            <div class="mb-6">
+                                <h4 class="font-bold mb-3">1. 이론 시험 (필기)</h4>
+                                <div class="exam-table">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>과목</th>
+                                                <th>내용</th>
+                                                <th>문항 수</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="font-medium">레크리에이션 개론</td>
+                                                <td>레크리에이션의 개념, 역사, 이론</td>
+                                                <td>15문항</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-medium">레크리에이션 프로그램</td>
+                                                <td>프로그램 기획, 진행, 평가 방법</td>
+                                                <td>20문항</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-medium">집단 활동과 리더십</td>
+                                                <td>집단 역학, 리더십 이론 및 기법</td>
+                                                <td>15문항</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-medium">놀이와 게임</td>
+                                                <td>놀이 이론, 게임 종류 및 지도법</td>
+                                                <td>15문항</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-medium">안전관리</td>
+                                                <td>안전사고 예방, 응급처치, 위험관리</td>
+                                                <td>10문항</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-medium">특수집단 레크리에이션</td>
+                                                <td>연령별, 계층별 특성화 프로그램</td>
+                                                <td>10문항</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-medium">합계</td>
+                                                <td>-</td>
+                                                <td>85문항</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <h4 class="font-bold mb-3">2. 실기 시험</h4>
+                                <div class="exam-table">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>영역</th>
+                                                <th>평가 내용</th>
+                                                <th>배점</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="font-medium">프로그램 기획</td>
+                                                <td>주어진 상황에 맞는 레크리에이션 프로그램 기획</td>
+                                                <td>30점</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-medium">활동 진행</td>
+                                                <td>놀이 또는 게임 활동의 실제 진행</td>
+                                                <td>40점</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-medium">리더십 발휘</td>
+                                                <td>집단 관리, 분위기 조성, 참여 유도</td>
+                                                <td>30점</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-medium">합계</td>
+                                                <td>-</td>
+                                                <td>100점</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-1">
+                            <div class="exam-details-card">
+                                <h3 class="text-xl font-bold mb-4">시험 진행 방식</h3>
+                                <div class="space-y-3">
+                                    <div class="cert-detail-item">
+                                        <span class="cert-detail-label">필기시험</span>
+                                        <span class="cert-detail-value">객관식 85문항 (4지선다형), 시험시간 120분</span>
+                                    </div>
+                                    <div class="cert-detail-item">
+                                        <span class="cert-detail-label">실기시험</span>
+                                        <span class="cert-detail-value">그룹 활동 진행 및 개별 발표, 시험시간 30분</span>
+                                    </div>
+                                    <div class="cert-detail-item">
+                                        <span class="cert-detail-label">합격기준</span>
+                                        <span class="cert-detail-value">필기시험 70% 이상, 실기시험 80% 이상 득점</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="exam-details-card">
+                                <h3 class="text-xl font-bold mb-4">시험 유의사항</h3>
+                                <ul class="space-y-2">
+                                    <li>• 시험 당일 신분증을 반드시 지참해야 합니다.</li>
+                                    <li>• 실기시험을 위한 편안한 복장을 준비해야 합니다.</li>
+                                    <li>• 실기시험 시 소도구 사용 가능 (개인 준비)</li>
+                                    <li>• 실기시험은 그룹으로 진행되며, 상호 참여가 필요합니다.</li>
+                                    <li>• 시험 시작 30분 전까지 입실해야 합니다.</li>
+                                    <li>• 필기시험 합격자에 한해 실기시험에 응시할 수 있습니다.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold mb-4">자격증 취득 절차</h3>
+                    <div class="exam-process">
+                        <div class="process-step">
+                            <div class="process-number">1</div>
+                            <h4 class="font-bold mb-2">교육과정 이수</h4>
+                            <p>과정에 따라 60-120시간의 이론 및 실습 교육 이수</p>
+                        </div>
+                        <div class="process-step">
+                            <div class="process-number">2</div>
+                            <h4 class="font-bold mb-2">자격 시험 접수</h4>
+                            <p>온라인으로 시험 접수 및 응시료 납부</p>
+                        </div>
+                        <div class="process-step">
+                            <div class="process-number">3</div>
+                            <h4 class="font-bold mb-2">필기시험</h4>
+                            <p>85문항 객관식, 70% 이상 득점시 합격</p>
+                        </div>
+                        <div class="process-step">
+                            <div class="process-number">4</div>
+                            <h4 class="font-bold mb-2">실기시험</h4>
+                            <p>레크리에이션 활동 기획 및 진행 실습</p>
+                        </div>
+                        <div class="process-step">
+                            <div class="process-number">5</div>
+                            <h4 class="font-bold mb-2">자격증 발급</h4>
+                            <p>필기 및 실기 시험 합격 후 자격증 발급</p>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold mb-4">응시료 및 갱신 정보</h3>
+                    <div class="exam-cost-table">
+                        <div class="cost-card">
+                            <h4 class="font-bold mb-4">응시료</h4>
+                            <div class="space-y-2">
+                                <div class="cost-item">
+                                    <span>필기시험</span>
+                                    <span class="font-medium">40,000원</span>
+                                </div>
+                                <div class="cost-item">
+                                    <span>실기시험</span>
+                                    <span class="font-medium">50,000원</span>
+                                </div>
+                                <div class="cost-item">
+                                    <span>자격증 발급비</span>
+                                    <span class="font-medium">20,000원</span>
+                                </div>
+                                <div class="cost-item total">
+                                    <span>총 비용</span>
+                                    <span>110,000원</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cost-card">
+                            <h4 class="font-bold mb-4">자격 갱신</h4>
+                            <div class="space-y-2">
+                                <div class="cost-item">
+                                    <span>유효기간</span>
+                                    <span class="font-medium">3년</span>
+                                </div>
+                                <div class="cost-item">
+                                    <span>갱신 조건</span>
+                                    <span class="font-medium">보수교육 15시간 이상 이수</span>
+                                </div>
+                                <div class="cost-item">
+                                    <span>갱신 비용</span>
+                                    <span class="font-medium">25,000원</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </section>
-            </div>
-    
-            <!-- 교육 과정 탭 컨텐츠 -->
-            <div id="curriculum-content" class="tab-content">
-                <section class="py-16">
-                    <div class="container mx-auto px-4">
-                        <h2 class="text-3xl font-bold mb-6">교육 과정</h2>
-    
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold mb-4">교육 개요</h3>
-                            <p class="mb-4">디지털헬스케어센터의 레크리에이션지도자 교육과정은 이론과 실습을 조화롭게 구성하여 창의적이고 효과적인 레크리에이션 프로그램을 기획·운영할 수 있는 전문 지도자를 양성합니다.</p>
-    
-                            <div class="curriculum-overview">
-                                <div class="curriculum-card">
-                                    <div class="curriculum-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                        </svg>
-                                    </div>
-                                    <h4 class="font-bold">과정 구성</h4>
-                                    <ul>
-                                        <li>이론 교육: 50시간</li>
-                                        <li>실습 교육: 70시간</li>
-                                        <li>총 교육시간: 120시간</li>
-                                    </ul>
+                </div>
+            </section>
+        </div>
+
+        <!-- 교육 과정 탭 컨텐츠 -->
+        <div id="curriculum-content" class="tab-content">
+            <section class="py-16">
+                <div class="container mx-auto px-4">
+                    <h2 class="text-3xl font-bold mb-6">교육 과정</h2>
+
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold mb-4">교육 개요</h3>
+                        <p class="mb-4">디지털헬스케어센터의 레크리에이션지도자 교육과정은 이론과 실습을 조화롭게 구성하여 창의적이고 효과적인 레크리에이션 프로그램을 기획·운영할 수 있는
+                            전문 지도자를 양성합니다.</p>
+
+                        <div class="curriculum-overview">
+                            <div class="curriculum-card">
+                                <div class="curriculum-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                    </svg>
                                 </div>
-                                <div class="curriculum-card">
-                                    <div class="curriculum-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
-                                    <h4 class="font-bold">교육 기간</h4>
-                                    <ul>
-                                        <li>주간과정: 4주 (월-금)</li>
-                                        <li>주말과정: 10주 (토-일)</li>
-                                        <li>온라인과정: 8주 (이론)</li>
-                                    </ul>
+                                <h4 class="font-bold">과정 구성</h4>
+                                <ul>
+                                    <li>이론 교육: 50시간</li>
+                                    <li>실습 교육: 70시간</li>
+                                    <li>총 교육시간: 120시간</li>
+                                </ul>
+                            </div>
+                            <div class="curriculum-card">
+                                <div class="curriculum-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
                                 </div>
-                                <div class="curriculum-card">
-                                    <div class="curriculum-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
-                                    <h4 class="font-bold">교육 방식</h4>
-                                    <ul>
-                                        <li>이론: 온라인 또는 오프라인</li>
-                                        <li>실습: 오프라인 필수</li>
-                                        <li>체험 중심 교육</li>
-                                    </ul>
+                                <h4 class="font-bold">교육 기간</h4>
+                                <ul>
+                                    <li>주간과정: 4주 (월-금)</li>
+                                    <li>주말과정: 10주 (토-일)</li>
+                                    <li>온라인과정: 8주 (이론)</li>
+                                </ul>
+                            </div>
+                            <div class="curriculum-card">
+                                <div class="curriculum-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                                    </svg>
                                 </div>
+                                <h4 class="font-bold">교육 방식</h4>
+                                <ul>
+                                    <li>이론: 온라인 또는 오프라인</li>
+                                    <li>실습: 오프라인 필수</li>
+                                    <li>체험 중심 교육</li>
+                                </ul>
                             </div>
                         </div>
-    
-                        <div class="mb-8">
-                            <h3 class="text-xl font-bold mb-4">교육 과정 상세 커리큘럼</h3>
-                            <div class="curriculum-detail-table">
-                                <h4>이론 교육 과정 (50시간)</h4>
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>교과목</th>
-                                            <th>주요 내용</th>
-                                            <th>시간</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="font-medium">레크리에이션 개론</td>
-                                            <td>
-                                                <ul>
-                                                    <li>레크리에이션의 개념과 목적</li>
-                                                    <li>레크리에이션의 역사와 발달</li>
-                                                    <li>현대사회와 여가 문화</li>
-                                                    <li>레크리에이션의 효과와 가치</li>
-                                                </ul>
-                                            </td>
-                                            <td>8시간</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-medium">프로그램 기획 및 운영</td>
-                                            <td>
-                                                <ul>
-                                                    <li>프로그램 기획의 원리</li>
-                                                    <li>대상 분석 및 요구 조사</li>
-                                                    <li>프로그램 설계 및 구성</li>
-                                                    <li>프로그램 평가 방법</li>
-                                                </ul>
-                                            </td>
-                                            <td>10시간</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-medium">집단역학 및 리더십</td>
-                                            <td>
-                                                <ul>
-                                                    <li>집단의 이해와 집단 역학</li>
-                                                    <li>리더십 이론 및 유형</li>
-                                                    <li>의사소통 기법</li>
-                                                    <li>갈등 관리 및 해결</li>
-                                                </ul>
-                                            </td>
-                                            <td>8시간</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-medium">놀이와 게임 이론</td>
-                                            <td>
-                                                <ul>
-                                                    <li>놀이의 이론과 특성</li>
-                                                    <li>게임의 분류 및 특징</li>
-                                                    <li>연령별 놀이 발달</li>
-                                                    <li>치료적 놀이의 활용</li>
-                                                </ul>
-                                            </td>
-                                            <td>8시간</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-medium">안전관리</td>
-                                            <td>
-                                                <ul>
-                                                    <li>안전사고 예방 원칙</li>
-                                                    <li>위험 요소 식별 및 관리</li>
-                                                    <li>응급처치 기본 사항</li>
-                                                    <li>안전 프로그램 운영</li>
-                                                </ul>
-                                            </td>
-                                            <td>8시간</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="font-medium">특수집단 레크리에이션</td>
-                                            <td>
-                                                <ul>
-                                                    <li>연령별 특성화 프로그램</li>
-                                                    <li>장애인 대상 프로그램</li>
-                                                    <li>의료 레크리에이션</li>
-                                                    <li>문화적 다양성 고려</li>
-                                                </ul>
-                                            </td>
-                                            <td>8시간</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-    
-                            <div class="curriculum-detail-table mt-6">
-                                <h4>실습 교육 과정 (70시간)</h4>
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>실습 영역</th>
-                                            <th>주요 내용</th>
-                                            <th>시간</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="font-medium">놀이 및 게임 실습</td>
-                                            <td>
-                                                <ul>
-                                                    <li>아이스 브레이킹 게임</li>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold mb-4">교육 과정 상세 커리큘럼</h3>
+                        <div class="curriculum-detail-table">
+                            <h4>이론 교육 과정 (50시간)</h4>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>교과목</th>
+                                        <th>주요 내용</th>
+                                        <th>시간</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="font-medium">레크리에이션 개론</td>
+                                        <td>
+                                            <ul>
+                                                <li>레크리에이션의 개념과 목적</li>
+                                                <li>레크리에이션의 역사와 발달</li>
+                                                <li>현대사회와 여가 문화</li>
+                                                <li>레크리에이션의 효과와 가치</li>
+                                            </ul>
+                                        </td>
+                                        <td>8시간</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-medium">프로그램 기획 및 운영</td>
+                                        <td>
+                                            <ul>
+                                                <li>프로그램 기획의 원리</li>
+                                                <li>대상 분석 및 요구 조사</li>
+                                                <li>프로그램 설계 및 구성</li>
+                                                <li>프로그램 평가 방법</li>
+                                            </ul>
+                                        </td>
+                                        <td>10시간</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-medium">집단역학 및 리더십</td>
+                                        <td>
+                                            <ul>
+                                                <li>집단의 이해와 집단 역학</li>
+                                                <li>리더십 이론 및 유형</li>
+                                                <li>의사소통 기법</li>
+                                                <li>갈등 관리 및 해결</li>
+                                            </ul>
+                                        </td>
+                                        <td>8시간</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-medium">놀이와 게임 이론</td>
+                                        <td>
+                                            <ul>
+                                                <li>놀이의 이론과 특성</li>
+                                                <li>게임의 분류 및 특징</li>
+                                                <li>연령별 놀이 발달</li>
+                                                <li>치료적 놀이의 활용</li>
+                                            </ul>
+                                        </td>
+                                        <td>8시간</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-medium">안전관리</td>
+                                        <td>
+                                            <ul>
+                                                <li>안전사고 예방 원칙</li>
+                                                <li>위험 요소 식별 및 관리</li>
+                                                <li>응급처치 기본 사항</li>
+                                                <li>안전 프로그램 운영</li>
+                                            </ul>
+                                        </td>
+                                        <td>8시간</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="font-medium">특수집단 레크리에이션</td>
+                                        <td>
+                                            <ul>
+                                                <li>연령별 특성화 프로그램</li>
+                                                <li>장애인 대상 프로그램</li>
+                                                <li>의료 레크리에이션</li>
+                                                <li>문화적 다양성 고려</li>
+                                            </ul>
+                                        </td>
+                                        <td>8시간</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="curriculum-detail-table mt-6">
+                            <h4>실습 교육 과정 (70시간)</h4>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>실습 영역</th>
+                                        <th>주요 내용</th>
+                                        <th>시간</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="font-medium">놀이 및 게임 실습</td>
+                                        <td>
+                                            <ul>
+                                                <li>아이스 브레이킹 게임</li>
                                                 <li>실내외 집단 놀이</li>
                                                 <li>스포츠 게임 변형</li>
                                                 <li>창작 게임 개발</li>
@@ -1069,7 +1058,8 @@
                             <div class="space-y-3">
                                 <div class="curriculum-info-item">
                                     <span class="curriculum-info-label">교육비</span>
-                                    <span class="curriculum-info-value">온/오프라인 전체과정: 900,000원<br>온라인 이론과정: 400,000원<br>오프라인 실습과정: 600,000원</span>
+                                    <span class="curriculum-info-value">온/오프라인 전체과정: 900,000원<br>온라인 이론과정:
+                                        400,000원<br>오프라인 실습과정: 600,000원</span>
                                 </div>
                                 <div class="curriculum-info-item">
                                     <span class="curriculum-info-label">교재</span>
@@ -1077,7 +1067,8 @@
                                 </div>
                                 <div class="curriculum-info-item">
                                     <span class="curriculum-info-label">할인혜택</span>
-                                    <span class="curriculum-info-value">조기 신청: 10% 할인<br>학생할인: 15% 할인<br>단체접수(5인 이상): 20% 할인</span>
+                                    <span class="curriculum-info-value">조기 신청: 10% 할인<br>학생할인: 15% 할인<br>단체접수(5인 이상):
+                                        20% 할인</span>
                                 </div>
                             </div>
                         </div>
@@ -1211,7 +1202,8 @@
                     <div class="mb-8">
                         <h3 class="text-xl font-bold mb-4">레크리에이션지도자의 시장 전망</h3>
                         <div class="market-outlook">
-                            <p class="mb-4">현대사회에서 여가의 중요성이 부각되고 삶의 질에 대한 관심이 높아지면서 레크리에이션지도자의 수요는 지속적으로 증가하고 있습니다. 특히 다음과 같은 요인들이 레크리에이션지도자의 직업 전망을 밝게 하고 있습니다:</p>
+                            <p class="mb-4">현대사회에서 여가의 중요성이 부각되고 삶의 질에 대한 관심이 높아지면서 레크리에이션지도자의 수요는 지속적으로 증가하고 있습니다. 특히
+                                다음과 같은 요인들이 레크리에이션지도자의 직업 전망을 밝게 하고 있습니다:</p>
 
                             <div class="outlook-factors mb-6">
                                 <div class="outlook-factor">
@@ -1255,7 +1247,9 @@
                                             <p>종합병원 레크리에이션 치료사</p>
                                         </div>
                                     </div>
-                                    <p class="story-content">"대학에서 사회복지학을 전공하고 레크리에이션지도자 자격증을 취득했습니다. 현재는 종합병원 재활의학과에서 환자들의 정신적 회복을 돕는 레크리에이션 치료 프로그램을 운영하고 있습니다. 환자들의 밝은 표정을 보며 일의 가치를 느끼고 있으며, 부서장으로 승진하여 팀을 이끌고 있습니다."</p>
+                                    <p class="story-content">"대학에서 사회복지학을 전공하고 레크리에이션지도자 자격증을 취득했습니다. 현재는 종합병원 재활의학과에서
+                                        환자들의 정신적 회복을 돕는 레크리에이션 치료 프로그램을 운영하고 있습니다. 환자들의 밝은 표정을 보며 일의 가치를 느끼고 있으며, 부서장으로
+                                        승진하여 팀을 이끌고 있습니다."</p>
                                 </div>
                                 <div class="success-story">
                                     <div class="story-header">
@@ -1265,7 +1259,9 @@
                                             <p>레크리에이션 전문 기업 대표</p>
                                         </div>
                                     </div>
-                                    <p class="story-content">"레크리에이션지도자로 5년간 활동하며 노하우를 쌓은 후 레크리에이션 전문 기업을 창업했습니다. 기업체 워크샵, 단체 행사, 축제 등의 프로그램을 제공하며 현재 10명의 직원과 함께 연 매출 15억원을 달성했습니다. 즐거움을 전달하는 일이 사업으로도 충분히 성공할 수 있음을 보여주고 있습니다."</p>
+                                    <p class="story-content">"레크리에이션지도자로 5년간 활동하며 노하우를 쌓은 후 레크리에이션 전문 기업을 창업했습니다. 기업체
+                                        워크샵, 단체 행사, 축제 등의 프로그램을 제공하며 현재 10명의 직원과 함께 연 매출 15억원을 달성했습니다. 즐거움을 전달하는 일이
+                                        사업으로도 충분히 성공할 수 있음을 보여주고 있습니다."</p>
                                 </div>
                             </div>
                         </div>
@@ -1311,98 +1307,44 @@
     </main>
 
     <footer class="bg-gray-800 text-white">
-        <div class="container mx-auto px-4 py-8">
-            <!-- 상단: 메인 정보 섹션 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-6">
-                <!-- 기관 정보 -->
-                <div>
-                    <h3 class="text-lg font-bold mb-4 text-white">디지털헬스케어센터</h3>
-                    <p class="text-gray-400 mb-4 text-sm leading-relaxed">
-                        운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼
-                    </p>
-                    <!-- SNS 링크 -->
-                    <div class="flex space-x-4 mt-4">
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="인스타그램">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="h-6 w-6">
-                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                                <path d="m16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                            </svg>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="유튜브">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="currentColor" class="h-6 w-6">
-                                <path
-                                    d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- 바로가기 -->
-                <div>
-                    <h3 class="text-lg font-bold mb-4 text-white">바로가기</h3>
-                    <ul class="space-y-2">
-                        <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
-                                class="text-gray-400 hover:text-white transition-colors text-sm">기관 소개</a></li>
-                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
-                                class="text-gray-400 hover:text-white transition-colors text-sm">자격증 소개</a></li>
-                        <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
-                                class="text-gray-400 hover:text-white transition-colors text-sm">교육 과정</a></li>
-                        <li><a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')"
-                                class="text-gray-400 hover:text-white transition-colors text-sm">공지사항</a></li>
-                    </ul>
-                </div>
-
-                <!-- 자격증 정보 -->
-                <div>
-                    <h3 class="text-lg font-bold mb-4 text-white">자격증 정보</h3>
-                    <ul class="space-y-2">
-                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
-                                class="text-gray-400 hover:text-white transition-colors text-sm">건강운동처방사</a></li>
-                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
-                                class="text-gray-400 hover:text-white transition-colors text-sm">운동재활전문가</a></li>
-                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
-                                class="text-gray-400 hover:text-white transition-colors text-sm">필라테스 전문가</a></li>
-                        <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
-                                class="text-gray-400 hover:text-white transition-colors text-sm">레크리에이션지도자</a></li>
-                    </ul>
-                </div>
+        <div class="container mx-auto px-4 py-6">
+            <!-- 기관 정보 및 소셜 링크 -->
+            <div class="mb-6">
+                <h3 class="text-lg font-bold mb-3 text-white">디지털헬스케어센터</h3>
+                <p class="text-gray-400 mb-4 text-sm leading-relaxed max-w-2xl">
+                    운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼
+                </p>
             </div>
 
-            <!-- 중간: 사업자 정보 -->
-            <div class="border-t border-gray-700 pt-6 mb-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-400">
-                    <div>
-                        <p class="mb-1">상호: 사&rpar;문경 부설 디지털헬스케어센터</p>
-                        <p class="mb-1">주소: 서울특별시 강남구 테헤란로 123</p>
-                        <p class="mb-1">전화: 02-123-4567</p>
+            <!-- 사업자 정보 섹션 -->
+            <div class="border-t border-gray-700 pt-5 mb-5">
+                <div class="flex flex-wrap gap-y-2 gap-x-8">
+                    <div class="min-w-[200px]">
+                        <p class="text-sm text-gray-400 mb-1">상호: 사&rpar;문경 부설 헬스케어센터</p>
+                        <p class="text-sm text-gray-400 mb-1">주소: 서울특별시 노원구 한글비석로 233, 새롬스타빌 706호</p>
+                        <p class="text-sm text-gray-400 mb-1">전화: 02-123-4567</p>
                     </div>
-                    <div>
-                        <p class="mb-1">이메일: info@digitalhealthcare.org</p>
-                        <p class="mb-1">사업자등록번호: 123-45-67890</p>
-                        <p class="mb-1">통신판매신고번호: 제2024-서울강남-1234호</p>
+                    <div class="min-w-[200px]">
+                        <p class="text-sm text-gray-400 mb-1">이메일: info@digitalhealthcare.org</p>
+                        <p class="text-sm text-gray-400 mb-1">사업자등록번호: 217-82-07188</p>
+                        <p class="text-sm text-gray-400 mb-1">통신판매신고번호: 제2024-서울강남-1234호</p>
                     </div>
                 </div>
             </div>
 
-            <!-- 하단: 저작권 정보 -->
+            <!-- 저작권 정보 -->
             <div class="border-t border-gray-700 pt-4">
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <div class="mb-4 md:mb-0">
-                        <p class="text-sm text-gray-400">&copy; 2025 디지털헬스케어센터. All rights reserved.</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-xs text-gray-500">
-                            <a href="#" class="hover:text-white transition-colors">문의하기</a>
-                        </p>
-                    </div>
-                </div>
+                <p class="text-sm text-gray-400">&copy; 2025 디지털헬스케어센터. All rights reserved.</p>
             </div>
         </div>
     </footer>
+
+    <!-- TOP 버튼 -->
+    <button id="scroll-top-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>
+    </button>
 
     <!-- Firebase SDK 템플릿 -->
     <script id="firebase-sdk-template" type="text/template">
@@ -1420,6 +1362,7 @@
     <!-- 추가 스크립트 템플릿 -->
     <script id="additional-scripts-template" type="text/template">
         <script src="{basePath}assets/js/components/header.js"><\/script>
+        <script src="{basePath}assets/js/components/scroll-top.js"><\/script>
         <script src="{basePath}assets/js/pages/certificate.js"><\/script>
         <script src="{basePath}assets/js/pages/certificate/recreation.js"><\/script>
         <script src="{basePath}assets/js/main.js"><\/script>

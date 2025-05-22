@@ -10,6 +10,8 @@
     <link rel="manifest" href="../../manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
         rel="stylesheet">
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <!-- 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
     <script src="../../assets/js/utils/script-loader.js"></script>
@@ -250,24 +252,11 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="about-hero">
+    <section class="hero-section bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-16">
         <div class="container mx-auto px-4">
-            <div class="max-w-3xl mx-auto">
-                <h1 class="text-3xl md:text-4xl font-bold mb-4">디지털헬스케어센터 소개</h1>
-                <p class="text-lg mb-4">운동과학 기반 전문직업인력 양성의 선도 기관입니다.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- 페이지 내 목차 (선택사항) -->
-    <section class="py-4 bg-gray-100 border-b border-gray-200 sticky top-0 z-10">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-wrap justify-center gap-4 text-sm">
-                <a href="#overview" class="text-blue-600 hover:text-blue-800 font-medium">기관 소개</a>
-                <a href="#mission" class="text-blue-600 hover:text-blue-800 font-medium">미션과 핵심가치</a>
-                <a href="#organization" class="text-blue-600 hover:text-blue-800 font-medium">조직 구조</a>
-                <a href="#business" class="text-blue-600 hover:text-blue-800 font-medium">주요 사업 영역</a>
-                <a href="#partners" class="text-blue-600 hover:text-blue-800 font-medium">협력 네트워크</a>
+            <div class="max-w-3xl">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">디지털헬스케어센터 소개</h1>
+                <p class="text-xl mb-8">사&rpar;문경 부설 디지털헬스케어센터는 운동 과학 기반<br>전문인력 양성의 선도 기관입니다.</p>
             </div>
         </div>
     </section>
@@ -277,19 +266,24 @@
         <section id="overview" class="section-spacing bg-white">
             <div class="container mx-auto px-4">
                 <div class="flex flex-col md:flex-row gap-8 items-center">
-                    <div class="md:w-1/3 intro-image-container">
+                    <div class="md:w-1/2 intro-image-container">
                         <img src="../../assets/images/about/center-overview.jpg" alt="디지털헬스케어" class="intro-image">
                     </div>
                     <div class="md:w-1/2">
-                        <p class="text-gray-700 mb-4">
-                            사&rpar;문경 부설 디지털헬스케어센터는 정보통신기술&lpar;ICT&rpar;에 의료 영역을 융합한 운동과학을
-                            기반으로 의료&bull;보건 데이터를 활용해 질병을 예측하고 예방 솔루션을 제공하며,
-                            맞춤형 서비스를 제공하는 기관입니다.
-                        </p>
-                        <p class="text-gray-700">
-                            우리 센터는 디지털헬스케어 분야의 학술&bull;연구활동과 전문인력 양성을 위한
-                            자격인증 교육프로그램 운영을 통해 국내 건강관리 서비스의 질적 향상에 기여하고 있습니다.
-                        </p>
+                        <div class="intro-text-container">
+                            <p>
+                                <span class="highlight">(사)문경 부설 디지털헬스케어센터</span>는 <span
+                                    class="highlight">정보통신기술(ICT)</span>에 의료 영역을 융합한 <span
+                                    class="highlight">운동과학</span>을
+                                기반으로 의료•보건 데이터를 활용해 질병을 예측하고 예방 솔루션을 제공하며,
+                                맞춤형 서비스를 제공하는 기관입니다.
+                            </p>
+                            <p>
+                                우리 센터는 <span class="highlight">디지털헬스케어 분야</span>의 학술•연구활동과 <span class="highlight">전문인력
+                                    양성</span>을 위한
+                                자격인증 교육프로그램 운영을 통해 국내 건강관리 서비스의 질적 향상에 기여하고 있습니다.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -590,7 +584,7 @@
                         <img src="../../assets/images/about/partner4.png" alt="협력 기관 4" class="max-h-10 max-w-full">
                     </div>
                     <div class="partner-card">
-                        <img src="../../assets/images/about/partner5.png" alt="협력 기관 5" class="max-h-10 max-w-full">
+                        <img src="../../assets/images/about/partner5.jpg" alt="협력 기관 5" class="max-h-10 max-w-full">
                     </div>
                     <div class="partner-card">
                         <img src="../../assets/images/about/partner6.png" alt="협력 기관 6" class="max-h-10 max-w-full">
@@ -600,6 +594,39 @@
                     </div>
                     <div class="partner-card">
                         <img src="../../assets/images/about/partner8.png" alt="협력 기관 8" class="max-h-10 max-w-full">
+                    </div>
+                    <div class="partner-card">
+                        <img src="../../assets/images/about/partner9.png" alt="협력 기관 9" class="max-h-10 max-w-full">
+                    </div>
+                    <div class="partner-card">
+                        <img src="../../assets/images/about/partner10.png" alt="협력 기관 10" class="max-h-10 max-w-full">
+                    </div>
+                    <div class="partner-card">
+                        <img src="../../assets/images/about/partner11.png" alt="협력 기관 11" class="max-h-10 max-w-full">
+                    </div>
+                    <div class="partner-card">
+                        <img src="../../assets/images/about/partner12.png" alt="협력 기관 12" class="max-h-10 max-w-full">
+                    </div>
+                    <div class="partner-card">
+                        <img src="../../assets/images/about/partner13.png" alt="협력 기관 13" class="max-h-10 max-w-full">
+                    </div>
+                    <div class="partner-card">
+                        <img src="../../assets/images/about/partner14.png" alt="협력 기관 14" class="max-h-10 max-w-full">
+                    </div>
+                    <div class="partner-card">
+                        <img src="../../assets/images/about/partner15.png" alt="협력 기관 15" class="max-h-10 max-w-full">
+                    </div>
+                    <div class="partner-card">
+                        <img src="../../assets/images/about/partner16.png" alt="협력 기관 16" class="max-h-10 max-w-full">
+                    </div>
+                    <div class="partner-card">
+                        <img src="../../assets/images/about/partner17.png" alt="협력 기관 17" class="max-h-10 max-w-full">
+                    </div>
+                    <div class="partner-card">
+                        <img src="../../assets/images/about/partner18.png" alt="협력 기관 18" class="max-h-10 max-w-full">
+                    </div>
+                    <div class="partner-card">
+                        <img src="../../assets/images/about/partner19.png" alt="협력 기관 19" class="max-h-10 max-w-full">
                     </div>
                 </div>
             </div>
@@ -614,32 +641,13 @@
                 <p class="text-gray-400 mb-4 text-sm leading-relaxed max-w-2xl">
                     운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼
                 </p>
-                <!-- SNS 링크 -->
-                <div class="flex space-x-4 mt-3">
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="인스타그램">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="h-6 w-6">
-                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                            <path d="m16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                        </svg>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="유튜브">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-                            fill="currentColor" class="h-6 w-6">
-                            <path
-                                d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                        </svg>
-                    </a>
-                </div>
             </div>
 
             <!-- 사업자 정보 섹션 -->
             <div class="border-t border-gray-700 pt-5 mb-5">
                 <div class="flex flex-wrap gap-y-2 gap-x-8">
                     <div class="min-w-[200px]">
-                        <p class="text-sm text-gray-400 mb-1">상호: 사&rpar;문경 부설 헬스케어센터</p>
+                        <p class="text-sm text-gray-400 mb-1">상호: 사)문경 부설 헬스케어센터</p>
                         <p class="text-sm text-gray-400 mb-1">주소: 서울특별시 노원구 한글비석로 233, 새롬스타빌 706호</p>
                         <p class="text-sm text-gray-400 mb-1">전화: 02-123-4567</p>
                     </div>
@@ -659,9 +667,7 @@
     </footer>
 
     <!-- TOP 버튼 -->
-    <button id="scroll-top-btn"
-        class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white h-12 w-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 z-50"
-        style="opacity: 0; transform: translateY(100px);">
+    <button id="scroll-top-btn">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
         </svg>

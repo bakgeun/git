@@ -433,6 +433,12 @@ function createMobileMenu() {
     // 메뉴 항목 정의
     const menuItems = [
         {
+            title: '홈',
+            icon: '🏠',
+            url: 'index.html',
+            items: [] // 빈 배열 추가 (직접 링크)
+        },
+        {
             title: '기관 소개',
             icon: '🏢',
             url: 'pages/about.html',

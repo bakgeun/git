@@ -398,20 +398,146 @@ function setDateLimits() {
     birthInput.min = minDate.toISOString().split('T')[0];
 }
 
-// URL 파라미터 확인
+// URL 파라미터 확인 및 자동 필터링
 function checkUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
     const course = urlParams.get('course');
 
     if (course) {
+        console.log('URL 파라미터로 전달된 과정:', course);
+
         const courseSelect = document.getElementById('course-select');
+
+        // 건강운동처방사에서 온 경우 해당 과정들만 표시
+        if (course.startsWith('health')) {
+            filterCoursesByType('health');
+        } else if (course.startsWith('rehab')) {
+            filterCoursesByType('rehab');
+        } else if (course.startsWith('pilates')) {
+            filterCoursesByType('pilates');
+        } else if (course.startsWith('rec')) {
+            filterCoursesByType('recreation');
+        }
+
+        // 특정 과정 선택
         courseSelect.value = course;
 
         // 과정 정보 업데이트 트리거
         const changeEvent = new Event('change');
         courseSelect.dispatchEvent(changeEvent);
+
+        // 페이지 상단으로 부드럽게 스크롤
+        setTimeout(() => {
+            const courseSelectionSection = document.querySelector('.course-selection-card');
+            if (courseSelectionSection) {
+                courseSelectionSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }, 100);
     }
 }
+
+// 자격증 타입별 과정 필터링
+function filterCoursesByType(certType) {
+    console.log('과정 필터링 시작:', certType);
+
+    const courseSelect = document.getElementById('course-select');
+    const options = courseSelect.querySelectorAll('option');
+
+    // 모든 옵션 숨기기
+    options.forEach(option => {
+        if (option.value === '') return; // 기본 옵션은 유지
+        option.style.display = 'none';
+        option.disabled = true;
+    });
+
+    // 해당 타입의 옵션만 표시
+    const filterPatterns = {
+        'health': ['health-'],
+        'rehab': ['rehab-'],
+        'pilates': ['pilates-'],
+        'recreation': ['rec-']
+    };
+
+    const patterns = filterPatterns[certType] || [];
+
+    options.forEach(option => {
+        if (option.value === '') return; // 기본 옵션은 유지
+
+        const shouldShow = patterns.some(pattern => option.value.startsWith(pattern));
+
+        if (shouldShow) {
+            option.style.display = 'block';
+            option.disabled = false;
+        }
+    });
+
+    // 필터링 안내 메시지 표시
+    const certTypeNames = {
+        'health': '건강운동처방사',
+        'rehab': '운동재활전문가',
+        'pilates': '필라테스 전문가',
+        'recreation': '레크리에이션지도자'
+    };
+
+    const certTypeName = certTypeNames[certType] || certType;
+
+    // 안내 메시지 요소 생성 또는 업데이트
+    let filterNotice = document.getElementById('course-filter-notice');
+    if (!filterNotice) {
+        filterNotice = document.createElement('div');
+        filterNotice.id = 'course-filter-notice';
+        filterNotice.className = 'bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4';
+
+        // 과정 선택 카드 상단에 추가
+        const courseCard = document.querySelector('.course-selection-card');
+        courseCard.insertBefore(filterNotice, courseCard.firstChild);
+    }
+
+    filterNotice.innerHTML = `
+        <div class="flex items-center">
+            <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="text-blue-700 font-medium">${certTypeName} 관련 교육과정만 표시됩니다.</span>
+            <button onclick="showAllCourses()" class="ml-auto text-blue-600 hover:text-blue-800 text-sm font-medium">전체 과정 보기</button>
+        </div>
+    `;
+
+    console.log(`${certTypeName} 과정 필터링 완료`);
+}
+
+// 전체 과정 보기 함수
+function showAllCourses() {
+    console.log('전체 과정 보기');
+
+    const courseSelect = document.getElementById('course-select');
+    const options = courseSelect.querySelectorAll('option');
+
+    // 모든 옵션 표시
+    options.forEach(option => {
+        option.style.display = 'block';
+        option.disabled = false;
+    });
+
+    // 필터링 안내 메시지 제거
+    const filterNotice = document.getElementById('course-filter-notice');
+    if (filterNotice) {
+        filterNotice.remove();
+    }
+
+    // URL 파라미터 제거
+    const url = new URL(window.location);
+    url.searchParams.delete('course');
+    window.history.replaceState({}, '', url);
+
+    console.log('전체 과정 표시 완료');
+}
+
+// 전역 함수로 등록
+window.showAllCourses = showAllCourses;
 
 // 로딩 스피너 CSS 추가
 const style = document.createElement('style');
