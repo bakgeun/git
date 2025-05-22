@@ -1,6 +1,6 @@
-// health-exercise.js - 완전한 수정 버전
+// health-exercise.js - 2개 탭 버전
 
-console.log('health-exercise.js 로드됨');
+console.log('health-exercise.js (2개 탭 버전) 로드됨');
 
 // 즉시 실행 함수로 감싸기
 (function () {
@@ -173,9 +173,9 @@ console.log('health-exercise.js 로드됨');
         }
     }
 
-    // 탭 초기화 함수
+    // 탭 초기화 함수 (2개 탭용으로 수정)
     function initializeTabs() {
-        console.log('탭 초기화 함수 실행');
+        console.log('탭 초기화 함수 실행 (2개 탭)');
 
         const tabItems = document.querySelectorAll('.tab-item');
         const tabContents = document.querySelectorAll('.tab-content');
@@ -195,7 +195,7 @@ console.log('health-exercise.js 로드됨');
 
         // 탭 클릭 이벤트 등록
         tabItems.forEach(function (tab, index) {
-            console.log('탭 ' + index + '에 이벤트 리스너 추가');
+            console.log('탭 ' + index + '에 이벤트 리스너 추가:', tab.getAttribute('data-tab'));
 
             tab.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -205,6 +205,16 @@ console.log('health-exercise.js 로드됨');
                 switchTab(tabId);
             });
         });
+
+        // 첫 번째 탭 활성화 확인
+        const firstTab = document.querySelector('.tab-item[data-tab="overview"]');
+        const firstContent = document.getElementById('overview-content');
+        
+        if (firstTab && firstContent) {
+            firstTab.classList.add('active');
+            firstContent.classList.add('active');
+            console.log('첫 번째 탭 활성화 완료');
+        }
 
         console.log('탭 초기화 완료');
     }
@@ -245,7 +255,7 @@ console.log('health-exercise.js 로드됨');
     function initPageLinking() {
         console.log('페이지 간 연동 기능 초기화');
         
-        // 교육 과정 신청하기 버튼을 더 구체적으로 찾기
+        // 교육 과정 신청하기 버튼들
         const courseApplicationBtns = document.querySelectorAll('a[href*="course-application.html"]');
         console.log('교육과정 신청 버튼 개수:', courseApplicationBtns.length);
         
@@ -272,7 +282,7 @@ console.log('health-exercise.js 로드됨');
             });
         });
         
-        // 자격증 시험 신청하기 버튼을 더 구체적으로 찾기
+        // 자격증 시험 신청하기 버튼들
         const certApplicationBtns = document.querySelectorAll('a[href*="cert-application.html"]');
         console.log('자격증 신청 버튼 개수:', certApplicationBtns.length);
         
@@ -326,7 +336,7 @@ console.log('health-exercise.js 로드됨');
         return certMapping[certType] || null;
     }
 
-    // 탭 전환 함수
+    // 탭 전환 함수 (2개 탭용으로 수정)
     function switchTab(tabId) {
         console.log('탭 전환 시작:', tabId);
 
@@ -382,4 +392,4 @@ console.log('health-exercise.js 로드됨');
 
 })();
 
-console.log('health-exercise.js 실행 완료');
+console.log('health-exercise.js (2개 탭 버전) 실행 완료');

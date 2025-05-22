@@ -1,4 +1,4 @@
-// cert-application.js - 자격증 신청 페이지 전용 JavaScript
+// cert-application.js - 자격증 신청 페이지 전용 JavaScript (URL 파라미터 처리 추가)
 console.log('=== cert-application.js 파일 로드됨 ===');
 
 // DOM이 이미 로드된 경우와 로딩 중인 경우 모두 처리
@@ -22,6 +22,9 @@ initializeWhenReady();
 // 페이지 초기화 함수
 function initCertApplicationPage() {
     console.log('=== initCertApplicationPage 실행 시작 ===');
+    
+    // URL 파라미터 처리 (가장 먼저 실행)
+    handleUrlParameters();
     
     // 가격 계산 기능 초기화
     initPriceCalculation();
@@ -47,6 +50,89 @@ function initCertApplicationPage() {
     console.log('=== initCertApplicationPage 완료 ===');
 }
 
+// URL 파라미터 처리 함수 추가
+function handleUrlParameters() {
+    console.log('=== URL 파라미터 처리 시작 ===');
+    
+    // URL에서 파라미터 추출
+    const urlParams = new URLSearchParams(window.location.search);
+    const certParam = urlParams.get('cert');
+    
+    console.log('받은 cert 파라미터:', certParam);
+    
+    if (certParam) {
+        // 자격증 종류 셀렉트 박스 찾기
+        const certTypeSelect = document.getElementById('cert-type');
+        
+        if (certTypeSelect) {
+            // 파라미터에 따라 자격증 종류 자동 선택
+            let optionValue = '';
+            let certName = '';
+            
+            switch (certParam) {
+                case 'health':
+                    optionValue = 'health';
+                    certName = '건강운동처방사';
+                    break;
+                case 'rehab':
+                    optionValue = 'rehab';
+                    certName = '운동재활전문가';
+                    break;
+                case 'pilates':
+                    optionValue = 'pilates';
+                    certName = '필라테스 전문가';
+                    break;
+                case 'recreation':
+                    optionValue = 'recreation';
+                    certName = '레크리에이션지도자';
+                    break;
+                default:
+                    console.warn('알 수 없는 자격증 파라미터:', certParam);
+                    return;
+            }
+            
+            // 셀렉트 박스 값 설정
+            certTypeSelect.value = optionValue;
+            
+            // 시각적 피드백을 위한 애니메이션 효과
+            certTypeSelect.style.backgroundColor = '#dbeafe';
+            certTypeSelect.style.transition = 'background-color 0.5s ease';
+            
+            setTimeout(() => {
+                certTypeSelect.style.backgroundColor = '';
+            }, 1500);
+            
+            console.log(`${certName}이(가) 자동으로 선택되었습니다:`, optionValue);
+            
+            // change 이벤트 발생시켜서 다른 연동 기능들이 동작하도록 함
+            const changeEvent = new Event('change', { bubbles: true });
+            certTypeSelect.dispatchEvent(changeEvent);
+            
+            // 사용자에게 알림 (선택사항)
+            setTimeout(() => {
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-md shadow-lg z-50 transition-opacity duration-300';
+                notification.textContent = `${certName} 자격증이 자동으로 선택되었습니다.`;
+                document.body.appendChild(notification);
+                
+                // 3초 후 알림 제거
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            }, 500);
+            
+        } else {
+            console.error('cert-type 셀렉트 박스를 찾을 수 없습니다');
+        }
+    } else {
+        console.log('cert 파라미터가 없습니다. 기본 상태로 진행합니다.');
+    }
+    
 // 가격 계산 기능
 function initPriceCalculation() {
     const certOptionSelect = document.getElementById('cert-option');
@@ -524,12 +610,13 @@ style.textContent = `
 document.head.appendChild(style);
 
 // 에러 처리
-window.addEventListener('error', (e) => {
+window.addEventListener('error', function(e) {
    console.error('cert-application.js error:', e);
 });
 
 // 페이지 언로드 시 정리
-window.addEventListener('beforeunload', () => {
+window.addEventListener('beforeunload', function() {
    // 필요한 정리 작업 수행
    console.log('cert-application.js 정리 중...');
 });
+}
