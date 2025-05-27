@@ -144,8 +144,7 @@
                                 </button>
                                 <div class="mobile-submenu">
                                     <a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')">건강운동처방사</a>
-                                    <a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
-                                        class="active">운동재활전문가</a>
+                                    <a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')" class="active">운동재활전문가</a>
                                     <a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')">필라테스 전문가</a>
                                     <a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')">레크리에이션지도자</a>
                                 </div>
@@ -243,25 +242,21 @@
         </div>
     </div>
 
-    <!-- 개선된 내비게이션 탭 -->
+    <!-- 개선된 내비게이션 탭 (2개로 축소) -->
     <div class="navigation-tabs sticky top-0 z-20">
         <div class="container mx-auto px-4">
             <nav class="flex overflow-x-auto py-2">
-                <a href="javascript:void(0)" data-tab="overview" class="tab-item active">자격증 개요</a>
-                <a href="javascript:void(0)" data-tab="qualification" class="tab-item">응시 자격</a>
-                <a href="javascript:void(0)" data-tab="exam" class="tab-item">시험 정보</a>
-                <a href="javascript:void(0)" data-tab="curriculum" class="tab-item">교육 과정</a>
-                <a href="javascript:void(0)" data-tab="career" class="tab-item">진로 및 전망</a>
+                <a href="javascript:void(0)" data-tab="overview" class="tab-item active">자격증 소개</a>
+                <a href="javascript:void(0)" data-tab="education" class="tab-item">교육 및 시험</a>
             </nav>
         </div>
     </div>
 
     <main>
-        <!-- 자격증 개요 탭 컨텐츠 - 완전히 수정된 레이아웃 -->
+        <!-- 자격증 소개 탭 컨텐츠 (기존 개요 + 응시자격 + 진로전망 통합) -->
         <div id="overview-content" class="tab-content active">
             <section class="cert-section">
                 <div class="cert-container">
-                    <!-- 기존의 grid grid-cols-1 lg:grid-cols-3 클래스를 새로운 cert-main-grid로 교체 -->
                     <div class="cert-main-grid">
                         <!-- 메인 컨텐츠 영역 -->
                         <div class="cert-main-content">
@@ -321,7 +316,7 @@
                                 </ul>
 
                                 <h3 class="text-xl font-bold mb-4">자격증의 특징</h3>
-                                <div class="space-y-6">
+                                <div class="space-y-6 mb-8">
                                     <div class="cert-feature">
                                         <div class="cert-feature-icon">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
@@ -366,7 +361,7 @@
                                 </div>
 
                                 <h3 class="text-xl font-bold mb-4">활용 분야</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                                     <ul class="space-y-2">
                                         <li class="flex items-start">
                                             <span class="text-green-600 mr-2">●</span>
@@ -404,6 +399,39 @@
                                         </li>
                                     </ul>
                                 </div>
+
+                                <!-- 응시 자격 섹션 추가 -->
+                                <h3 class="text-xl font-bold mb-4">응시 자격</h3>
+                                <div class="bg-green-50 p-6 rounded-lg mb-8">
+                                    <ul class="list-disc list-inside space-y-2">
+                                        <li class="text-gray-700">전문학사학위 이상 (재활 관련 전공 우대)</li>
+                                    </ul>
+                                </div>
+
+                                <!-- 진로 및 전망 섹션 추가 -->
+                                <h3 class="text-xl font-bold mb-4">시장 전망</h3>
+                                <div class="market-outlook mb-8">
+                                    <p class="mb-4">급속한 고령화와 스포츠 인구 증가로 운동재활전문가의 수요는 지속적으로 증가하고 있습니다. 특히 다음과 같은 요인들이 운동재활전문가의 직업 전망을 밝게 하고 있습니다:</p>
+
+                                    <div class="outlook-factors">
+                                        <div class="outlook-factor">
+                                            <h4>고령화 사회</h4>
+                                            <p>노인 인구 증가로 근골격계 질환 및 만성질환자가 증가하면서 재활 서비스에 대한 수요가 급증하고 있습니다.</p>
+                                        </div>
+                                        <div class="outlook-factor">
+                                            <h4>스포츠 손상 증가</h4>
+                                            <p>생활체육 인구 증가와 스포츠 활동 참여도 증가로 스포츠 손상 관련 재활 서비스 수요가 지속적으로 확대되고 있습니다.</p>
+                                        </div>
+                                        <div class="outlook-factor">
+                                            <h4>산업재해 대응</h4>
+                                            <p>근골격계 질환 등 산업재해 증가로 직업 복귀를 위한 재활 프로그램의 중요성이 부각되고 있습니다.</p>
+                                        </div>
+                                        <div class="outlook-factor">
+                                            <h4>의료 패러다임 변화</h4>
+                                            <p>치료 후 재활의 중요성이 부각되면서 운동을 통한 기능 회복에 대한 관심이 증가하고 있습니다.</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -426,7 +454,7 @@
                                     </div>
                                     <div class="cert-detail-item">
                                         <span class="cert-detail-label">주관기관</span>
-                                        <span class="cert-detail-value">디지털헬스케어센터</span>
+                                        <span class="cert-detail-value">문화체육관광부</span>
                                     </div>
                                     <div class="cert-detail-item">
                                         <span class="cert-detail-label">자격유형</span>
@@ -445,15 +473,15 @@
                                     </div>
                                     <div class="cert-detail-item">
                                         <span class="cert-detail-label">시험일자</span>
-                                        <span class="cert-detail-value">2025.04.20 (일)</span>
+                                        <span class="cert-detail-value">2025.04.19 (토)</span>
                                     </div>
                                     <div class="cert-detail-item">
                                         <span class="cert-detail-label">합격발표</span>
-                                        <span class="cert-detail-value">2025.05.10</span>
+                                        <span class="cert-detail-value">2025.05.05</span>
                                     </div>
                                     <div class="cert-detail-item">
                                         <span class="cert-detail-label">시험장소</span>
-                                        <span class="cert-detail-value">서울, 부산, 대전, 광주</span>
+                                        <span class="cert-detail-value">서울, 부산, 대구</span>
                                     </div>
                                 </div>
                             </div>
@@ -472,115 +500,111 @@
             </section>
         </div>
 
-        <!-- 응시 자격 탭 컨텐츠 -->
-        <div id="qualification-content" class="tab-content">
+        <!-- 교육 및 시험 탭 컨텐츠 (기존 교육과정 + 시험정보 통합) -->
+        <div id="education-content" class="tab-content">
             <section class="py-16">
                 <div class="container mx-auto px-4">
-                    <h2 class="text-3xl font-bold mb-6">응시 자격</h2>
+                    <!-- 교육 과정 섹션 -->
+                    <h2 class="text-3xl font-bold mb-6">교육 과정</h2>
 
-                    <div class="bg-green-50 p-6 rounded-lg mb-8">
-                        <h3 class="text-xl font-bold mb-4">운동재활전문가 응시 자격 요건</h3>
-                        <p class="mb-4">운동재활전문가 자격증 시험에 응시하기 위해서는 다음 중 하나 이상의 조건을 충족해야 합니다:</p>
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold mb-4">교육 개요</h3>
+                        <p class="mb-4">디지털헬스케어센터의 운동재활전문가 교육과정은 체계적인 이론 교육과 실무 중심의 실습 교육을 통해 현장에서 즉시 활용 가능한 재활 전문가를 양성합니다.</p>
 
-                        <div class="qualification-table">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>등급</th>
-                                        <th>응시 자격</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="font-medium">1급</td>
-                                        <td>
-                                            <ul class="list-disc pl-5 space-y-1">
-                                                <li>재활 또는 관련 전공 학사학위 이상 소지자로서 운동재활전문가 2급 자격 취득 후 관련 분야 실무경력 3년 이상인 자
-                                                </li>
-                                                <li>물리치료사, 작업치료사 면허 소지자로서 관련 분야 실무경력 3년 이상인 자</li>
-                                                <li>운동재활전문가 2급 자격 취득 후 관련 분야 실무경력 5년 이상인 자</li>
-                                                <li>디지털헬스케어센터 지정 교육기관에서 1급 교육과정을 이수한 자</li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-medium">2급</td>
-                                        <td>
-                                            <ul class="list-disc pl-5 space-y-1">
-                                                <li>재활 또는 관련 전공 전문학사학위 이상 소지자</li>
-                                                <li>건강운동처방사, 체육지도자 자격 소지자로서 관련 분야 실무경력 1년 이상인 자</li>
-                                                <li>물리치료 보조, 운동재활 관련 분야 실무경력 3년 이상인 자</li>
-                                                <li>디지털헬스케어센터 지정 교육기관에서 2급 교육과정을 이수한 자</li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="curriculum-overview">
+                            <div class="curriculum-card">
+                                <div class="curriculum-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                    </svg>
+                                </div>
+                                <h4 class="font-bold">과정 구성</h4>
+                                <ul>
+                                    <li>교육시간: 80시간</li>
+                                </ul>
+                            </div>
+                            <div class="curriculum-card">
+                                <div class="curriculum-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <h4 class="font-bold">교육 기간</h4>
+                                <ul>
+                                    <li>주간과정: 평일 중 3일</li>
+                                    <li>주말과정: 3일 (금-일)</li>
+                                </ul>
+                            </div>
+                            <div class="curriculum-card">
+                                <div class="curriculum-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <h4 class="font-bold">교육 방식</h4>
+                                <ul>
+                                    <li>이론: 온라인 또는 오프라인</li>
+                                    <li>실습: 오프라인 필수</li>
+                                    <li>케이스 스터디 포함</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
 
-                    <h3 class="text-xl font-bold mb-4">관련 전공 인정 범위</h3>
-                    <p class="mb-4">다음의 전공분야는 운동재활전문가 자격 시험 응시를 위한 관련 전공으로 인정됩니다:</p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                        <div class="major-list">
-                            <ul>
-                                <li>물리치료학</li>
-                                <li>작업치료학</li>
-                                <li>운동재활학</li>
-                                <li>기능해부학</li>
-                                <li>스포츠재활학</li>
-                                <li>재활의학</li>
-                            </ul>
+                    <h3 class="text-xl font-bold mb-4">교육과정 운영 정보</h3>
+                    <div class="curriculum-info-cards">
+                        <div class="curriculum-info-card">
+                            <h4 class="font-bold mb-4">교육 일정 및 접수 방법</h4>
+                            <div class="space-y-3">
+                                <div class="curriculum-info-item">
+                                    <span class="curriculum-info-label">주간과정</span>
+                                    <span class="curriculum-info-value">월-금 09:00-18:00, 3주 과정</span>
+                                </div>
+                                <div class="curriculum-info-item">
+                                    <span class="curriculum-info-label">주말과정</span>
+                                    <span class="curriculum-info-value">금-일 09:00-18:00, 8주 과정</span>
+                                </div>
+                                <div class="curriculum-info-item">
+                                    <span class="curriculum-info-label">온라인과정</span>
+                                    <span class="curriculum-info-value">이론 수업 (50시간), 6주 과정</span>
+                                </div>
+                                <div class="curriculum-info-item">
+                                    <span class="curriculum-info-label">접수방법</span>
+                                    <span class="curriculum-info-value">홈페이지 온라인 접수</span>
+                                </div>
+                                <div class="curriculum-info-item">
+                                    <span class="curriculum-info-label">모집인원</span>
+                                    <span class="curriculum-info-value">과정당 25명 (선착순 마감)</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="major-list">
-                            <ul>
-                                <li>재활과학</li>
-                                <li>스포츠의학</li>
-                                <li>운동생리학</li>
-                                <li>체육학</li>
-                                <li>보건관리학</li>
-                                <li>기타 재활 관련 학과</li>
-                            </ul>
+                        <div class="curriculum-info-card">
+                            <h4 class="font-bold mb-4">교육비 및 교재</h4>
+                            <div class="space-y-3">
+                                <div class="curriculum-info-item">
+                                    <span class="curriculum-info-label">교육비</span>
+                                    <span class="curriculum-info-value">온/오프라인 전체과정: 1,500,000원<br>온라인 이론과정: 800,000원<br>오프라인 실습과정: 900,000원</span>
+                                </div>
+                                <div class="curriculum-info-item">
+                                    <span class="curriculum-info-label">교재</span>
+                                    <span class="curriculum-info-value">기본 교재 세트 포함 (6권)</span>
+                                </div>
+                                <div class="curriculum-info-item">
+                                    <span class="curriculum-info-label">할인혜택</span>
+                                    <span class="curriculum-info-value">조기 신청: 10% 할인<br>학생할인: 15% 할인<br>단체접수(5인 이상): 20% 할인</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <h3 class="text-xl font-bold mb-4">관련 분야 실무경력 인정 범위</h3>
-                    <p class="mb-4">다음 기관 및 시설에서의 운동재활 관련 경력은 실무경력으로 인정됩니다:</p>
-                    <div class="requirements-card">
-                        <ul>
-                            <li>재활의학과, 정형외과, 신경외과 등 의료기관의 재활실</li>
-                            <li>스포츠재활센터, 운동재활센터</li>
-                            <li>물리치료실, 작업치료실</li>
-                            <li>프로 및 실업 스포츠팀 재활 부서</li>
-                            <li>산업체 근골격계 재활실</li>
-                            <li>노인복지시설, 장애인복지시설의 재활실</li>
-                            <li>기타 운동재활 업무를 수행하는 기관 및 시설</li>
-                        </ul>
-                    </div>
-
-                    <h3 class="text-xl font-bold mb-4">필요 서류</h3>
-                    <p class="mb-4">자격증 시험 응시를 위해 다음의 서류를 준비해야 합니다:</p>
-                    <div class="requirements-card">
-                        <ol>
-                            <li>응시원서 (온라인 접수 시스템에서 작성)</li>
-                            <li>신분증 사본 (주민등록증, 운전면허증, 여권 중 택1)</li>
-                            <li>최종학력증명서 (졸업증명서 또는 재학증명서)</li>
-                            <li>경력증명서 (해당자에 한함)</li>
-                            <li>관련 자격증 사본 (해당자에 한함)</li>
-                            <li>교육과정 이수증 (해당자에 한함)</li>
-                            <li>증명사진 (3개월 이내 촬영, 3x4cm)</li>
-                            <li>개인정보 수집·이용 동의서</li>
-                        </ol>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <!-- 시험 정보 탭 컨텐츠 -->
-        <div id="exam-content" class="tab-content">
-            <section class="py-16">
-                <div class="container mx-auto px-4">
-                    <h2 class="text-3xl font-bold mb-6">시험 정보</h2>
+                    <!-- 시험 정보 섹션 -->
+                    <h2 class="text-3xl font-bold mb-6 mt-12">시험 정보</h2>
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
                         <div class="lg:col-span-2">
@@ -602,37 +626,22 @@
                                             <tr>
                                                 <td class="font-medium">기능해부학</td>
                                                 <td>근골격계 및 신경계의 구조와 기능</td>
-                                                <td>20문항</td>
+                                                <td>10문항</td>
                                             </tr>
                                             <tr>
                                                 <td class="font-medium">운동재활학</td>
                                                 <td>재활의 원리와 운동재활 프로그램 설계</td>
-                                                <td>20문항</td>
+                                                <td>10문항</td>
                                             </tr>
                                             <tr>
                                                 <td class="font-medium">병리학</td>
                                                 <td>근골격계 질환 및 재활 대상 질환</td>
-                                                <td>15문항</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="font-medium">기능평가</td>
-                                                <td>관절가동범위, 근력평가, 균형평가 등</td>
-                                                <td>15문항</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="font-medium">재활운동처방</td>
-                                                <td>질환별 운동처방, 프로그램 적용</td>
-                                                <td>15문항</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="font-medium">재활의학</td>
-                                                <td>재활의학 기초, 물리치료 원리</td>
                                                 <td>10문항</td>
-                                            </tr>
+                                            </tr>        
                                             <tr>
                                                 <td class="font-medium">합계</td>
                                                 <td>-</td>
-                                                <td>95문항</td>
+                                                <td>30문항</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -654,22 +663,22 @@
                                             <tr>
                                                 <td class="font-medium">기능 평가</td>
                                                 <td>ROM 측정, MMT 평가, 자세 평가, 보행 분석</td>
-                                                <td>30점</td>
+                                                <td>10점</td>
                                             </tr>
                                             <tr>
                                                 <td class="font-medium">재활 운동 설계</td>
                                                 <td>질환별 재활 프로그램 설계, 운동 진행 계획</td>
-                                                <td>35점</td>
+                                                <td>10점</td>
                                             </tr>
                                             <tr>
                                                 <td class="font-medium">재활 운동 지도</td>
                                                 <td>재활 운동 시범 및 지도, 도수치료 기법</td>
-                                                <td>35점</td>
+                                                <td>10점</td>
                                             </tr>
                                             <tr>
                                                 <td class="font-medium">합계</td>
                                                 <td>-</td>
-                                                <td>100점</td>
+                                                <td>30점</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -683,11 +692,11 @@
                                 <div class="space-y-3">
                                     <div class="cert-detail-item">
                                         <span class="cert-detail-label">필기시험</span>
-                                        <span class="cert-detail-value">객관식 95문항 (4지선다형), 시험시간 120분</span>
+                                        <span class="cert-detail-value">객관식 30문항 (4지선다형), 시험시간 50분</span>
                                     </div>
                                     <div class="cert-detail-item">
                                         <span class="cert-detail-label">실기시험</span>
-                                        <span class="cert-detail-value">실습 과제 수행 방식, 시험시간 90분</span>
+                                        <span class="cert-detail-value">실습 과제 수행 방식, 시험시간 60분</span>
                                     </div>
                                     <div class="cert-detail-item">
                                         <span class="cert-detail-label">합격기준</span>
@@ -698,12 +707,8 @@
 
                             <div class="exam-details-card">
                                 <h3 class="text-xl font-bold mb-4">시험 유의사항</h3>
-                                <ul class="space-y-2">
-                                    <li>• 시험 당일 신분증을 반드시 지참해야 합니다.</li>
-                                    <li>• 필기시험은 컴퓨터 채점용 답안지를 사용합니다.</li>
+                                <ul class="space-y-2">                        
                                     <li>• 실기시험을 위한 편안한 운동복과 운동화를 준비해야 합니다.</li>
-                                    <li>• 실기시험 장비는 시험장에서 제공됩니다.</li>
-                                    <li>• 시험 시작 30분 전까지 입실해야 합니다.</li>
                                     <li>• 필기시험 합격자에 한해 실기시험에 응시할 수 있습니다.</li>
                                 </ul>
                             </div>
@@ -715,7 +720,7 @@
                         <div class="process-step">
                             <div class="process-number">1</div>
                             <h4 class="font-bold mb-2">교육과정 이수</h4>
-                            <p>과정에 따라 100-150시간의 이론 및 실습 교육 이수</p>
+                            <p>과정에 따라 80시간의 이론 및 실습 교육 이수</p>
                         </div>
                         <div class="process-step">
                             <div class="process-number">2</div>
@@ -725,7 +730,7 @@
                         <div class="process-step">
                             <div class="process-number">3</div>
                             <h4 class="font-bold mb-2">필기시험</h4>
-                            <p>95문항 객관식, 70% 이상 득점시 합격</p>
+                            <p>30문항 객관식, 70% 이상 득점시 합격</p>
                         </div>
                         <div class="process-step">
                             <div class="process-number">4</div>
@@ -780,295 +785,8 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
-        </div>
 
-        <!-- 교육 과정 탭 컨텐츠 -->
-        <div id="curriculum-content" class="tab-content">
-            <section class="py-16">
-                <div class="container mx-auto px-4">
-                    <h2 class="text-3xl font-bold mb-6">교육 과정</h2>
-
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold mb-4">교육 개요</h3>
-                        <p class="mb-4">디지털헬스케어센터의 운동재활전문가 교육과정은 체계적인 이론 교육과 실무 중심의 실습 교육을 통해 현장에서 즉시 활용 가능한 재활 전문가를
-                            양성합니다.</p>
-
-                        <div class="curriculum-overview">
-                            <div class="curriculum-card">
-                                <div class="curriculum-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                    </svg>
-                                </div>
-                                <h4 class="font-bold">과정 구성</h4>
-                                <ul>
-                                    <li>이론 교육: 80시간</li>
-                                    <li>실습 교육: 70시간</li>
-                                    <li>총 교육시간: 150시간</li>
-                                </ul>
-                            </div>
-                            <div class="curriculum-card">
-                                <div class="curriculum-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
-                                <h4 class="font-bold">교육 기간</h4>
-                                <ul>
-                                    <li>주간과정: 5주 (월-금)</li>
-                                    <li>주말과정: 12주 (토-일)</li>
-                                    <li>온라인과정: 10주 (이론)</li>
-                                </ul>
-                            </div>
-                            <div class="curriculum-card">
-                                <div class="curriculum-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
-                                <h4 class="font-bold">교육 방식</h4>
-                                <ul>
-                                    <li>이론: 온라인 또는 오프라인</li>
-                                    <li>실습: 오프라인 필수</li>
-                                    <li>케이스 스터디 포함</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold mb-4">교육 과정 상세 커리큘럼</h3>
-                        <div class="curriculum-detail-table">
-                            <h4>이론 교육 과정 (80시간)</h4>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>교과목</th>
-                                        <th>주요 내용</th>
-                                        <th>시간</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="font-medium">기능해부학</td>
-                                        <td>
-                                            <ul>
-                                                <li>근골격계 구조와 기능</li>
-                                                <li>신경계 해부학</li>
-                                                <li>관절의 생체역학</li>
-                                                <li>운동분석 기초</li>
-                                            </ul>
-                                        </td>
-                                        <td>16시간</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-medium">운동재활학</td>
-                                        <td>
-                                            <ul>
-                                                <li>재활의 원리와 개념</li>
-                                                <li>운동재활 프로그램 설계</li>
-                                                <li>질환별 재활 접근법</li>
-                                                <li>재활 단계별 운동 적용</li>
-                                            </ul>
-                                        </td>
-                                        <td>16시간</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-medium">병리학</td>
-                                        <td>
-                                            <ul>
-                                                <li>근골격계 질환의 이해</li>
-                                                <li>스포츠 손상의 병리</li>
-                                                <li>신경계 질환의 병리</li>
-                                                <li>만성질환과 재활</li>
-                                            </ul>
-                                        </td>
-                                        <td>12시간</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-medium">기능평가</td>
-                                        <td>
-                                            <ul>
-                                                <li>관절가동범위 평가(ROM)</li>
-                                                <li>도수근력검사(MMT)</li>
-                                                <li>자세 및 보행 분석</li>
-                                                <li>균형 및 협응력 평가</li>
-                                            </ul>
-                                        </td>
-                                        <td>12시간</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-medium">재활운동처방</td>
-                                        <td>
-                                            <ul>
-                                                <li>재활 운동의 종류와 방법</li>
-                                                <li>질환별 운동처방 가이드라인</li>
-                                                <li>점진적 운동 프로그램</li>
-                                                <li>기능적 운동의 적용</li>
-                                            </ul>
-                                        </td>
-                                        <td>12시간</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-medium">재활의학</td>
-                                        <td>
-                                            <ul>
-                                                <li>재활의학 기초</li>
-                                                <li>물리치료 모달리티</li>
-                                                <li>통증 관리의 원리</li>
-                                                <li>보조기 및 의지학</li>
-                                            </ul>
-                                        </td>
-                                        <td>8시간</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-medium">특수재활</td>
-                                        <td>
-                                            <ul>
-                                                <li>노인재활의 특성</li>
-                                                <li>스포츠재활 기법</li>
-                                                <li>소아재활 기초</li>
-                                                <li>신경계재활 개요</li>
-                                            </ul>
-                                        </td>
-                                        <td>4시간</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="curriculum-detail-table mt-6">
-                            <h4>실습 교육 과정 (70시간)</h4>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>실습 영역</th>
-                                        <th>주요 내용</th>
-                                        <th>시간</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="font-medium">기능평가 실습</td>
-                                        <td>
-                                            <ul>
-                                                <li>ROM 측정 실습</li>
-                                                <li>MMT 평가 실습</li>
-                                                <li>자세평가 및 보행분석 실습</li>
-                                                <li>특수검사 실습</li>
-                                            </ul>
-                                        </td>
-                                        <td>20시간</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-medium">재활운동 실습</td>
-                                        <td>
-                                            <ul>
-                                                <li>관절가동운동 실습</li>
-                                                <li>근력강화운동 실습</li>
-                                                <li>균형 및 협응운동 실습</li>
-                                                <li>기능적 운동 실습</li>
-                                            </ul>
-                                        </td>
-                                        <td>20시간</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-medium">도수치료 기법</td>
-                                        <td>
-                                            <ul>
-                                                <li>관절가동술 실습</li>
-                                                <li>연부조직 모빌리제이션</li>
-                                                <li>신경가동술 기초</li>
-                                                <li>근막이완기법</li>
-                                            </ul>
-                                        </td>
-                                        <td>15시간</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-medium">특수재활 실습</td>
-                                        <td>
-                                            <ul>
-                                                <li>스포츠재활 프로그램</li>
-                                                <li>노인재활 프로그램</li>
-                                                <li>소아재활 기초</li>
-                                                <li>신경계재활 기초</li>
-                                            </ul>
-                                        </td>
-                                        <td>10시간</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="font-medium">임상실습</td>
-                                        <td>
-                                            <ul>
-                                                <li>실제 환자 평가 실습</li>
-                                                <li>재활 프로그램 적용 실습</li>
-                                                <li>케이스 프레젠테이션</li>
-                                                <li>임상 문서 작성 실습</li>
-                                            </ul>
-                                        </td>
-                                        <td>5시간</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <h3 class="text-xl font-bold mb-4">교육과정 운영 정보</h3>
-                    <div class="curriculum-info-cards">
-                        <div class="curriculum-info-card">
-                            <h4 class="font-bold mb-4">교육 일정 및 접수 방법</h4>
-                            <div class="space-y-3">
-                                <div class="curriculum-info-item">
-                                    <span class="curriculum-info-label">주간과정</span>
-                                    <span class="curriculum-info-value">월-금 09:00-18:00, 5주 과정</span>
-                                </div>
-                                <div class="curriculum-info-item">
-                                    <span class="curriculum-info-label">주말과정</span>
-                                    <span class="curriculum-info-value">토-일 09:00-18:00, 12주 과정</span>
-                                </div>
-                                <div class="curriculum-info-item">
-                                    <span class="curriculum-info-label">온라인과정</span>
-                                    <span class="curriculum-info-value">이론 수업 (80시간), 10주 과정</span>
-                                </div>
-                                <div class="curriculum-info-item">
-                                    <span class="curriculum-info-label">접수방법</span>
-                                    <span class="curriculum-info-value">홈페이지 온라인 접수</span>
-                                </div>
-                                <div class="curriculum-info-item">
-                                    <span class="curriculum-info-label">모집인원</span>
-                                    <span class="curriculum-info-value">과정당 25명 (선착순 마감)</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="curriculum-info-card">
-                            <h4 class="font-bold mb-4">교육비 및 교재</h4>
-                            <div class="space-y-3">
-                                <div class="curriculum-info-item">
-                                    <span class="curriculum-info-label">교육비</span>
-                                    <span class="curriculum-info-value">온/오프라인 전체과정: 1,500,000원<br>온라인 이론과정:
-                                        800,000원<br>오프라인 실습과정: 800,000원</span>
-                                </div>
-                                <div class="curriculum-info-item">
-                                    <span class="curriculum-info-label">교재</span>
-                                    <span class="curriculum-info-value">기본 교재 세트 포함 (6권)</span>
-                                </div>
-                                <div class="curriculum-info-item">
-                                    <span class="curriculum-info-label">할인혜택</span>
-                                    <span class="curriculum-info-value">조기 신청: 10% 할인<br>학생할인: 15% 할인<br>단체접수(5인 이상):
-                                        20% 할인</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                    <!-- 교육과정 CTA -->
                     <div class="curriculum-cta">
                         <div class="curriculum-cta-content">
                             <h3 class="text-xl font-bold mb-2">교육과정 신청하기</h3>
@@ -1077,220 +795,6 @@
                         <div>
                             <a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
                                 class="curriculum-cta-button">교육과정 신청하기</a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <!-- 진로 및 전망 탭 컨텐츠 -->
-        <div id="career-content" class="tab-content">
-            <section class="py-16">
-                <div class="container mx-auto px-4">
-                    <h2 class="text-3xl font-bold mb-6">진로 및 전망</h2>
-
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold mb-4">운동재활전문가의 활동 분야</h3>
-                        <div class="career-grid">
-                            <div class="career-card">
-                                <div class="career-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                    </svg>
-                                </div>
-                                <h4>의료기관</h4>
-                                <p>재활의학과, 정형외과, 신경외과 등에서 환자들의 기능 회복을 위한 운동재활 프로그램을 담당합니다.</p>
-                                <ul>
-                                    <li>수술 후 재활 프로그램 운영</li>
-                                    <li>근골격계 질환 재활</li>
-                                    <li>만성통증 관리</li>
-                                </ul>
-                            </div>
-                            <div class="career-card">
-                                <div class="career-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                    </svg>
-                                </div>
-                                <h4>스포츠재활센터</h4>
-                                <p>스포츠 선수 및 일반인의 스포츠 손상 재활과 운동 복귀 프로그램을 전문적으로 담당합니다.</p>
-                                <ul>
-                                    <li>스포츠 손상 재활</li>
-                                    <li>경기 복귀 프로그램</li>
-                                    <li>운동수행능력 향상</li>
-                                </ul>
-                            </div>
-                            <div class="career-card">
-                                <div class="career-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                    </svg>
-                                </div>
-                                <h4>노인재활시설</h4>
-                                <p>노인복지시설, 요양병원에서 노인의 기능 유지 및 향상을 위한 재활 프로그램을 운영합니다.</p>
-                                <ul>
-                                    <li>낙상 예방 프로그램</li>
-                                    <li>일상생활 기능 향상</li>
-                                    <li>치매 예방 운동</li>
-                                </ul>
-                            </div>
-                            <div class="career-card">
-                                <div class="career-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                    </svg>
-                                </div>
-                                <h4>산업체 재활실</h4>
-                                <p>대기업 및 산업체의 근골격계 질환 예방 및 재활 프로그램을 담당합니다.</p>
-                                <ul>
-                                    <li>산업재해 재활</li>
-                                    <li>근골격계 질환 예방</li>
-                                    <li>직무 복귀 프로그램</li>
-                                </ul>
-                            </div>
-                            <div class="career-card">
-                                <div class="career-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
-                                </div>
-                                <h4>개인 재활 스튜디오</h4>
-                                <p>개인 재활 스튜디오를 운영하거나 프리랜서로 맞춤형 재활 서비스를 제공합니다.</p>
-                                <ul>
-                                    <li>1:1 맞춤 재활 프로그램</li>
-                                    <li>홈트레이닝 재활 서비스</li>
-                                    <li>특수 재활 프로그램</li>
-                                </ul>
-                            </div>
-                            <div class="career-card">
-                                <div class="career-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path d="M12 14l9-5-9-5-9 5 9 5z" />
-                                        <path
-                                            d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
-                                    </svg>
-                                </div>
-                                <h4>교육 및 연구기관</h4>
-                                <p>대학, 전문대학에서 운동재활 분야의 강의 및 연구 활동을 수행합니다.</p>
-                                <ul>
-                                    <li>재활운동 강의</li>
-                                    <li>재활 프로그램 개발</li>
-                                    <li>임상연구 참여</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold mb-4">운동재활전문가의 시장 전망</h3>
-                        <div class="market-outlook">
-                            <p class="mb-4">급속한 고령화와 스포츠 인구 증가로 운동재활전문가의 수요는 지속적으로 증가하고 있습니다. 특히 다음과 같은 요인들이 운동재활전문가의 직업
-                                전망을 밝게 하고 있습니다:</p>
-
-                            <div class="outlook-factors mb-6">
-                                <div class="outlook-factor">
-                                    <h4>고령화 사회</h4>
-                                    <p>노인 인구 증가로 근골격계 질환 및 만성질환자가 증가하면서 재활 서비스에 대한 수요가 급증하고 있습니다.</p>
-                                </div>
-                                <div class="outlook-factor">
-                                    <h4>스포츠 손상 증가</h4>
-                                    <p>생활체육 인구 증가와 스포츠 활동 참여도 증가로 스포츠 손상 관련 재활 서비스 수요가 지속적으로 확대되고 있습니다.</p>
-                                </div>
-                                <div class="outlook-factor">
-                                    <h4>산업재해 대응</h4>
-                                    <p>근골격계 질환 등 산업재해 증가로 직업 복귀를 위한 재활 프로그램의 중요성이 부각되고 있습니다.</p>
-                                </div>
-                                <div class="outlook-factor">
-                                    <h4>의료 패러다임 변화</h4>
-                                    <p>치료 후 재활의 중요성이 부각되면서 운동을 통한 기능 회복에 대한 관심이 증가하고 있습니다.</p>
-                                </div>
-                            </div>
-
-                            <div class="salary-info">
-                                <h4>운동재활전문가 취업률 및 연봉 전망</h4>
-                                <ul>
-                                    <li>취업률: 관련 학과 졸업생의 취업률은 약 80%로 매우 높은 편입니다.</li>
-                                    <li>초봉: 2,800만원~3,500만원 수준으로 경력에 따라 상승합니다.</li>
-                                    <li>경력자(5년 이상): 4,500만원~6,000만원 수준으로 근무 기관과 역할에 따라 차이가 있습니다.</li>
-                                    <li>전문 센터 운영 시: 연 6,000만원 이상의 수입도 가능합니다.</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="success-stories">
-                            <h4>운동재활전문가 성공 사례</h4>
-                            <div class="success-stories-grid">
-                                <div class="success-story">
-                                    <div class="story-header">
-                                        <div class="story-avatar" style="background: #10b981;"></div>
-                                        <div class="story-info">
-                                            <h5>박재민 (35세)</h5>
-                                            <p>대학병원 재활의학과 운동재활전문가</p>
-                                        </div>
-                                    </div>
-                                    <p class="story-content">"물리치료학을 전공하고 운동재활전문가 자격증을 취득한 후 대학병원 재활의학과에서 8년째 근무하고 있습니다.
-                                        현재는 스포츠재활팀장으로 프로 운동선수들의 재활을 전담하고 있으며, 매우 보람된 일을 하고 있습니다."</p>
-                                </div>
-                                <div class="success-story">
-                                    <div class="story-header">
-                                        <div class="story-avatar" style="background: #06d6a0;"></div>
-                                        <div class="story-info">
-                                            <h5>김수진 (40세)</h5>
-                                            <p>스포츠재활센터 대표</p>
-                                        </div>
-                                    </div>
-                                    <p class="story-content">"운동재활전문가로 병원에서 7년간 경력을 쌓은 후 스포츠재활센터를 개업했습니다. 현재는 3명의 직원과 함께
-                                        하루 평균 40명의 환자를 관리하며, 지역에서 가장 신뢰받는 재활센터로 성장했습니다."</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-8">
-                        <h3 class="text-xl font-bold mb-4">취득 시 혜택 및 자격 연계</h3>
-                        <div class="benefits-qualifications">
-                            <h4>취득 시 혜택</h4>
-                            <ul>
-                                <li>재활의학과, 정형외과 등 의료기관 취업 시 우대</li>
-                                <li>스포츠재활센터 및 운동센터 취업 시 전문성 인정</li>
-                                <li>프로 스포츠팀 재활 트레이너 지원 시 가산점 부여</li>
-                                <li>재활 관련 창업 시 전문성 확보</li>
-                                <li>재활의학 분야 대학원 진학 시 전공 선택 유리</li>
-                            </ul>
-
-                            <h4>연계 가능한 추가 자격증</h4>
-                            <ul>
-                                <li>물리치료사 (국가면허)</li>
-                                <li>작업치료사 (국가면허)</li>
-                                <li>스포츠마사지사</li>
-                                <li>건강운동처방사</li>
-                                <li>ATC (Athletic Trainer Certified)</li>
-                                <li>PNF 기초과정 수료증</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="career-cta">
-                        <div class="career-cta-content">
-                            <h3 class="text-xl font-bold mb-2">운동재활전문가의 꿈을 이루세요</h3>
-                            <p>디지털헬스케어센터와 함께 재활 분야의 전문가로 성장하세요. 체계적인 교육과 자격증 취득을 통해 밝은 미래를 준비하세요.</p>
-                        </div>
-                        <div>
-                            <a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
-                                class="career-cta-button">교육과정 신청하기</a>
                         </div>
                     </div>
                 </div>

@@ -43,7 +43,6 @@ digital-healthcare-center/
 │   │   ├── course-application.html # 교육 신청 ✓
 │   │   ├── cert-application.html # 자격증 신청 ✓
 │   │   ├── payment.html          # 결제 페이지 ✓
-│   │   ├── exam-info.html        # 시험 안내 ✓
 │   │   ├── cert-issuance.html    # 자격증 발급 ✓
 │   │   ├── cert-renewal.html     # 자격증 갱신 ✓
 │   │   └── instructors.html  # 강사 소개 ✓
@@ -160,7 +159,6 @@ digital-healthcare-center/
 │   │       │   ├── cert-issuance.js #  자격증 발급 페이지 스크립트 ✓
 │   │       │   ├── cert-renew.js # 자격증 갱신 페이지 스크립트 ✓
 │   │       │   ├── course-info.js  # 교육 과정 안내 페이지 스크립트 ✓
-│   │       │   ├── exam-info.js # 시험 안내 페이지 스크립트 ✓
 │   │       │   ├── instructors.js # 강사소개 페이지 스크립트 ✓
 │   │       │   └── payment.js  # 결제 페이지 스크립트 ✓
 │   │       ├── board.js      # 게시판 페이지 스크립트 ✓

@@ -211,9 +211,12 @@
         <div class="container mx-auto px-4">
             <nav class="flex overflow-x-auto py-2">
                 <a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')" class="tab-item">교육 과정 안내</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/education/instructors.html')" class="tab-item">강사 소개</a>
                 <a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')" class="tab-item">교육 신청</a>
-                <a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')" class="tab-item active">자격증 신청</a>
-                <a href="javascript:window.location.href=window.adjustPath('pages/education/exam-info.html')" class="tab-item">시험 안내</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')" class="tab-item  active">자격증 신청</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/education/payment.html')" class="tab-item">결제</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/education/cert-issuance.html')" class="tab-item">자격증 발급</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/education/cert-renewal.html')" class="tab-item">자격증 갱신</a>
             </nav>
         </div>
     </div>
@@ -233,57 +236,13 @@
                         </ul>
                     </div>
                     
-                    <div class="certificate-types-grid">
-                        <div class="certificate-type-card">
-                            <div class="cert-icon">🏃‍♂️</div>
-                            <h4 class="cert-name">건강운동처방사</h4>
-                            <p class="cert-description">질환별 맞춤형 운동 프로그램 설계 및 지도 자격증</p>
-                        </div>
-                        <div class="certificate-type-card">
-                            <div class="cert-icon">🏥</div>
-                            <h4 class="cert-name">운동재활전문가</h4>
-                            <p class="cert-description">부상 및 질환 이후 신체 기능 회복을 위한 운동재활 전문가 자격증</p>
-                        </div>
-                        <div class="certificate-type-card">
-                            <div class="cert-icon">🧘‍♀️</div>
-                            <h4 class="cert-name">필라테스 전문가</h4>
-                            <p class="cert-description">필라테스 원리와 기구를 활용한 운동 지도 자격증</p>
-                        </div>
-                        <div class="certificate-type-card">
-                            <div class="cert-icon">🎯</div>
-                            <h4 class="cert-name">레크리에이션지도자</h4>
-                            <p class="cert-description">다양한 단체를 대상으로 레크리에이션 프로그램 기획 및 지도 자격증</p>
-                        </div>
-                    </div>
-                    
                     <div class="info-card">
                         <h3 class="info-card-title">신청 서류</h3>
                         <ul class="info-list">
                             <li>자격증 신청서 (온라인 작성)</li>
-                            <li>신분증 사본 1부</li>
                             <li>증명사진 파일 (3.5cm x 4.5cm, 흰 배경, 최근 6개월 이내 촬영)</li>
-                            <li>자격 시험 합격 확인서</li>
-                            <li>교육 수료증</li>
                         </ul>
                         <p class="info-note">※ 모든 서류는 스캔하여 JPG 또는 PDF 파일로 첨부해 주세요.</p>
-                    </div>
-                    
-                    <div class="fee-info-card">
-                        <div class="fee-section">
-                            <h4 class="fee-section-title">발급 비용</h4>
-                            <ul class="fee-list">
-                                <li><span>자격증 최초 발급</span><span class="fee-amount">50,000원</span></li>
-                                <li><span>자격증 재발급</span><span class="fee-amount">30,000원</span></li>
-                                <li><span>영문 자격증 발급</span><span class="fee-amount">+30,000원</span></li>
-                            </ul>
-                        </div>
-                        <div class="fee-section">
-                            <h4 class="fee-section-title">소요 기간</h4>
-                            <ul class="fee-list">
-                                <li><span>일반 발급</span><span class="fee-amount">약 2주</span></li>
-                                <li><span>급행 발급</span><span class="fee-amount">3일 (+20,000원)</span></li>
-                            </ul>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -361,20 +320,6 @@
                             <h3 class="section-title">첨부 서류</h3>
                             <div class="file-upload-grid">
                                 <div class="file-upload-field">
-                                    <label for="id-card" class="form-label">신분증 사본 *</label>
-                                    <div class="file-drop-zone" data-input="id-card">
-                                        <input type="file" id="id-card" name="id-card" class="file-input" accept=".jpg,.jpeg,.png,.pdf" required>
-                                        <div class="file-drop-content">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                            </svg>
-                                            <p>파일을 끌어다 놓거나 클릭하여 업로드</p>
-                                            <p class="file-info">JPG, PNG, PDF (최대 5MB)</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="file-upload-field">
                                     <label for="photo" class="form-label">증명사진 *</label>
                                     <div class="file-drop-zone" data-input="photo">
                                         <input type="file" id="photo" name="photo" class="file-input" accept=".jpg,.jpeg,.png" required>
@@ -387,34 +332,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <div class="file-upload-field">
-                                    <label for="completion-cert" class="form-label">교육 수료증 *</label>
-                                   <div class="file-drop-zone" data-input="completion-cert">
-                                       <input type="file" id="completion-cert" name="completion-cert" class="file-input" accept=".jpg,.jpeg,.png,.pdf" required>
-                                       <div class="file-drop-content">
-                                           <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                           </svg>
-                                           <p>파일을 끌어다 놓거나 클릭하여 업로드</p>
-                                           <p class="file-info">JPG, PNG, PDF (최대 5MB)</p>
-                                       </div>
-                                   </div>
-                               </div>
-                               
-                               <div class="file-upload-field">
-                                   <label for="exam-cert" class="form-label">자격 시험 합격 확인서 *</label>
-                                   <div class="file-drop-zone" data-input="exam-cert">
-                                       <input type="file" id="exam-cert" name="exam-cert" class="file-input" accept=".jpg,.jpeg,.png,.pdf" required>
-                                       <div class="file-drop-content">
-                                           <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                           </svg>
-                                           <p>파일을 끌어다 놓거나 클릭하여 업로드</p>
-                                           <p class="file-info">JPG, PNG, PDF (최대 5MB)</p>
-                                       </div>
-                                   </div>
-                               </div>
                            </div>
                        </div>
                        
@@ -528,18 +445,7 @@
        </section>
    </main>
 
-   <!-- CTA 섹션 -->
-   <section class="cta-section">
-       <div class="container mx-auto px-4">
-           <h2 class="cta-title">사&rpar;디지털헬스케어센터와 함께<br>건강운동 전문가의 꿈을 이루세요</h2>
-           <p class="cta-description">전문적인 교육과 체계적인 자격 인증 시스템을 통해<br>건강한 사회를 만드는 전문가로 성장할 수 있습니다.</p>
-           <div class="cta-buttons">
-               <a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')" class="cta-button primary">교육 신청하기</a>
-               <a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')" class="cta-button secondary">교육 과정 보기</a>
-           </div>
-       </div>
-   </section>
-
+    <!-- 푸터 영역 -->
    <footer class="bg-gray-800 text-white">
         <div class="container mx-auto px-4 py-6">
             <!-- 기관 정보 및 소셜 링크 -->
