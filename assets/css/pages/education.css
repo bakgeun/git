@@ -1005,3 +1005,409 @@
         break-inside: avoid;
     }
 }
+
+/* ==============================================
+   결제 관련 스타일 (education.css에 추가) - 수정된 버전
+   ============================================== */
+
+/* 결제 정보 카드 */
+.payment-info-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border: 2px solid var(--color-gray-200);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-6);
+    margin-bottom: var(--spacing-6);
+}
+
+/* 결제 수단 그리드 */
+.payment-method-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-6);
+}
+
+/* 결제 수단 카드 */
+.payment-method-card {
+    border: 2px solid var(--color-gray-200);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-4);
+    cursor: pointer;
+    transition: var(--transition);
+    background: white;
+    position: relative;
+}
+
+.payment-method-card:hover {
+    border-color: var(--color-primary-light);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+}
+
+.payment-method-card.active {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+/* 결제 수단 라벨 */
+.method-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    width: 100%;
+}
+
+.method-icon {
+    font-size: 2rem;
+    margin-right: var(--spacing-4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    background: var(--color-gray-100);
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.payment-method-card.active .method-icon {
+    background: var(--color-primary);
+    color: white;
+    transform: scale(1.1);
+}
+
+.method-info {
+    flex: 1;
+}
+
+.method-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-1);
+}
+
+.method-desc {
+    font-size: 0.875rem;
+    color: var(--color-gray-600);
+}
+
+/* 무통장 입금 정보 카드 */
+.bank-info-card {
+    background: var(--color-gray-50);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-6);
+    margin-top: var(--spacing-4);
+}
+
+.bank-info-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-4);
+    color: var(--color-gray-800);
+}
+
+.bank-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-3);
+    margin-bottom: var(--spacing-4);
+}
+
+.bank-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-2) 0;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+.bank-detail:last-child {
+    border-bottom: none;
+}
+
+.bank-label {
+    font-weight: 600;
+    color: var(--color-gray-700);
+}
+
+.bank-value {
+    font-weight: 500;
+    color: var(--color-gray-800);
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+}
+
+/* 무통장 입금 안내 */
+.bank-notice {
+    background: #fef3c7;
+    border: 1px solid #fbbf24;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-3);
+    margin-top: var(--spacing-4);
+}
+
+.notice-text {
+    color: #92400e;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.notice-icon {
+    margin-right: var(--spacing-2);
+    font-size: 1rem;
+}
+
+/* 결제 요약 - 심플하고 1줄로 수정 */
+.payment-summary {
+    background: white;
+    border: 2px solid var(--color-primary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-4);
+    margin-bottom: var(--spacing-6);
+    text-align: center;
+}
+
+.summary-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-3);
+}
+
+.summary-label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-gray-700);
+}
+
+.summary-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+/* 결제 버튼 - 심플하고 가운데 정렬 */
+.payment-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    background: var(--color-primary);
+    border: none;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    margin: 0 auto;
+    width: auto;
+    max-width: 300px;
+}
+
+.payment-button:hover {
+    background: var(--color-primary-dark);
+    transform: translateY(-1px);
+}
+
+.payment-button:active {
+    transform: translateY(0);
+}
+
+.button-icon {
+    font-size: 1.125rem;
+}
+
+.button-text {
+    font-weight: 600;
+}
+
+/* 결제 안내 */
+.payment-notice {
+    margin-top: var(--spacing-4);
+    color: var(--color-gray-600);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    text-align: center;
+}
+
+/* 모달 관련 스타일 */
+.modal {
+    backdrop-filter: blur(2px);
+    z-index: 9999;
+}
+
+.modal-dialog {
+    animation: modalFadeIn 0.3s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-content {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    border-bottom: 2px solid var(--color-gray-200);
+}
+
+.modal-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.success-icon {
+    font-size: 1.5rem;
+}
+
+.success-message {
+    text-align: center;
+}
+
+.success-message h4 {
+    color: var(--color-gray-800);
+    margin-bottom: var(--spacing-2);
+}
+
+.success-message p {
+    color: var(--color-gray-600);
+    line-height: 1.6;
+}
+
+/* 결과 표시 */
+.payment-result {
+    text-align: left;
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-2) 0;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+.result-item:last-child {
+    border-bottom: none;
+}
+
+.result-label {
+    font-weight: 600;
+    color: var(--color-gray-700);
+}
+
+.result-value {
+    font-weight: 500;
+    color: var(--color-gray-800);
+}
+
+.result-value.price {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+/* 로딩 스피너 */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: var(--spacing-2);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .payment-method-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .bank-details-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .payment-summary .summary-value {
+        font-size: 1.25rem;
+    }
+    
+    .payment-button {
+        max-width: none;
+        width: 100%;
+    }
+    
+    .summary-item {
+        flex-direction: column;
+        gap: var(--spacing-2);
+    }
+    
+    .modal-dialog {
+        margin: var(--spacing-4);
+        max-height: calc(100vh - 2rem);
+    }
+    
+    .modal-footer {
+        flex-direction: column;
+        gap: var(--spacing-2);
+    }
+    
+    .modal-footer .btn-primary,
+    .modal-footer .btn-outline {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .payment-info-card,
+    .bank-info-card {
+        padding: var(--spacing-4);
+    }
+    
+    .payment-summary {
+        padding: var(--spacing-3);
+    }
+    
+    .summary-value {
+        font-size: 1.125rem;
+    }
+    
+    .summary-label {
+        font-size: 0.875rem;
+    }
+    
+    .method-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1.5rem;
+    }
+    
+    .method-name {
+        font-size: 1rem;
+    }
+    
+    .payment-button {
+        padding: var(--spacing-3) var(--spacing-4);
+        font-size: 0.9rem;
+    }
+}

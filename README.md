@@ -39,7 +39,6 @@ digital-healthcare-center/
 │   │   └── recreation.html       # 레크리에이션지도자 ✓
 │   │
 │   ├── education/            # 교육 과정 관련 페이지들
-│   │   ├── course-info.html      # 교육 과정 안내 ✓
 │   │   ├── course-application.html # 교육 신청 ✓
 │   │   ├── cert-application.html # 자격증 신청 ✓
 │   │   ├── payment.html          # 결제 페이지 ✓
@@ -158,7 +157,6 @@ digital-healthcare-center/
 │   │       │   ├── cert-application.js # 자격증 신청 페이지 스크립트 ✓
 │   │       │   ├── cert-issuance.js #  자격증 발급 페이지 스크립트 ✓
 │   │       │   ├── cert-renew.js # 자격증 갱신 페이지 스크립트 ✓
-│   │       │   ├── course-info.js  # 교육 과정 안내 페이지 스크립트 ✓
 │   │       │   ├── instructors.js # 강사소개 페이지 스크립트 ✓
 │   │       │   └── payment.js  # 결제 페이지 스크립트 ✓
 │   │       ├── board.js      # 게시판 페이지 스크립트 ✓

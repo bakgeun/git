@@ -458,11 +458,9 @@ function createMobileMenu() {
             title: '교육 과정',
             icon: '📚',
             items: [
-                { name: '교육 과정 안내', url: 'pages/education/course-info.html' },
+                { name: '강사 소개', url: 'pages/education/instructors.html' },
                 { name: '교육 신청', url: 'pages/education/course-application.html' },
-                { name: '자격증 신청', url: 'pages/education/cert-application.html' },
-                { name: '시험 안내', url: 'pages/education/exam-info.html' },
-                { name: '강사 소개', url: 'pages/education/instructors.html' }
+                { name: '자격증 신청', url: 'pages/education/cert-application.html' }
             ]
         },
         {
