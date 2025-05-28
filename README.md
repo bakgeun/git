@@ -8,10 +8,10 @@
 
 - **기관 소개**: 센터 소개, 비전 및 전략, 조직도, 강사 소개
 - **자격증 소개**: 건강운동처방사, 운동재활전문가, 필라테스 전문가, 레크리에이션지도자 자격증 정보
-- **교육 과정**: 교육 과정 안내, 신청, 결제
+- **교육 과정**: 교육 과정 안내, 신청, 결제 (통합)
 - **게시판**: 공지사항, 칼럼, 강의자료, 동영상 강의
 - **인증 시스템**: 회원가입, 로그인, 계정 관리
-- **마이페이지**: 개인정보 관리, 수강 내역, 자격증 관리, 결제 내역
+- **마이페이지**: 개인정보 관리, 수강 내역, 자격증 관리 (발급/갱신 통합), 결제 내역
 - **관리자 기능**: 회원 관리, 교육 관리, 자격증 관리, 게시판 관리, 결제 관리
 
 ## 기술 스택
@@ -21,8 +21,9 @@
 - **UI 프레임워크**: Tailwind CSS
 - **외부 라이브러리**: 
   - Firebase SDK
-  - 결제 모듈 (PG사 연동)
+  - 결제 모듈 (토스페이먼츠 연동 예정)
   - PDF 생성 라이브러리 (자격증 발급용)
+  - Daum 우편번호 API
 
 ## 디렉토리 구조
 
@@ -30,7 +31,7 @@
 digital-healthcare-center/
 ├── index.html                # 메인 페이지
 ├── pages/                    # 서브 페이지들
-│   ├── about.htmnl           # 기관 소개 페이지 ✓
+│   ├── about.html           # 기관 소개 페이지 ✓
 │   │
 │   ├── certificate/          # 자격증 관련 페이지들
 │   │   ├── health-exercise.html  # 건강운동처방사 ✓
@@ -38,12 +39,9 @@ digital-healthcare-center/
 │   │   ├── pilates.html          # 필라테스 전문가 ✓
 │   │   └── recreation.html       # 레크리에이션지도자 ✓
 │   │
-│   ├── education/            # 교육 과정 관련 페이지들
-│   │   ├── course-application.html # 교육 신청 ✓
-│   │   ├── cert-application.html # 자격증 신청 ✓
-│   │   ├── payment.html          # 결제 페이지 ✓
-│   │   ├── cert-issuance.html    # 자격증 발급 ✓
-│   │   ├── cert-renewal.html     # 자격증 갱신 ✓
+│   ├── education/            # 교육 과정 관련 페이지들 (간소화)
+│   │   ├── course-application.html # 교육 신청 + 결제 통합 ✓
+│   │   ├── cert-application.html # 자격증 신청 + 결제 통합 ✓
 │   │   └── instructors.html  # 강사 소개 ✓
 │   │
 │   ├── board/                # 게시판 관련 페이지들
@@ -65,10 +63,10 @@ digital-healthcare-center/
 │   │   ├── signup.html       # 회원가입 ✓
 │   │   └── find-account.html # 계정찾기 ✓
 │   │
-│   ├── mypage/               # 마이페이지 관련 페이지들
+│   ├── mypage/               # 마이페이지 관련 페이지들 (강화)
 │   │   ├── personal-info.html  # 개인정보 관리 ✓
 │   │   ├── course-history.html # 수강 내역 ✓
-│   │   ├── cert-management.html # 자격증 관리 ✓
+│   │   ├── cert-management.html # 자격증 관리 (발급+갱신 통합) ✓✨
 │   │   └── payment-history.html # 결제 내역 ✓
 │   │
 │   └── admin/                # 관리자 페이지들
@@ -153,12 +151,9 @@ digital-healthcare-center/
 │   │   └── pages/            # 페이지별 스크립트
 │   │       ├── home.js       # 홈페이지 스크립트 ✓
 │   │       ├── certificate.js # 자격증 페이지 공통 기능 ✓
-│   │       ├── education/  # 교육 페이지 개별 스크립트 ✓
+│   │       ├── education/  # 교육 페이지 개별 스크립트 (간소화)
 │   │       │   ├── cert-application.js # 자격증 신청 페이지 스크립트 ✓
-│   │       │   ├── cert-issuance.js #  자격증 발급 페이지 스크립트 ✓
-│   │       │   ├── cert-renew.js # 자격증 갱신 페이지 스크립트 ✓
-│   │       │   ├── instructors.js # 강사소개 페이지 스크립트 ✓
-│   │       │   └── payment.js  # 결제 페이지 스크립트 ✓
+│   │       │   └── instructors.js # 강사소개 페이지 스크립트 ✓
 │   │       ├── board.js      # 게시판 페이지 스크립트 ✓
 │   │       ├── auth.js       # 인증 페이지 공통 기능 ✓
 │   │       ├── about/         
@@ -173,6 +168,11 @@ digital-healthcare-center/
 │   │       │   ├── pilates.js         # 필라테스 전문가 페이지 스크립트 ✓
 │   │       │   └── recreation.js      # 레크리에이션지도자 페이지 스크립트 ✓
 │   │       ├── mypage.js     # 마이페이지 스크립트 ✓
+│   │       ├── mypage/       # 마이페이지 관련 개별 페이지 스크립트
+│   │       │   ├── personal-info.js     # 개인정보 관리 스크립트 ✓
+│   │       │   ├── course-history.js    # 수강 내역 스크립트 ✓
+│   │       │   ├── cert-management-enhanced.js # 통합 자격증 관리 스크립트 ✓✨
+│   │       │   └── payment-history.js   # 결제 내역 스크립트 ✓
 │   │       ├── admin.js      # 관리자 페이지 공통 기능 ✓
 │   │       └── admin/        # 관리자 관련 개별 페이지 스크립트
 │   │           ├── dashboard.js    # 대시보드 스크립트 ✓
@@ -199,27 +199,44 @@ digital-healthcare-center/
 └── robots.txt                # 검색엔진 접근 제어
 ```
 
-✓ 표시는 이미 개발 완료된 파일들을 나타냅니다.
+✓ 표시는 개발 완료된 파일들을 나타냅니다.  
+✨ 표시는 새롭게 개선된 파일들을 나타냅니다.
 
 ## 개발 현황
 
 ### 완료된 모듈 - 100% 완료
 
-#### 모든 HTML, CSS, JavaScript 파일 개발 완료
-- 총 109개 파일 개발 완료
-- HTML: 39개 파일
+#### 모든 HTML, CSS, JavaScript 파일 개발 완료 (구조 개선)
+- **삭제된 파일**: 7개 (중복 기능 통합으로 인한 정리)
+- **새로 개선된 파일**: 1개 (cert-management-enhanced.js)
+- **전체 파일 수**: 103개 파일
+- HTML: 36개 파일 (3개 삭제)
 - CSS: 26개 파일  
-- JavaScript: 44개 파일
+- JavaScript: 41개 파일 (3개 삭제, 1개 개선)
 
 #### 주요 모듈별 개발 현황
 1. **인증 모듈 (Auth)** ✓
 2. **자격증 모듈 (Certificate)** ✓
-3. **교육 모듈 (Education)** ✓
+3. **교육 모듈 (Education)** ✓ (간소화 완료)
 4. **게시판 모듈 (Board)** ✓
-5. **마이페이지 모듈 (Mypage)** ✓
+5. **마이페이지 모듈 (Mypage)** ✓ (자격증 관리 강화)
 6. **기관 소개 모듈 (About)** ✓
 7. **관리자 모듈 (Admin)** ✓
 8. **공통 컴포넌트 및 서비스** ✓
+
+## 사용자 여정 최적화
+
+### 개선된 사용자 흐름
+```
+1. 교육 신청 → 결제 → 마이페이지(수강내역 확인)
+2. 자격증 신청 → 결제 → 마이페이지(자격증관리 진행상황 확인)
+3. 자격증 갱신 → 마이페이지에서 신청 → 결제 → 진행상황 확인
+```
+
+### 통합된 기능
+- **교육 신청 + 결제**: `course-application.html`에서 원스톱 처리
+- **자격증 신청 + 결제**: `cert-application.html`에서 원스톱 처리
+- **자격증 발급 + 갱신**: `cert-management.html`에서 통합 관리
 
 ## 관리자 계정 설정
 
@@ -413,6 +430,8 @@ window.LOCAL_TEST_MODE = false;
 - [Tailwind CSS](https://tailwindcss.com/) - UI 스타일링
 - [Google Fonts - Noto Sans KR](https://fonts.google.com/specimen/Noto+Sans+KR) - 웹 폰트
 - [Heroicons](https://heroicons.com/) - 아이콘
+- [Daum 우편번호 API](https://postcode.map.daum.net/guide) - 주소 검색
+- [토스페이먼츠](https://docs.tosspayments.com/) - 결제 연동 (예정)
 
 ## 기여 방법
 
@@ -432,6 +451,26 @@ window.LOCAL_TEST_MODE = false;
 - **개발자**: [개발자 이메일](mailto:bakgeun82@gmail.com)
 
 ## 변경 이력
+
+### 2025-05-28 - 주요 구조 개선 ✨
+- **사용자 여정 최적화**
+  - 교육 신청 + 결제 통합 완료 (`course-application.html`)
+  - 자격증 신청 + 결제 통합 완료 (`cert-application.html`)
+  - 자격증 발급/갱신 기능을 마이페이지로 통합
+- **파일 구조 간소화**
+  - 중복 기능 제거: `payment.html`, `cert-issuance.html`, `cert-renewal.html` 삭제
+  - Education 폴더: 7개 → 3개 파일로 간소화
+  - JavaScript 파일: `cert-management-enhanced.js`로 통합 개선
+- **마이페이지 자격증 관리 강화**
+  - 대시보드 형태의 현황 요약 추가
+  - 자격증 발급 신청 기능 통합 (시험 합격자 대상)
+  - 자격증 갱신 신청 기능 통합 (만료 예정/만료된 자격증)
+  - 모든 신청의 진행상황 실시간 추적
+  - 파일 업로드, 주소 검색, 결제 연동 완료
+- **결제 시스템 통합**
+  - 토스페이먼츠 연동 준비 완료
+  - 결제 완료 후 적절한 마이페이지 섹션으로 자동 리다이렉션
+  - 통합된 결제 플로우로 사용자 경험 개선
 
 ### 2025-05-13
 - **관리자 시스템 완성**

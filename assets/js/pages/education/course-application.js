@@ -402,64 +402,6 @@ function selectCourseDirectly(courseId) {
     }
 }
 
-// 직접 과정 선택 함수 (새로 추가)
-function selectCourseDirectly(courseId) {
-    console.log('직접 과정 선택:', courseId);
-    
-    const courseSelect = document.getElementById('course-select');
-    if (!courseSelect) {
-        console.error('course-select 요소를 찾을 수 없습니다!');
-        return;
-    }
-
-    // courseData에 해당 과정이 있는지 확인
-    if (window.courseData && window.courseData[courseId]) {
-        console.log('과정 데이터 찾음:', courseId);
-        
-        // 과정 선택
-        courseSelect.value = courseId;
-        
-        // 과정 정보 업데이트
-        updateCourseInfo(courseId, window.courseData);
-        
-        // 과정 선택 섹션으로 스크롤
-        setTimeout(() => {
-            scrollToCourseSelection();
-        }, 500);
-        
-        console.log(`✅ ${courseId} 직접 선택 완료`);
-    } else {
-        console.error('❌ 해당 과정을 찾을 수 없습니다:', courseId);
-        console.log('사용 가능한 과정들:', Object.keys(window.courseData || {}));
-    }
-}
-
-// 기존 selectCourseFromCertificate 함수는 유지 (다른 방식으로 올 경우 대비)
-function selectCourseFromCertificate(certType) {
-    console.log('자격증 페이지에서 자동 선택 (구 방식):', certType);
-    
-    const courseSelect = document.getElementById('course-select');
-    if (!courseSelect) return;
-
-    // 자격증 타입에 따른 첫 번째 모집중 과정 찾기
-    const courseMapping = {
-        'health-exercise': ['health-1', 'health-2'],
-        'rehabilitation': ['rehab-1'],
-        'pilates': ['pilates-3'], // pilates-2는 마감
-        'recreation': ['rec-1', 'rec-2']
-    };
-
-    const availableCourses = courseMapping[certType] || [];
-    
-    if (availableCourses.length > 0) {
-        // 첫 번째 모집중인 과정 선택
-        const targetCourse = availableCourses[0];
-        
-        // 직접 선택 함수 호출
-        selectCourseDirectly(targetCourse);
-    }
-}
-
 // 자격증 페이지에서 온 경우 자동 선택
 function selectCourseFromCertificate(certType) {
     console.log('자격증 페이지에서 자동 선택:', certType);
@@ -1400,11 +1342,17 @@ const CourseInfoPage = {
 window.CourseInfoPage = CourseInfoPage;
 
 // =================================
-// 14. 디버깅 및 개발자 도구 (개발 모드용)
+// 14. 디버깅 및 개발자 도구 (수정된 버전 - Firebase 호스팅 포함)
 // =================================
 
-// 개발 모드에서만 사용되는 디버깅 함수들
-if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+// 개발 모드에서 사용되는 디버깅 함수들 (Firebase 호스팅 포함)
+if (window.location.hostname === 'localhost' || 
+    window.location.hostname === '127.0.0.1' || 
+    window.location.hostname.includes('.web.app') || 
+    window.location.hostname.includes('.firebaseapp.com') ||
+    window.location.protocol === 'file:' ||
+    window.FORCE_DEBUG === true) {
+    
     window.debugCourseApplication = {
         // 기존 기능들
         logFormData: function() {
@@ -1481,7 +1429,7 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
                 method: 'card',
                 amount: '₩350,000',
                 customerName: '테스트 사용자'
-            });
+                });
         },
         
         simulateBankTransferSuccess: function() {
@@ -1514,6 +1462,7 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
     };
     
     console.log('개발 모드 디버깅 도구 활성화됨 (결제 기능 포함)');
+    console.log('현재 호스트:', window.location.hostname);
     console.log('사용 가능한 함수들:');
     console.log('- window.debugCourseApplication.fillTestData()');
     console.log('- window.debugCourseApplication.testCardPayment()');
@@ -1522,6 +1471,9 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
     console.log('- window.debugCourseApplication.simulateBankTransferSuccess()');
     console.log('- window.debugCourseApplication.showModal()');
     console.log('- window.debugCourseApplication.hideModal()');
+} else {
+    console.log('프로덕션 모드 - 디버깅 도구 비활성화됨');
+    console.log('현재 호스트:', window.location.hostname);
 }
 
 // =================================
@@ -1567,4 +1519,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-console.log('=== 통합된 course-application.js 로드 완료 (결제 기능 포함) ===');
+console.log('=== 통합된 course-application.js 로드 완료 (결제 기능 포함, Firebase 호스팅 지원) ===');

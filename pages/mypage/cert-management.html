@@ -24,7 +24,7 @@
                     <div class="flex items-center">
                         <img src="../../../assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" class="logo-image">
                         <div class="ml-3">
-                            <span class="organization-name">사&rpar;문경 부설 헬스케어센터</span>
+                            <span class="organization-name">사)문경 부설 헬스케어센터</span>
                         </div>
                     </div>
                 </a>
@@ -270,75 +270,131 @@
                 <div class="mypage-content">
                     <div class="mypage-header">
                         <h1 class="mypage-title">자격증 관리</h1>
-                        <p class="mypage-description">회원님의 자격증 발급 현황을 확인하고 관리하세요.</p>
+                        <p class="mypage-description">회원님의 자격증 현황을 확인하고 갱신 신청을 진행하세요.</p>
                     </div>
 
-                    <!-- 자격증 관리 탭 -->
-                    <div class="content-card">
-                        <div class="cert-tabs">
-                            <button class="cert-tab active" data-tab="active">유효 자격증</button>
-                            <button class="cert-tab" data-tab="expired">만료 자격증</button>
-                            <button class="cert-tab" data-tab="pending">발급 대기중</button>
+                    <!-- 현황 요약 대시보드 -->
+                    <div class="content-card mb-6">
+                        <div class="card-header">
+                            <h2 class="card-title">현황 요약</h2>
                         </div>
-
-                        <div id="loading-state" class="loading-state hidden">
-                            <div class="loading-spinner"></div>
-                            <p class="mt-4 text-gray-600">자격증 정보를 불러오는 중입니다...</p>
-                        </div>
-
-                        <div id="cert-list" class="cert-list">
-                            <!-- JavaScript로 동적 생성 -->
-                        </div>
-
-                        <div id="empty-state" class="empty-state hidden">
-                            <div class="empty-state-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
+                        <div class="p-4">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div class="stat-card">
+                                    <div class="stat-icon">🎓</div>
+                                    <div class="stat-content">
+                                        <div class="stat-number" id="total-certs">2</div>
+                                        <div class="stat-label">보유 자격증</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon">📋</div>
+                                    <div class="stat-content">
+                                        <div class="stat-number" id="pending-applications">1</div>
+                                        <div class="stat-label">신청 진행중</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon">⚠️</div>
+                                    <div class="stat-content">
+                                        <div class="stat-number" id="expiring-certs">1</div>
+                                        <div class="stat-label">갱신 필요</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon">✅</div>
+                                    <div class="stat-content">
+                                        <div class="stat-number" id="valid-certs">1</div>
+                                        <div class="stat-label">유효 자격증</div>
+                                    </div>
+                                </div>
                             </div>
-                            <h3 class="empty-state-title">자격증 내역이 없습니다</h3>
-                            <p class="empty-state-description">현재 해당 카테고리에 자격증 정보가 없습니다.</p>
-                            <a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')" class="btn btn-primary">
-                                자격증 신청하기
-                            </a>
                         </div>
                     </div>
 
-                    <!-- 자격증 신청 안내 -->
+                    <!-- 보유 자격증 -->
+                    <div class="content-card mb-6">
+                        <div class="card-header">
+                            <h2 class="card-title">보유 자격증</h2>
+                            <p class="card-subtitle">현재 보유하고 있는 자격증 목록입니다.</p>
+                        </div>
+                        <div class="p-4">
+                            <div id="owned-certificates" class="space-y-4">
+                                <!-- JavaScript로 동적 생성 -->
+                            </div>
+                            
+                            <div id="no-owned-certs" class="empty-state hidden">
+                                <div class="empty-state-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                </div>
+                                <h3 class="empty-state-title">보유 자격증이 없습니다</h3>
+                                <p class="empty-state-description">자격증 신청을 통해 자격증을 취득해보세요.</p>
+                                <a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')" class="btn btn-primary">
+                                    자격증 신청하기
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 진행 현황 -->
+                    <div class="content-card mb-6">
+                        <div class="card-header">
+                            <h2 class="card-title">진행 현황</h2>
+                            <p class="card-subtitle">자격증 신청 및 갱신 진행 상황을 확인하세요.</p>
+                        </div>
+                        <div class="p-4">
+                            <div id="progress-list" class="space-y-4">
+                                <!-- JavaScript로 동적 생성 -->
+                            </div>
+                            
+                            <div id="no-progress" class="empty-state hidden">
+                                <div class="empty-state-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                </div>
+                                <h3 class="empty-state-title">진행 중인 신청이 없습니다</h3>
+                                <p class="empty-state-description">새로운 자격증 신청이나 갱신 신청을 해보세요.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 빠른 액션 -->
                     <div class="content-card">
                         <div class="card-header">
-                            <h2 class="card-title">자격증 신청 안내</h2>
-                            <p class="card-subtitle">신규 자격증 발급 및 갱신 절차에 대한 안내입니다.</p>
+                            <h2 class="card-title">자격증 갱신 신청</h2>
+                            <p class="card-subtitle">자격증 만료가 임박했거나 이미 만료된 경우 갱신 신청을 진행하세요.</p>
                         </div>
-
                         <div class="p-4">
-                            <div class="mb-6">
-                                <h3 class="text-lg font-semibold mb-2">자격증 발급 절차</h3>
-                                <ol class="list-decimal ml-5 space-y-2 text-sm text-gray-700">
-                                    <li>교육 과정 수강 및 이수 완료</li>
-                                    <li>자격 시험 응시 및 합격</li>
-                                    <li>자격증 신청 및 발급 비용 결제</li>
-                                    <li>자격증 발급 (영업일 기준 5~7일 소요)</li>
-                                </ol>
-                            </div>
+                            <div id="renewal-section">
+                                <!-- 갱신 가능한 자격증이 있는 경우 -->
+                                <div id="renewal-available" class="hidden">
+                                    <div class="renewal-notice mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                                        <div class="flex items-start">
+                                            <div class="text-amber-600 mr-3">⚠️</div>
+                                            <div>
+                                                <h3 class="font-semibold text-amber-800 mb-1">갱신이 필요한 자격증이 있습니다</h3>
+                                                <p class="text-sm text-amber-700">자격증 유효기간이 만료되기 전에 갱신 신청을 진행해주세요.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="renewalable-certs" class="space-y-3">
+                                        <!-- JavaScript로 동적 생성 -->
+                                    </div>
+                                </div>
 
-                            <div class="mb-6">
-                                <h3 class="text-lg font-semibold mb-2">자격증 갱신 절차</h3>
-                                <ol class="list-decimal ml-5 space-y-2 text-sm text-gray-700">
-                                    <li>갱신 대상 자격증 확인 (만료 90일 전부터 갱신 가능)</li>
-                                    <li>갱신 교육 이수 (온라인 또는 오프라인)</li>
-                                    <li>갱신 신청 및 비용 결제</li>
-                                    <li>자격증 재발급 (영업일 기준 3~5일 소요)</li>
-                                </ol>
-                            </div>
-
-                            <div class="flex gap-4">
-                                <a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')" class="btn btn-primary">
-                                    자격증 신청
-                                </a>
-                                <a href="javascript:window.location.href=window.adjustPath('pages/education/cert-renewal.html')" class="btn btn-secondary">
-                                    자격증 갱신
-                                </a>
+                                <!-- 갱신 가능한 자격증이 없는 경우 -->
+                                <div id="no-renewal-needed" class="text-center py-8">
+                                    <div class="text-green-600 mb-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-2">현재 갱신이 필요한 자격증이 없습니다</h3>
+                                    <p class="text-gray-600 mb-4">모든 자격증이 유효 상태입니다. 만료일이 가까워지면 알림을 보내드립니다.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -346,6 +402,174 @@
             </div>
         </div>
     </main>
+
+    <!-- 자격증 갱신 신청 모달 -->
+    <div id="renewal-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="modal-content bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto mx-4">
+            <div class="modal-header flex justify-between items-center p-6 border-b">
+                <h3 class="text-xl font-bold text-gray-800">자격증 갱신 신청</h3>
+                <button class="close text-gray-500 hover:text-gray-700" onclick="closeRenewalModal()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body p-6">
+                <form id="renewal-form" class="space-y-6">
+                    <!-- 갱신 자격증 정보 -->
+                    <div class="form-section">
+                        <h4 class="section-title">갱신 자격증 정보</h4>
+                        <div class="selected-cert-info p-4 bg-gray-50 rounded-lg mb-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h5 class="font-semibold text-gray-800" id="selected-cert-name">선택된 자격증</h5>
+                                    <p class="text-sm text-gray-600" id="selected-cert-details">자격증 정보</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-sm text-gray-500" id="selected-cert-number">자격증 번호</span>
+                                    <p class="text-sm font-medium" id="selected-cert-expiry">만료일</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 갱신 교육 정보 -->
+                    <div class="form-section">
+                        <h4 class="section-title">갱신 교육 정보</h4>
+                        <div class="form-grid">
+                            <div class="form-field form-field-full">
+                                <label for="renewal-education-type" class="form-label">갱신 교육 유형 *</label>
+                                <select id="renewal-education-type" name="education-type" class="form-select" required>
+                                    <option value="">선택해주세요</option>
+                                    <option value="online">온라인 교육</option>
+                                    <option value="offline">오프라인 교육</option>
+                                    <option value="completed">이미 이수 완료</option>
+                                </select>
+                            </div>
+
+                            <div id="renewal-education-completion-field" class="form-field form-field-full hidden">
+                                <label for="renewal-education-completion" class="form-label">교육 이수 증명 *</label>
+                                <div class="file-upload-area">
+                                    <input type="file" id="renewal-education-completion" name="education-completion" class="file-input" accept=".pdf,.jpg,.png">
+                                    <div class="file-drop-zone">
+                                        <div class="upload-icon">📄</div>
+                                        <p class="upload-text">교육 이수 증명서를 업로드하세요</p>
+                                        <p class="upload-description">PDF, JPG, PNG 형식, 최대 5MB</p>
+                                    </div>
+                                    <div class="file-preview hidden">
+                                        <p class="file-name"></p>
+                                        <button type="button" class="remove-file">&times;</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-field">
+                                <label for="renewal-cpe-hours" class="form-label">보수교육 이수 시간 *</label>
+                                <input type="number" id="renewal-cpe-hours" name="cpe-hours" min="10" max="100" class="form-input" required>
+                                <p class="field-description">최소 10시간 이상의 보수교육 이수가 필요합니다.</p>
+                            </div>
+
+                            <div class="form-field form-field-full">
+                                <label for="renewal-cpe-documents" class="form-label">보수교육 증빙자료 *</label>
+                                <div class="file-upload-area">
+                                    <input type="file" id="renewal-cpe-documents" name="cpe-documents" multiple class="file-input" required accept=".pdf,.jpg,.png">
+                                    <div class="file-drop-zone">
+                                        <div class="upload-icon">📚</div>
+                                        <p class="upload-text">보수교육 증빙자료를 업로드하세요</p>
+                                        <p class="upload-description">여러 파일 선택 가능 (최대 5개, 각 파일당 5MB)</p>
+                                    </div>
+                                    <div class="file-preview-list hidden">
+                                        <!-- 파일 미리보기 목록 -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 배송 정보 -->
+                    <div class="form-section">
+                        <h4 class="section-title">배송 정보</h4>
+                        <div class="form-grid">
+                            <div class="form-field form-field-full">
+                                <label for="renewal-delivery-method" class="form-label">자격증 수령 방법 *</label>
+                                <select id="renewal-delivery-method" name="delivery-method" class="form-select" required>
+                                    <option value="physical">실물 자격증 (우편발송)</option>
+                                    <option value="digital">디지털 자격증 (이메일 발송)</option>
+                                    <option value="both">실물 + 디지털 자격증 (추가 비용 5,000원)</option>
+                                </select>
+                            </div>
+
+                            <div id="renewal-address-fields">
+                                <div class="form-field form-field-full">
+                                    <label for="renewal-zipcode" class="form-label">우편번호 *</label>
+                                    <div class="flex gap-2">
+                                        <input type="text" id="renewal-zipcode" name="zipcode" class="form-input flex-1" readonly required>
+                                        <button type="button" id="renewal-find-address" class="btn-outline">주소찾기</button>
+                                    </div>
+                                </div>
+
+                                <div class="form-field form-field-full">
+                                    <label for="renewal-address1" class="form-label">기본주소 *</label>
+                                    <input type="text" id="renewal-address1" name="address1" class="form-input" readonly required>
+                                </div>
+
+                                <div class="form-field form-field-full">
+                                    <label for="renewal-address2" class="form-label">상세주소 *</label>
+                                    <input type="text" id="renewal-address2" name="address2" class="form-input" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 결제 정보 -->
+                    <div class="form-section">
+                        <h4 class="section-title">결제 정보</h4>
+                        <div class="payment-summary-card">
+                            <h5 class="font-bold text-gray-700 mb-2">결제 금액</h5>
+                            <div class="payment-row">
+                                <span class="text-gray-600">갱신 비용</span>
+                                <span class="text-gray-800 renewal-fee">0원</span>
+                            </div>
+                            <div class="payment-row">
+                                <span class="text-gray-600">교육 비용</span>
+                                <span class="text-gray-800 education-fee">0원</span>
+                            </div>
+                            <div class="payment-row" id="renewal-delivery-fee-row" style="display: none;">
+                                <span class="text-gray-600">배송 추가 비용 (실물+디지털)</span>
+                                <span class="text-gray-800 delivery-fee">5,000원</span>
+                            </div>
+                            <div class="payment-row total">
+                                <span class="text-gray-700">총 결제 금액</span>
+                                <span class="text-blue-600 total-amount">0원</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 약관 동의 -->
+                    <div class="agreement-section">
+                        <div class="agreement-item main-agreement">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="renewal-agree-terms" name="agree-terms" required>
+                                <span class="checkbox-text">개인정보 수집 및 이용, 자격증 갱신 약관에 동의합니다.</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="renewal-cert-id" name="cert-id">
+                </form>
+            </div>
+            <div class="modal-footer p-6 border-t flex justify-end gap-3">
+                <button type="button" class="btn-outline" onclick="closeRenewalModal()">취소</button>
+                <button type="button" class="btn-primary" onclick="submitRenewalApplication()">갱신 신청하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 로딩 상태 -->
+    <div id="loading-state" class="loading-state hidden">
+        <div class="loading-spinner"></div>
+        <p class="mt-4 text-gray-600">자격증 정보를 불러오는 중입니다...</p>
+    </div>
 
     <footer class="bg-gray-800 text-white">
         <div class="container mx-auto px-4 py-8">
@@ -413,7 +637,7 @@
             <div class="border-t border-gray-700 pt-6 mb-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-400">
                     <div>
-                        <p class="mb-1">상호: 사&rpar;문경 부설 헬스케어센터</p>
+                        <p class="mb-1">상호: 사)문경 부설 헬스케어센터</p>
                         <p class="mb-1">주소: 서울특별시 강남구 테헤란로 123</p>
                         <p class="mb-1">전화: 02-123-4567</p>
                     </div>
@@ -460,7 +684,7 @@
     <script id="additional-scripts-template" type="text/template">
         <script src="{basePath}assets/js/components/header.js"><\/script>
         <script src="{basePath}assets/js/pages/mypage.js"><\/script>
-        <script src="{basePath}assets/js/pages/mypage/cert-management.js"><\/script>
+        <script src="{basePath}assets/js/pages/mypage/cert-management-enhanced.js"><\/script>
         <script src="{basePath}assets/js/main.js"><\/script>
     </script>
 </body>
