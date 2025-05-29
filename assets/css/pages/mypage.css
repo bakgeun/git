@@ -1,6 +1,6 @@
 /**
  * mypage.css
- * 마이페이지 관련 페이지들의 완전한 스타일
+ * 마이페이지 관련 페이지들의 완전한 스타일 - 1단계 개선 통합 버전
  */
 
 /* ===================================
@@ -121,7 +121,7 @@
 }
 
 /* ===================================
-   대시보드 통계 카드 (자격증 관리용)
+   대시보드 통계 카드 (개선된 아이콘)
 =================================== */
 
 .stat-card {
@@ -141,9 +141,17 @@
 }
 
 .stat-icon {
-    font-size: 2.5rem;
+    font-size: 1.5rem; /* 개선: 2.5rem → 1.5rem */
     margin-right: 1rem;
     line-height: 1;
+    width: 2.5rem; /* 고정 너비 */
+    height: 2.5rem; /* 고정 높이 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6; /* 배경색 추가 */
+    border-radius: 8px; /* 둥근 모서리 */
+    flex-shrink: 0; /* 축소 방지 */
 }
 
 .stat-content {
@@ -162,6 +170,238 @@
     font-size: 0.875rem;
     color: #6b7280;
     font-weight: 500;
+}
+
+/* ===================================
+   갱신 프로세스 단계 표시 (신규 추가)
+=================================== */
+
+.renewal-process {
+    margin-bottom: 2rem;
+}
+
+.process-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    margin-bottom: 2rem;
+    padding: 0 1rem;
+}
+
+.process-steps::before {
+    content: '';
+    position: absolute;
+    top: 1.25rem;
+    left: 2rem;
+    right: 2rem;
+    height: 2px;
+    background: #e5e7eb;
+    z-index: 1;
+}
+
+.process-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    background: white;
+    padding: 0 0.5rem;
+    min-width: 80px;
+}
+
+.step-circle {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: #f3f4f6;
+    border: 2px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #6b7280;
+    transition: all 0.3s ease;
+}
+
+.step-circle.active {
+    background: #3b82f6;
+    border-color: #3b82f6;
+    color: white;
+}
+
+.step-circle.completed {
+    background: #10b981;
+    border-color: #10b981;
+    color: white;
+}
+
+.step-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    text-align: center;
+    line-height: 1.2;
+    font-weight: 500;
+}
+
+.step-label.active {
+    color: #3b82f6;
+    font-weight: 600;
+}
+
+.step-label.completed {
+    color: #10b981;
+    font-weight: 600;
+}
+
+/* ===================================
+   갱신 정보 카드 (신규 추가)
+=================================== */
+
+.renewal-info-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.renewal-requirements {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.requirement-item {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.requirement-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    background: #dbeafe;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+}
+
+.requirement-content h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.requirement-content p {
+    font-size: 0.75rem;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+/* ===================================
+   갱신 상태 시각화 (신규 추가)
+=================================== */
+
+.renewal-status-visual {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.status-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-badge.pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-badge.in-progress {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-badge.completed {
+    background: #dcfce7;
+    color: #166534;
+}
+
+/* 진행률 바 */
+.progress-visual {
+    margin: 1rem 0;
+}
+
+.progress-track {
+    width: 100%;
+    height: 8px;
+    background: #f3f4f6;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-text {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: #6b7280;
 }
 
 /* ===================================
@@ -1485,7 +1725,7 @@
 }
 
 /* ===================================
-   반응형 디자인
+   반응형 디자인 - 프로세스 단계 추가
 =================================== */
 
 @media (max-width: 1024px) {
@@ -1502,7 +1742,9 @@
     }
     
     .stat-icon {
-        font-size: 2rem;
+        font-size: 1.25rem; /* 태블릿에서 더 작게 */
+        width: 2rem;
+        height: 2rem;
     }
 }
 
@@ -1660,6 +1902,44 @@
         min-width: auto;
         max-width: none;
     }
+    
+    /* 프로세스 단계 모바일 대응 */
+    .process-steps {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 0;
+    }
+    
+    .process-steps::before {
+        display: none;
+    }
+    
+    .process-step {
+        flex-direction: row;
+        width: 100%;
+        text-align: left;
+        padding: 0.75rem;
+        background: #f9fafb;
+        border-radius: 6px;
+        min-width: auto;
+    }
+    
+    .step-circle {
+        margin-bottom: 0;
+        margin-right: 1rem;
+        width: 2rem;
+        height: 2rem;
+        font-size: 0.75rem;
+    }
+    
+    .step-label {
+        text-align: left;
+        font-size: 0.875rem;
+    }
+    
+    .renewal-requirements {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1674,7 +1954,9 @@
     }
     
     .stat-icon {
-        font-size: 1.5rem;
+        font-size: 1.125rem; /* 모바일에서 더 작게 */
+        width: 1.75rem;
+        height: 1.75rem;
         margin-right: 0.5rem;
     }
     
@@ -1699,6 +1981,15 @@
     
     .upload-icon {
         font-size: 1.5rem;
+    }
+    
+    .requirement-item {
+        padding: 0.75rem;
+    }
+    
+    .requirement-icon {
+        width: 1.25rem;
+        height: 1.25rem;
     }
 }
 
@@ -1881,3 +2172,233 @@
 .hidden { display: none; }
 .block { display: block; }
 .inline-block { display: inline-block; }
+
+/* 아이콘 크기 문제 해결을 위한 CSS 수정 */
+
+/* 1. 통계 카드의 아이콘 크기 강제 제한 */
+.stat-card .stat-icon {
+    font-size: 1.25rem !important; /* 강제 적용 */
+    width: 2rem !important;
+    height: 2rem !important;
+    max-width: 2rem;
+    max-height: 2rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    border-radius: 6px;
+    margin-right: 1rem;
+    flex-shrink: 0;
+    overflow: hidden; /* 넘치는 부분 숨김 */
+}
+
+/* 2. 갱신 영역의 모든 아이콘들 크기 제한 */
+#renewal-section svg,
+#renewal-section .text-xl,
+#renewal-section .text-2xl {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    font-size: 1.25rem !important;
+}
+
+/* 3. 갱신 알림의 경고 아이콘 크기 제한 */
+.renewal-notice .text-xl {
+    font-size: 1.25rem !important;
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+}
+
+/* 4. 갱신 상태의 체크 아이콘 크기 제한 */
+#no-renewal-needed svg {
+    width: 3rem !important;
+    height: 3rem !important;
+    max-width: 3rem;
+    max-height: 3rem;
+}
+
+/* 5. 모든 상태 아이콘 일반적인 크기 제한 */
+.status-icon {
+    font-size: 1rem !important;
+    width: 1rem !important;
+    height: 1rem !important;
+}
+
+/* 6. 요구사항 아이콘 크기 제한 */
+.requirement-icon {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    max-width: 1.25rem;
+    max-height: 1.25rem;
+    font-size: 0.875rem !important;
+    background: #dbeafe;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* 7. 버튼 내부 아이콘 크기 제한 */
+.btn svg {
+    width: 1rem !important;
+    height: 1rem !important;
+    max-width: 1rem;
+    max-height: 1rem;
+}
+
+/* 8. 진행 상황 카드의 상태 아이콘 */
+.progress-card .status-icon {
+    font-size: 1rem !important;
+    width: auto;
+    height: auto;
+}
+
+/* 9. 모바일에서 더 작게 */
+@media (max-width: 768px) {
+    .stat-card .stat-icon {
+        font-size: 1rem !important;
+        width: 1.5rem !important;
+        height: 1.5rem !important;
+        max-width: 1.5rem;
+        max-height: 1.5rem;
+    }
+    
+    #no-renewal-needed svg {
+        width: 2rem !important;
+        height: 2rem !important;
+        max-width: 2rem;
+        max-height: 2rem;
+    }
+}
+
+/* 10. 아주 작은 화면에서 */
+@media (max-width: 480px) {
+    .stat-card .stat-icon {
+        font-size: 0.875rem !important;
+        width: 1.25rem !important;
+        height: 1.25rem !important;
+        max-width: 1.25rem;
+        max-height: 1.25rem;
+    }
+}
+
+/* 모달 내부 아이콘 및 버튼 크기 수정 */
+
+/* 1. 갱신 자격 확인 완료 아이콘 크기 제한 */
+#renewal-modal svg {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    max-width: 1.5rem;
+    max-height: 1.5rem;
+}
+
+/* 특히 갱신 자격 확인의 큰 체크 아이콘 */
+.bg-green-50 svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    max-width: 1.25rem;
+    max-height: 1.25rem;
+}
+
+/* 2. 모달 버튼 크기 정상화 */
+.modal-footer .btn {
+    padding: 0.75rem 1.5rem !important;
+    font-size: 0.875rem !important;
+    min-height: auto !important;
+    height: auto !important;
+    line-height: 1.25 !important;
+}
+
+.modal-footer .btn svg {
+    width: 1rem !important;
+    height: 1rem !important;
+    max-width: 1rem;
+    max-height: 1rem;
+}
+
+/* 3. 주소찾기 버튼 크기 정상화 */
+.btn-outline {
+    padding: 0.75rem 1rem !important;
+    font-size: 0.875rem !important;
+    min-height: auto !important;
+    height: auto !important;
+    white-space: nowrap;
+}
+
+/* 4. 모든 모달 내부 버튼 통일 */
+#renewal-modal .btn {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.875rem !important;
+    line-height: 1.25 !important;
+    min-height: auto !important;
+    height: auto !important;
+}
+
+#renewal-modal .btn svg {
+    width: 1rem !important;
+    height: 1rem !important;
+    margin-right: 0.5rem;
+}
+
+/* 5. 단계 표시 아이콘들 */
+.process-step .step-circle {
+    width: 2rem !important;
+    height: 2rem !important;
+    font-size: 0.875rem !important;
+}
+
+/* 6. 요구사항 섹션 아이콘들 */
+.requirement-icon {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    font-size: 0.875rem !important;
+}
+
+/* 7. 모바일에서 더 작게 */
+@media (max-width: 768px) {
+    .modal-footer .btn {
+        padding: 0.625rem 1.25rem !important;
+        font-size: 0.8125rem !important;
+    }
+    
+    .bg-green-50 svg {
+        width: 1rem !important;
+        height: 1rem !important;
+    }
+    
+    .process-step .step-circle {
+        width: 1.75rem !important;
+        height: 1.75rem !important;
+        font-size: 0.75rem !important;
+    }
+}
+
+#renewal-modal svg {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    max-width: 1.5rem;
+    max-height: 1.5rem;
+}
+
+.bg-green-50 svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    max-width: 1.25rem;
+    max-height: 1.25rem;
+}
+
+.modal-footer .btn {
+    padding: 0.75rem 1.5rem !important;
+    font-size: 0.875rem !important;
+    min-height: auto !important;
+    height: auto !important;
+    line-height: 1.25 !important;
+}
+
+.btn-outline {
+    padding: 0.75rem 1rem !important;
+    font-size: 0.875rem !important;
+    min-height: auto !important;
+    height: auto !important;
+}

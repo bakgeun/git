@@ -134,6 +134,39 @@ service cloud.firestore {
       // 생성, 업데이트, 삭제: 관리자만
       allow create, update, delete: if isAdmin();
     }
+
+    // 자격증 신청/갱신 컬렉션 규칙 (새로 추가)
+    match /applications/{applicationId} {
+      // 읽기: 본인의 신청서 또는 관리자
+      allow read: if isAuthenticated() && 
+        (resource.data.userId == request.auth.uid || isAdmin());
+      
+      // 생성: 인증된 사용자가 본인의 신청서 생성
+      allow create: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid &&
+        isVerified() &&
+        // 필수 필드 검증
+        request.resource.data.keys().hasAll(['type', 'certType', 'certName', 'status', 'createdAt']) &&
+        // 타입 검증
+        request.resource.data.type is string &&
+        request.resource.data.certType is string &&
+        request.resource.data.certName is string &&
+        request.resource.data.status in ['payment_pending', 'under_review'] &&
+        // 금액 필드 검증
+        (request.resource.data.totalAmount is number && request.resource.data.totalAmount > 0);
+      
+      // 업데이트: 본인의 신청서 (상태 변경 제한) 또는 관리자가 모든 것
+      allow update: if isAuthenticated() && 
+        ((resource.data.userId == request.auth.uid && 
+          // 사용자는 status, progress, 결제 관련 필드를 변경할 수 없음
+          request.resource.data.status == resource.data.status &&
+          request.resource.data.progress == resource.data.progress &&
+          request.resource.data.totalAmount == resource.data.totalAmount) || 
+         isAdmin());
+      
+      // 삭제: 관리자만
+      allow delete: if isAdmin();
+    }
     
     // 수강신청 컬렉션 규칙
     match /enrollments/{enrollmentId} {

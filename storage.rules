@@ -128,6 +128,41 @@ service firebase.storage {
                       isValidFileSize();
       allow delete: if isAdmin();
     }
+
+     // 자격증 신청/갱신 첨부파일 (새로 추가)
+    match /applications/{applicationId}/{allPaths=**} {
+      // 읽기: 인증된 사용자 (본인이 업로드한 파일이거나 관리자)
+      allow read: if isAuthenticated();
+      
+      // 쓰기: 인증된 사용자 (파일 업로드)
+      allow write: if isAuthenticated() && 
+                      // PDF, 이미지 파일만 허용
+                      (request.resource.contentType.matches('application/pdf') ||
+                       request.resource.contentType.matches('image/.*')) &&
+                      // 파일 크기 제한 (5MB)
+                      request.resource.size < 5 * 1024 * 1024;
+      
+      // 삭제: 관리자만 가능
+      allow delete: if isAdmin();
+    }
+    
+    // 사용자별 임시 업로드 폴더 (자격증 신청용)
+    match /temp-applications/{userId}/{allPaths=**} {
+      // 읽기: 본인 또는 관리자
+      allow read: if isAuthenticated() && 
+                     (request.auth.uid == userId || isAdmin());
+      
+      // 쓰기: 본인만 가능
+      allow write: if isAuthenticated() && 
+                      request.auth.uid == userId &&
+                      (request.resource.contentType.matches('application/pdf') ||
+                       request.resource.contentType.matches('image/.*')) &&
+                      request.resource.size < 5 * 1024 * 1024;
+      
+      // 삭제: 본인 또는 관리자
+      allow delete: if isAuthenticated() && 
+                       (request.auth.uid == userId || isAdmin());
+    }
     
     // 게시판 이미지 업로드를 위한 규칙 추가 - 각 게시판 타입별 규칙
     match /notice_images/{userId}/{allPaths=**} {
