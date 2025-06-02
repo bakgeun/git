@@ -5,7 +5,7 @@
 
 // Firebase 설정 정보
 const firebaseConfig = {
-  apiKey: "전박근", // 실제 API 키로 변경
+  apiKey: "AIzaSyCnQBH5MxaFhraVPCk7awHOLO8j5C6Lw0A", // 실제 API 키로 변경
   authDomain: "digital-healthcare-cente-2204b.firebaseapp.com",
   projectId: "digital-healthcare-cente-2204b",
   storageBucket: "digital-healthcare-cente-2204b.firebasestorage.app",
