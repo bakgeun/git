@@ -18,24 +18,9 @@
 <body class="bg-gray-100">
     <!-- 관리자 헤더 -->
     <header class="bg-indigo-800 text-white admin-header">
-        <style>
-            /* 인라인 스타일로 깜빡임 방지 */
-            .admin-user-info {
-                display: flex !important;
-                opacity: 1 !important;
-                visibility: visible !important;
-            }
-
-            #admin-name,
-            #admin-email,
-            #admin-logout-button {
-                opacity: 1 !important;
-                visibility: visible !important;
-            }
-        </style>
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
-                <!-- 토글 버튼 추가 -->
+                <!-- 토글 버튼 -->
                 <button class="admin-toggle-button" id="admin-sidebar-toggle" aria-label="메뉴 토글">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -49,7 +34,7 @@
                     </a>
                 </div>
 
-                <!-- 사용자 정보 (모바일에서 숨김) -->
+                <!-- 사용자 정보 -->
                 <div class="flex items-center space-x-4 admin-user-info">
                     <span id="admin-name">관리자</span>
                     <span id="admin-email" class="text-sm text-indigo-200">gostepexercise@gmail.com</span>
@@ -68,27 +53,14 @@
     <div class="flex">
         <!-- 사이드바 -->
         <aside class="w-64 bg-indigo-900 min-h-screen text-white admin-sidebar">
-            <style>
-                /* 사이드바 사용자 정보 인라인 스타일 */
-                .sidebar-user-info {
-                    opacity: 1 !important;
-                    visibility: visible !important;
-                    padding: 1rem;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-                    margin-bottom: 1rem;
-                    background-color: rgba(0, 0, 0, 0.2);
-                }
-            </style>
-
-            <!-- 사이드바 사용자 정보 (초기에 미리 추가) -->
-            <div class="sidebar-user-info" style="opacity: 1 !important; visibility: visible !important;">
+            <!-- 사이드바 사용자 정보 -->
+            <div class="sidebar-user-info">
                 <div class="text-white mb-2">
-                    <div class="font-bold" style="opacity: 1 !important;">관리자</div>
-                    <div class="text-indigo-200 text-sm" style="opacity: 1 !important;">gostepexercise@gmail.com</div>
+                    <div class="font-bold">관리자</div>
+                    <div class="text-indigo-200 text-sm">gostepexercise@gmail.com</div>
                 </div>
                 <button id="sidebar-logout-button"
-                    class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md text-sm text-white w-full"
-                    style="opacity: 1 !important;">
+                    class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md text-sm text-white w-full">
                     로그아웃
                 </button>
             </div>
@@ -154,64 +126,44 @@
         <!-- 메인 콘텐츠 -->
         <main class="flex-1 p-8">
             <!-- 알림 영역 -->
-            <div id="admin-notification" style="display: none;"></div>
+            <div id="admin-notification" class="admin-notification hidden"></div>
 
             <!-- 페이지 헤더 -->
             <div class="mb-8">
                 <h1 class="text-3xl font-bold text-gray-800">교육 관리</h1>
-                <p class="text-gray-600 mt-2">교육 과정을 관리하고 수강생을 관리합니다.</p>
-            </div>
-
-            <!-- 교육 과정 타입 선택 탭 -->
-            <div class="border-b border-gray-200 mb-6">
-                <nav class="-mb-px flex space-x-8" id="course-tabs">
-                    <button onclick="courseManager.switchCourseType('health-exercise')"
-                        class="course-tab active border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
-                        data-course="health-exercise">
-                        건강운동처방사
-                    </button>
-                    <button onclick="courseManager.switchCourseType('rehabilitation')"
-                        class="course-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
-                        data-course="rehabilitation">
-                        운동재활전문가
-                    </button>
-                    <button onclick="courseManager.switchCourseType('pilates')"
-                        class="course-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
-                        data-course="pilates">
-                        필라테스 전문가
-                    </button>
-                    <button onclick="courseManager.switchCourseType('recreation')"
-                        class="course-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
-                        data-course="recreation">
-                        레크리에이션지도자
-                    </button>
-                </nav>
+                <p class="text-gray-600 mt-2">모든 자격증 과정을 통합 관리합니다.</p>
             </div>
 
             <!-- 검색 필터 -->
             <div class="bg-white rounded-lg shadow-md p-4 mb-6">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
-                        <label for="search-course-name" class="block text-sm font-medium text-gray-700 mb-2">교육명
+                        <label for="search-course-name" class="block text-sm font-medium text-gray-700 mb-2">과정명
                             검색</label>
-                        <input type="text" id="search-course-name" placeholder="교육명을 입력하세요"
+                        <input type="text" id="search-course-name" placeholder="과정명을 입력하세요"
                             class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label for="filter-certificate-type"
+                            class="block text-sm font-medium text-gray-700 mb-2">자격증</label>
+                        <select id="filter-certificate-type"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <option value="">전체</option>
+                            <option value="health-exercise">건강운동처방사</option>
+                            <option value="rehabilitation">운동재활전문가</option>
+                            <option value="pilates">필라테스 전문가</option>
+                            <option value="recreation">레크리에이션지도자</option>
+                        </select>
                     </div>
                     <div>
                         <label for="filter-status" class="block text-sm font-medium text-gray-700 mb-2">상태</label>
                         <select id="filter-status"
                             class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                             <option value="">전체</option>
-                            <option value="active">진행중</option>
-                            <option value="completed">완료</option>
-                            <option value="cancelled">취소</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="filter-instructor" class="block text-sm font-medium text-gray-700 mb-2">강사</label>
-                        <select id="filter-instructor"
-                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                            <option value="">전체</option>
+                            <option value="preparing">준비중</option>
+                            <option value="active">모집중</option>
+                            <option value="closed">마감</option>
+                            <option value="completed">종료</option>
                         </select>
                     </div>
                     <div class="flex items-end">
@@ -225,9 +177,7 @@
             <!-- 교육 목록 테이블 -->
             <div class="bg-white rounded-lg shadow-md">
                 <div class="p-6 border-b border-gray-200 flex justify-between items-center">
-                    <h2 class="text-xl font-semibold text-gray-800">
-                        <span id="course-type-title">건강운동처방사</span> 교육 과정 목록
-                    </h2>
+                    <h2 class="text-xl font-semibold text-gray-800">교육 과정 목록</h2>
                     <button onclick="courseManager.showAddCourseModal()" class="admin-btn admin-btn-primary">
                         <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -240,9 +190,11 @@
                     <table id="course-table" class="admin-table">
                         <thead>
                             <tr>
-                                <th>교육명</th>
+                                <th>자격증</th>
+                                <th>기수</th>
                                 <th>강사</th>
-                                <th>기간</th>
+                                <th>교육기간</th>
+                                <th>신청기간</th>
                                 <th>수강료</th>
                                 <th>정원/신청자</th>
                                 <th>상태</th>
@@ -251,7 +203,7 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td colspan="7" class="text-center py-4 text-gray-500">데이터 로딩 중...</td>
+                                <td colspan="9" class="text-center py-4 text-gray-500">데이터 로딩 중...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -263,210 +215,187 @@
     </div>
 
     <!-- 교육 과정 추가/수정 모달 -->
-    <div id="course-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-        <div class="flex items-center justify-center min-h-screen px-4">
-            <div class="fixed inset-0 bg-black opacity-50" onclick="courseManager.closeCourseModal()"></div>
-            <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-semibold" id="course-modal-title">교육 과정 추가</h3>
-                        <button onclick="courseManager.closeCourseModal()" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    <form id="course-form" class="space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="course-name" class="block text-sm font-medium text-gray-700">교육명</label>
-                                <input type="text" id="course-name" name="name" required
-                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                            </div>
-                            <div>
-                                <label for="course-type" class="block text-sm font-medium text-gray-700">자격증 종류</label>
-                                <select id="course-type" name="certificateType" required
-                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                    <option value="">선택하세요</option>
-                                    <option value="health-exercise">건강운동처방사</option>
-                                    <option value="rehabilitation">운동재활전문가</option>
-                                    <option value="pilates">필라테스 전문가</option>
-                                    <option value="recreation">레크리에이션지도자</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <label for="course-status" class="block text-sm font-medium text-gray-700">상태 <span
-                                    class="text-red-500">*</span></label>
-                            <select id="course-status" name="status" required
-                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                <option value="preparing">준비중</option>
-                                <option value="active">모집중</option>
-                                <option value="closed">마감</option>
-                                <option value="completed">종료</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="course-description" class="block text-sm font-medium text-gray-700">교육
-                                설명</label>
-                            <textarea id="course-description" name="description" rows="4"
-                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"></textarea>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label for="course-price" class="block text-sm font-medium text-gray-700">수강료
-                                    (원)</label>
-                                <input type="number" id="course-price" name="price" required
-                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                            </div>
-                            <div>
-                                <label for="course-capacity" class="block text-sm font-medium text-gray-700">정원</label>
-                                <input type="number" id="course-capacity" name="capacity" required
-                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                            </div>
-                            <div>
-                                <label for="course-duration" class="block text-sm font-medium text-gray-700">교육 기간
-                                    (시간)</label>
-                                <input type="number" id="course-duration" name="duration" required
-                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="course-start-date"
-                                    class="block text-sm font-medium text-gray-700">시작일</label>
-                                <input type="date" id="course-start-date" name="startDate" required
-                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                            </div>
-                            <div>
-                                <label for="course-end-date" class="block text-sm font-medium text-gray-700">종료일</label>
-                                <input type="date" id="course-end-date" name="endDate" required
-                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                            </div>
-                        </div>
-                        <div>
-                            <label for="course-instructor" class="block text-sm font-medium text-gray-700">강사</label>
-                            <input type="text" id="course-instructor" name="instructor" required
-                                placeholder="강사 이름을 입력하세요"
-                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">교육 자료</label>
-                            <input type="file" id="course-materials" multiple accept=".pdf,.doc,.docx,.ppt,.pptx"
-                                class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                        </div>
-                        <div class="flex justify-end space-x-3">
-                            <button type="button" onclick="courseManager.closeCourseModal()"
-                                class="admin-btn admin-btn-secondary">
-                                취소
-                            </button>
-                            <button type="submit" class="admin-btn admin-btn-primary">
-                                저장
-                            </button>
-                        </div>
-                    </form>
-                </div>
+    <div id="course-modal" class="course-modal hidden">
+        <div class="course-modal-backdrop" onclick="courseManager.closeCourseModal()"></div>
+        <div class="course-modal-content">
+            <div class="course-modal-header">
+                <h3 class="course-modal-title" id="course-modal-title">교육 과정 추가</h3>
+                <button onclick="courseManager.closeCourseModal()" class="course-modal-close">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
             </div>
+            <form id="course-form" class="course-form">
+                <!-- 기본 정보 -->
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="course-certificate-type" class="form-label">자격증 종류 <span
+                                class="required">*</span></label>
+                        <select id="course-certificate-type" name="certificateType" required class="form-select">
+                            <option value="">선택하세요</option>
+                            <option value="health-exercise">건강운동처방사</option>
+                            <option value="rehabilitation">운동재활전문가</option>
+                            <option value="pilates">필라테스 전문가</option>
+                            <option value="recreation">레크리에이션지도자</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label for="course-instructor" class="form-label">강사 선택 <span class="required">*</span></label>
+                        <select id="course-instructor" name="instructor" required class="form-select">
+                            <option value="">강사를 선택하세요</option>
+                            <!-- 강사 목록은 동적으로 로드됩니다 -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 교육 기간 -->
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="course-start-date" class="form-label">교육 시작일 <span class="required">*</span></label>
+                        <input type="date" id="course-start-date" name="startDate" required class="form-input">
+                    </div>
+                    <div class="form-field">
+                        <label for="course-end-date" class="form-label">교육 종료일 <span class="required">*</span></label>
+                        <input type="date" id="course-end-date" name="endDate" required class="form-input">
+                    </div>
+                </div>
+
+                <!-- 신청 기간 -->
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="course-apply-start-date" class="form-label">신청 시작일 <span
+                                class="required">*</span></label>
+                        <input type="date" id="course-apply-start-date" name="applyStartDate" required
+                            class="form-input">
+                    </div>
+                    <div class="form-field">
+                        <label for="course-apply-end-date" class="form-label">신청 종료일 <span
+                                class="required">*</span></label>
+                        <input type="date" id="course-apply-end-date" name="applyEndDate" required class="form-input">
+                    </div>
+                </div>
+
+                <!-- 과정 정보 -->
+                <div class="form-row-triple">
+                    <div class="form-field">
+                        <label for="course-price" class="form-label">수강료 (원) <span class="required">*</span></label>
+                        <input type="number" id="course-price" name="price" required min="0" step="1000"
+                            class="form-input">
+                    </div>
+                    <div class="form-field">
+                        <label for="course-capacity" class="form-label">정원 <span class="required">*</span></label>
+                        <input type="number" id="course-capacity" name="capacity" required min="1" max="100"
+                            class="form-input">
+                    </div>
+                    <div class="form-field">
+                        <label for="course-status" class="form-label">상태 <span class="required">*</span></label>
+                        <select id="course-status" name="status" required class="form-select">
+                            <option value="preparing">준비중</option>
+                            <option value="active">모집중</option>
+                            <option value="closed">마감</option>
+                            <option value="completed">종료</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 교육 방식 및 장소 -->
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="course-method" class="form-label">교육 방식</label>
+                        <select id="course-method" name="method" class="form-select">
+                            <option value="온라인 + 오프라인 병행">온라인 + 오프라인 병행</option>
+                            <option value="오프라인 집중과정">오프라인 집중과정</option>
+                            <option value="온라인 과정">온라인 과정</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label for="course-location" class="form-label">교육 장소</label>
+                        <input type="text" id="course-location" name="location" placeholder="서울 강남구 센터"
+                            class="form-input">
+                    </div>
+                </div>
+
+                <!-- 자동 생성 정보 안내 -->
+                <div class="auto-generation-info">
+                    <h4 class="auto-generation-title">자동 생성되는 정보</h4>
+                    <ul class="auto-generation-list">
+                        <li><strong>교육명:</strong> "자격증명 + 년도 + 상반기/하반기 과정" (예: 건강운동처방사 25년 상반기 과정)</li>
+                        <li><strong>기수:</strong> 교육 시작일 기준으로 자동 계산</li>
+                        <li><strong>교육 설명:</strong> 자격증별 기본 설명 템플릿 적용</li>
+                    </ul>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" onclick="courseManager.closeCourseModal()"
+                        class="admin-btn admin-btn-secondary">
+                        취소
+                    </button>
+                    <button type="submit" class="admin-btn admin-btn-primary">
+                        저장
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Firebase SDK 템플릿 (script-loader.js에 의해 처리됨) -->
+    <!-- 🔧 수정된 스크립트 로딩 순서 - 유틸리티 먼저 로드 -->
     <script id="firebase-sdk-template" type="text/template">
+        <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
-    <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
-    <script src="{basePath}assets/js/services/auth-service.js"><\/script>
-    <script src="{basePath}assets/js/services/db-service.js"><\/script>
-    <script src="{basePath}assets/js/services/storage-service.js"><\/script>
-</script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
 
-    <!-- 추가 스크립트 템플릿 (관리자 페이지용) -->
+        <!-- 🔧 1단계: 필수 유틸리티 먼저 로드 -->
+        <script src="{basePath}assets/js/utils/formatters.js"><\/script>
+        <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
+        <script src="{basePath}assets/js/utils/validators.js"><\/script>
+        <script src="{basePath}assets/js/utils/dom-utils.js"><\/script>
+
+        <!-- 🔧 2단계: Firebase 설정 및 서비스 -->
+        <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
+        <script src="{basePath}assets/js/services/auth-service.js"><\/script>
+        <script src="{basePath}assets/js/services/db-service.js"><\/script>
+        <script src="{basePath}assets/js/services/storage-service.js"><\/script>
+    </script>
+
     <script id="additional-scripts-template" type="text/template">
-    <script src="{basePath}assets/js/utils/formatters.js"><\/script>
-    <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
+        <!-- 🔧 3단계: 관리자 유틸리티 -->
     <script src="{basePath}assets/js/utils/admin-auth.js"><\/script>
-    <script src="{basePath}assets/js/pages/admin.js"><\/script>
-    <script src="{basePath}assets/js/pages/admin/course-management.js"><\/script>
-</script>
+        
+        <!-- 🔧 4단계: 공통 스크립트 -->
+        <script src="{basePath}assets/js/pages/admin.js"><\/script>
+        
+        <!-- 🔧 5단계: 페이지별 스크립트 (의존성 보장됨) -->
+        <script src="{basePath}assets/js/pages/admin/course-management.js"><\/script>
+    </script>
 
-    <!-- 초기화 스크립트 -->
+    <!-- 🔧 스크립트 로딩 완료 체크 -->
     <script>
-        // 페이지 로드 시 실행
-        window.addEventListener('load', async function () {
-            try {
-                console.log('교육 관리 페이지 초기화 시작');
+        document.addEventListener('DOMContentLoaded', function () {
+            // 유틸리티 로딩 체크
+            setTimeout(function () {
+                if (!window.formatters || !window.dateUtils) {
+                    console.error('⚠️ 필수 유틸리티가 로드되지 않았습니다!');
 
-                // 스크립트 로드 완료 대기
-                let retryCount = 0;
-                const maxRetries = 50;
-
-                while (!window.adminAuth && retryCount < maxRetries) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    retryCount++;
-                }
-
-                if (!window.adminAuth) {
-                    console.error('관리자 인증 스크립트 로드 실패');
-                    alert('시스템 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
-                    return;
-                }
-
-                console.log('관리자 권한 확인 시작');
-
-                // 관리자 권한 확인
-                const hasAccess = await window.adminAuth.checkAdminAccess();
-
-                if (hasAccess) {
-                    console.log('관리자 권한 확인 완료');
-
-                    // 관리자 정보 표시
-                    window.adminAuth.displayAdminInfo();
-
-                    // 교육 관리자 초기화
-                    console.log('교육 관리자 초기화 시작');
-
-                    // courseManager 로드 완료 대기
-                    let courseRetryCount = 0;
-                    while (!window.courseManager && courseRetryCount < maxRetries) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                        courseRetryCount++;
-                    }
-
-                    if (window.courseManager) {
-                        await window.courseManager.init();
-                        console.log('교육 관리자 초기화 완료');
-                    } else {
-                        console.error('교육 관리자 스크립트 로드 실패');
-                        window.adminAuth.showNotification('교육 관리자 초기화에 실패했습니다.', 'error');
-                    }
+                    // 사용자에게 알림
+                    const errorMsg = document.createElement('div');
+                    errorMsg.innerHTML = `
+                    <div style="position: fixed; top: 0; left: 0; right: 0; background: #dc2626; color: white; padding: 16px; text-align: center; z-index: 10000;">
+                        <strong>⚠️ 시스템 오류</strong><br>
+                        페이지를 새로고침해주세요. 문제가 지속되면 관리자에게 문의하세요.
+                        <button onclick="location.reload()" style="margin-left: 16px; background: white; color: #dc2626; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                            새로고침
+                        </button>
+                    </div>
+                `;
+                    document.body.appendChild(errorMsg);
                 } else {
-                    console.log('관리자 권한 없음');
+                    console.log('✅ 관리자 페이지 유틸리티 정상 로드됨');
                 }
-            } catch (error) {
-                console.error('교육 관리 페이지 초기화 오류:', error);
-
-                if (window.adminAuth && window.adminAuth.showNotification) {
-                    window.adminAuth.showNotification('페이지 로드 중 오류가 발생했습니다.', 'error');
-                } else {
-                    alert('페이지 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
-                }
-            }
-
-            // 사이드바 토글 기능 초기화
-            if (typeof adminUtils !== 'undefined' && adminUtils.initAdminSidebar) {
-                adminUtils.initAdminSidebar();
-            }
-
-            // adminUtils가 로드되었는지 확인 후 초기화 호출
-            if (window.adminUtils && window.adminUtils.initAdminPage) {
-                console.log('adminUtils.initAdminPage 호출');
-                window.adminUtils.initAdminPage();
-            } else {
-                console.warn('adminUtils가 로드되지 않았거나 initAdminPage가 없습니다.');
-            }
+            }, 2000);
         });
     </script>
 </body>

@@ -274,7 +274,7 @@
         <section class="py-16 bg-gray-50">
             <div class="container mx-auto px-4">
                 <h2 class="text-3xl font-bold text-center mb-12">2025년 교육 일정</h2>
-                
+
                 <!-- 로딩 상태 표시 -->
                 <div id="schedule-loading" class="text-center py-8">
                     <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -285,11 +285,13 @@
                 <div id="schedule-error" class="text-center py-8 hidden">
                     <div class="text-red-500 mb-4">
                         <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
                     <p class="text-gray-600 mb-4">교육 일정을 불러오는 중 오류가 발생했습니다.</p>
-                    <button onclick="loadScheduleData()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                    <button onclick="loadScheduleData()"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
                         다시 시도
                     </button>
                 </div>
@@ -315,12 +317,13 @@
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <!-- 빈 데이터 상태 -->
                     <div id="schedule-empty" class="text-center py-8 hidden">
                         <div class="text-gray-400 mb-4">
                             <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                             </svg>
                         </div>
                         <p class="text-gray-600">등록된 교육 과정이 없습니다.</p>
@@ -749,26 +752,38 @@
         </svg>
     </button>
 
-    <!-- Firebase SDK 템플릿 -->
+    <!-- 🔧 수정된 스크립트 로딩 순서 -->
     <script id="firebase-sdk-template" type="text/template">
-        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
-        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
-        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
-        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
-        <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
-        <script src="{basePath}assets/js/services/auth-service.js"><\/script>
-        
-        <script src="{basePath}assets/js/services/db-service.js"><\/script>
-        <script src="{basePath}assets/js/services/storage-service.js"><\/script>
-    </script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
 
-    <!-- 추가 스크립트 템플릿 -->
+    <!-- 🔧 1. 필수 유틸리티 먼저 로드 -->
+    <script src="{basePath}assets/js/utils/formatters.js"><\/script>
+    <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
+    <script src="{basePath}assets/js/utils/validators.js"><\/script>
+    <script src="{basePath}assets/js/utils/dom-utils.js"><\/script>
+
+    <!-- 🔧 2. Firebase 설정 및 서비스 -->
+    <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
+    <script src="{basePath}assets/js/services/auth-service.js"><\/script>
+    <script src="{basePath}assets/js/services/db-service.js"><\/script>
+    <script src="{basePath}assets/js/services/storage-service.js"><\/script>
+</script>
+
     <script id="additional-scripts-template" type="text/template">
-        <script src="{basePath}assets/js/components/header.js"><\/script>
-        <script src="{basePath}assets/js/components/scroll-top.js"><\/script>
-        <script src="{basePath}assets/js/pages/education/course-application.js"><\/script>
-        <script src="{basePath}assets/js/main.js"><\/script>
-    </script>
+    <!-- 🔧 3. 공통 컴포넌트 -->
+    <script src="{basePath}assets/js/components/header.js"><\/script>
+    <script src="{basePath}assets/js/components/scroll-top.js"><\/script>
+    
+    <!-- 🔧 4. 페이지별 스크립트 -->
+    <script src="{basePath}assets/js/pages/education/course-application.js"><\/script>
+    
+    <!-- 🔧 5. 메인 스크립트 -->
+    <script src="{basePath}assets/js/main.js"><\/script>
+</script>
 </body>
 
 </html>
