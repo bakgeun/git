@@ -1,6 +1,6 @@
 /**
- * 관리자 페이지 완전한 스타일
- * course-management 페이지 전용 스타일 포함
+ * 관리자 페이지 완전한 스타일 - 모달 문제 해결 버전
+ * cert-management 및 모든 관리자 페이지 전용 스타일 포함
  */
 
 /* =================================== */
@@ -41,6 +41,7 @@
     display: flex !important;
     opacity: 1 !important;
     visibility: visible !important;
+    animation: fadeIn 0.3s ease-in-out;
 }
 
 #admin-name,
@@ -55,22 +56,23 @@
     background-color: #2d3748;
     color: white;
     min-height: calc(100vh - 4rem);
-    width: 64px;
-    transition: width 0.3s ease, left 0.3s ease-in-out;
-}
-
-@media (min-width: 1200px) {
-    .admin-sidebar {
-        width: 256px;
-    }
+    width: 256px;
+    transition: transform 0.3s ease, left 0.3s ease-in-out;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .admin-nav a {
     transition: all 0.2s ease;
+    display: block;
+    padding: 0.75rem 1.5rem;
+    color: #cbd5e0;
+    text-decoration: none;
 }
 
 .admin-nav a:hover {
     background-color: #4a5568;
+    color: white;
 }
 
 .admin-nav a.active {
@@ -80,11 +82,18 @@
 
 /* 사이드바 사용자 정보 */
 .sidebar-user-info {
-    display: none;
+    opacity: 1 !important;
+    visibility: visible !important;
     padding: 1rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 1rem;
     background-color: rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.sidebar-user-info .font-bold,
+.sidebar-user-info .text-indigo-200,
+.sidebar-user-info #sidebar-logout-button {
     opacity: 1 !important;
     visibility: visible !important;
 }
@@ -106,11 +115,23 @@
     height: 32px;
     padding: 0;
     line-height: 1;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.admin-toggle-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.admin-toggle-button:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
 }
 
 /* 사이드바 오버레이 */
 .admin-sidebar-overlay {
-    display: none;
     position: fixed;
     top: 0;
     left: 0;
@@ -118,12 +139,16 @@
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 1025;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
     cursor: pointer;
-    touch-action: auto;
+    touch-action: none;
 }
 
 .admin-sidebar-overlay.active {
     display: block;
+    opacity: 1;
 }
 
 /* =================================== */
@@ -142,6 +167,12 @@
     padding: 1rem;
     border-radius: 0.375rem;
     border: 1px solid transparent;
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 50000;
+    max-width: 400px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .admin-notification.success {
@@ -160,6 +191,12 @@
     background-color: #fefcbf;
     border-color: #faf089;
     color: #744210;
+}
+
+.admin-notification.info {
+    background-color: #bee3f8;
+    border-color: #90cdf4;
+    color: #2c5282;
 }
 
 /* 통계 카드 */
@@ -188,6 +225,12 @@
     align-items: center;
     justify-content: center;
     font-size: 0.875rem;
+    text-decoration: none;
+}
+
+.admin-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .admin-btn-primary {
@@ -195,7 +238,7 @@
     color: white;
 }
 
-.admin-btn-primary:hover {
+.admin-btn-primary:hover:not(:disabled) {
     background-color: #434190;
 }
 
@@ -204,7 +247,7 @@
     color: #4a5568;
 }
 
-.admin-btn-secondary:hover {
+.admin-btn-secondary:hover:not(:disabled) {
     background-color: #cbd5e0;
 }
 
@@ -213,7 +256,7 @@
     color: white;
 }
 
-.admin-btn-danger:hover {
+.admin-btn-danger:hover:not(:disabled) {
     background-color: #c53030;
 }
 
@@ -248,7 +291,6 @@
 /* Course Management 전용 스타일 */
 /* =================================== */
 
-/* 과정 관리 모달 */
 .course-modal {
     position: fixed;
     top: 0;
@@ -336,13 +378,6 @@
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 1rem;
-}
-
-@media (max-width: 768px) {
-    .form-row,
-    .form-row-triple {
-        grid-template-columns: 1fr;
-    }
 }
 
 .form-field {
@@ -541,76 +576,714 @@
 }
 
 /* =================================== */
+/* 🔧 자격증 관리 모달 시스템 CSS - 완전 수정 */
+/* =================================== */
+
+/* 기본 모달 시스템 - cert-management 호환 - 강화된 스타일 */
+#cert-issue-modal,
+#bulk-issue-modal,
+.cert-modal-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 999999 !important; /* 매우 높은 z-index로 변경 */
+    display: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 1rem !important;
+    background-color: rgba(0, 0, 0, 0.7) !important; /* 배경 더 진하게 */
+    overflow-y: auto !important;
+    backdrop-filter: blur(2px) !important; /* 블러 효과 추가 */
+}
+
+/* Tailwind의 inset-0과 충돌 방지 */
+#cert-issue-modal[style],
+#bulk-issue-modal[style] {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 999999 !important;
+}
+
+/* 모달 표시 상태 */
+#cert-issue-modal:not(.hidden),
+#bulk-issue-modal:not(.hidden),
+.cert-modal-overlay.show,
+.cert-modal-overlay:not(.hidden) {
+    display: flex !important;
+}
+
+/* cert-management 기본 모달 컨테이너 - 강화된 스타일 */
+#cert-issue-modal .relative,
+#bulk-issue-modal .relative,
+#cert-issue-modal > div,
+#bulk-issue-modal > div {
+    background: white !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important; /* 그림자 강화 */
+    width: 100% !important;
+    max-width: 32rem !important;
+    max-height: 90vh !important;
+    overflow: hidden !important;
+    position: relative !important;
+    z-index: 999998 !important; /* 부모보다 낮지만 충분히 높게 */
+    margin: auto !important; /* 중앙 정렬 강화 */
+    transform: translateY(0) !important; /* transform 초기화 */
+}
+
+/* 대형 모달 (일괄 발급) - 강화된 스타일 */
+#bulk-issue-modal .relative,
+#bulk-issue-modal > div {
+    max-width: 56rem !important;
+}
+
+/* cert-management 모달 헤더 스타일 */
+#cert-issue-modal .p-6,
+#bulk-issue-modal .p-6 {
+    padding: 1.5rem !important;
+}
+
+#cert-issue-modal .flex.items-center.justify-between,
+#bulk-issue-modal .flex.items-center.justify-between {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 1rem !important;
+}
+
+/* cert-management 모달 제목 */
+#cert-issue-modal h3,
+#bulk-issue-modal h3 {
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+    color: #1f2937 !important;
+    margin: 0 !important;
+}
+
+/* cert-management 모달 닫기 버튼 */
+#cert-issue-modal .text-gray-400,
+#bulk-issue-modal .text-gray-400 {
+    background: none !important;
+    border: none !important;
+    color: #9ca3af !important;
+    cursor: pointer !important;
+    padding: 0.5rem !important;
+    border-radius: 0.25rem !important;
+    transition: color 0.2s ease !important;
+}
+
+#cert-issue-modal .text-gray-400:hover,
+#bulk-issue-modal .text-gray-400:hover {
+    color: #6b7280 !important;
+}
+
+/* cert-management 폼 스타일 */
+#cert-issue-modal form,
+#bulk-issue-modal .space-y-4 {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+}
+
+#cert-issue-modal .space-y-4 > div,
+#bulk-issue-modal .space-y-4 > div {
+    margin-bottom: 1rem !important;
+}
+
+#cert-issue-modal label,
+#bulk-issue-modal label {
+    display: block !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    color: #374151 !important;
+    margin-bottom: 0.5rem !important;
+}
+
+#cert-issue-modal input,
+#cert-issue-modal select,
+#bulk-issue-modal input {
+    width: 100% !important;
+    padding: 0.75rem !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.375rem !important;
+    font-size: 0.875rem !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+#cert-issue-modal input:focus,
+#cert-issue-modal select:focus,
+#bulk-issue-modal input:focus {
+    outline: none !important;
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+}
+
+/* cert-management 버튼 스타일 */
+#cert-issue-modal .flex.justify-end,
+#bulk-issue-modal .flex.justify-end {
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 0.75rem !important;
+    margin-top: 1.5rem !important;
+    padding-top: 1rem !important;
+    border-top: 1px solid #e5e7eb !important;
+}
+
+#cert-issue-modal .admin-btn,
+#bulk-issue-modal .admin-btn,
+#cert-issue-modal button[type="submit"],
+#cert-issue-modal button[type="button"],
+#bulk-issue-modal button[type="button"] {
+    padding: 0.75rem 1.5rem !important;
+    border-radius: 0.375rem !important;
+    font-weight: 500 !important;
+    font-size: 0.875rem !important;
+    transition: all 0.2s ease !important;
+    border: none !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+#cert-issue-modal .admin-btn-secondary,
+#bulk-issue-modal .admin-btn-secondary {
+    background-color: #f3f4f6 !important;
+    color: #374151 !important;
+    border: 1px solid #d1d5db !important;
+}
+
+#cert-issue-modal .admin-btn-secondary:hover,
+#bulk-issue-modal .admin-btn-secondary:hover {
+    background-color: #e5e7eb !important;
+}
+
+#cert-issue-modal .admin-btn-primary,
+#cert-issue-modal button[type="submit"],
+#bulk-issue-modal .admin-btn-primary,
+#bulk-issue-modal button[type="button"]:last-child {
+    background-color: #4f46e5 !important;
+    color: white !important;
+}
+
+#cert-issue-modal .admin-btn-primary:hover,
+#cert-issue-modal button[type="submit"]:hover,
+#bulk-issue-modal .admin-btn-primary:hover,
+#bulk-issue-modal button[type="button"]:last-child:hover {
+    background-color: #4338ca !important;
+}
+
+/* 파일 업로드 스타일 */
+#bulk-issue-modal input[type="file"] {
+    padding: 0.5rem !important;
+    border: 2px dashed #d1d5db !important;
+    border-radius: 0.5rem !important;
+    background-color: #f9fafb !important;
+}
+
+#bulk-issue-modal input[type="file"]:hover {
+    border-color: #6366f1 !important;
+    background-color: #f0f9ff !important;
+}
+
+/* 미리보기 테이블 스타일 */
+#bulk-issue-modal table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 0.875rem !important;
+    margin-top: 1rem !important;
+}
+
+#bulk-issue-modal table th,
+#bulk-issue-modal table td {
+    padding: 0.75rem !important;
+    text-align: left !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+#bulk-issue-modal table th {
+    background-color: #f9fafb !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+}
+
+#bulk-issue-modal table td {
+    color: #6b7280 !important;
+}
+
+/* 숨김 상태 강제 적용 */
+#cert-issue-modal.hidden,
+#bulk-issue-modal.hidden {
+    display: none !important;
+}
+
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+    #cert-issue-modal .relative,
+    #bulk-issue-modal .relative {
+        max-width: 95vw !important;
+        margin: 1rem !important;
+    }
+    
+    #cert-issue-modal .flex.justify-end,
+    #bulk-issue-modal .flex.justify-end {
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+    }
+    
+    #cert-issue-modal button,
+    #bulk-issue-modal button {
+        width: 100% !important;
+    }
+}
+
+/* =================================== */
+/* 자격증 폼 스타일 */
+/* =================================== */
+
+.cert-form {
+    width: 100% !important;
+}
+
+.cert-form-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1rem !important;
+}
+
+.cert-form-group {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.cert-form-group.cert-form-span-2 {
+    grid-column: span 2 !important;
+}
+
+.cert-form-label {
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    color: #374151 !important;
+    margin-bottom: 0.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+}
+
+.cert-form-label.required::after {
+    content: "*" !important;
+    color: #ef4444 !important;
+    font-weight: bold !important;
+}
+
+.cert-form-hint {
+    font-size: 0.75rem !important;
+    color: #6b7280 !important;
+    font-weight: normal !important;
+}
+
+.cert-form-input {
+    padding: 0.75rem !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 0.5rem !important;
+    font-size: 0.875rem !important;
+    transition: all 0.2s ease !important;
+    background-color: white !important;
+}
+
+.cert-form-input:focus {
+    outline: none !important;
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+    background-color: #fefefe !important;
+}
+
+.cert-form-input:invalid {
+    border-color: #ef4444 !important;
+}
+
+/* =================================== */
+/* 자격증 버튼 스타일 */
+/* =================================== */
+
+.cert-btn {
+    padding: 0.75rem 1.5rem !important;
+    border-radius: 0.5rem !important;
+    font-weight: 500 !important;
+    font-size: 0.875rem !important;
+    transition: all 0.2s ease !important;
+    border: none !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    min-width: 80px !important;
+    text-decoration: none !important;
+}
+
+.cert-btn:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+}
+
+.cert-btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+.cert-btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%) !important;
+    box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-1px) !important;
+}
+
+.cert-btn-secondary {
+    background-color: #f3f4f6 !important;
+    color: #374151 !important;
+    border: 1px solid #d1d5db !important;
+}
+
+.cert-btn-secondary:hover:not(:disabled) {
+    background-color: #e5e7eb !important;
+    color: #1f2937 !important;
+}
+
+/* =================================== */
+/* 파일 업로드 스타일 */
+/* =================================== */
+
+.cert-bulk-upload {
+    margin-bottom: 1.5rem !important;
+}
+
+.cert-file-upload {
+    position: relative !important;
+    border: 2px dashed #d1d5db !important;
+    border-radius: 0.5rem !important;
+    padding: 2rem !important;
+    text-align: center !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+.cert-file-upload:hover {
+    border-color: #6366f1 !important;
+    background-color: #f8faff !important;
+}
+
+.cert-file-input {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    opacity: 0 !important;
+    cursor: pointer !important;
+}
+
+.cert-file-text {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+
+.cert-file-text span:first-of-type {
+    font-weight: 500 !important;
+    color: #374151 !important;
+}
+
+.cert-file-text span:last-of-type {
+    font-size: 0.875rem !important;
+    color: #6b7280 !important;
+}
+
+/* =================================== */
+/* 미리보기 스타일 */
+/* =================================== */
+
+.cert-preview-section {
+    margin-top: 1.5rem !important;
+    padding-top: 1.5rem !important;
+    border-top: 1px solid #e5e7eb !important;
+}
+
+.cert-preview-title {
+    font-size: 1.125rem !important;
+    font-weight: 600 !important;
+    color: #1f2937 !important;
+    margin-bottom: 1rem !important;
+}
+
+.cert-preview-container {
+    border: 1px solid #e5e7eb !important;
+    border-radius: 0.5rem !important;
+    overflow: hidden !important;
+    max-height: 300px !important;
+    overflow-y: auto !important;
+}
+
+.cert-preview-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 0.875rem !important;
+}
+
+.cert-preview-table th {
+    background-color: #f9fafb !important;
+    padding: 0.75rem !important;
+    text-align: left !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+.cert-preview-table td {
+    padding: 0.75rem !important;
+    border-bottom: 1px solid #f3f4f6 !important;
+    color: #6b7280 !important;
+}
+
+.cert-preview-table tr:last-child td {
+    border-bottom: none !important;
+}
+
+/* =================================== */
+/* PDF 드롭다운 개선 */
+/* =================================== */
+
+/* PDF 드롭다운 컨테이너 */
+.cert-pdf-dropdown {
+    position: relative !important;
+    display: inline-block !important;
+}
+
+/* PDF 버튼 */
+.cert-pdf-btn {
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 0.25rem !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    background: none !important;
+    border: none !important;
+    color: #059669 !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+}
+
+.cert-pdf-btn:hover {
+    background-color: #dcfce7 !important;
+    color: #047857 !important;
+}
+
+/* PDF 드롭다운 메뉴 */
+.cert-pdf-menu {
+    position: absolute !important;
+    z-index: 999999 !important; /* 매우 높은 z-index */
+    background-color: white !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+    border: 1px solid #e5e7eb !important;
+    margin-top: 0.25rem !important;
+    padding: 0.5rem 0 !important;
+    min-width: 9rem !important;
+    right: 0 !important;
+    top: 100% !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(-10px) !important;
+    transition: all 0.2s ease !important;
+}
+
+.cert-pdf-menu.show {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+}
+
+.cert-pdf-menu a {
+    display: block !important;
+    padding: 0.5rem 1rem !important;
+    color: #374151 !important;
+    text-decoration: none !important;
+    font-size: 0.875rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.cert-pdf-menu a:hover {
+    background-color: #f3f4f6 !important;
+    color: #111827 !important;
+}
+
+/* PDF 드롭다운이 테이블 내에서 잘리지 않도록 */
+.admin-table {
+    overflow: visible !important;
+}
+
+.admin-table td {
+    overflow: visible !important;
+    position: relative !important;
+}
+
+/* 테이블 내 드롭다운 메뉴 개선 */
+[id^="pdf-dropdown-"] {
+    position: absolute !important;
+    z-index: 999999 !important;
+    background-color: white !important;
+    border-radius: 0.375rem !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+    border: 1px solid #e2e8f0 !important;
+    margin-top: 0.25rem !important;
+    padding: 0.25rem 0 !important;
+    min-width: 120px !important;
+    right: 0 !important;
+    top: 100% !important;
+}
+
+[id^="pdf-dropdown-"].hidden {
+    display: none !important;
+}
+
+[id^="pdf-dropdown-"] a {
+    display: block !important;
+    padding: 0.5rem 1rem !important;
+    color: #374151 !important;
+    text-decoration: none !important;
+    font-size: 0.875rem !important;
+    transition: background-color 0.2s ease !important;
+}
+
+[id^="pdf-dropdown-"] a:hover {
+    background-color: #f3f4f6 !important;
+    color: #111827 !important;
+}
+
+/* =================================== */
 /* 반응형 스타일 */
 /* =================================== */
 
+/* 데스크톱 */
+@media (min-width: 1200px) {
+    .admin-sidebar {
+        position: relative;
+        transform: translateX(0) !important;
+        left: auto !important;
+        box-shadow: none;
+    }
+    
+    .admin-toggle-button {
+        display: none !important;
+    }
+    
+    .admin-sidebar-overlay {
+        display: none !important;
+    }
+    
+    .admin-content {
+        margin-left: 0;
+    }
+    
+    .admin-header .container {
+        padding-left: 1rem;
+    }
+    
+    .sidebar-user-info {
+        display: none;
+    }
+}
+
+/* 태블릿 및 모바일 */
 @media (max-width: 1199px) {
-    /* 모바일에서 사이드바 */
     .admin-sidebar {
         position: fixed;
-        left: -280px;
+        top: 0;
+        left: 0;
         width: 280px;
-        z-index: 1030;
-        transition: left 0.3s ease-in-out;
-        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
         height: 100vh;
-        overflow-y: auto;
+        z-index: 1030;
+        transform: translateX(-100%);
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s ease-in-out;
     }
 
     .admin-sidebar.active {
-        left: 0;
+        transform: translateX(0);
     }
 
-    /* 토글 버튼 표시 */
     .admin-toggle-button {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: flex !important;
     }
     
-    /* 메인 콘텐츠 전체 너비 사용 */
-    .admin-content, 
-    main.flex-1 {
+    .admin-content {
         width: 100%;
         margin-left: 0 !important;
-        flex: 1 0 100% !important;
+        padding: 1.5rem;
     }
     
-    /* 관리자 헤더 조정 */
-    .admin-header .container,
-    header .container {
+    .admin-header .container {
         padding-left: 60px;
         position: relative;
     }
 
-    /* 헤더에서 사용자 정보 숨기기 */
     .admin-header .admin-user-info {
         display: none !important;
     }
     
-    /* 헤더 간격 조정 */
-    .admin-header .container {
-        padding-left: 60px;
-        display: flex;
-        justify-content: center;
+    .sidebar-user-info {
+        display: block !important;
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 1rem;
+        background-color: rgba(0, 0, 0, 0.2);
     }
     
-    /* 제목을 중앙에 위치 */
     .admin-header .admin-title {
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
+        font-size: 1.1rem;
     }
     
-    /* 사이드바 상단에 사용자 정보 영역 */
-    .sidebar-user-info {
-        display: block;
+    /* 모달 반응형 조정 */
+    .cert-modal-container {
+        max-width: 90vw !important;
+    }
+    
+    .cert-modal-large .cert-modal-container {
+        max-width: 95vw !important;
     }
 }
 
+/* 모바일 */
 @media (max-width: 768px) {
     .admin-content {
         padding: 1rem;
+    }
+    
+    .admin-header .container {
+        padding-left: 50px;
+        padding-right: 1rem;
+    }
+    
+    .admin-toggle-button {
+        left: 12px;
+        width: 28px;
+        height: 28px;
+    }
+
+    .admin-header .admin-title {
+        font-size: 1rem;
+    }
+    
+    .admin-sidebar {
+        width: 260px;
     }
     
     .admin-table {
@@ -629,41 +1302,128 @@
         padding: 1rem;
     }
     
-    .admin-header .container {
-        padding-left: 50px;
+    /* 모달 반응형 */
+    .cert-modal-overlay {
+        padding: 0.5rem !important;
+        align-items: flex-start !important;
+        padding-top: 2rem !important;
     }
     
-    .admin-toggle-button {
-        left: 12px;
+    .cert-modal-container {
+        max-width: 95vw !important;
+        width: 95vw !important;
     }
-
-    .admin-header .admin-title {
-        font-size: 1rem;
+    
+    .cert-modal-content {
+        max-height: 85vh !important;
     }
-
-    .course-modal-content {
-        margin: 0.5rem;
-        max-width: calc(100% - 1rem);
+    
+    .cert-modal-header,
+    .cert-modal-body,
+    .cert-modal-footer {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+    
+    .cert-form-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .cert-form-group.cert-form-span-2 {
+        grid-column: span 1 !important;
+    }
+    
+    .cert-modal-footer {
+        flex-direction: column !important;
+    }
+    
+    .cert-btn {
+        width: 100% !important;
+    }
+    
+    .cert-file-upload {
+        padding: 1.5rem 1rem !important;
+    }
+    
+    .form-row,
+    .form-row-triple {
+        grid-template-columns: 1fr !important;
     }
 }
 
+/* 작은 모바일 */
 @media (max-width: 480px) {
     .admin-content {
         padding: 0.75rem;
     }
     
     .admin-header .container {
-        padding-left: 40px;
+        padding-left: 45px;
+        padding-right: 0.75rem;
     }
     
     .admin-toggle-button {
         left: 8px;
+        width: 26px;
+        height: 26px;
+    }
+    
+    .admin-header .admin-title {
+        font-size: 0.9rem;
+    }
+    
+    .admin-sidebar {
+        width: 240px;
+    }
+    
+    .sidebar-user-info {
+        padding: 1rem;
+    }
+    
+    .admin-nav a {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
     }
     
     #admin-email {
         display: none;
     }
 
+    /* 매우 작은 화면용 모달 */
+    .cert-modal-overlay {
+        padding: 0.25rem !important;
+        padding-top: 1rem !important;
+    }
+    
+    .cert-modal-container {
+        max-width: 98vw !important;
+        width: 98vw !important;
+    }
+    
+    .cert-modal-content {
+        max-height: 90vh !important;
+    }
+    
+    .cert-modal-header {
+        padding: 1rem !important;
+    }
+    
+    .cert-modal-body {
+        padding: 1rem !important;
+    }
+    
+    .cert-modal-footer {
+        padding: 1rem !important;
+    }
+    
+    .cert-modal-title {
+        font-size: 1.125rem !important;
+    }
+    
+    .cert-form-input {
+        padding: 0.625rem !important;
+    }
+    
     .course-modal {
         padding: 0.5rem;
     }
@@ -680,6 +1440,43 @@
         width: 100%;
         justify-content: center;
     }
+}
+
+/* =================================== */
+/* 스크롤바 개선 */
+/* =================================== */
+
+.admin-sidebar::-webkit-scrollbar,
+.cert-modal-body::-webkit-scrollbar,
+.cert-preview-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.admin-sidebar::-webkit-scrollbar-track,
+.cert-modal-body::-webkit-scrollbar-track,
+.cert-preview-container::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 3px;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+    background-color: #4a5568;
+    border-radius: 3px;
+}
+
+.cert-modal-body::-webkit-scrollbar-thumb,
+.cert-preview-container::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb:hover {
+    background-color: #5a6b7d;
+}
+
+.cert-modal-body::-webkit-scrollbar-thumb:hover,
+.cert-preview-container::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
 }
 
 /* =================================== */
@@ -724,21 +1521,103 @@
     }
 }
 
-/* =================================== */
-/* 스크롤바 및 기타 */
-/* =================================== */
-
-.admin-sidebar::-webkit-scrollbar {
-    width: 4px;
+/* 사이드바 로딩 애니메이션 */
+.sidebar-user-info {
+    animation: fadeInUp 0.5s ease forwards;
 }
 
-.admin-sidebar::-webkit-scrollbar-track {
-    background: #2d3748;
+.sidebar-user-info.loaded {
+    opacity: 1;
 }
 
-.admin-sidebar::-webkit-scrollbar-thumb {
-    background-color: #4a5568;
-    border-radius: 4px;
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 모달 애니메이션 */
+@keyframes certModalFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes certModalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 깜빡임 방지를 위한 애니메이션 */
+.admin-user-info,
+.sidebar-user-info {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 로딩 상태에서의 스켈레톤 효과 */
+.admin-user-info.loading,
+.sidebar-user-info.loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+/* 사이드바 열기/닫기 애니메이션 개선 */
+@media (max-width: 1199px) {
+    .admin-sidebar {
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .admin-sidebar-overlay {
+        transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+}
+
+/* 대시보드 카드 호버 효과 개선 */
+.bg-white.rounded-lg.shadow-md {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bg-white.rounded-lg.shadow-md:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* =================================== */
+/* 스크롤 방지 스타일 */
+/* =================================== */
+
+html.sidebar-open,
+body.sidebar-open {
+    overflow: hidden !important;
+    position: fixed;
+    width: 100%;
+    height: 100%;
 }
 
 /* 오버플로우 방지 */
@@ -747,7 +1626,10 @@ body.sidebar-open {
     overflow: hidden;
 }
 
+/* =================================== */
 /* 접근성 개선 */
+/* =================================== */
+
 .sr-only {
     position: absolute;
     width: 1px;
@@ -761,106 +1643,44 @@ body.sidebar-open {
 }
 
 /* 포커스 상태 개선 */
-.focus-visible:focus {
-    outline: 2px solid #6366f1;
-    outline-offset: 2px;
+.focus-visible:focus,
+.admin-sidebar a:focus,
+.sidebar-main-menu a:focus,
+.admin-user-info button:focus,
+.sidebar-user-info button:focus,
+.cert-modal-close:focus,
+.cert-btn:focus,
+.cert-form-input:focus {
+    outline: 2px solid #6366f1 !important;
+    outline-offset: 2px !important;
 }
 
-/* =================================== */
-/* 유틸리티 클래스 */
-/* =================================== */
-
-.hidden {
-    display: none !important;
+.admin-sidebar a:focus {
+    background-color: #4a5568;
 }
 
-.text-center {
-    text-align: center;
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+    .admin-sidebar {
+        border-right: 2px solid #fff;
+    }
+    
+    .admin-sidebar-overlay,
+    .cert-modal-backdrop {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
 }
 
-.text-red-500 {
-    color: #ef4444;
-}
-
-.text-gray-500 {
-    color: #6b7280;
-}
-
-.text-blue-600 {
-    color: #2563eb;
-}
-
-.text-indigo-600 {
-    color: #4f46e5;
-}
-
-.py-4 {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-}
-
-.mb-6 {
-    margin-bottom: 1.5rem;
-}
-
-.mt-2 {
-    margin-top: 0.5rem;
-}
-
-.w-full {
-    width: 100%;
-}
-
-.flex {
-    display: flex;
-}
-
-.space-x-2 > * + * {
-    margin-left: 0.5rem;
-}
-
-.inline-flex {
-    display: inline-flex;
-}
-
-.items-center {
-    align-items: center;
-}
-
-.justify-between {
-    justify-content: space-between;
-}
-
-.px-4 {
-    padding-left: 1rem;
-    padding-right: 1rem;
-}
-
-.py-2 {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-}
-
-.rounded-md {
-    border-radius: 0.375rem;
-}
-
-.bg-blue-600 {
-    background-color: #2563eb;
-}
-
-.hover\:bg-blue-700:hover {
-    background-color: #1d4ed8;
-}
-
-.hover\:text-blue-800:hover {
-    color: #1e40af;
-}
-
-.hover\:text-indigo-800:hover {
-    color: #3730a3;
-}
-
-.hover\:text-red-800:hover {
-    color: #991b1b;
+/* 애니메이션 감소 설정 지원 */
+@media (prefers-reduced-motion: reduce) {
+    .admin-sidebar,
+    .admin-sidebar-overlay,
+    .sidebar-user-info,
+    .sidebar-main-menu a,
+    .cert-modal-overlay,
+    .cert-modal-content,
+    .cert-pdf-menu {
+        transition: none !important;
+        animation: none !important;
+    }
 }

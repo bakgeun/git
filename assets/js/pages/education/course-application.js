@@ -10,6 +10,7 @@ function checkDependencies() {
     const requiredUtils = [
         { name: 'window.formatters', path: 'formatters.js' },
         { name: 'window.dateUtils', path: 'date-utils.js' }
+        // validators.js와 dom-utils.js는 실제로 사용하지 않으므로 제거
     ];
     
     const missing = [];
@@ -30,6 +31,25 @@ function checkDependencies() {
     }
     
     console.log('✅ 모든 필수 유틸리티 로드 확인됨');
+    
+    // 🔧 추가: formatters 함수들이 실제로 작동하는지 테스트
+    try {
+        const testDate = new Date();
+        const testFormatDate = window.formatters.formatDate(testDate, 'YYYY.MM.DD');
+        const testFormatCurrency = window.formatters.formatCurrency(350000);
+        
+        console.log('✅ formatters.formatDate 테스트 성공:', testFormatDate);
+        console.log('✅ formatters.formatCurrency 테스트 성공:', testFormatCurrency);
+        
+        if (!testFormatDate || !testFormatCurrency) {
+            throw new Error('포맷터 함수 결과가 유효하지 않습니다.');
+        }
+        
+    } catch (error) {
+        console.error('❌ 유틸리티 함수 테스트 실패:', error);
+        return false;
+    }
+    
     return true;
 }
 

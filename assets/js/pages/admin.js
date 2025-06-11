@@ -1,465 +1,356 @@
 /**
- * 관리자 페이지 공통 스크립트
+ * 관리자 페이지 공통 스크립트 (최적화 버전 - 중복 실행 방지)
  * 모든 관리자 페이지에서 사용되는 공통 기능
  */
 
 // 즉시 실행 함수 표현식(IIFE)을 사용하여 전역 네임스페이스 오염 방지
 (function () {
+    // 🔧 초기화 상태 관리
+    let adminUtilsInitialized = false;
+    let sidebarInitialized = false;
+    let authListenerInitialized = false;
+
     // adminUtils 네임스페이스 생성
     window.adminUtils = {
         /**
-         * 데이터 테이블 생성
-         * 
-         * @param {string} tableId - 테이블 요소 ID
-         * @param {Array} data - 테이블 데이터
-         * @param {Object} columns - 컬럼 정의
-         * @param {Object} options - 추가 옵션
+         * 🔧 사이드바 토글 시스템 (최적화 - 중복 방지)
          */
-        createDataTable: function (tableId, data, columns, options = {}) {
-            const table = document.getElementById(tableId);
-            if (!table) return;
-
-            // 헤더 생성
-            const thead = table.querySelector('thead') || document.createElement('thead');
-            thead.innerHTML = `
-                <tr>
-                    ${Object.values(columns).map(col => `<th>${col.label}</th>`).join('')}
-                    ${options.actions ? '<th>작업</th>' : ''}
-                </tr>
-            `;
-
-            if (!table.querySelector('thead')) {
-                table.appendChild(thead);
+        initAdminSidebar: function () {
+            if (sidebarInitialized) {
+                console.log('⚠️ 사이드바가 이미 초기화됨 - 중복 방지');
+                return true;
             }
 
-            // 바디 생성
-            const tbody = table.querySelector('tbody') || document.createElement('tbody');
-            tbody.innerHTML = data.map(item => `
-                <tr data-id="${item.id}">
-                    ${Object.keys(columns).map(key => {
-                const column = columns[key];
-                let value = item[key];
-
-                // 포맷터 적용
-                if (column.formatter) {
-                    value = column.formatter(value, item);
-                }
-
-                return `<td>${value || '-'}</td>`;
-            }).join('')}
-                    ${options.actions ? `
-                        <td>
-                            ${options.actions.map(action =>
-                `<button class="admin-btn admin-btn-${action.type} btn-sm" 
-                                    onclick="${action.handler}('${item.id}')">
-                                    ${action.label}
-                                </button>`
-            ).join(' ')}
-                        </td>
-                    ` : ''}
-                </tr>
-            `).join('');
-
-            if (!table.querySelector('tbody')) {
-                table.appendChild(tbody);
-            }
-
-            // 빈 데이터 처리
-            if (data.length === 0) {
-                const colspan = Object.keys(columns).length + (options.actions ? 1 : 0);
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="${colspan}" class="text-center py-4 text-gray-500">
-                            데이터가 없습니다.
-                        </td>
-                    </tr>
-                `;
-            }
-        },
-
-        /**
-         * 페이지네이션 생성
-         * 
-         * @param {string} containerId - 페이지네이션 컨테이너 ID
-         * @param {number} currentPage - 현재 페이지
-         * @param {number} totalPages - 전체 페이지 수
-         * @param {function} onPageChange - 페이지 변경 핸들러
-         */
-        createPagination: function (containerId, currentPage, totalPages, onPageChange) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-
-            let html = '<div class="admin-pagination">';
-
-            // 이전 페이지 버튼
-            html += `
-                <button class="admin-pagination-btn" 
-                    onclick="${onPageChange}(${currentPage - 1})"
-                    ${currentPage === 1 ? 'disabled' : ''}>
-                    이전
-                </button>
-            `;
-
-            // 페이지 번호
-            const maxButtons = 5;
-            let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
-            let endPage = Math.min(totalPages, startPage + maxButtons - 1);
-
-            if (endPage - startPage < maxButtons - 1) {
-                startPage = Math.max(1, endPage - maxButtons + 1);
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                html += `
-                    <button class="admin-pagination-btn ${i === currentPage ? 'active' : ''}"
-                        onclick="${onPageChange}(${i})">
-                        ${i}
-                    </button>
-                `;
-            }
-
-            // 다음 페이지 버튼
-            html += `
-                <button class="admin-pagination-btn" 
-                    onclick="${onPageChange}(${currentPage + 1})"
-                    ${currentPage === totalPages ? 'disabled' : ''}>
-                    다음
-                </button>
-            `;
-
-            html += '</div>';
-            container.innerHTML = html;
-        },
-
-        /**
-         * 모달 표시
-         * 
-         * @param {Object} options - 모달 옵션
-         */
-        showModal: function (options) {
-            // 기존 모달 제거
-            const existingModal = document.getElementById('admin-modal');
-            if (existingModal) {
-                existingModal.remove();
-            }
-
-            // 모달 생성
-            const modalHtml = `
-                <div id="admin-modal" class="admin-modal-overlay">
-                    <div class="admin-modal">
-                        <div class="admin-modal-header">
-                            <h3 class="text-lg font-medium">${options.title || '알림'}</h3>
-                            <button onclick="adminUtils.closeModal()" class="text-gray-400 hover:text-gray-600">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="admin-modal-body">
-                            ${options.content || ''}
-                        </div>
-                        <div class="admin-modal-footer">
-                            ${options.buttons ? options.buttons.map(btn => `
-                                <button class="admin-btn admin-btn-${btn.type || 'secondary'}"
-                                    onclick="${btn.handler}">
-                                    ${btn.label}
-                                </button>
-                            `).join('') : ''}
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
-        },
-
-        /**
-         * 모달 닫기
-         */
-        closeModal: function () {
-            const modal = document.getElementById('admin-modal');
-            if (modal) {
-                modal.remove();
-            }
-        },
-
-        /**
-         * 확인 대화상자
-         * 
-         * @param {string} message - 확인 메시지
-         * @param {function} onConfirm - 확인 시 콜백
-         */
-        confirmDialog: function (message, onConfirm) {
-            this.showModal({
-                title: '확인',
-                content: `<p>${message}</p>`,
-                buttons: [
-                    {
-                        label: '취소',
-                        type: 'secondary',
-                        handler: 'adminUtils.closeModal()'
-                    },
-                    {
-                        label: '확인',
-                        type: 'primary',
-                        handler: `adminUtils.closeModal(); (${onConfirm})()`
-                    }
-                ]
+            console.log('🔧 관리자 사이드바 초기화 시작');
+            
+            const toggleButton = document.getElementById('admin-sidebar-toggle');
+            const sidebar = document.querySelector('.admin-sidebar');
+            let overlay = document.getElementById('sidebar-overlay');
+            
+            console.log('사이드바 요소들 확인:', {
+                button: !!toggleButton,
+                sidebar: !!sidebar,
+                overlay: !!overlay
             });
-        },
-
-        /**
-         * 폼 유효성 검사
-         * 
-         * @param {HTMLFormElement} form - 폼 요소
-         * @param {Object} rules - 유효성 검사 규칙
-         * @returns {boolean} - 유효성 검사 통과 여부
-         */
-        validateForm: function (form, rules) {
-            let isValid = true;
-            const errors = {};
-
-            Object.keys(rules).forEach(fieldName => {
-                const field = form.querySelector(`[name="${fieldName}"]`);
-                if (!field) return;
-
-                const fieldRules = rules[fieldName];
-                const value = field.value.trim();
-
-                // 필수 항목 검사
-                if (fieldRules.required && !value) {
-                    errors[fieldName] = fieldRules.required;
-                    isValid = false;
-                    return;
-                }
-
-                // 최소 길이 검사
-                if (fieldRules.minLength && value.length < fieldRules.minLength.value) {
-                    errors[fieldName] = fieldRules.minLength.message;
-                    isValid = false;
-                    return;
-                }
-
-                // 최대 길이 검사
-                if (fieldRules.maxLength && value.length > fieldRules.maxLength.value) {
-                    errors[fieldName] = fieldRules.maxLength.message;
-                    isValid = false;
-                    return;
-                }
-
-                // 패턴 검사
-                if (fieldRules.pattern && !fieldRules.pattern.value.test(value)) {
-                    errors[fieldName] = fieldRules.pattern.message;
-                    isValid = false;
-                    return;
-                }
-
-                // 커스텀 검사
-                if (fieldRules.custom && !fieldRules.custom.validator(value)) {
-                    errors[fieldName] = fieldRules.custom.message;
-                    isValid = false;
-                }
-            });
-
-            // 오류 표시
-            Object.keys(errors).forEach(fieldName => {
-                this.showFieldError(form, fieldName, errors[fieldName]);
-            });
-
-            return isValid;
-        },
-
-        /**
-         * 필드 오류 표시
-         * 
-         * @param {HTMLFormElement} form - 폼 요소
-         * @param {string} fieldName - 필드 이름
-         * @param {string} message - 오류 메시지
-         */
-        showFieldError: function (form, fieldName, message) {
-            const field = form.querySelector(`[name="${fieldName}"]`);
-            if (!field) return;
-
-            // 기존 오류 메시지 제거
-            const existingError = field.parentElement.querySelector('.error-message');
-            if (existingError) {
-                existingError.remove();
+            
+            // 오버레이가 없으면 동적 생성
+            if (!overlay) {
+                console.log('오버레이 없음, 동적 생성');
+                overlay = this.createSidebarOverlay();
             }
-
-            // 오류 메시지 추가
-            const errorElement = document.createElement('p');
-            errorElement.className = 'error-message text-red-500 text-sm mt-1';
-            errorElement.textContent = message;
-            field.parentElement.appendChild(errorElement);
-
-            // 필드 스타일 변경
-            field.classList.add('border-red-500');
-        },
-
-        /**
-         * 필드 오류 제거
-         * 
-         * @param {HTMLFormElement} form - 폼 요소
-         * @param {string} fieldName - 필드 이름
-         */
-        clearFieldError: function (form, fieldName) {
-            const field = form.querySelector(`[name="${fieldName}"]`);
-            if (!field) return;
-
-            // 오류 메시지 제거
-            const existingError = field.parentElement.querySelector('.error-message');
-            if (existingError) {
-                existingError.remove();
+            
+            if (!sidebar) {
+                console.error('❌ 사이드바를 찾을 수 없습니다.');
+                return false;
             }
-
-            // 필드 스타일 복원
-            field.classList.remove('border-red-500');
-        },
-
-        /**
-         * 검색 필터 생성
-         * 
-         * @param {string} containerId - 필터 컨테이너 ID
-         * @param {Object} filterOptions - 필터 옵션
-         * @param {function} onFilter - 필터 적용 핸들러
-         */
-        createSearchFilter: function (containerId, filterOptions, onFilter) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-
-            let html = '<div class="admin-filter-section"><div class="admin-filter-row">';
-
-            // 검색어 입력
-            if (filterOptions.searchField) {
-                html += `
-                    <div class="admin-form-group flex-1">
-                        <label class="admin-form-label">${filterOptions.searchField.label}</label>
-                        <input type="text" 
-                            id="search-keyword"
-                            class="admin-form-control" 
-                            placeholder="${filterOptions.searchField.placeholder || '검색어 입력'}">
-                    </div>
-                `;
-            }
-
-            // 선택 필터
-            if (filterOptions.selectFilters) {
-                filterOptions.selectFilters.forEach(filter => {
-                    html += `
-                        <div class="admin-form-group">
-                            <label class="admin-form-label">${filter.label}</label>
-                            <select id="${filter.id}" class="admin-form-control">
-                                <option value="">전체</option>
-                                ${filter.options.map(opt =>
-                        `<option value="${opt.value}">${opt.label}</option>`
-                    ).join('')}
-                            </select>
-                        </div>
-                    `;
-                });
-            }
-
-            // 날짜 필터
-            if (filterOptions.dateFilter) {
-                html += `
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">시작일</label>
-                        <input type="date" id="start-date" class="admin-form-control">
-                    </div>
-                    <div class="admin-form-group">
-                        <label class="admin-form-label">종료일</label>
-                        <input type="date" id="end-date" class="admin-form-control">
-                    </div>
-                `;
-            }
-
-            // 검색 버튼
-            html += `
-                <div class="admin-form-group">
-                    <button class="admin-btn admin-btn-primary" onclick="${onFilter}()">
-                        검색
-                    </button>
-                </div>
-                <div class="admin-form-group">
-                    <button class="admin-btn admin-btn-secondary" onclick="adminUtils.resetFilters()">
-                        초기화
-                    </button>
-                </div>
-            `;
-
-            html += '</div></div>';
-            container.innerHTML = html;
-        },
-
-        /**
-         * 필터 초기화
-         */
-        resetFilters: function () {
-            const filterInputs = document.querySelectorAll('.admin-filter-section input, .admin-filter-section select');
-            filterInputs.forEach(input => {
-                if (input.type === 'checkbox' || input.type === 'radio') {
-                    input.checked = false;
-                } else {
-                    input.value = '';
-                }
-            });
-        },
-
-        /**
-         * 로딩 오버레이 표시
-         * 
-         * @param {boolean} show - 표시 여부
-         */
-        showLoadingOverlay: function (show = true) {
-            const existingOverlay = document.getElementById('loading-overlay');
-
-            if (show) {
-                if (existingOverlay) return;
-
-                const overlay = document.createElement('div');
-                overlay.id = 'loading-overlay';
-                overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-                overlay.innerHTML = `
-                    <div class="bg-white rounded-lg p-6 flex items-center space-x-4">
-                        <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span class="text-gray-800">처리 중...</span>
-                    </div>
-                `;
-                document.body.appendChild(overlay);
+            
+            // 토글 버튼이 없으면 동적 생성
+            if (!toggleButton) {
+                console.log('토글 버튼 없음, 동적 생성');
+                this.createToggleButton();
             } else {
-                if (existingOverlay) {
-                    existingOverlay.remove();
+                // 기존 토글 버튼에 이벤트 등록
+                this.attachToggleEvents(toggleButton);
+            }
+            
+            // 오버레이 이벤트 등록
+            this.attachOverlayEvents(overlay);
+            
+            // 전역 이벤트 등록
+            this.attachGlobalEvents();
+            
+            sidebarInitialized = true;
+            console.log('✅ 관리자 사이드바 초기화 완료');
+            return true;
+        },
+
+        /**
+         * 오버레이 동적 생성
+         */
+        createSidebarOverlay: function () {
+            const overlay = document.createElement('div');
+            overlay.id = 'sidebar-overlay';
+            overlay.className = 'admin-sidebar-overlay';
+            
+            // 스타일 직접 적용 (CSS 로드 순서 문제 방지)
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1025;
+                display: none;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                cursor: pointer;
+            `;
+            
+            document.body.appendChild(overlay);
+            console.log('✅ 오버레이 동적 생성 완료');
+            return overlay;
+        },
+
+        /**
+         * 토글 버튼 동적 생성
+         */
+        createToggleButton: function () {
+            const header = document.querySelector('header, .admin-header');
+            if (!header) {
+                console.error('❌ 헤더를 찾을 수 없습니다.');
+                return null;
+            }
+            
+            const container = header.querySelector('.container');
+            if (!container) {
+                console.error('❌ 헤더 컨테이너를 찾을 수 없습니다.');
+                return null;
+            }
+            
+            const toggleBtn = document.createElement('button');
+            toggleBtn.id = 'admin-sidebar-toggle';
+            toggleBtn.className = 'admin-toggle-button';
+            toggleBtn.setAttribute('aria-label', '메뉴 토글');
+            toggleBtn.setAttribute('type', 'button');
+            
+            // 스타일 직접 적용
+            toggleBtn.style.cssText = `
+                display: none;
+                position: absolute;
+                left: 16px;
+                top: 50%;
+                transform: translateY(-50%);
+                background: none;
+                border: none;
+                color: white;
+                font-size: 24px;
+                cursor: pointer;
+                z-index: 1041;
+                width: 32px;
+                height: 32px;
+                padding: 0;
+                line-height: 1;
+                align-items: center;
+                justify-content: center;
+            `;
+            
+            // 반응형 표시 (모바일에서만)
+            const mediaQuery = window.matchMedia('(max-width: 1199px)');
+            const updateButtonDisplay = () => {
+                toggleBtn.style.display = mediaQuery.matches ? 'flex' : 'none';
+            };
+            
+            updateButtonDisplay();
+            mediaQuery.addListener(updateButtonDisplay);
+            
+            toggleBtn.innerHTML = `
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            `;
+            
+            // 컨테이너의 첫 번째 자식으로 삽입
+            container.insertBefore(toggleBtn, container.firstChild);
+            
+            // 이벤트 등록
+            this.attachToggleEvents(toggleBtn);
+            
+            console.log('✅ 토글 버튼 동적 생성 완료');
+            return toggleBtn;
+        },
+
+        /**
+         * 토글 버튼 이벤트 등록 (최적화 - 중복 방지)
+         */
+        attachToggleEvents: function (toggleButton) {
+            // 이미 이벤트가 등록되어 있는지 확인
+            if (toggleButton.dataset.eventAttached === 'true') {
+                console.log('⚠️ 토글 버튼 이벤트가 이미 등록됨 - 중복 방지');
+                return;
+            }
+
+            // 새 이벤트 등록
+            toggleButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🔧 토글 버튼 클릭됨');
+                this.toggleSidebar();
+            });
+            
+            // 이벤트 등록 플래그 설정
+            toggleButton.dataset.eventAttached = 'true';
+            console.log('✅ 토글 버튼 이벤트 등록 완료');
+        },
+
+        /**
+         * 오버레이 이벤트 등록 (최적화 - 중복 방지)
+         */
+        attachOverlayEvents: function (overlay) {
+            if (!overlay) return;
+            
+            // 이미 이벤트가 등록되어 있는지 확인
+            if (overlay.dataset.eventAttached === 'true') {
+                console.log('⚠️ 오버레이 이벤트가 이미 등록됨 - 중복 방지');
+                return;
+            }
+            
+            // 새 이벤트 등록
+            overlay.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🔧 오버레이 클릭됨 - 사이드바 닫기');
+                this.closeSidebar();
+            });
+            
+            // 이벤트 등록 플래그 설정
+            overlay.dataset.eventAttached = 'true';
+            console.log('✅ 오버레이 이벤트 등록 완료');
+        },
+
+        /**
+         * 전역 이벤트 등록 (최적화 - 중복 방지)
+         */
+        attachGlobalEvents: function () {
+            // 이미 등록되어 있는지 확인
+            if (window.adminGlobalEventsAttached) {
+                console.log('⚠️ 전역 이벤트가 이미 등록됨 - 중복 방지');
+                return;
+            }
+
+            // ESC 키로 사이드바 닫기
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    const sidebar = document.querySelector('.admin-sidebar');
+                    if (sidebar && sidebar.classList.contains('active')) {
+                        console.log('🔧 ESC 키로 사이드바 닫기');
+                        this.closeSidebar();
+                    }
                 }
+            });
+            
+            // 화면 크기 변경 시 처리
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 1200) {
+                    console.log('🔧 데스크톱 모드 - 사이드바 자동 닫기');
+                    this.closeSidebar();
+                }
+            });
+            
+            // 사이드바 외부 클릭 감지
+            document.addEventListener('click', (e) => {
+                const sidebar = document.querySelector('.admin-sidebar');
+                const toggleButton = document.getElementById('admin-sidebar-toggle');
+                
+                if (sidebar && 
+                    sidebar.classList.contains('active') &&
+                    !sidebar.contains(e.target) &&
+                    (!toggleButton || !toggleButton.contains(e.target))) {
+                    console.log('🔧 사이드바 외부 클릭 감지');
+                    this.closeSidebar();
+                }
+            });
+            
+            // 전역 이벤트 등록 플래그 설정
+            window.adminGlobalEventsAttached = true;
+            console.log('✅ 전역 이벤트 등록 완료');
+        },
+
+        /**
+         * 🔧 사이드바 토글
+         */
+        toggleSidebar: function () {
+            const sidebar = document.querySelector('.admin-sidebar');
+            if (!sidebar) {
+                console.error('❌ 사이드바를 찾을 수 없습니다.');
+                return;
+            }
+            
+            const isActive = sidebar.classList.contains('active');
+            
+            console.log('🔧 사이드바 토글:', isActive ? '닫기' : '열기');
+            
+            if (isActive) {
+                this.closeSidebar();
+            } else {
+                this.openSidebar();
             }
         },
 
         /**
-         * 토스트 알림 표시
-         * 
-         * @param {string} message - 알림 메시지
-         * @param {string} type - 알림 타입 ('success', 'error', 'info', 'warning')
-         * @param {number} duration - 표시 시간 (ms)
+         * 🔧 사이드바 열기
          */
-        showToast: function (message, type = 'info', duration = 3000) {
-            const toast = document.createElement('div');
-            toast.className = `fixed bottom-4 right-4 p-4 rounded-lg text-white z-50 
-                ${type === 'success' ? 'bg-green-500' :
-                    type === 'error' ? 'bg-red-500' :
-                        type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'}`;
-            toast.textContent = message;
-
-            document.body.appendChild(toast);
-
-            setTimeout(() => {
-                toast.remove();
-            }, duration);
+        openSidebar: function () {
+            const sidebar = document.querySelector('.admin-sidebar');
+            const overlay = document.getElementById('sidebar-overlay') || document.querySelector('.admin-sidebar-overlay');
+            
+            if (!sidebar) {
+                console.error('❌ 사이드바를 찾을 수 없습니다.');
+                return;
+            }
+            
+            console.log('🔧 사이드바 열기 실행');
+            
+            // 사이드바 활성화
+            sidebar.classList.add('active');
+            
+            // 오버레이 표시
+            if (overlay) {
+                overlay.classList.add('active');
+                overlay.style.display = 'block';
+                overlay.style.opacity = '1';
+            }
+            
+            // 바디 스크롤 방지 (모바일에서)
+            if (window.innerWidth < 1200) {
+                document.body.classList.add('sidebar-open');
+                document.documentElement.classList.add('sidebar-open');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            console.log('✅ 사이드바 열기 완료');
         },
 
         /**
-         * 페이지 간 사용자 정보 유지를 위한 함수
+         * 🔧 사이드바 닫기
+         */
+        closeSidebar: function () {
+            const sidebar = document.querySelector('.admin-sidebar');
+            const overlay = document.getElementById('sidebar-overlay') || document.querySelector('.admin-sidebar-overlay');
+            
+            if (!sidebar) {
+                console.error('❌ 사이드바를 찾을 수 없습니다.');
+                return;
+            }
+            
+            console.log('🔧 사이드바 닫기 실행');
+            
+            // 사이드바 비활성화
+            sidebar.classList.remove('active');
+            
+            // 오버레이 숨기기
+            if (overlay) {
+                overlay.classList.remove('active');
+                overlay.style.opacity = '0';
+                
+                // 애니메이션 후 display none
+                setTimeout(() => {
+                    if (!overlay.classList.contains('active')) {
+                        overlay.style.display = 'none';
+                    }
+                }, 300);
+            }
+            
+            // 바디 스크롤 복원
+            document.body.classList.remove('sidebar-open');
+            document.documentElement.classList.remove('sidebar-open');
+            document.body.style.overflow = '';
+            
+            console.log('✅ 사이드바 닫기 완료');
+        },
+
+        /**
+         * 페이지 간 사용자 정보 유지를 위한 함수 (최적화 - 중복 방지)
          */
         initUserInfo: function () {
             console.log('사용자 정보 초기화 시작');
@@ -498,7 +389,22 @@
             // 사이드바 정보 업데이트
             this.addUserInfoToSidebar();
 
-            // Firebase 인증 정보 확인 후 업데이트 (비동기로 진행)
+            // Firebase 인증 정보 확인 후 업데이트 (중복 방지)
+            this.setupFirebaseAuthListener();
+
+            console.log('사용자 정보 초기화 완료 (기본값 적용)');
+        },
+
+        /**
+         * Firebase 인증 리스너 설정 (최적화 - 중복 방지)
+         */
+        setupFirebaseAuthListener: function() {
+            // 이미 리스너가 설정되어 있는지 확인
+            if (authListenerInitialized) {
+                console.log('⚠️ Firebase 인증 리스너가 이미 설정됨 - 중복 방지');
+                return;
+            }
+
             if (window.dhcFirebase) {
                 console.log('Firebase 인증 리스너 설정');
 
@@ -510,6 +416,9 @@
                         const email = user.email;
 
                         // DOM 업데이트
+                        const adminNameElem = document.getElementById('admin-name');
+                        const adminEmailElem = document.getElementById('admin-email');
+                        
                         if (adminNameElem) adminNameElem.textContent = displayName;
                         if (adminEmailElem) adminEmailElem.textContent = email;
 
@@ -524,11 +433,11 @@
                         // 로그아웃 상태 - 기본값 유지, 세션 스토리지는 비우지 않음
                     }
                 });
+
+                authListenerInitialized = true;
             } else {
                 console.warn('Firebase를 찾을 수 없음');
             }
-
-            console.log('사용자 정보 초기화 완료 (기본값 적용)');
         },
 
         /**
@@ -574,9 +483,9 @@
                 sidebar.appendChild(userInfoDiv);
             }
 
-            // 로그아웃 버튼에 이벤트 추가
+            // 로그아웃 버튼에 이벤트 추가 (중복 방지)
             const logoutButton = document.getElementById('sidebar-logout-button');
-            if (logoutButton) {
+            if (logoutButton && !logoutButton.dataset.eventAttached) {
                 logoutButton.addEventListener('click', () => {
                     console.log('사이드바 로그아웃 버튼 클릭');
 
@@ -601,6 +510,7 @@
                     }
                 });
 
+                logoutButton.dataset.eventAttached = 'true';
                 console.log('사이드바 로그아웃 버튼에 이벤트 등록 완료');
             }
 
@@ -622,7 +532,7 @@
             }, 300);
         },
 
-        // 모바일 메뉴 링크 추가 함수 (새로 추가)
+        // 모바일 메뉴 링크 추가 함수
         addMobileMenuLinks: function (sidebar) {
             // 이미 메인 메뉴 섹션이 있는지 확인
             const existingMainMenu = sidebar.querySelector('.sidebar-main-menu');
@@ -649,7 +559,7 @@
                     메인 홈페이지
                 </span>
             </a>
-            <a href="${window.adjustPath ? window.adjustPath('pages/about/overview.html') : 'pages/about/overview.html'}" 
+            <a href="${window.adjustPath ? window.adjustPath('pages/about.html') : 'pages/about.html'}" 
                class="block px-4 py-2 text-indigo-200 hover:bg-indigo-700 hover:text-white transition">
                 <span class="flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -714,186 +624,193 @@
         },
 
         /**
-         * 사이드바 토글 기능
-         */
-        toggleSidebar: function () {
-            console.log('사이드바 토글 시도');
-            const sidebar = document.querySelector('.admin-sidebar');
-
-            // 오버레이가 없으면 생성
-            let overlay = document.querySelector('.admin-sidebar-overlay');
-            if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.className = 'admin-sidebar-overlay';
-                overlay.addEventListener('click', () => this.closeSidebar());
-                document.body.appendChild(overlay);
-                console.log('오버레이 동적 생성됨');
-            }
-
-            if (sidebar) {
-                console.log('사이드바 토글: ' + (sidebar.classList.contains('active') ? '닫기' : '열기'));
-                sidebar.classList.toggle('active');
-                overlay.classList.toggle('active');
-
-                // 페이지 스크롤 제어
-                if (sidebar.classList.contains('active')) {
-                    document.body.classList.add('sidebar-open');
-                    document.documentElement.classList.add('sidebar-open');
-                } else {
-                    document.body.classList.remove('sidebar-open');
-                    document.documentElement.classList.remove('sidebar-open');
-                }
-            } else {
-                console.warn('사이드바 요소를 찾을 수 없습니다.');
-            }
-        },
-
-        /**
-         * 사이드바 닫기
-         */
-        closeSidebar: function () {
-            console.log('사이드바 닫기');
-            const sidebar = document.querySelector('.admin-sidebar');
-            const overlay = document.querySelector('.admin-sidebar-overlay');
-
-            if (!sidebar || !overlay) return;
-
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.classList.remove('sidebar-open');
-            document.documentElement.classList.remove('sidebar-open');
-        },
-
-        /**
-         * 관리자 페이지 초기화
+         * 🔧 관리자 페이지 초기화 (최적화 - 중복 방지)
          */
         initAdminPage: function () {
-            console.log('관리자 페이지 초기화');
+            // 중복 초기화 방지
+            if (adminUtilsInitialized) {
+                console.log('⚠️ 관리자 페이지가 이미 초기화됨 - 중복 방지');
+                return;
+            }
 
-            // 사용자 정보 초기화 (우선 실행)
+            console.log('🔧 관리자 페이지 초기화 시작');
+
+            // 1. 사용자 정보 초기화 (우선 실행)
             this.initUserInfo();
 
-            // 반응형 처리를 위한 사이드바 오버레이 추가
-            if (!document.querySelector('.admin-sidebar-overlay')) {
-                const overlay = document.createElement('div');
-                overlay.className = 'admin-sidebar-overlay';
+            // 2. 사이드바 토글 시스템 초기화
+            this.initAdminSidebar();
 
-                // 오버레이 클릭 시 사이드바 닫기 이벤트 추가
-                overlay.addEventListener('click', (e) => {
-                    console.log('오버레이 클릭됨');
-                    this.closeSidebar();
-                });
+            // 초기화 완료 플래그 설정
+            adminUtilsInitialized = true;
+            console.log('✅ 관리자 페이지 초기화 완료');
+        },
 
-                document.body.appendChild(overlay);
+        // 🔧 추가된 공통 기능들 (기존 코드 유지)
+        
+        /**
+         * 데이터 테이블 생성
+         */
+        createDataTable: function (tableId, data, columns, options = {}) {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+
+            // 헤더 생성
+            const thead = table.querySelector('thead') || document.createElement('thead');
+            thead.innerHTML = `
+                <tr>
+                    ${Object.values(columns).map(col => `<th>${col.label}</th>`).join('')}
+                    ${options.actions ? '<th>작업</th>' : ''}
+                </tr>
+            `;
+
+            if (!table.querySelector('thead')) {
+                table.appendChild(thead);
             }
 
-            // 토글 버튼 이벤트 설정 - ID로 선택하여 더 명확하게 대상 지정
-            const toggleButton = document.getElementById('admin-sidebar-toggle');
-            if (toggleButton) {
-                console.log('토글 버튼 발견, 이벤트 등록');
-                toggleButton.addEventListener('click', () => {
-                    console.log('토글 버튼 클릭됨');
-                    this.toggleSidebar();
-                });
-            } else {
-                console.warn('토글 버튼을 찾을 수 없습니다.');
+            // 바디 생성
+            const tbody = table.querySelector('tbody') || document.createElement('tbody');
+            tbody.innerHTML = data.map(item => `
+                <tr data-id="${item.id}">
+                    ${Object.keys(columns).map(key => {
+                const column = columns[key];
+                let value = item[key];
 
-                // 토글 버튼이 없으면 동적으로 생성
-                const header = document.querySelector('header');
-                if (header) {
-                    const containerDiv = header.querySelector('.container');
-                    if (containerDiv) {
-                        const toggleBtn = document.createElement('button');
-                        toggleBtn.id = 'admin-sidebar-toggle';
-                        toggleBtn.className = 'admin-toggle-button';
-                        toggleBtn.setAttribute('aria-label', '메뉴 토글');
-                        toggleBtn.innerHTML = `
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                            </svg>
-                        `;
-
-                        // 버튼에 이벤트 리스너 추가
-                        toggleBtn.addEventListener('click', () => {
-                            console.log('동적 생성된 토글 버튼 클릭됨');
-                            this.toggleSidebar();
-                        });
-
-                        // 컨테이너의 첫 번째 자식으로 삽입
-                        if (containerDiv.firstChild) {
-                            containerDiv.insertBefore(toggleBtn, containerDiv.firstChild);
-                        } else {
-                            containerDiv.appendChild(toggleBtn);
-                        }
-
-                        console.log('토글 버튼이 동적으로 생성되었습니다.');
-                    }
+                // 포맷터 적용
+                if (column.formatter) {
+                    value = column.formatter(value, item);
                 }
+
+                return `<td>${value || '-'}</td>`;
+            }).join('')}
+                    ${options.actions ? `
+                        <td>
+                            ${options.actions.map(action =>
+                `<button class="admin-btn admin-btn-${action.type} btn-sm" 
+                                    onclick="${action.handler}('${item.id}')">
+                                    ${action.label}
+                                </button>`
+            ).join(' ')}
+                        </td>
+                    ` : ''}
+                </tr>
+            `).join('');
+
+            if (!table.querySelector('tbody')) {
+                table.appendChild(tbody);
             }
 
-            // 문서 전체에 클릭 이벤트 추가 (사이드바 외부 클릭 감지)
-            document.addEventListener('click', (e) => {
-                const sidebar = document.querySelector('.admin-sidebar');
-                const toggleButton = document.getElementById('admin-sidebar-toggle');
+            // 빈 데이터 처리
+            if (data.length === 0) {
+                const colspan = Object.keys(columns).length + (options.actions ? 1 : 0);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="${colspan}" class="text-center py-4 text-gray-500">
+                            데이터가 없습니다.
+                        </td>
+                    </tr>
+                `;
+            }
+        },
 
-                // 사이드바가 활성화되어 있고, 클릭이 사이드바나 토글버튼 외부에서 발생했을 때
-                if (sidebar &&
-                    sidebar.classList.contains('active') &&
-                    !sidebar.contains(e.target) &&
-                    (!toggleButton || !toggleButton.contains(e.target))) {
-                    console.log('사이드바 외부 클릭 감지');
-                    this.closeSidebar();
-                }
-            });
+        /**
+         * 모달 표시
+         */
+        showModal: function (options) {
+            // 기존 모달 제거
+            const existingModal = document.getElementById('admin-modal');
+            if (existingModal) {
+                existingModal.remove();
+            }
 
-            // 터치 이벤트에 대한 처리 (모바일 터치 지원)
-            document.addEventListener('touchstart', (e) => {
-                const sidebar = document.querySelector('.admin-sidebar');
-                const toggleButton = document.getElementById('admin-sidebar-toggle');
+            // 모달 생성
+            const modalHtml = `
+                <div id="admin-modal" class="admin-modal-overlay">
+                    <div class="admin-modal">
+                        <div class="admin-modal-header">
+                            <h3 class="text-lg font-medium">${options.title || '알림'}</h3>
+                            <button onclick="adminUtils.closeModal()" class="text-gray-400 hover:text-gray-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="admin-modal-body">
+                            ${options.content || ''}
+                        </div>
+                        <div class="admin-modal-footer">
+                            ${options.buttons ? options.buttons.map(btn => `
+                                <button class="admin-btn admin-btn-${btn.type || 'secondary'}"
+                                    onclick="${btn.handler}">
+                                    ${btn.label}
+                                </button>
+                            `).join('') : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
 
-                // 사이드바가 활성화되어 있고, 터치가 사이드바나 토글버튼 외부에서 발생했을 때
-                if (sidebar &&
-                    sidebar.classList.contains('active') &&
-                    !sidebar.contains(e.target) &&
-                    (!toggleButton || !toggleButton.contains(e.target))) {
-                    console.log('사이드바 외부 터치 감지');
-                    this.closeSidebar();
-                }
-            });
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        },
 
-            // 창 크기 변경 시 사이드바 처리
-            window.addEventListener('resize', () => {
-                if (window.innerWidth >= 1200) {
-                    this.closeSidebar();
-                }
-            });
+        /**
+         * 모달 닫기
+         */
+        closeModal: function () {
+            const modal = document.getElementById('admin-modal');
+            if (modal) {
+                modal.remove();
+            }
+        },
 
-            // ESC 키로 사이드바 닫기
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    console.log('ESC 키 눌림');
-                    this.closeSidebar();
-                }
-            });
+        /**
+         * 토스트 알림 표시
+         */
+        showToast: function (message, type = 'info', duration = 3000) {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-4 right-4 p-4 rounded-lg text-white z-50 
+                ${type === 'success' ? 'bg-green-500' :
+                    type === 'error' ? 'bg-red-500' :
+                        type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'}`;
+            toast.textContent = message;
 
-            console.log('관리자 페이지 초기화 완료');
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, duration);
         }
     };
 
-    // DOM이 로드된 후 초기화
-    document.addEventListener('DOMContentLoaded', function () {
-        console.log('DOMContentLoaded 이벤트 발생, 관리자 페이지 초기화 시작');
-
-        if (window.adminUtils && window.adminUtils.initAdminPage) {
-            window.adminUtils.initAdminPage();
-        } else {
-            console.warn('adminUtils가 로드되지 않았거나 initAdminPage 함수가 없습니다.');
+    // 🔧 최적화된 DOM 이벤트 리스너 (중복 방지)
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🔧 DOMContentLoaded 이벤트 발생, 관리자 페이지 초기화 시작');
+            
+            // 중복 실행 방지
+            if (!window.adminUtilsInitialized) {
+                if (window.adminUtils && window.adminUtils.initAdminPage) {
+                    window.adminUtils.initAdminPage();
+                    window.adminUtilsInitialized = true;
+                } else {
+                    console.warn('❌ adminUtils가 로드되지 않았거나 initAdminPage 함수가 없습니다.');
+                }
+            }
+        });
+    } else {
+        // DOM이 이미 로드된 경우
+        console.log('🔧 DOM 이미 로드됨, 즉시 초기화');
+        if (!window.adminUtilsInitialized) {
+            if (window.adminUtils && window.adminUtils.initAdminPage) {
+                window.adminUtils.initAdminPage();
+                window.adminUtilsInitialized = true;
+            }
         }
-    });
+    }
 
     // 페이지 로드 완료 시 추가 초기화 (이미지 등의 로딩까지 완료된 후)
     window.addEventListener('load', function () {
-        console.log('페이지 로드 완료');
+        console.log('🔧 페이지 로드 완료');
 
         // 관리자 요소 확인 및 클래스 추가
         if (!document.querySelector('.admin-header')) {
@@ -936,4 +853,27 @@
             }
         }
     });
+
+    // 🔧 디버깅을 위한 전역 함수
+    window.adminDebug = {
+        toggleSidebar: window.adminUtils.toggleSidebar.bind(window.adminUtils),
+        openSidebar: window.adminUtils.openSidebar.bind(window.adminUtils),
+        closeSidebar: window.adminUtils.closeSidebar.bind(window.adminUtils),
+        initSidebar: window.adminUtils.initAdminSidebar.bind(window.adminUtils),
+        checkElements: function() {
+            console.log('🔧 사이드바 요소 확인:');
+            console.log('- 토글 버튼:', !!document.getElementById('admin-sidebar-toggle'));
+            console.log('- 사이드바:', !!document.querySelector('.admin-sidebar'));
+            console.log('- 오버레이:', !!document.getElementById('sidebar-overlay'));
+            console.log('- 사이드바 활성:', document.querySelector('.admin-sidebar')?.classList.contains('active'));
+            console.log('- 초기화 상태:', {
+                adminUtilsInitialized,
+                sidebarInitialized, 
+                authListenerInitialized
+            });
+        }
+    };
+
 })();
+
+console.log('✅ admin.js 최적화 완료 - 중복 실행 방지 적용');

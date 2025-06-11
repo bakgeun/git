@@ -37,7 +37,50 @@ service firebase.storage {
       return resource.size < 10 * 1024 * 1024;
     }
     
-    // 프로필 이미지 업로드
+    // =================================
+    // 🔧 관리자 대시보드 Storage 모니터링을 위한 규칙 추가
+    // =================================
+    
+    // 인증서/자격증 파일 폴더 (대시보드에서 스캔)
+    match /certificates/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && isValidFileType() && isValidFileSize();
+      allow delete: if isAdmin();
+    }
+    
+    // 프로필 파일 폴더 (대시보드에서 스캔)
+    match /profiles/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isValidFileType() && isValidFileSize();
+      allow delete: if isOwner() || isAdmin();
+    }
+    
+    // 교육 자료 폴더 (대시보드에서 스캔)
+    match /materials/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && isValidFileType() && isValidFileSize();
+      allow delete: if isAdmin();
+    }
+    
+    // 동영상 강의 폴더 (대시보드에서 스캔)
+    match /videos/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() && isValidFileType() && isValidFileSize();
+      allow delete: if isAdmin();
+    }
+    
+    // 일반 업로드 폴더 (대시보드에서 스캔)
+    match /uploads/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isValidFileType() && isValidFileSize();
+      allow delete: if isOwner() || isAdmin();
+    }
+    
+    // =================================
+    // 기존 세부적인 규칙들 (유지)
+    // =================================
+    
+    // 프로필 이미지 업로드 (기존 규칙 유지)
     match /profile-images/{userId}/{allPaths=**} {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated() && 
@@ -47,15 +90,7 @@ service firebase.storage {
       allow delete: if isOwner() || isAdmin();
     }
     
-    // 자격증 파일 (이미지)
-    match /certificates/{userId}/{allPaths=**} {
-      allow read: if isAuthenticated() && 
-                     (request.auth.uid == userId || isAdmin());
-      allow write: if isAdmin();
-      allow delete: if isAdmin();
-    }
-    
-    // 교육 자료 파일
+    // 교육 자료 파일 (기존 규칙 유지)
     match /course-materials/{courseId}/{allPaths=**} {
       allow read: if isAuthenticated();
       allow write: if isAdmin() && 
@@ -64,7 +99,7 @@ service firebase.storage {
       allow delete: if isAdmin();
     }
     
-    // 동영상 강의 파일
+    // 동영상 강의 파일 (기존 규칙 유지)
     match /video-lectures/{courseId}/{allPaths=**} {
       allow read: if isAuthenticated();
       allow write: if isAdmin() && 
@@ -129,9 +164,9 @@ service firebase.storage {
       allow delete: if isAdmin();
     }
 
-     // 자격증 신청/갱신 첨부파일 (새로 추가)
+    // 자격증 신청/갱신 첨부파일
     match /applications/{applicationId}/{allPaths=**} {
-      // 읽기: 인증된 사용자 (본인이 업로드한 파일이거나 관리자)
+      // 읽기: 인증된 사용자
       allow read: if isAuthenticated();
       
       // 쓰기: 인증된 사용자 (파일 업로드)
@@ -164,7 +199,7 @@ service firebase.storage {
                        (request.auth.uid == userId || isAdmin());
     }
     
-    // 게시판 이미지 업로드를 위한 규칙 추가 - 각 게시판 타입별 규칙
+    // 게시판 이미지 업로드를 위한 규칙 - 각 게시판 타입별 규칙
     match /notice_images/{userId}/{allPaths=**} {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated() && 
@@ -201,9 +236,17 @@ service firebase.storage {
       allow delete: if isAdmin() || request.auth.uid == userId;
     }
     
-    // 기본 거부 규칙
+    // =================================
+    // 🔧 관리자 전용 Storage 관리 규칙 (모든 폴더 스캔 허용)
+    // =================================
+    
+    // 관리자는 모든 파일과 폴더에 읽기 권한 (대시보드 모니터링용)
     match /{allPaths=**} {
-      allow read, write: if false;
+      // 관리자는 모든 파일 읽기 가능 (사용량 모니터링용)
+      allow read: if isAdmin();
+      
+      // 일반 사용자와 관리자 외에는 접근 불가
+      allow write: if false;
     }
   }
 }

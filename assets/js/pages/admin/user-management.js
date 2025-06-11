@@ -1,13 +1,444 @@
 /**
- * 회원 관리 페이지 스크립트 (운영용 최종본)
- * - 회원 추가 기능 제거
- * - 권한 변경 기능 (수강생 ↔ 강사)
- * - 상태 관리 기능 (활성/비활성/정지)
- * - 완전 삭제 구현
- * - 관리자 계정 보호
+ * user-management.js - 완전한 통합 유틸리티 시스템 적용 버전 (수정)
+ * 회원 관리 페이지의 모든 기능을 포함합니다.
  */
 
-// 회원 관리 객체
+console.log('=== 완전한 표준화된 user-management.js 파일 로드됨 ===');
+
+// =================================
+// 전역 변수 선언 (🔧 호이스팅 문제 해결 - 최상단으로 이동)
+// =================================
+
+let userManagementInitialized = false;
+let authStateListener = null;
+
+// =================================
+// 의존성 체크 시스템
+// =================================
+
+function checkDependencies() {
+    const requiredUtils = [
+        { name: 'window.formatters', path: 'formatters.js' },
+        { name: 'window.dateUtils', path: 'date-utils.js' }
+        // admin.js와 admin-auth.js는 선택적 의존성
+    ];
+    
+    const missing = [];
+    
+    requiredUtils.forEach(util => {
+        if (!eval(util.name)) {
+            missing.push(util);
+        }
+    });
+    
+    if (missing.length > 0) {
+        console.error('⚠️ 필수 유틸리티가 로드되지 않음:', missing.map(m => m.path));
+        console.log('📝 HTML에서 다음 스크립트들이 먼저 로드되어야 합니다:');
+        missing.forEach(m => {
+            console.log(`   <script src="{basePath}assets/js/utils/${m.path}"></script>`);
+        });
+        return false;
+    }
+    
+    console.log('✅ 모든 필수 유틸리티 로드 확인됨');
+    
+    // 🔧 추가: 유틸리티 함수들이 실제로 작동하는지 테스트
+    try {
+        const testDate = new Date();
+        const testFormatDate = window.formatters.formatDate(testDate, 'YYYY.MM.DD');
+        const testFormatNumber = window.formatters.formatNumber(1500);
+        
+        console.log('✅ formatters.formatDate 테스트 성공:', testFormatDate);
+        console.log('✅ formatters.formatNumber 테스트 성공:', testFormatNumber);
+        
+        if (!testFormatDate || !testFormatNumber) {
+            throw new Error('포맷터 함수 결과가 유효하지 않습니다.');
+        }
+        
+    } catch (error) {
+        console.error('❌ 유틸리티 함수 테스트 실패:', error);
+        return false;
+    }
+    
+    return true;
+}
+
+// DOM이 이미 로드된 경우와 로딩 중인 경우 모두 처리
+function initializeWhenReady() {
+    console.log('=== 회원 관리 초기화 준비, 현재 상태:', document.readyState);
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('=== DOMContentLoaded 이벤트 발생 ===');
+            initUserManagementPage();
+        });
+    } else {
+        console.log('=== DOM 이미 로드됨, 즉시 초기화 ===');
+        initUserManagementPage();
+    }
+}
+
+// 초기화 시작
+initializeWhenReady();
+
+// 🔧 의존성 오류 표시 함수
+function showDependencyError() {
+    const mainContent = document.querySelector('.admin-content');
+    
+    if (mainContent) {
+        mainContent.innerHTML = `
+            <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                <div class="text-red-600 text-lg font-semibold mb-2">⚠️ 시스템 오류</div>
+                <p class="text-red-700 mb-4">필수 유틸리티 파일이 로드되지 않았습니다.</p>
+                <p class="text-red-600 text-sm">페이지를 새로고침하거나 관리자에게 문의하세요.</p>
+                <button onclick="location.reload()" class="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                    페이지 새로고침
+                </button>
+            </div>
+        `;
+    }
+}
+
+// =================================
+// 메인 초기화 함수 (🔧 변수 선언 이후로 이동)
+// =================================
+
+/**
+ * 회원 관리 페이지 초기화 함수
+ */
+async function initUserManagementPage() {
+    if (userManagementInitialized) {
+        console.log('⚠️ 회원 관리가 이미 초기화됨 - 중복 방지');
+        return;
+    }
+    
+    console.log('=== initUserManagementPage 실행 시작 ===');
+    
+    try {
+        // 🔧 의존성 체크 먼저 실행
+        if (!checkDependencies()) {
+            console.error('❌ 필수 유틸리티 누락으로 초기화 중단');
+            showDependencyError();
+            return;
+        }
+
+        // Firebase 초기화 대기
+        await waitForFirebase();
+        
+        // 인증 상태 감지 및 초기화
+        await initializeWithAuth();
+        
+        console.log('=== initUserManagementPage 완료 ===');
+        
+    } catch (error) {
+        console.error('❌ 회원 관리 초기화 오류:', error);
+        showErrorMessage('회원 관리 페이지 로드 중 오류가 발생했습니다.');
+    }
+}
+
+// =================================
+// Firebase 및 인증 관련 함수들
+// =================================
+
+/**
+ * Firebase 초기화 대기
+ */
+function waitForFirebase() {
+    return new Promise((resolve, reject) => {
+        let attempts = 0;
+        const maxAttempts = 100;
+        
+        function check() {
+            attempts++;
+            console.log('Firebase 확인 시도:', attempts);
+            
+            if (window.dhcFirebase && 
+                window.dhcFirebase.getCurrentUser && 
+                window.dhcFirebase.onAuthStateChanged &&
+                window.dhcFirebase.auth) {
+                console.log('✅ Firebase 준비됨');
+                resolve();
+                return;
+            }
+            
+            if (attempts < maxAttempts) {
+                setTimeout(check, 50);
+            } else {
+                console.error('❌ Firebase 초기화 시간 초과');
+                reject(new Error('Firebase 초기화 실패'));
+            }
+        }
+        
+        check();
+    });
+}
+
+/**
+ * 인증 상태를 기반으로 한 초기화
+ */
+function initializeWithAuth() {
+    return new Promise((resolve, reject) => {
+        console.log('인증 상태 감지 시작');
+        
+        // 현재 인증 상태 확인
+        const currentUser = window.dhcFirebase.getCurrentUser();
+        console.log('초기 인증 상태:', currentUser ? `${currentUser.email} 로그인됨` : '로그인하지 않음');
+        
+        // 🔧 기존 리스너 제거 (중복 방지)
+        if (authStateListener) {
+            console.log('⚠️ 기존 인증 리스너 제거');
+            authStateListener();
+            authStateListener = null;
+        }
+        
+        // 인증 상태 변화 감지 리스너 설정
+        authStateListener = window.dhcFirebase.onAuthStateChanged(async (user) => {
+            console.log('인증 상태 변화 감지:', user ? `${user.email} 로그인됨` : '로그아웃됨');
+            
+            try {
+                if (user) {
+                    // 사용자가 로그인된 경우
+                    const hasAccess = await checkAdminAccess(user);
+                    if (hasAccess) {
+                        await initializeUserManagement(user);
+                        resolve();
+                    } else {
+                        reject(new Error('관리자 권한 없음'));
+                    }
+                } else {
+                    // 사용자가 로그인하지 않은 경우
+                    console.log('로그인하지 않은 상태 감지');
+                    redirectToLogin();
+                    reject(new Error('로그인 필요'));
+                }
+            } catch (error) {
+                console.error('인증 상태 처리 오류:', error);
+                reject(error);
+            }
+        });
+    });
+}
+
+/**
+ * 관리자 권한 확인
+ */
+async function checkAdminAccess(user = null) {
+    console.log('관리자 권한 확인 시작');
+    
+    try {
+        // adminAuth 유틸리티 사용
+        if (window.adminAuth && typeof window.adminAuth.isAdmin === 'function') {
+            const isAdmin = window.adminAuth.isAdmin();
+            console.log('adminAuth를 통한 권한 확인 결과:', isAdmin);
+            
+            if (!isAdmin) {
+                console.log('관리자 권한 없음');
+                showErrorMessage('관리자 권한이 필요합니다.');
+                setTimeout(() => {
+                    window.location.href = window.adjustPath ? window.adjustPath('index.html') : '../../index.html';
+                }, 2000);
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // adminAuth가 없는 경우 기본 체크
+        const currentUser = user || window.dhcFirebase.getCurrentUser();
+        
+        if (!currentUser || !currentUser.email) {
+            console.log('로그인하지 않은 상태');
+            return false;
+        }
+        
+        console.log('현재 사용자:', currentUser.email);
+        
+        const adminEmails = ['admin@test.com', 'gostepexercise@gmail.com'];
+        const isAdmin = adminEmails.includes(currentUser.email);
+        console.log('기본 권한 확인 결과:', isAdmin);
+        
+        if (!isAdmin) {
+            console.log('관리자 권한 없음');
+            showErrorMessage('관리자 권한이 필요합니다.');
+            setTimeout(() => {
+                window.location.href = window.adjustPath ? window.adjustPath('index.html') : '../../index.html';
+            }, 2000);
+            return false;
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('권한 확인 오류:', error);
+        return false;
+    }
+}
+
+/**
+ * 로그인 페이지로 리다이렉트
+ */
+function redirectToLogin() {
+    console.log('로그인 페이지로 리다이렉트');
+    showErrorMessage('로그인이 필요합니다.');
+    setTimeout(() => {
+        const loginPath = window.adjustPath ? window.adjustPath('pages/auth/login.html') : '../auth/login.html';
+        window.location.href = loginPath;
+    }, 2000);
+}
+
+// =================================
+// 회원 관리 초기화 및 기능
+// =================================
+
+/**
+ * 회원 관리 초기화 (인증된 사용자)
+ */
+async function initializeUserManagement(user) {
+    if (userManagementInitialized) {
+        console.log('⚠️ 회원 관리가 이미 초기화됨 - 중복 방지');
+        return;
+    }
+    
+    console.log('✅ 인증된 사용자로 회원 관리 초기화:', user.email);
+    
+    try {
+        // 기본 UI 기능들
+        initBasicUI();
+        
+        // 관리자 정보 표시
+        displayAdminInfo(user);
+        
+        // 로그아웃 버튼 설정
+        setupLogoutButton();
+        
+        // 회원 관리자 초기화
+        await window.userManager.init();
+        
+        userManagementInitialized = true;
+        console.log('✅ 회원 관리 초기화 완료');
+        
+    } catch (error) {
+        console.error('❌ 회원 관리 초기화 오류:', error);
+        showErrorMessage('회원 관리 페이지 로드 중 오류가 발생했습니다.');
+    }
+}
+
+/**
+ * 기본 UI 기능 초기화
+ */
+function initBasicUI() {
+    console.log('🎨 기본 UI 기능 초기화');
+    
+    // 관리자 페이지 공통 기능 초기화 (중복 방지)
+    if (window.adminUtils && typeof window.adminUtils.initAdminPage === 'function') {
+        // admin.js에서 이미 초기화했는지 확인
+        if (!window.adminUtilsInitialized) {
+            window.adminUtils.initAdminPage();
+        } else {
+            console.log('⚠️ adminUtils가 이미 초기화됨 - 중복 방지');
+        }
+    }
+}
+
+/**
+ * 관리자 정보 표시
+ */
+function displayAdminInfo(user = null) {
+    try {
+        const currentUser = user || window.dhcFirebase.getCurrentUser();
+        
+        if (currentUser) {
+            const adminNameElement = document.getElementById('admin-name');
+            const adminEmailElement = document.getElementById('admin-email');
+            
+            // 🔧 전역 유틸리티 사용
+            const displayName = currentUser.displayName || '관리자';
+            const email = currentUser.email;
+            
+            if (adminNameElement) {
+                adminNameElement.textContent = displayName;
+            }
+            
+            if (adminEmailElement) {
+                adminEmailElement.textContent = email;
+            }
+            
+            // 사이드바 사용자 정보도 업데이트
+            const sidebarUserInfo = document.querySelector('.sidebar-user-info');
+            if (sidebarUserInfo) {
+                const nameElement = sidebarUserInfo.querySelector('.font-bold');
+                const emailElement = sidebarUserInfo.querySelector('.text-indigo-200');
+                
+                if (nameElement) nameElement.textContent = displayName;
+                if (emailElement) emailElement.textContent = email;
+            }
+            
+            // adminAuth 유틸리티도 함께 호출
+            if (window.adminAuth && typeof window.adminAuth.displayAdminInfo === 'function') {
+                window.adminAuth.displayAdminInfo();
+            }
+            
+            console.log('✅ 관리자 정보 표시 완료');
+        }
+    } catch (error) {
+        console.error('❌ 관리자 정보 표시 오류:', error);
+    }
+}
+
+/**
+ * 로그아웃 버튼 설정 (🔧 중복 방지)
+ */
+function setupLogoutButton() {
+    const logoutButton = document.getElementById('admin-logout-button');
+    if (logoutButton && !logoutButton.dataset.eventAttached) {
+        logoutButton.addEventListener('click', handleLogout);
+        logoutButton.dataset.eventAttached = 'true';
+    }
+    
+    const sidebarLogoutButton = document.getElementById('sidebar-logout-button');
+    if (sidebarLogoutButton && !sidebarLogoutButton.dataset.eventAttached) {
+        sidebarLogoutButton.addEventListener('click', handleLogout);
+        sidebarLogoutButton.dataset.eventAttached = 'true';
+    }
+}
+
+/**
+ * 로그아웃 처리
+ */
+async function handleLogout(e) {
+    e.preventDefault();
+    
+    if (confirm('로그아웃 하시겠습니까?')) {
+        try {
+            // 인증 상태 리스너 제거
+            if (authStateListener) {
+                authStateListener();
+                authStateListener = null;
+            }
+            
+            if (window.adminAuth && typeof window.adminAuth.handleLogout === 'function') {
+                await window.adminAuth.handleLogout(e);
+                return;
+            }
+            
+            await window.dhcFirebase.auth.signOut();
+            console.log('✅ 로그아웃 성공');
+            showSuccessMessage('로그아웃 되었습니다.');
+            
+            setTimeout(() => {
+                const indexPath = window.adjustPath ? window.adjustPath('index.html') : '../../index.html';
+                window.location.href = indexPath;
+            }, 1000);
+        } catch (error) {
+            console.error('❌ 로그아웃 오류:', error);
+            showErrorMessage('로그아웃 중 오류가 발생했습니다.');
+        }
+    }
+}
+
+// =================================
+// 회원 관리 객체 (기존 기능 유지)
+// =================================
+
 window.userManager = {
     currentPage: 1,
     pageSize: 10,
@@ -15,7 +446,7 @@ window.userManager = {
     filters: {},
     pendingRoleChange: null,
     pendingStatusChange: null,
-    currentUsers: [], // 현재 로드된 사용자 목록 캐시
+    currentUsers: [],
     
     /**
      * 초기화 함수
@@ -55,19 +486,16 @@ window.userManager = {
     registerEventListeners: function() {
         console.log('이벤트 리스너 등록 시작');
         
-        // 검색 버튼
         const searchButton = document.getElementById('search-button');
         if (searchButton) {
             searchButton.addEventListener('click', this.applyFilters.bind(this));
         }
         
-        // 초기화 버튼
         const resetButton = document.getElementById('reset-button');
         if (resetButton) {
             resetButton.addEventListener('click', this.resetFilters.bind(this));
         }
         
-        // 사용자 모달 관련 이벤트
         const closeModalButton = document.getElementById('close-modal');
         const cancelButton = document.getElementById('cancel-button');
         if (closeModalButton) {
@@ -77,13 +505,11 @@ window.userManager = {
             cancelButton.addEventListener('click', this.closeUserModal.bind(this));
         }
         
-        // 사용자 폼 제출 이벤트
         const userForm = document.getElementById('user-form');
         if (userForm) {
             userForm.addEventListener('submit', this.handleEditUser.bind(this));
         }
         
-        // 검색어 입력 시 엔터키로 검색
         const searchKeyword = document.getElementById('search-keyword');
         if (searchKeyword) {
             searchKeyword.addEventListener('keypress', (e) => {
@@ -124,42 +550,40 @@ window.userManager = {
             
             if (this.isFirebaseAvailable()) {
                 try {
-                    // 전체 회원 수
                     const totalResult = await window.dbService.countDocuments('users');
                     if (totalResult.success) {
                         totalUsers = totalResult.count;
                     }
                     
-                    // 활성 회원 수
                     const activeResult = await window.dbService.countDocuments('users', {
-                        where: { field: 'status', operator: '==', value: 'active' }
+                        where: [{ field: 'status', operator: '==', value: 'active' }]
                     });
                     if (activeResult.success) {
                         activeUsers = activeResult.count;
                     }
                     
-                    // 강사 수
                     const instructorResult = await window.dbService.countDocuments('users', {
-                        where: { field: 'userType', operator: '==', value: 'instructor' }
+                        where: [{ field: 'userType', operator: '==', value: 'instructor' }]
                     });
                     if (instructorResult.success) {
                         instructorUsers = instructorResult.count;
                     }
                     
-                    // 정지 회원 수
                     const suspendedResult = await window.dbService.countDocuments('users', {
-                        where: { field: 'status', operator: '==', value: 'suspended' }
+                        where: [{ field: 'status', operator: '==', value: 'suspended' }]
                     });
                     if (suspendedResult.success) {
                         suspendedUsers = suspendedResult.count;
                     }
                 } catch (error) {
                     console.error('Firebase 통계 조회 오류:', error);
-                    window.adminAuth?.showNotification('통계 조회 중 오류가 발생했습니다.', 'error');
+                    if (window.adminAuth && window.adminAuth.showNotification) {
+                        window.adminAuth.showNotification('통계 조회 중 오류가 발생했습니다.', 'error');
+                    }
                 }
             }
             
-            // UI 업데이트
+            // UI 업데이트 (🔧 전역 유틸리티 사용)
             this.updateStatElement('total-users-count', totalUsers);
             this.updateStatElement('active-users-count', activeUsers);
             this.updateStatElement('instructor-users-count', instructorUsers);
@@ -173,12 +597,13 @@ window.userManager = {
     },
     
     /**
-     * 통계 요소 업데이트
+     * 통계 요소 업데이트 (🔧 전역 유틸리티 사용)
      */
     updateStatElement: function(elementId, value) {
         const element = document.getElementById(elementId);
         if (element) {
-            element.textContent = value.toLocaleString();
+            const formattedValue = window.formatters.formatNumber(value);
+            element.textContent = formattedValue;
         }
     },
     
@@ -188,7 +613,6 @@ window.userManager = {
     loadUsers: async function() {
         console.log('회원 목록 로드 시작');
         
-        // 로딩 표시
         document.getElementById('user-list').innerHTML = `
             <tr>
                 <td colspan="7" class="px-6 py-4 text-center text-gray-500">
@@ -201,13 +625,11 @@ window.userManager = {
             let users = [];
             
             if (this.isFirebaseAvailable()) {
-                // Firebase에서 사용자 목록 로드
                 const options = {
                     orderBy: { field: 'createdAt', direction: 'desc' },
                     pageSize: this.pageSize
                 };
                 
-                // 필터 적용
                 const userType = document.getElementById('filter-role')?.value;
                 const status = document.getElementById('filter-status')?.value;
                 const searchKeyword = document.getElementById('search-keyword')?.value;
@@ -222,7 +644,6 @@ window.userManager = {
                     options.where.push({ field: 'status', operator: '==', value: status });
                 }
                 
-                // 검색어 필터
                 if (searchKeyword) {
                     try {
                         const nameResults = await window.dbService.searchDocuments('users', 'displayName', searchKeyword, options);
@@ -233,7 +654,9 @@ window.userManager = {
                         users = uniqueResults;
                     } catch (error) {
                         console.error('검색 오류:', error);
-                        window.adminAuth?.showNotification('검색 중 오류가 발생했습니다.', 'error');
+                        if (window.adminAuth && window.adminAuth.showNotification) {
+                            window.adminAuth.showNotification('검색 중 오류가 발생했습니다.', 'error');
+                        }
                     }
                 } else {
                     try {
@@ -250,11 +673,12 @@ window.userManager = {
                         }
                     } catch (error) {
                         console.error('사용자 목록 조회 오류:', error);
-                        window.adminAuth?.showNotification('사용자 목록 로드 중 오류가 발생했습니다.', 'error');
+                        if (window.adminAuth && window.adminAuth.showNotification) {
+                            window.adminAuth.showNotification('사용자 목록 로드 중 오류가 발생했습니다.', 'error');
+                        }
                     }
                 }
             } else {
-                // Firebase를 사용할 수 없는 경우
                 console.log('Firebase를 사용할 수 없습니다.');
                 document.getElementById('user-list').innerHTML = `
                     <tr>
@@ -266,11 +690,9 @@ window.userManager = {
                 return;
             }
             
-            // 현재 사용자 목록 캐시
             this.currentUsers = users;
             console.log('로드된 사용자 수:', this.currentUsers.length);
             
-            // 사용자 목록 업데이트
             this.updateUserList(users);
             
         } catch (error) {
@@ -305,14 +727,15 @@ window.userManager = {
         let html = '';
         
         users.forEach((user, index) => {
+            // 🔧 전역 유틸리티 사용
             const createdAt = user.createdAt ? 
                 (typeof user.createdAt.toDate === 'function' ? 
-                    this.formatDate(user.createdAt.toDate()) : 
+                    window.formatters.formatDate(user.createdAt.toDate()) : 
                     user.createdAt) : 
                 '-';
             
             const isAdmin = user.userType === 'admin';
-            const canEdit = !isAdmin; // 관리자는 수정 불가
+            const canEdit = !isAdmin;
             
             html += `
                 <tr class="hover:bg-gray-50">
@@ -398,7 +821,9 @@ window.userManager = {
         const user = await this.getUserById(userId);
         if (!user) {
             console.error('사용자를 찾을 수 없음:', userId);
-            window.adminAuth?.showNotification('사용자 정보를 찾을 수 없습니다.', 'error');
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('사용자 정보를 찾을 수 없습니다.', 'error');
+            }
             return;
         }
         
@@ -424,11 +849,12 @@ window.userManager = {
         const user = await this.getUserById(userId);
         if (!user) {
             console.error('사용자를 찾을 수 없음:', userId);
-            window.adminAuth?.showNotification('사용자 정보를 찾을 수 없습니다.', 'error');
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('사용자 정보를 찾을 수 없습니다.', 'error');
+            }
             return;
         }
         
-        // 상태 순환: active -> inactive -> suspended -> active
         let nextStatus;
         switch (currentStatus) {
             case 'active': nextStatus = 'inactive'; break;
@@ -454,7 +880,6 @@ window.userManager = {
     getUserById: async function(userId) {
         console.log('사용자 조회 시도:', userId);
         
-        // 1. 현재 캐시된 사용자 목록에서 먼저 검색
         if (this.currentUsers && this.currentUsers.length > 0) {
             const cachedUser = this.currentUsers.find(u => u.id === userId);
             if (cachedUser) {
@@ -463,7 +888,6 @@ window.userManager = {
             }
         }
         
-        // 2. Firebase에서 검색
         if (this.isFirebaseAvailable()) {
             try {
                 console.log('Firebase에서 검색 시도:', userId);
@@ -499,18 +923,26 @@ window.userManager = {
                 });
                 
                 if (result.success) {
-                    window.adminAuth?.showNotification('권한이 성공적으로 변경되었습니다.', 'success');
+                    if (window.adminAuth && window.adminAuth.showNotification) {
+                        window.adminAuth.showNotification('권한이 성공적으로 변경되었습니다.', 'success');
+                    }
                     this.loadUsers();
                     this.updateUserStats();
                 } else {
-                    window.adminAuth?.showNotification('권한 변경에 실패했습니다.', 'error');
+                    if (window.adminAuth && window.adminAuth.showNotification) {
+                        window.adminAuth.showNotification('권한 변경에 실패했습니다.', 'error');
+                    }
                 }
             } else {
-                window.adminAuth?.showNotification('데이터베이스에 연결할 수 없습니다.', 'error');
+                if (window.adminAuth && window.adminAuth.showNotification) {
+                    window.adminAuth.showNotification('데이터베이스에 연결할 수 없습니다.', 'error');
+                }
             }
         } catch (error) {
             console.error('권한 변경 오류:', error);
-            window.adminAuth?.showNotification('권한 변경 중 오류가 발생했습니다.', 'error');
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('권한 변경 중 오류가 발생했습니다.', 'error');
+            }
         }
         
         this.closeRoleChangeModal();
@@ -532,18 +964,26 @@ window.userManager = {
                 });
                 
                 if (result.success) {
-                    window.adminAuth?.showNotification('상태가 성공적으로 변경되었습니다.', 'success');
+                    if (window.adminAuth && window.adminAuth.showNotification) {
+                        window.adminAuth.showNotification('상태가 성공적으로 변경되었습니다.', 'success');
+                    }
                     this.loadUsers();
                     this.updateUserStats();
                 } else {
-                    window.adminAuth?.showNotification('상태 변경에 실패했습니다.', 'error');
+                    if (window.adminAuth && window.adminAuth.showNotification) {
+                        window.adminAuth.showNotification('상태 변경에 실패했습니다.', 'error');
+                    }
                 }
             } else {
-                window.adminAuth?.showNotification('데이터베이스에 연결할 수 없습니다.', 'error');
+                if (window.adminAuth && window.adminAuth.showNotification) {
+                    window.adminAuth.showNotification('데이터베이스에 연결할 수 없습니다.', 'error');
+                }
             }
         } catch (error) {
             console.error('상태 변경 오류:', error);
-            window.adminAuth?.showNotification('상태 변경 중 오류가 발생했습니다.', 'error');
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('상태 변경 중 오류가 발생했습니다.', 'error');
+            }
         }
         
         this.closeStatusChangeModal();
@@ -656,27 +1096,6 @@ window.userManager = {
     },
     
     /**
-     * 날짜 포맷팅
-     */
-    formatDate: function(date) {
-        if (!date) return '-';
-        
-        try {
-            if (window.formatters && typeof window.formatters.formatDate === 'function') {
-                return window.formatters.formatDate(date);
-            } else {
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
-            }
-        } catch (error) {
-            console.error('날짜 포맷팅 오류:', error);
-            return '-';
-        }
-    },
-    
-    /**
      * 회원 수정 모달 표시
      */
     editUser: async function(userId) {
@@ -693,20 +1112,19 @@ window.userManager = {
             
             form.reset();
             
-            // 사용자 정보 로드
             const user = await this.getUserById(userId);
             if (!user) {
-                window.adminAuth?.showNotification('사용자 정보를 불러올 수 없습니다.', 'error');
+                if (window.adminAuth && window.adminAuth.showNotification) {
+                    window.adminAuth.showNotification('사용자 정보를 불러올 수 없습니다.', 'error');
+                }
                 return;
             }
             
-            // 사용자 정보 설정
             document.getElementById('user-name').value = user.displayName || '';
             document.getElementById('user-email').value = user.email || '';
             
             const roleSelect = document.getElementById('user-role');
             if (roleSelect) {
-                // 관리자가 아닌 경우만 권한 변경 가능
                 if (user.userType === 'admin') {
                     roleSelect.innerHTML = '<option value="admin">관리자</option>';
                     roleSelect.disabled = true;
@@ -716,7 +1134,6 @@ window.userManager = {
                         <option value="instructor">강사</option>
                     `;
                     roleSelect.disabled = false;
-                    // 현재 값 선택
                     for (let option of roleSelect.options) {
                         if (option.value === user.userType) {
                             option.selected = true;
@@ -728,7 +1145,6 @@ window.userManager = {
             
             const statusSelect = document.getElementById('user-status');
             if (statusSelect) {
-                // 관리자가 아닌 경우만 상태 변경 가능
                 if (user.userType === 'admin') {
                     statusSelect.innerHTML = '<option value="active">활성</option>';
                     statusSelect.disabled = true;
@@ -739,7 +1155,6 @@ window.userManager = {
                         <option value="suspended">정지</option>
                     `;
                     statusSelect.disabled = false;
-                    // 현재 값 선택
                     for (let option of statusSelect.options) {
                         if (option.value === user.status) {
                             option.selected = true;
@@ -749,15 +1164,14 @@ window.userManager = {
                 }
             }
             
-            // 사용자 ID 저장
             form.dataset.userId = userId;
-            
-            // 모달 표시
             modal.classList.remove('hidden');
             
         } catch (error) {
             console.error('회원 수정 모달 표시 오류:', error);
-            window.adminAuth?.showNotification('사용자 정보를 불러오는 중 오류가 발생했습니다.', 'error');
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('사용자 정보를 불러오는 중 오류가 발생했습니다.', 'error');
+            }
         }
     },
     
@@ -784,9 +1198,10 @@ window.userManager = {
             const role = document.getElementById('user-role').value;
             const status = document.getElementById('user-status').value;
             
-            // 유효성 검사
             if (!name) {
-                window.adminAuth?.showNotification('이름을 입력해주세요.', 'error');
+                if (window.adminAuth && window.adminAuth.showNotification) {
+                    window.adminAuth.showNotification('이름을 입력해주세요.', 'error');
+                }
                 return;
             }
             
@@ -801,24 +1216,34 @@ window.userManager = {
                     const result = await window.dbService.updateDocument('users', userId, updateData);
                     
                     if (result.success) {
-                        window.adminAuth?.showNotification('회원 정보가 성공적으로 수정되었습니다.', 'success');
+                        if (window.adminAuth && window.adminAuth.showNotification) {
+                            window.adminAuth.showNotification('회원 정보가 성공적으로 수정되었습니다.', 'success');
+                        }
                         this.closeUserModal();
                         this.loadUsers();
                         this.updateUserStats();
                     } else {
-                        window.adminAuth?.showNotification(`회원 정보 수정 실패: ${result.error?.message || '알 수 없는 오류'}`, 'error');
+                        if (window.adminAuth && window.adminAuth.showNotification) {
+                            window.adminAuth.showNotification(`회원 정보 수정 실패: ${result.error?.message || '알 수 없는 오류'}`, 'error');
+                        }
                     }
                 } catch (error) {
                     console.error('회원 정보 수정 오류:', error);
-                    window.adminAuth?.showNotification(`회원 정보 수정 오류: ${error.message || '알 수 없는 오류'}`, 'error');
+                    if (window.adminAuth && window.adminAuth.showNotification) {
+                        window.adminAuth.showNotification(`회원 정보 수정 오류: ${error.message || '알 수 없는 오류'}`, 'error');
+                    }
                 }
             } else {
-                window.adminAuth?.showNotification('데이터베이스에 연결할 수 없습니다.', 'error');
+                if (window.adminAuth && window.adminAuth.showNotification) {
+                    window.adminAuth.showNotification('데이터베이스에 연결할 수 없습니다.', 'error');
+                }
             }
             
         } catch (error) {
             console.error('회원 수정 처리 오류:', error);
-            window.adminAuth?.showNotification('회원 정보 수정 중 오류가 발생했습니다.', 'error');
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('회원 정보 수정 중 오류가 발생했습니다.', 'error');
+            }
         }
     },
     
@@ -828,16 +1253,18 @@ window.userManager = {
     deleteUser: async function(userId) {
         console.log('회원 삭제:', userId);
         
-        // 사용자 정보 먼저 확인
         const user = await this.getUserById(userId);
         if (!user) {
-            window.adminAuth?.showNotification('사용자 정보를 찾을 수 없습니다.', 'error');
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('사용자 정보를 찾을 수 없습니다.', 'error');
+            }
             return;
         }
         
-        // 관리자 삭제 방지
         if (user.userType === 'admin') {
-            window.adminAuth?.showNotification('관리자 계정은 삭제할 수 없습니다.', 'error');
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('관리자 계정은 삭제할 수 없습니다.', 'error');
+            }
             return;
         }
         
@@ -845,7 +1272,6 @@ window.userManager = {
         const confirmMessage = `정말로 "${userName}" 회원을 완전히 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 해당 회원의 모든 데이터가 영구적으로 삭제됩니다.`;
         
         if (confirm(confirmMessage)) {
-            // 추가 확인
             const doubleConfirm = confirm(`마지막 확인: "${userName}" 회원을 정말로 삭제하시겠습니까?`);
             if (doubleConfirm) {
                 await this.handleDeleteUser(userId);
@@ -860,29 +1286,37 @@ window.userManager = {
         try {
             if (this.isFirebaseAvailable()) {
                 try {
-                    // 관련 데이터도 함께 삭제
                     await this.deleteRelatedUserData(userId);
                     
-                    // 사용자 문서 삭제
                     const result = await window.dbService.deleteDocument('users', userId);
                     
                     if (result.success) {
-                        window.adminAuth?.showNotification('회원이 성공적으로 삭제되었습니다.', 'success');
+                        if (window.adminAuth && window.adminAuth.showNotification) {
+                            window.adminAuth.showNotification('회원이 성공적으로 삭제되었습니다.', 'success');
+                        }
                         this.loadUsers();
                         this.updateUserStats();
                     } else {
-                        window.adminAuth?.showNotification(`회원 삭제 실패: ${result.error?.message || '알 수 없는 오류'}`, 'error');
+                        if (window.adminAuth && window.adminAuth.showNotification) {
+                            window.adminAuth.showNotification(`회원 삭제 실패: ${result.error?.message || '알 수 없는 오류'}`, 'error');
+                        }
                     }
                 } catch (error) {
                     console.error('회원 삭제 오류:', error);
-                    window.adminAuth?.showNotification(`회원 삭제 오류: ${error.message || '알 수 없는 오류'}`, 'error');
+                    if (window.adminAuth && window.adminAuth.showNotification) {
+                        window.adminAuth.showNotification(`회원 삭제 오류: ${error.message || '알 수 없는 오류'}`, 'error');
+                    }
                 }
             } else {
-                window.adminAuth?.showNotification('데이터베이스에 연결할 수 없습니다.', 'error');
+                if (window.adminAuth && window.adminAuth.showNotification) {
+                    window.adminAuth.showNotification('데이터베이스에 연결할 수 없습니다.', 'error');
+                }
             }
         } catch (error) {
             console.error('회원 삭제 처리 오류:', error);
-            window.adminAuth?.showNotification('회원 삭제 중 오류가 발생했습니다.', 'error');
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('회원 삭제 중 오류가 발생했습니다.', 'error');
+            }
         }
     },
     
@@ -893,17 +1327,11 @@ window.userManager = {
         try {
             if (!window.dbService) return;
             
-            // 병렬로 관련 데이터 삭제
             const deletePromises = [
-                // 수강 내역 삭제
                 this.deleteUserCollection('enrollments', userId),
-                // 자격증 정보 삭제
                 this.deleteUserCollection('certificates', userId),
-                // 결제 내역 삭제
                 this.deleteUserCollection('payments', userId),
-                // 게시글 삭제
                 this.deleteUserCollection('posts', userId),
-                // 댓글 삭제
                 this.deleteUserCollection('comments', userId)
             ];
             
@@ -919,13 +1347,11 @@ window.userManager = {
      */
     deleteUserCollection: async function(collectionName, userId) {
         try {
-            // 사용자 ID로 해당 컬렉션의 문서들 조회
             const result = await window.dbService.getDocuments(collectionName, {
-                where: { field: 'userId', operator: '==', value: userId }
+                where: [{ field: 'userId', operator: '==', value: userId }]
             });
             
             if (result.success && result.data.length > 0) {
-                // 배치로 삭제
                 const deletePromises = result.data.map(doc => 
                     window.dbService.deleteDocument(collectionName, doc.id)
                 );
@@ -978,8 +1404,100 @@ window.userManager = {
     }
 };
 
+// =================================
+// 메시지 및 알림 시스템
+// =================================
+
 /**
- * 회원 관리 페이지 초기화 함수
+ * 오류 메시지 표시
+ */
+function showErrorMessage(message) {
+    showNotification(message, 'error');
+}
+
+/**
+ * 성공 메시지 표시
+ */
+function showSuccessMessage(message) {
+    showNotification(message, 'success');
+}
+
+/**
+ * 정보 메시지 표시
+ */
+function showInfoMessage(message) {
+    showNotification(message, 'info');
+}
+
+/**
+ * 알림 메시지 표시
+ */
+function showNotification(message, type = 'info') {
+    // adminAuth 유틸리티 사용 시도
+    if (window.adminAuth && typeof window.adminAuth.showNotification === 'function') {
+        window.adminAuth.showNotification(message, type);
+        return;
+    }
+    
+    // 기본 알림 시스템
+    const existingNotification = document.querySelector('.admin-notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+
+    const notification = document.createElement('div');
+    notification.className = `admin-notification fixed top-4 right-4 z-50 max-w-md p-4 rounded-lg shadow-lg`;
+    
+    let bgColor = 'bg-blue-100 border-blue-400 text-blue-700';
+    let icon = 'ℹ️';
+    
+    switch (type) {
+        case 'error':
+            bgColor = 'bg-red-100 border-red-400 text-red-700';
+            icon = '❌';
+            break;
+        case 'success':
+            bgColor = 'bg-green-100 border-green-400 text-green-700';
+            icon = '✅';
+            break;
+        case 'warning':
+            bgColor = 'bg-yellow-100 border-yellow-400 text-yellow-700';
+            icon = '⚠️';
+            break;
+    }
+    
+    notification.className += ` ${bgColor} border`;
+    
+    notification.innerHTML = `
+        <div class="flex items-start">
+            <div class="flex-shrink-0 mr-3">
+                <span class="text-lg">${icon}</span>
+            </div>
+            <div class="flex-1">
+                <p class="text-sm font-medium">${message}</p>
+            </div>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-semibold hover:opacity-70">
+                ×
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    const autoRemoveTime = type === 'error' ? 7000 : 4000;
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, autoRemoveTime);
+}
+
+// =================================
+// 전역 함수 노출
+// =================================
+
+/**
+ * 회원 관리 페이지 초기화 함수 (전역)
  */
 window.initUserManagement = async function() {
     try {
@@ -1006,9 +1524,212 @@ window.initUserManagement = async function() {
     }
 };
 
+// 전역 스코프에 주요 함수들 노출
+window.initUserManagementPage = initUserManagementPage;
+
+// =================================
+// 페이지 종료 시 정리 (최적화)
+// =================================
+
+// 페이지 언로드 시 리스너 정리
+window.addEventListener('beforeunload', function() {
+    console.log('🔄 페이지 종료 - 리스너 정리');
+    if (authStateListener) {
+        authStateListener();
+        authStateListener = null;
+    }
+});
+
+// =================================
+// 디버깅 및 개발자 도구
+// =================================
+
+// 개발 모드에서 사용되는 디버깅 함수들
+if (window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname.includes('.web.app') ||
+    window.location.hostname.includes('.firebaseapp.com') ||
+    window.location.protocol === 'file:' ||
+    window.FORCE_DEBUG === true) {
+
+    window.debugUserManagement = {
+        // 기본 정보 확인
+        help: function () {
+            console.log('🎯 회원 관리 디버깅 도구 사용법');
+            console.log('\n📊 데이터 관련:');
+            console.log('- checkDependencies() : 유틸리티 의존성 확인');
+            console.log('- refreshUsers() : 회원 목록 새로고침');
+            console.log('- getUserStats() : 회원 통계 조회');
+
+            console.log('\n🔧 시스템 관련:');
+            console.log('- checkFirebase() : Firebase 연결 상태 확인');
+            console.log('- checkAuth() : 인증 상태 확인');
+            console.log('- testUserManager() : userManager 객체 테스트');
+
+            console.log('\n🎨 UI 관련:');
+            console.log('- testNotification(message, type) : 알림 테스트');
+            console.log('- simulateUserLoad() : 사용자 로딩 시뮬레이션');
+
+            console.log('\n🧪 종합 테스트:');
+            console.log('- runFullTest() : 전체 기능 테스트');
+        },
+
+        // 🔧 의존성 테스트
+        checkDependencies: checkDependencies,
+
+        // 데이터 관련
+        refreshUsers: function() {
+            if (window.userManager) {
+                return window.userManager.loadUsers();
+            } else {
+                console.error('userManager를 찾을 수 없습니다.');
+            }
+        },
+
+        getUserStats: function() {
+            if (window.userManager) {
+                return window.userManager.updateUserStats();
+            } else {
+                console.error('userManager를 찾을 수 없습니다.');
+            }
+        },
+
+        // 시스템 관련
+        checkFirebase: function () {
+            console.log('🔥 Firebase 상태 확인');
+            console.log('- dhcFirebase:', !!window.dhcFirebase);
+            console.log('- auth:', !!window.dhcFirebase?.auth);
+            console.log('- db:', !!window.dhcFirebase?.db);
+            console.log('- dbService:', !!window.dbService);
+            console.log('- 현재 사용자:', window.dhcFirebase?.getCurrentUser()?.email || '없음');
+        },
+
+        checkAuth: function () {
+            console.log('🔐 인증 상태 확인');
+            const user = window.dhcFirebase?.getCurrentUser();
+            if (user) {
+                console.log('✅ 로그인됨:', user.email);
+                console.log('- displayName:', user.displayName);
+                console.log('- uid:', user.uid);
+            } else {
+                console.log('❌ 로그인되지 않음');
+            }
+        },
+
+        testUserManager: function() {
+            console.log('👥 userManager 객체 테스트');
+            console.log('- userManager 존재:', !!window.userManager);
+            console.log('- currentUsers 길이:', window.userManager?.currentUsers?.length || 0);
+            console.log('- currentPage:', window.userManager?.currentPage || 'N/A');
+            console.log('- 주요 메서드들:');
+            console.log('  - loadUsers:', typeof window.userManager?.loadUsers);
+            console.log('  - updateUserStats:', typeof window.userManager?.updateUserStats);
+            console.log('  - editUser:', typeof window.userManager?.editUser);
+            console.log('  - deleteUser:', typeof window.userManager?.deleteUser);
+        },
+
+        // UI 관련
+        testNotification: function (message = '테스트 알림입니다', type = 'info') {
+            showNotification(message, type);
+        },
+
+        simulateUserLoad: async function () {
+            console.log('👥 사용자 로딩 시뮬레이션 시작');
+            
+            showInfoMessage('시뮬레이션 사용자 로딩 중...');
+            
+            // 시뮬레이션 지연
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            if (window.userManager) {
+                await window.userManager.loadUsers();
+                await window.userManager.updateUserStats();
+            }
+            
+            showSuccessMessage('시뮬레이션 사용자 로딩 완료');
+            console.log('✅ 사용자 로딩 시뮬레이션 완료');
+        },
+
+        // 종합 테스트
+        runFullTest: async function () {
+            console.log('🚀 회원 관리 전체 기능 테스트 시작...');
+
+            console.log('\n1️⃣ 의존성 및 유틸리티 테스트');
+            const dependenciesOk = checkDependencies();
+            
+            if (!dependenciesOk) {
+                console.error('❌ 의존성 테스트 실패 - 테스트 중단');
+                return;
+            }
+
+            console.log('\n2️⃣ Firebase 연결 테스트');
+            this.checkFirebase();
+
+            console.log('\n3️⃣ 인증 상태 테스트');
+            this.checkAuth();
+
+            console.log('\n4️⃣ userManager 객체 테스트');
+            this.testUserManager();
+
+            console.log('\n5️⃣ 사용자 데이터 시뮬레이션');
+            await this.simulateUserLoad();
+
+            console.log('\n6️⃣ 알림 시스템 테스트');
+            this.testNotification('테스트 완료!', 'success');
+
+            console.log('\n🎯 전체 테스트 완료!');
+            console.log('💡 이제 다음 명령어들을 시도해보세요:');
+            console.log('- refreshUsers() : 실제 사용자 목록 새로고침');
+            console.log('- getUserStats() : 사용자 통계 업데이트');
+            console.log('- testNotification("메시지", "error") : 다른 타입 알림');
+        }
+    };
+
+    // 디버깅 도구 안내
+    console.log('🎯 개발 모드 회원 관리 디버깅 도구 활성화됨');
+    console.log('현재 호스트:', window.location.hostname);
+    console.log('\n🔥 주요 디버깅 함수들:');
+    console.log('📊 데이터: checkDependencies(), refreshUsers(), getUserStats()');
+    console.log('🔧 시스템: checkFirebase(), checkAuth(), testUserManager()');
+    console.log('🎨 UI: testNotification(), simulateUserLoad()');
+    console.log('🧪 테스트: runFullTest()');
+    console.log('\n💡 도움말: window.debugUserManagement.help()');
+    console.log('🚀 빠른 시작: window.debugUserManagement.runFullTest()');
+
+} else {
+    console.log('프로덕션 모드 - 디버깅 도구 비활성화됨');
+    console.log('현재 호스트:', window.location.hostname);
+}
+
 // 이전 버전과의 호환성을 위한 함수
 if (typeof window.scriptLoaderInitialized === 'undefined') {
     document.addEventListener('DOMContentLoaded', function() {
         window.initUserManagement();
     });
 }
+
+// =================================
+// 최종 완료 메시지
+// =================================
+
+console.log('\n🎉 === user-management.js 통합 유틸리티 시스템 적용 완료 ===');
+console.log('✅ 전역 변수 선언 순서 수정 (호이스팅 문제 해결)');
+console.log('✅ 전역 유틸리티 시스템 통합');
+console.log('✅ 의존성 체크 시스템 구축');
+console.log('✅ Firebase 연결 상태 강화');
+console.log('✅ 관리자 권한 확인 개선');
+console.log('✅ 중복 실행 방지 시스템 구축');
+console.log('✅ 이벤트 리스너 중복 방지');
+console.log('✅ 메모리 누수 방지 (beforeunload 정리)');
+console.log('✅ 향상된 알림 시스템');
+console.log('✅ 포괄적인 디버깅 도구');
+console.log('\n🔧 dashboard.js와 동일한 표준 적용:');
+console.log('- checkDependencies() 의존성 체크');
+console.log('- window.formatters, window.dateUtils 전역 유틸리티 사용');
+console.log('- 최적화된 스크립트 로딩 순서 준비');
+console.log('- Firebase 연결 상태 확인 강화');
+console.log('- 디버깅 도구 시스템 구축');
+console.log('\n🚀 회원 관리 페이지가 완전히 표준화되었습니다!');
+
+// 완료 플래그 설정
+window.userManagementReady = true;

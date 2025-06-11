@@ -752,19 +752,17 @@
         </svg>
     </button>
 
-    <!-- 🔧 수정된 스크립트 로딩 순서 -->
+    <!-- 🔧 최적화된 스크립트 로딩 순서 -->
     <script id="firebase-sdk-template" type="text/template">
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK (필수 - 가장 먼저) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
 
-    <!-- 🔧 1. 필수 유틸리티 먼저 로드 -->
+    <!-- 🔧 1. 핵심 유틸리티만 먼저 로드 -->
     <script src="{basePath}assets/js/utils/formatters.js"><\/script>
     <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
-    <script src="{basePath}assets/js/utils/validators.js"><\/script>
-    <script src="{basePath}assets/js/utils/dom-utils.js"><\/script>
 
     <!-- 🔧 2. Firebase 설정 및 서비스 -->
     <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
@@ -774,14 +772,18 @@
 </script>
 
     <script id="additional-scripts-template" type="text/template">
-    <!-- 🔧 3. 공통 컴포넌트 -->
+    <!-- 🔧 3. 필요시에만 로드되는 유틸리티 -->
+    <script src="{basePath}assets/js/utils/validators.js"><\/script>
+    <script src="{basePath}assets/js/utils/dom-utils.js"><\/script>
+    
+    <!-- 🔧 4. 공통 컴포넌트 -->
     <script src="{basePath}assets/js/components/header.js"><\/script>
     <script src="{basePath}assets/js/components/scroll-top.js"><\/script>
     
-    <!-- 🔧 4. 페이지별 스크립트 -->
+    <!-- 🔧 5. 페이지별 스크립트 -->
     <script src="{basePath}assets/js/pages/education/course-application.js"><\/script>
     
-    <!-- 🔧 5. 메인 스크립트 -->
+    <!-- 🔧 6. 메인 스크립트 (가장 마지막) -->
     <script src="{basePath}assets/js/main.js"><\/script>
 </script>
 </body>

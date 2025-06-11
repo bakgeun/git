@@ -1,5 +1,5 @@
 /**
- * 관리자 권한 확인 미들웨어
+ * 관리자 권한 확인 미들웨어 (최적화 버전 - 경로 조정 중복 방지)
  * 관리자 페이지 접근 시 권한을 확인합니다.
  */
 
@@ -11,10 +11,13 @@
         'gostepexercise@gmail.com' // 실제 관리자 계정
     ];
 
+    // 🔧 경로 조정 중복 방지를 위한 플래그
+    let navigationLinksAdjusted = false;
+
     // adminAuth 네임스페이스 생성
     window.adminAuth = {
         /**
-         * 페이지 깊이에 따른 경로 조정
+         * 페이지 깊이에 따른 경로 조정 (최적화 - 중복 방지)
          * @param {string} targetPath - 대상 경로
          * @returns {string} - 조정된 경로
          */
@@ -76,7 +79,7 @@
         },
 
         /**
-         * 관리자 권한 확인 (프로미스 기반)
+         * 관리자 권한 확인 (프로미스 기반) - 최적화됨
          * @returns {Promise<boolean>} - 권한 확인 결과 프로미스
          */
         checkAdminAccess: async function() {
@@ -109,9 +112,15 @@
         },
 
         /**
-         * 관리자 네비게이션 설정
+         * 관리자 네비게이션 설정 (최적화 - 중복 방지)
          */
         setupAdminNavigation: function () {
+            // 이미 조정되었는지 확인
+            if (navigationLinksAdjusted) {
+                console.log('⚠️ 네비게이션 링크가 이미 조정됨 - 중복 방지');
+                return;
+            }
+
             console.log('관리자 네비게이션 설정');
 
             // 관리자 메뉴 활성화 표시
@@ -126,28 +135,40 @@
                 }
             });
 
-            // 모든 네비게이션 링크에 경로 조정 적용
-            const navLinks = document.querySelectorAll('a[href]');
+            // 🔧 경로 조정 최적화 - script-loader.js가 이미 처리한 링크는 건드리지 않음
+            const navLinks = document.querySelectorAll('a[href]:not([data-path-adjusted])');
+            let adjustedCount = 0;
+
             navLinks.forEach(link => {
                 const href = link.getAttribute('href');
-                if (href && !href.startsWith('http') && !href.startsWith('javascript:')) {
+                if (href && 
+                    !href.startsWith('http') && 
+                    !href.startsWith('javascript:') &&
+                    !href.startsWith('#') &&
+                    !href.includes('../../')) { // 이미 조정된 경로는 제외
+                    
                     // 상대 경로인 경우에만 조정
                     const adjustedPath = this.adjustPath(href);
                     if (adjustedPath !== href) {
                         link.setAttribute('href', adjustedPath);
+                        link.setAttribute('data-path-adjusted', 'true'); // 조정됨 표시
+                        adjustedCount++;
                         console.log('네비게이션 링크 조정:', href, '->', adjustedPath);
                     }
                 }
             });
 
-            // 로그아웃 버튼 이벤트 리스너
+            console.log(`✅ 네비게이션 링크 조정 완료: ${adjustedCount}개`);
+
+            // 로그아웃 버튼 이벤트 리스너 (중복 방지)
             const logoutButton = document.getElementById('admin-logout-button');
-            if (logoutButton) {
-                // 기존 이벤트 리스너 제거
-                logoutButton.removeEventListener('click', this.handleLogout);
-                // 새 이벤트 리스너 추가
+            if (logoutButton && !logoutButton.dataset.eventAttached) {
                 logoutButton.addEventListener('click', this.handleLogout.bind(this));
+                logoutButton.dataset.eventAttached = 'true';
             }
+
+            // 조정 완료 플래그 설정
+            navigationLinksAdjusted = true;
         },
 
         /**
@@ -622,6 +643,38 @@
          */
         getAdminEmails: function () {
             return ADMIN_EMAILS;
+        },
+
+        /**
+         * 네비게이션 링크 조정 상태 재설정 (디버깅용)
+         */
+        resetNavigationState: function () {
+            console.log('🔄 네비게이션 링크 조정 상태 재설정');
+            navigationLinksAdjusted = false;
+        },
+
+        /**
+         * 현재 상태 확인 (디버깅용)
+         */
+        getStatus: function () {
+            return {
+                navigationLinksAdjusted: navigationLinksAdjusted,
+                adminEmails: ADMIN_EMAILS,
+                currentUser: window.dhcFirebase?.getCurrentUser()?.email || null,
+                isAdmin: this.isAdmin()
+            };
         }
     };
+
+    // 🔧 개발 모드에서 디버깅 정보 출력
+    if (window.location.hostname === 'localhost' || 
+        window.location.hostname === '127.0.0.1' || 
+        window.location.protocol === 'file:') {
+        
+        console.log('🔧 admin-auth.js 최적화 버전 로드 완료');
+        console.log('✅ 경로 조정 중복 방지 시스템 적용');
+        console.log('✅ 네비게이션 링크 관리 개선');
+        console.log('✅ 이벤트 리스너 중복 방지');
+        console.log('💡 디버깅: window.adminAuth.getStatus() 사용');
+    }
 })();

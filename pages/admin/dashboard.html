@@ -11,28 +11,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../../assets/css/main.css">
 
-    <!-- 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
+    <!-- 🔧 최적화된 스크립트 로더 (항상 가장 먼저 로드되어야 함) -->
     <script src="../../assets/js/utils/script-loader.js"></script>
 </head>
 
 <body class="bg-gray-100">
     <!-- 관리자 헤더 -->
     <header class="bg-indigo-800 text-white admin-header">
-        <style>
-            /* 인라인 스타일로 깜빡임 방지 */
-            .admin-user-info {
-                display: flex !important;
-                opacity: 1 !important;
-                visibility: visible !important;
-            }
-
-            #admin-name,
-            #admin-email,
-            #admin-logout-button {
-                opacity: 1 !important;
-                visibility: visible !important;
-            }
-        </style>
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
                 <!-- 토글 버튼 추가 -->
@@ -68,27 +53,14 @@
     <div class="flex">
         <!-- 사이드바 -->
         <aside class="w-64 bg-indigo-900 min-h-screen text-white admin-sidebar">
-            <style>
-                /* 사이드바 사용자 정보 인라인 스타일 */
-                .sidebar-user-info {
-                    opacity: 1 !important;
-                    visibility: visible !important;
-                    padding: 1rem;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-                    margin-bottom: 1rem;
-                    background-color: rgba(0, 0, 0, 0.2);
-                }
-            </style>
-
-            <!-- 사이드바 사용자 정보 (초기에 미리 추가) -->
-            <div class="sidebar-user-info" style="opacity: 1 !important; visibility: visible !important;">
+            <!-- 사이드바 사용자 정보 -->
+            <div class="sidebar-user-info">
                 <div class="text-white mb-2">
-                    <div class="font-bold" style="opacity: 1 !important;">관리자</div>
-                    <div class="text-indigo-200 text-sm" style="opacity: 1 !important;">gostepexercise@gmail.com</div>
+                    <div class="font-bold">관리자</div>
+                    <div class="text-indigo-200 text-sm">gostepexercise@gmail.com</div>
                 </div>
                 <button id="sidebar-logout-button"
-                    class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md text-sm text-white w-full"
-                    style="opacity: 1 !important;">
+                    class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md text-sm text-white w-full">
                     로그아웃
                 </button>
             </div>
@@ -341,52 +313,296 @@
         </main>
     </div>
 
-    <!-- Firebase SDK 템플릿 (script-loader.js에 의해 처리됨) -->
+    <!-- 🔧 최적화된 스크립트 로딩 섹션 - 중복 실행 방지 -->
+
+    <!-- Firebase SDK 템플릿 -->
     <script id="firebase-sdk-template" type="text/template">
+    <!-- Firebase SDK (필수 - 가장 먼저) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
+
+    <!-- 핵심 유틸리티만 먼저 로드 -->
+    <script src="{basePath}assets/js/utils/formatters.js"><\/script>
+    <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
+
+    <!-- Firebase 설정 및 서비스 -->
     <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
     <script src="{basePath}assets/js/services/auth-service.js"><\/script>
     <script src="{basePath}assets/js/services/db-service.js"><\/script>
+    <script src="{basePath}assets/js/services/storage-service.js"><\/script>
 </script>
 
-    <!-- 추가 스크립트 템플릿 (관리자 페이지용) -->
+    <!-- 추가 스크립트 템플릿 -->
     <script id="additional-scripts-template" type="text/template">
-    <script src="{basePath}assets/js/utils/formatters.js"><\/script>
-    <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
+    <!-- 관리자 전용 유틸리티 -->
     <script src="{basePath}assets/js/utils/admin-auth.js"><\/script>
+    
+    <!-- 공통 컴포넌트 -->
+    <script src="{basePath}assets/js/components/header.js"><\/script>
+    
+    <!-- 관리자 페이지 공통 기능 -->
     <script src="{basePath}assets/js/pages/admin.js"><\/script>
+    
+    <!-- 대시보드 페이지 스크립트 -->
     <script src="{basePath}assets/js/pages/admin/dashboard.js"><\/script>
+    
+    <!-- 메인 스크립트 (가장 마지막) -->
+    <script src="{basePath}assets/js/main.js"><\/script>
 </script>
 
-    <!-- 대시보드 초기화 스크립트 -->
+    <!-- 🔧 최적화된 초기화 스크립트 - 완전히 재작성 -->
     <script>
-        // 페이지 로드 시 dashboard.js 초기화 및 사이드바 토글 기능 초기화
-        window.addEventListener('load', async function () {
-            console.log('대시보드 페이지 로드 완료');
+        console.log('=== 표준화된 대시보드 페이지 로드 완료 ===');
 
-            // dashboard.js에서 제공하는 초기화 함수 호출
-            if (typeof initDashboard === 'function') {
-                await initDashboard();
+        // 🔧 전역 플래그로 중복 초기화 방지 강화
+        if (window.dashboardPageInitialized) {
+            console.log('⚠️ 대시보드 페이지가 이미 초기화됨 - 중복 실행 완전 차단');
+        } else {
+            window.dashboardPageInitialized = true;
+
+            /**
+             * 🔧 단일 초기화 함수 - script-loader.js와 분리된 독립적 실행
+             */
+            function initializeDashboardPage() {
+                console.log('🚀 단독 대시보드 초기화 시작');
+
+                // dashboard.js에서 제공하는 초기화 함수 확인 및 실행
+                if (typeof window.initDashboard === 'function') {
+                    console.log('✅ initDashboard 함수 발견, 초기화 시작');
+                    // dashboard.js에서 자체적으로 중복 방지를 처리하므로 직접 호출
+                    try {
+                        const result = window.initDashboard();
+                        if (result && typeof result.then === 'function') {
+                            // Promise를 반환하는 경우
+                            result.then(() => {
+                                console.log('🎉 대시보드 초기화 완료');
+                            }).catch(error => {
+                                console.error('❌ 대시보드 초기화 오류:', error);
+                            });
+                        } else {
+                            // 동기 함수인 경우
+                            console.log('🎉 대시보드 초기화 완료');
+                        }
+                    } catch (error) {
+                        console.error('❌ 대시보드 초기화 실행 오류:', error);
+                    }
+                } else {
+                    console.warn('⚠️ initDashboard 함수를 찾을 수 없음');
+                    
+                    // 잠시 대기 후 재시도 (최대 5초)
+                    let attempts = 0;
+                    const maxAttempts = 50;
+                    const retryInterval = setInterval(() => {
+                        attempts++;
+                        
+                        if (typeof window.initDashboard === 'function') {
+                            console.log('✅ 재시도 성공 - initDashboard 함수 발견');
+                            clearInterval(retryInterval);
+                            
+                            try {
+                                const result = window.initDashboard();
+                                if (result && typeof result.then === 'function') {
+                                    result.then(() => {
+                                        console.log('🎉 대시보드 초기화 완료 (재시도 성공)');
+                                    }).catch(error => {
+                                        console.error('❌ 대시보드 초기화 오류 (재시도):', error);
+                                    });
+                                } else {
+                                    console.log('🎉 대시보드 초기화 완료 (재시도 성공)');
+                                }
+                            } catch (error) {
+                                console.error('❌ 대시보드 초기화 실행 오류 (재시도):', error);
+                            }
+                        } else if (attempts >= maxAttempts) {
+                            console.error('❌ initDashboard 함수 로드 시간 초과');
+                            clearInterval(retryInterval);
+                            showInitializationError();
+                        }
+                    }, 100);
+                }
+            }
+
+            /**
+             * 🔧 초기화 오류 UI 표시
+             */
+            function showInitializationError() {
+                const mainContent = document.querySelector('.admin-content');
+                if (mainContent && !mainContent.innerHTML.includes('초기화 오류')) {
+                    mainContent.innerHTML = `
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                            <div class="text-red-600 text-lg font-semibold mb-2">⚠️ 초기화 오류</div>
+                            <p class="text-red-700 mb-4">대시보드 스크립트 로드에 실패했습니다.</p>
+                            <p class="text-red-600 text-sm mb-4">네트워크 연결을 확인하고 페이지를 새로고침해주세요.</p>
+                            <div class="space-y-2">
+                                <button onclick="location.reload()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 mr-2">
+                                    페이지 새로고침
+                                </button>
+                                <button onclick="window.history.back()" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
+                                    이전 페이지로
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            /**
+             * 🔧 관리자 사이드바 초기화 (중복 방지)
+             */
+            function initializeAdminSidebar() {
+                // admin.js가 로드되었는지 확인
+                if (window.adminUtils && typeof window.adminUtils.initAdminSidebar === 'function') {
+                    console.log('✅ 관리자 사이드바 초기화');
+                    window.adminUtils.initAdminSidebar();
+                } else {
+                    console.log('⚠️ adminUtils를 찾을 수 없음 - 기본 사이드바 기능만 활성화');
+                }
+            }
+
+            /**
+             * 🔧 관리자 페이지 공통 초기화 (중복 방지)
+             */
+            function initializeAdminPage() {
+                // admin.js가 로드되었는지 확인
+                if (window.adminUtils && typeof window.adminUtils.initAdminPage === 'function') {
+                    console.log('✅ adminUtils.initAdminPage 호출');
+                    window.adminUtils.initAdminPage();
+                } else {
+                    console.log('⚠️ adminUtils.initAdminPage를 찾을 수 없음');
+                }
+            }
+
+            /**
+             * 🔧 메인 초기화 실행기
+             */
+            function executeInitialization() {
+                console.log('📄 DOM 로드 완료 - 초기화 프로세스 시작');
+
+                // 스크립트 로딩 완료 대기
+                function waitForScripts() {
+                    const requiredScripts = [
+                        'window.dhcFirebase',      // Firebase
+                        'window.formatters',       // 유틸리티
+                        'window.dateUtils',        // 유틸리티
+                        'initDashboard'            // 대시보드 함수
+                    ];
+
+                    const checkScripts = () => {
+                        const loadedScripts = requiredScripts.filter(script => {
+                            try {
+                                // eval 대신 window 객체를 통해 안전하게 확인
+                                if (script === 'initDashboard') {
+                                    return typeof window.initDashboard === 'function';
+                                } else if (script.startsWith('window.')) {
+                                    const parts = script.split('.');
+                                    let obj = window;
+                                    for (let i = 1; i < parts.length; i++) {
+                                        if (obj && obj[parts[i]]) {
+                                            obj = obj[parts[i]];
+                                        } else {
+                                            return false;
+                                        }
+                                    }
+                                    return obj !== undefined;
+                                }
+                                return false;
+                            } catch (e) {
+                                return false;
+                            }
+                        });
+
+                        console.log(`📦 스크립트 로딩 진행률: ${loadedScripts.length}/${requiredScripts.length}`);
+                        console.log('✅ 로드됨:', loadedScripts.map(s => s.split('.').pop()));
+                        
+                        if (loadedScripts.length === requiredScripts.length) {
+                            console.log('🎯 모든 필수 스크립트 로드 완료');
+                            
+                            // 순차적 초기화 실행
+                            setTimeout(() => {
+                                console.log('🔧 1단계: 관리자 사이드바 초기화');
+                                initializeAdminSidebar();
+                                
+                                setTimeout(() => {
+                                    console.log('🔧 2단계: 관리자 페이지 공통 초기화');
+                                    initializeAdminPage();
+                                    
+                                    setTimeout(() => {
+                                        console.log('🔧 3단계: 대시보드 초기화');
+                                        initializeDashboardPage();
+                                        
+                                        console.log('🎉 표준화된 대시보드 초기화 완료');
+                                    }, 100);
+                                }, 100);
+                            }, 100);
+                            
+                        } else {
+                            // 아직 로딩 중인 스크립트가 있다면 100ms 후 재확인
+                            setTimeout(checkScripts, 100);
+                        }
+                    };
+
+                    // 스크립트 로딩 상태 확인 시작
+                    checkScripts();
+                }
+
+                // 스크립트 로딩 대기 시작
+                waitForScripts();
+            }
+
+            // 🔧 DOM 상태에 따른 초기화 실행
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', executeInitialization);
             } else {
-                console.error('dashboard.js의 initDashboard 함수를 찾을 수 없습니다.');
+                // DOM이 이미 로드된 경우 즉시 실행
+                executeInitialization();
             }
 
-            // 사이드바 토글 기능 초기화
-            if (typeof adminUtils !== 'undefined' && adminUtils.initAdminSidebar) {
-                adminUtils.initAdminSidebar();
+            // 🔧 전역 상태 확인 함수 (디버깅용)
+            window.checkDashboardPageStatus = function() {
+                console.log('=== 대시보드 페이지 상태 ===');
+                console.log('- 페이지 초기화됨:', window.dashboardPageInitialized);
+                console.log('- dashboard.js 준비됨:', window.dashboardReady);
+                console.log('- initDashboard 함수:', typeof initDashboard);
+                console.log('- Firebase 준비됨:', !!window.dhcFirebase);
+                console.log('- adminUtils 준비됨:', !!window.adminUtils);
+                console.log('- formatters 준비됨:', !!window.formatters);
+                console.log('- dateUtils 준비됨:', !!window.dateUtils);
+                console.log('- 현재 사용자:', window.dhcFirebase?.getCurrentUser()?.email || '없음');
+                
+                // 관리자 권한 확인
+                if (window.adminAuth && typeof window.adminAuth.getStatus === 'function') {
+                    console.log('- 관리자 권한 상태:', window.adminAuth.getStatus());
+                }
+            };
+
+            // 🔧 성능 모니터링 (선택적)
+            if (window.performance && window.performance.mark) {
+                window.performance.mark('dashboard-page-start');
+                
+                window.addEventListener('load', function() {
+                    window.performance.mark('dashboard-page-end');
+                    window.performance.measure('dashboard-page-total', 'dashboard-page-start', 'dashboard-page-end');
+                    
+                    const measures = window.performance.getEntriesByName('dashboard-page-total');
+                    if (measures.length > 0) {
+                        console.log(`⏱️ 대시보드 페이지 총 로딩 시간: ${measures[0].duration.toFixed(2)}ms`);
+                    }
+                });
             }
 
-            // adminUtils가 로드되었는지 확인 후 초기화 호출
-            if (window.adminUtils && window.adminUtils.initAdminPage) {
-                console.log('adminUtils.initAdminPage 호출');
-                window.adminUtils.initAdminPage();
-            } else {
-                console.warn('adminUtils가 로드되지 않았거나 initAdminPage가 없습니다.');
-            }
-        });
+            // 🔧 오류 발생 시 자동 상태 체크
+            window.addEventListener('error', function(event) {
+                if (event.filename && (event.filename.includes('dashboard') || event.filename.includes('admin'))) {
+                    console.error('🚨 대시보드 관련 오류 감지:', event.error);
+                    console.log('📊 자동 상태 체크:');
+                    if (window.checkDashboardPageStatus) {
+                        window.checkDashboardPageStatus();
+                    }
+                }
+            });
+        }
     </script>
 </body>
 

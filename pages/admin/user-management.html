@@ -18,24 +18,9 @@
 <body class="bg-gray-100">
     <!-- 관리자 헤더 -->
     <header class="bg-indigo-800 text-white admin-header">
-        <style>
-            /* 인라인 스타일로 깜빡임 방지 */
-            .admin-user-info {
-                display: flex !important;
-                opacity: 1 !important;
-                visibility: visible !important;
-            }
-
-            #admin-name,
-            #admin-email,
-            #admin-logout-button {
-                opacity: 1 !important;
-                visibility: visible !important;
-            }
-        </style>
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
-                <!-- 토글 버튼 추가 -->
+                <!-- 토글 버튼 -->
                 <button class="admin-toggle-button" id="admin-sidebar-toggle" aria-label="메뉴 토글">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -68,27 +53,14 @@
     <div class="flex">
         <!-- 사이드바 -->
         <aside class="w-64 bg-indigo-900 min-h-screen text-white admin-sidebar">
-            <style>
-                /* 사이드바 사용자 정보 인라인 스타일 */
-                .sidebar-user-info {
-                    opacity: 1 !important;
-                    visibility: visible !important;
-                    padding: 1rem;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-                    margin-bottom: 1rem;
-                    background-color: rgba(0, 0, 0, 0.2);
-                }
-            </style>
-
-            <!-- 사이드바 사용자 정보 (초기에 미리 추가) -->
-            <div class="sidebar-user-info" style="opacity: 1 !important; visibility: visible !important;">
+            <!-- 사이드바 사용자 정보 -->
+            <div class="sidebar-user-info">
                 <div class="text-white mb-2">
-                    <div class="font-bold" style="opacity: 1 !important;">관리자</div>
-                    <div class="text-indigo-200 text-sm" style="opacity: 1 !important;">gostepexercise@gmail.com</div>
+                    <div class="font-bold">관리자</div>
+                    <div class="text-indigo-200 text-sm">gostepexercise@gmail.com</div>
                 </div>
                 <button id="sidebar-logout-button"
-                    class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md text-sm text-white w-full"
-                    style="opacity: 1 !important;">
+                    class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md text-sm text-white w-full">
                     로그아웃
                 </button>
             </div>
@@ -152,13 +124,13 @@
         </aside>
 
         <!-- 메인 콘텐츠 -->
-        <main class="flex-1 p-8">
+        <main class="flex-1 p-4 md:p-8 admin-content">
             <!-- 알림 영역 -->
             <div id="admin-notification" style="display: none;"></div>
 
             <!-- 회원 관리 헤더 -->
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-800">회원 관리</h1>
+            <div class="mb-6 md:mb-8">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800">회원 관리</h1>
                 <p class="text-gray-600 mt-2">회원 목록 조회, 권한 변경, 상태 관리 및 계정 삭제</p>
             </div>
 
@@ -202,7 +174,6 @@
                             초기화
                         </button>
                     </div>
-                    <!-- 회원 추가 버튼 제거됨 -->
                 </div>
             </div>
 
@@ -307,7 +278,6 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200" id="user-list">
-                            <!-- 사용자 목록이 여기에 동적으로 로드됩니다 -->
                             <tr>
                                 <td colspan="7" class="px-6 py-4 text-center text-gray-500">
                                     데이터를 불러오는 중입니다...
@@ -416,49 +386,71 @@
         </div>
     </div>
 
-    <!-- Firebase SDK 템플릿 (script-loader.js에 의해 처리됨) -->
+    <!-- 표준화된 스크립트 로딩 (dashboard.html 스타일) -->
     <script id="firebase-sdk-template" type="text/template">
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
+
+    <!-- 핵심 유틸리티 -->
+    <script src="{basePath}assets/js/utils/formatters.js"><\/script>
+    <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
+
+    <!-- Firebase 설정 및 서비스 -->
     <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
     <script src="{basePath}assets/js/services/auth-service.js"><\/script>
     <script src="{basePath}assets/js/services/db-service.js"><\/script>
+    <script src="{basePath}assets/js/services/storage-service.js"><\/script>
 </script>
 
-    <!-- 추가 스크립트 템플릿 (관리자 페이지용) -->
     <script id="additional-scripts-template" type="text/template">
-    <script src="{basePath}assets/js/utils/formatters.js"><\/script>
-    <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
+    <!-- 관리자 전용 유틸리티 -->
     <script src="{basePath}assets/js/utils/admin-auth.js"><\/script>
+    
+    <!-- 공통 컴포넌트 -->
+    <script src="{basePath}assets/js/components/header.js"><\/script>
+    
+    <!-- 관리자 페이지 공통 기능 -->
     <script src="{basePath}assets/js/pages/admin.js"><\/script>
+    
+    <!-- 회원 관리 페이지 스크립트 -->
     <script src="{basePath}assets/js/pages/admin/user-management.js"><\/script>
+    
+    <!-- 메인 스크립트 -->
+    <script src="{basePath}assets/js/main.js"><\/script>
 </script>
 
-    <!-- 페이지 초기화 스크립트 -->
+    <!-- 회원 관리 초기화 스크립트 (표준화) -->
     <script>
-        window.addEventListener('load', function () {
-            console.log('회원 관리 페이지 로드 완료');
+        window.addEventListener('load', async function () {
+            console.log('=== 표준화된 회원 관리 페이지 로드 완료 ===');
 
-            // user-management.js에서 제공하는 초기화 함수 호출
-            if (typeof initUserManagement === 'function') {
-                initUserManagement();
-            } else {
-                console.error('user-management.js의 initUserManagement 함수를 찾을 수 없습니다.');
-            }
+            try {
+                // user-management.js에서 제공하는 초기화 함수 호출
+                if (typeof initUserManagement === 'function') {
+                    console.log('✅ initUserManagement 함수 발견, 초기화 시작');
+                    await initUserManagement();
+                } else {
+                    console.error('❌ user-management.js의 initUserManagement 함수를 찾을 수 없습니다.');
+                }
 
-            // 사이드바 토글 기능 초기화
-            if (typeof adminUtils !== 'undefined' && adminUtils.initAdminSidebar) {
-                adminUtils.initAdminSidebar();
-            }
+                // 관리자 공통 기능 초기화
+                if (typeof adminUtils !== 'undefined' && adminUtils.initAdminSidebar) {
+                    console.log('✅ 관리자 사이드바 초기화');
+                    adminUtils.initAdminSidebar();
+                }
 
-            // adminUtils가 로드되었는지 확인 후 초기화 호출
-            if (window.adminUtils && window.adminUtils.initAdminPage) {
-                console.log('adminUtils.initAdminPage 호출');
-                window.adminUtils.initAdminPage();
-            } else {
-                console.warn('adminUtils가 로드되지 않았거나 initAdminPage가 없습니다.');
+                if (window.adminUtils && window.adminUtils.initAdminPage) {
+                    console.log('✅ adminUtils.initAdminPage 호출');
+                    window.adminUtils.initAdminPage();
+                }
+
+                console.log('🎉 표준화된 회원 관리 초기화 완료');
+
+            } catch (error) {
+                console.error('❌ 회원 관리 초기화 오류:', error);
             }
         });
     </script>

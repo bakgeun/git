@@ -1,6 +1,7 @@
 /**
  * Header Component JavaScript
  * Firebase 인증과 통합된 헤더 컴포넌트 스크립트
+ * 관리자 페이지 호환성 개선 버전
  */
 
 console.log('=== header.js 파일 로드 시작 ===');
@@ -9,9 +10,25 @@ console.log('=== header.js 파일 로드 시작 ===');
 let currentUser = null;
 let currentUserType = null;
 
+// 페이지 타입 감지
+function detectPageType() {
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('/admin/')) {
+        return 'admin';
+    } else if (currentPath.includes('/auth/')) {
+        return 'auth';
+    } else if (currentPath.includes('/mypage/')) {
+        return 'mypage';
+    }
+    return 'general';
+}
+
 // 초기화 함수
 function initHeader() {
     console.log('=== 헤더 초기화 시작 ===');
+    
+    const pageType = detectPageType();
+    console.log('페이지 타입 감지:', pageType);
 
     // Firebase가 로드될 때까지 기다림
     waitForFirebase().then(() => {
@@ -19,7 +36,7 @@ function initHeader() {
         // Firebase 인증 상태 변화 감지
         initAuthStateListener();
 
-        // 모바일 메뉴 초기화
+        // 모바일 메뉴 초기화 (요소 존재 시에만)
         initMobileMenu();
 
         // 전역 객체에 함수 등록
@@ -182,13 +199,13 @@ async function logout() {
     }
 }
 
-// 인증 UI 업데이트
+// 인증 UI 업데이트 (수정됨 - 요소 존재 확인)
 function updateAuthUI(user, userType) {
     console.log('UI 업데이트 중...', user, userType);
 
     const authButtons = document.querySelector('.auth-buttons');
     if (!authButtons) {
-        console.error('auth-buttons 요소를 찾을 수 없음');
+        console.warn('auth-buttons 요소를 찾을 수 없음 - 관리자 페이지이거나 해당 요소가 없는 페이지입니다.');
         return;
     }
 
@@ -263,7 +280,7 @@ function toggleUserMenu() {
     }
 }
 
-// 모바일 메뉴 초기화
+// 모바일 메뉴 초기화 (수정됨 - 요소 존재 확인)
 function initMobileMenu() {
     console.log('모바일 메뉴 초기화');
 
@@ -278,7 +295,7 @@ function initMobileMenu() {
     });
 
     if (!mobileButton || !mobileOverlay) {
-        console.error('모바일 메뉴 요소를 찾을 수 없습니다.');
+        console.warn('모바일 메뉴 요소를 찾을 수 없습니다 - 관리자 페이지이거나 모바일 메뉴가 없는 페이지입니다.');
         return;
     }
 
@@ -319,12 +336,15 @@ function initMobileMenu() {
     window.updateMobileAuthStatus = updateMobileAuthStatus;
 }
 
-// 모바일 메뉴 토글
+// 모바일 메뉴 토글 (수정됨 - 요소 존재 확인)
 function toggleMobileMenu() {
     const mobileButton = document.getElementById('mobile-menu-button');
     const mobileOverlay = document.getElementById('mobile-menu-overlay');
 
-    if (!mobileButton || !mobileOverlay) return;
+    if (!mobileButton || !mobileOverlay) {
+        console.warn('모바일 메뉴 요소가 없어 토글할 수 없습니다.');
+        return;
+    }
 
     const isExpanded = mobileButton.getAttribute('aria-expanded') === 'true';
     console.log('모바일 메뉴 토글, 현재 상태:', isExpanded);
@@ -336,14 +356,17 @@ function toggleMobileMenu() {
     }
 }
 
-// 모바일 메뉴 열기
+// 모바일 메뉴 열기 (수정됨 - 요소 존재 확인)
 function openMobileMenu() {
     console.log('모바일 메뉴 열기');
 
     const mobileButton = document.getElementById('mobile-menu-button');
     const mobileOverlay = document.getElementById('mobile-menu-overlay');
 
-    if (!mobileButton || !mobileOverlay) return;
+    if (!mobileButton || !mobileOverlay) {
+        console.warn('모바일 메뉴 요소가 없어 열 수 없습니다.');
+        return;
+    }
 
     mobileButton.setAttribute('aria-expanded', 'true');
     mobileButton.classList.add('active');
@@ -360,14 +383,17 @@ function openMobileMenu() {
     createMobileMenu();
 }
 
-// 모바일 메뉴 닫기
+// 모바일 메뉴 닫기 (수정됨 - 요소 존재 확인)
 function closeMobileMenu() {
     console.log('모바일 메뉴 닫기');
 
     const mobileButton = document.getElementById('mobile-menu-button');
     const mobileOverlay = document.getElementById('mobile-menu-overlay');
 
-    if (!mobileButton || !mobileOverlay) return;
+    if (!mobileButton || !mobileOverlay) {
+        console.warn('모바일 메뉴 요소가 없어 닫을 수 없습니다.');
+        return;
+    }
 
     mobileButton.setAttribute('aria-expanded', 'false');
     mobileButton.classList.remove('active');
@@ -380,14 +406,14 @@ function closeMobileMenu() {
     document.body.style.overflow = '';
 }
 
-// 모바일 메뉴 생성 (KSPO 스타일)
+// 모바일 메뉴 생성 (KSPO 스타일) - 수정됨 - 요소 존재 확인
 function createMobileMenu() {
     console.log('모바일 메뉴 생성 시작, 현재 사용자:', currentUser);
 
     // 모바일 메뉴 컨테이너 찾기
     const mobileMenuContent = document.querySelector('#mobile-menu-overlay .overflow-y-auto');
     if (!mobileMenuContent) {
-        console.error('모바일 메뉴 컨테이너를 찾을 수 없습니다.');
+        console.warn('모바일 메뉴 컨테이너를 찾을 수 없습니다 - 관리자 페이지이거나 모바일 메뉴가 없는 페이지입니다.');
         return;
     }
 
@@ -594,3 +620,6 @@ function updateMobileAuthStatus() {
     console.log('모바일 인증 상태 업데이트, 현재 사용자:', currentUser);
     // 실제 업데이트는 createMobileMenu에서 처리됨
 }
+
+// 전역 함수로 등록 (관리자 페이지에서 사용)
+window.toggleUserMenu = toggleUserMenu;
