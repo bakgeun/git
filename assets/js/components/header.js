@@ -475,7 +475,7 @@ function createMobileMenu() {
             icon: '🏆',
             items: [
                 { name: '건강운동처방사', url: 'pages/certificate/health-exercise.html' },
-                { name: '운동재활전문가', url: 'pages/certificate/rehabilitation.html' },
+                { name: '운동재활지도자', url: 'pages/certificate/rehabilitation.html' },
                 { name: '필라테스 전문가', url: 'pages/certificate/pilates.html' },
                 { name: '레크리에이션지도자', url: 'pages/certificate/recreation.html' }
             ]

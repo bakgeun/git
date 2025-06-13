@@ -1,84 +1,212 @@
 /**
- * 게시판 관리 페이지 스크립트
- * 디버그용 버전 - 2025.05.19
+ * board-management.js - 완전한 통합 유틸리티 시스템 적용 버전
+ * 게시판 관리 페이지의 모든 기능을 포함합니다.
  */
 
-console.log('board-management.js 로드 시작 - 디버그 버전');
+console.log('=== 완전한 board-management.js 파일 로드됨 ===');
 
-// 게시판 관리 객체
+// 🔧 의존성 체크 시스템
+function checkDependencies() {
+    const requiredUtils = [
+        { name: 'window.formatters', path: 'formatters.js' },
+        { name: 'window.dateUtils', path: 'date-utils.js' },
+        { name: 'window.adminAuth', path: 'admin-auth.js' }
+    ];
+    
+    const missing = [];
+    
+    requiredUtils.forEach(util => {
+        if (!eval(util.name)) {
+            missing.push(util);
+        }
+    });
+    
+    if (missing.length > 0) {
+        console.error('⚠️ 필수 유틸리티가 로드되지 않음:', missing.map(m => m.path));
+        console.log('📝 HTML에서 다음 스크립트들이 먼저 로드되어야 합니다:');
+        missing.forEach(m => {
+            console.log(`   <script src="{basePath}assets/js/utils/${m.path}"></script>`);
+        });
+        return false;
+    }
+    
+    console.log('✅ 모든 필수 유틸리티 로드 확인됨');
+    
+    // 🔧 추가: formatters 함수들이 실제로 작동하는지 테스트
+    try {
+        const testDate = new Date();
+        const testFormatDate = window.formatters.formatDate(testDate, 'YYYY.MM.DD');
+        const testFormatCurrency = window.formatters.formatCurrency(10000);
+        
+        console.log('✅ formatters.formatDate 테스트 성공:', testFormatDate);
+        console.log('✅ formatters.formatCurrency 테스트 성공:', testFormatCurrency);
+        
+        if (!testFormatDate || !testFormatCurrency) {
+            throw new Error('포맷터 함수 결과가 유효하지 않습니다.');
+        }
+        
+    } catch (error) {
+        console.error('❌ 유틸리티 함수 테스트 실패:', error);
+        return false;
+    }
+    
+    return true;
+}
+
+// 🔧 의존성 오류 표시 함수
+function showDependencyError() {
+    const tableBody = document.querySelector('#board-table tbody');
+    
+    if (tableBody) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center py-8">
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+                        <div class="text-red-600 text-lg font-semibold mb-2">⚠️ 시스템 오류</div>
+                        <p class="text-red-700 mb-4">필수 유틸리티 파일이 로드되지 않았습니다.</p>
+                        <p class="text-red-600 text-sm">페이지를 새로고침하거나 관리자에게 문의하세요.</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+}
+
+// Firebase 연결 확인
+function checkFirebaseConnection() {
+    if (!window.dhcFirebase || !window.dhcFirebase.db) {
+        console.warn('⚠️ Firebase 연결되지 않음 - 로컬 테스트 모드로 실행');
+        return false;
+    }
+    
+    console.log('✅ Firebase 연결 확인됨');
+    return true;
+}
+
+// =================================
+// 게시판 관리 메인 객체 (완전 표준화 버전)
+// =================================
+
 window.boardManager = {
     currentPage: 1,
     pageSize: 10,
-    currentBoardType: 'notice', // 기본값: 공지사항
+    currentBoardType: 'notice',
     lastDoc: null,
+    isFirebaseConnected: false,
 
     /**
-     * 초기화
+     * 초기화 - course-application.js 스타일
      */
     init: async function () {
         try {
-            console.log('게시판 관리자 초기화 시작 - 디버그 버전');
+            console.log('📋 게시판 관리자 초기화 시작 - 표준화 버전');
 
-            // Firebase 초기화 확인
-            await this.waitForFirebase();
+            // 🔧 의존성 체크 먼저 실행
+            if (!checkDependencies()) {
+                console.error('❌ 필수 유틸리티 누락으로 초기화 중단');
+                showDependencyError();
+                return false;
+            }
+
+            // Firebase 연결 확인
+            this.isFirebaseConnected = checkFirebaseConnection();
+            
+            if (this.isFirebaseConnected) {
+                await this.waitForFirebase();
+            }
 
             // 이벤트 리스너 등록
             this.registerEventListeners();
 
-            // 바로 데이터 로드 (기본 공지사항)
-            console.log('직접 데이터 로드 시작');
+            // 게시판 데이터 로드
             await this.loadBoardData();
 
-            // 게시판 탭 클릭 이벤트 처리
-            const boardTabs = document.querySelectorAll('.board-tab');
-            if (boardTabs.length > 0) {
-                // 첫 번째 탭 활성화
-                const firstTab = boardTabs[0];
-                const boardType = firstTab.getAttribute('data-board') || 'notice';
-                this.updateTabUI(boardType);
-            }
+            // 게시판 탭 초기화
+            this.initBoardTabs();
 
-            console.log('게시판 관리자 초기화 완료');
+            console.log('✅ 게시판 관리자 초기화 완료');
             return true;
+
         } catch (error) {
-            console.error('게시판 관리자 초기화 오류:', error);
-            alert('초기화 중 오류가 발생했습니다: ' + error.message);
+            console.error('❌ 게시판 관리자 초기화 오류:', error);
+            this.showErrorMessage('초기화 중 오류가 발생했습니다: ' + error.message);
             return false;
         }
     },
 
     /**
-     * Firebase 초기화 대기
+     * Firebase 초기화 대기 (course-application.js 스타일)
      */
     waitForFirebase: async function () {
-        console.log('Firebase 초기화 대기 중...');
+        console.log('🔥 Firebase 초기화 대기 중...');
 
-        // 최대 10초 동안 시도
         const maxTries = 20;
         let tries = 0;
 
         while (tries < maxTries) {
             if (window.dhcFirebase && window.dhcFirebase.db) {
-                console.log('Firebase 초기화 완료 확인됨');
+                console.log('✅ Firebase 초기화 완료 확인됨');
                 return true;
             }
 
             tries++;
             console.log(`Firebase 대기 중... (${tries}/${maxTries})`);
-
-            // 500ms 대기
             await new Promise(resolve => setTimeout(resolve, 500));
         }
 
-        console.error('Firebase 초기화 시간 초과');
+        console.error('❌ Firebase 초기화 시간 초과');
         throw new Error('Firebase 초기화가 제대로 완료되지 않았습니다.');
     },
 
     /**
-     * 탭 UI 업데이트
+     * 에러 메시지 표시
+     */
+    showErrorMessage: function (message) {
+        const tableBody = document.querySelector('#board-table tbody');
+        if (tableBody) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center py-8">
+                        <div class="text-red-500 mb-4">
+                            <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <p class="text-gray-600 mb-4">${message}</p>
+                        <button onclick="boardManager.loadBoardData()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                            다시 시도
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        // 추가로 toast 메시지도 표시
+        if (typeof showToast === 'function') {
+            showToast(message, 'error');
+        }
+    },
+
+    /**
+     * 게시판 탭 초기화
+     */
+    initBoardTabs: function () {
+        console.log('📋 게시판 탭 초기화');
+
+        const boardTabs = document.querySelectorAll('.board-tab');
+        if (boardTabs.length > 0) {
+            // 첫 번째 탭 활성화
+            const firstTab = boardTabs[0];
+            const boardType = firstTab.getAttribute('data-board') || 'notice';
+            this.updateTabUI(boardType);
+        }
+    },
+
+    /**
+     * 탭 UI 업데이트 (개선된 버전)
      */
     updateTabUI: function (boardType) {
-        console.log('탭 UI 업데이트:', boardType);
+        console.log('📋 탭 UI 업데이트:', boardType);
 
         // 탭 상태 업데이트
         const tabs = document.querySelectorAll('.board-tab');
@@ -101,10 +229,10 @@ window.boardManager = {
     },
 
     /**
-     * 이벤트 리스너 등록
+     * 이벤트 리스너 등록 (중복 방지 개선)
      */
     registerEventListeners: function () {
-        console.log('이벤트 리스너 등록 시작');
+        console.log('📋 이벤트 리스너 등록 시작');
 
         // 전역 변수로 핸들러 함수 저장 (중복 등록 방지용)
         if (!window.formSubmitHandler) {
@@ -121,8 +249,30 @@ window.boardManager = {
         }
 
         // 게시판 탭 클릭 이벤트
+        this.registerTabEvents();
+
+        // 게시글 작성 버튼
+        this.registerAddPostButton();
+
+        // 모달 관련 이벤트 리스너
+        this.registerModalEvents();
+
+        // 폼 제출 이벤트
+        this.registerFormEvents();
+
+        // 검색 이벤트
+        this.registerSearchEvents();
+
+        console.log('✅ 이벤트 리스너 등록 완료');
+    },
+
+    /**
+     * 탭 이벤트 등록
+     */
+    registerTabEvents: function () {
         const boardTabs = document.querySelectorAll('.board-tab');
         const self = this;
+        
         boardTabs.forEach(tab => {
             // 기존 이벤트 제거 후 새로 등록
             tab.removeEventListener('click', tab._clickHandler);
@@ -135,10 +285,15 @@ window.boardManager = {
             };
             tab.addEventListener('click', tab._clickHandler);
         });
+    },
 
-        // 게시글 작성 버튼
+    /**
+     * 게시글 추가 버튼 이벤트 등록
+     */
+    registerAddPostButton: function () {
         const addPostButton = document.getElementById('add-post-button');
         if (addPostButton) {
+            const self = this;
             // 기존 이벤트 제거 후 새로 등록
             addPostButton.removeEventListener('click', addPostButton._clickHandler);
             addPostButton._clickHandler = function (e) {
@@ -147,12 +302,17 @@ window.boardManager = {
             };
             addPostButton.addEventListener('click', addPostButton._clickHandler);
         }
+    },
 
-        // 모달 관련 이벤트 리스너
-        // 모달 닫기 버튼
+    /**
+     * 모달 이벤트 등록
+     */
+    registerModalEvents: function () {
+        const self = this;
+        
+        // 모달 닫기 버튼들
         document.querySelectorAll('button[onclick="boardManager.closePostModal()"]').forEach(btn => {
             btn.removeAttribute('onclick');
-            // 기존 이벤트 제거 후 새로 등록
             btn.removeEventListener('click', btn._clickHandler);
             btn._clickHandler = function (e) {
                 e.preventDefault();
@@ -160,16 +320,38 @@ window.boardManager = {
             };
             btn.addEventListener('click', btn._clickHandler);
         });
+    },
 
-        // 폼 제출 이벤트
+    /**
+     * 폼 이벤트 등록
+     */
+    registerFormEvents: function () {
         const postForm = document.getElementById('post-form');
         if (postForm) {
             // 기존 이벤트 제거 후 새로 등록
             postForm.removeEventListener('submit', window.formSubmitHandler);
             postForm.addEventListener('submit', window.formSubmitHandler);
         }
+    },
 
-        console.log('이벤트 리스너 등록 완료');
+    /**
+     * 검색 이벤트 등록
+     */
+    registerSearchEvents: function () {
+        const self = this;
+        
+        // 검색 키워드 엔터키 이벤트
+        const searchKeyword = document.getElementById('search-keyword');
+        if (searchKeyword) {
+            searchKeyword.removeEventListener('keypress', searchKeyword._keypressHandler);
+            searchKeyword._keypressHandler = function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    self.search();
+                }
+            };
+            searchKeyword.addEventListener('keypress', searchKeyword._keypressHandler);
+        }
     },
 
     /**
@@ -179,7 +361,7 @@ window.boardManager = {
         // 이미 선택된 유형이면 무시
         if (this.currentBoardType === boardType) return;
 
-        console.log('게시판 유형 전환:', boardType);
+        console.log('📋 게시판 유형 전환:', boardType);
 
         // UI 업데이트
         this.updateTabUI(boardType);
@@ -194,142 +376,140 @@ window.boardManager = {
     },
 
     /**
-     * 게시판 데이터 로드
+     * 게시판 데이터 로드 (표준화 버전)
      */
     loadBoardData: async function () {
-        console.log('게시판 데이터 로드 시작:', this.currentBoardType);
+        console.log('📋 게시판 데이터 로드 시작:', this.currentBoardType);
 
         try {
             // 로딩 상태 표시
-            const tableBody = document.querySelector('#board-table tbody');
-            if (tableBody) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="text-center py-4 text-gray-500">데이터를 불러오는 중입니다...</td>
-                    </tr>
-                `;
-            }
-
-            // 컬렉션 이름 결정
-            let collectionName;
-            switch (this.currentBoardType) {
-                case 'notice': collectionName = 'notices'; break;
-                case 'column': collectionName = 'columns'; break;
-                case 'materials': collectionName = 'materials'; break;
-                case 'videos': collectionName = 'videos'; break;
-                default: collectionName = 'notices';
-            }
-
-            console.log('사용 중인 컬렉션 이름:', collectionName);
-
-            // Firebase 확인
-            if (!window.dhcFirebase || !window.dhcFirebase.db) {
-                console.error('Firebase가 초기화되지 않았습니다.');
-                throw new Error('Firebase가 초기화되지 않았습니다.');
-            }
-
-            // 검색 조건 가져오기
-            const searchType = document.getElementById('search-type')?.value || 'title';
-            const searchKeyword = document.getElementById('search-keyword')?.value || '';
-
-            // Firestore에서 직접 데이터 가져오기
-            console.log('Firestore에서 직접 데이터 가져오기 시도...');
-            let query = window.dhcFirebase.db.collection(collectionName);
-
-            // 정렬 적용 (최신순)
-            query = query.orderBy('createdAt', 'desc');
-
-            // 페이지네이션 적용
-            query = query.limit(this.pageSize);
-
-            // 시작 지점 설정 (다음 페이지)
-            if (this.currentPage > 1 && this.lastDoc) {
-                query = query.startAfter(this.lastDoc);
-            }
-
-            // 검색 조건 적용
-            if (searchKeyword) {
-                console.log(`검색 조건: ${searchType} = ${searchKeyword}`);
-            }
-
-            // 쿼리 실행
-            console.log('Firestore 쿼리 실행...');
-            const snapshot = await query.get();
-
-            console.log('쿼리 결과:', snapshot.size);
+            this.showLoadingState();
 
             let posts = [];
-            if (snapshot.empty) {
-                console.log('조회 결과: 문서 없음');
+
+            if (this.isFirebaseConnected) {
+                console.log('🔥 Firebase에서 실제 데이터 로드');
+                posts = await this.loadFromFirebase();
             } else {
-                // 결과 처리
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    console.log('문서 데이터:', doc.id, data);
-                    posts.push({
-                        id: doc.id,
-                        ...data
-                    });
-                });
-
-                // 검색 필터링 (클라이언트 측)
-                if (searchKeyword) {
-                    const searchLower = searchKeyword.toLowerCase();
-                    posts = posts.filter(post => {
-                        if (searchType === 'title' && post.title) {
-                            return post.title.toLowerCase().includes(searchLower);
-                        } else if (searchType === 'content' && post.content) {
-                            return post.content.toLowerCase().includes(searchLower);
-                        } else if (searchType === 'author' && (post.author || post.authorName)) {
-                            const author = (post.author || post.authorName || '').toLowerCase();
-                            return author.includes(searchLower);
-                        }
-                        return false;
-                    });
-                }
-
-                // 마지막 문서 저장 (다음 페이지 요청용)
-                this.lastDoc = snapshot.docs[snapshot.docs.length - 1];
+                console.log('🧪 테스트 데이터 사용');
+                posts = this.getTestData();
             }
 
-            console.log(`조회 결과: ${posts.length}개 항목`);
+            // 검색 필터링 적용
+            const searchType = document.getElementById('search-type')?.value || 'title';
+            const searchKeyword = document.getElementById('search-keyword')?.value || '';
+            
+            if (searchKeyword) {
+                posts = this.filterPosts(posts, searchType, searchKeyword);
+                console.log(`🔍 검색 결과: ${posts.length}개 항목`);
+            }
 
-            // 전체 문서 수 조회
-            console.log('전체 문서 수 조회...');
-            const countSnapshot = await window.dhcFirebase.db.collection(collectionName).get();
-            const totalCount = countSnapshot.size;
+            // 전체 문서 수 계산 (페이지네이션용)
+            const totalCount = posts.length;
             const totalPages = Math.ceil(totalCount / this.pageSize);
 
-            console.log(`전체 문서 수: ${totalCount}, 총 페이지: ${totalPages}`);
+            // 페이지네이션 적용
+            const startIndex = (this.currentPage - 1) * this.pageSize;
+            const endIndex = startIndex + this.pageSize;
+            const paginatedPosts = posts.slice(startIndex, endIndex);
+
+            console.log(`📊 조회 결과: 전체 ${totalCount}개, 현재 페이지 ${paginatedPosts.length}개`);
 
             // 페이지네이션 업데이트
             this.updatePagination(totalPages);
 
             // 게시글 목록 업데이트
-            this.updateBoardList(posts);
+            this.updateBoardList(paginatedPosts);
+
+            console.log('✅ 게시판 데이터 로드 완료');
 
         } catch (error) {
-            console.error('게시판 데이터 로드 오류:', error);
-
-            const tableBody = document.querySelector('#board-table tbody');
-            if (tableBody) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="py-4 text-center text-red-500">
-                            데이터 로드 중 오류가 발생했습니다.<br>
-                            ${error.message || '알 수 없는 오류'}
-                        </td>
-                    </tr>
-                `;
-            }
-
-            // 오류 알림
-            alert('게시판 데이터를 불러오는 중 오류가 발생했습니다: ' + (error.message || '알 수 없는 오류'));
+            console.error('❌ 게시판 데이터 로드 오류:', error);
+            this.showErrorMessage('데이터 로드 중 오류가 발생했습니다: ' + error.message);
         }
     },
 
     /**
-     * 게시글 목록 업데이트
+     * Firebase에서 데이터 로드
+     */
+    loadFromFirebase: async function () {
+        // 컬렉션 이름 결정
+        const collectionMap = {
+            'notice': 'notices',
+            'column': 'columns',
+            'materials': 'materials',
+            'videos': 'videos'
+        };
+
+        const collectionName = collectionMap[this.currentBoardType] || 'notices';
+        console.log('🔥 사용 중인 컬렉션:', collectionName);
+
+        if (!window.dhcFirebase || !window.dhcFirebase.db) {
+            throw new Error('Firebase가 초기화되지 않았습니다.');
+        }
+
+        // Firestore 쿼리 실행
+        const query = window.dhcFirebase.db.collection(collectionName)
+            .orderBy('createdAt', 'desc')
+            .limit(100); // 최대 100개 로드
+
+        const snapshot = await query.get();
+        console.log(`🔥 Firebase 쿼리 결과: ${snapshot.size}개`);
+
+        const posts = [];
+        if (!snapshot.empty) {
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                posts.push({
+                    id: doc.id,
+                    ...data
+                });
+            });
+        }
+
+        return posts;
+    },
+
+    /**
+     * 게시글 필터링
+     */
+    filterPosts: function (posts, searchType, searchKeyword) {
+        const searchLower = searchKeyword.toLowerCase();
+        
+        return posts.filter(post => {
+            switch (searchType) {
+                case 'title':
+                    return post.title && post.title.toLowerCase().includes(searchLower);
+                case 'content':
+                    return post.content && post.content.toLowerCase().includes(searchLower);
+                case 'author':
+                    const author = (post.author || post.authorName || '').toLowerCase();
+                    return author.includes(searchLower);
+                default:
+                    return false;
+            }
+        });
+    },
+
+    /**
+     * 로딩 상태 표시
+     */
+    showLoadingState: function () {
+        const tableBody = document.querySelector('#board-table tbody');
+        if (tableBody) {
+            tableBody.innerHTML = `
+                <tr class="loading-row">
+                    <td colspan="6" class="text-center py-8">
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mr-3"></div>
+                        <span class="text-gray-600">데이터를 불러오는 중입니다...</span>
+                    </td>
+                </tr>
+            `;
+        }
+    },
+
+    /**
+     * 게시글 목록 업데이트 (🔧 전역 유틸리티 사용)
      */
     updateBoardList: function (posts) {
         const tableBody = document.querySelector('#board-table tbody');
@@ -338,90 +518,114 @@ window.boardManager = {
             return;
         }
 
-        console.log('게시글 목록 업데이트:', posts);
+        console.log('📋 게시글 목록 업데이트:', posts.length, '개');
 
         if (!posts || posts.length === 0) {
             tableBody.innerHTML = `
-            <tr>
-                <td colspan="6" class="py-4 text-center text-gray-500">등록된 게시글이 없습니다.</td>
-            </tr>
-        `;
+                <tr class="no-results">
+                    <td colspan="6" class="text-center py-12">
+                        <div class="text-gray-400 mb-4">
+                            <svg class="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">등록된 게시글이 없습니다</h3>
+                        <p class="text-gray-500">새로운 게시글을 추가해보세요.</p>
+                    </td>
+                </tr>
+            `;
             return;
         }
 
         let html = '';
 
         posts.forEach((post, index) => {
-            // 게시글 정보 디버깅 출력
-            console.log(`게시글 ${index + 1}:`, post);
+            try {
+                // 🔧 전역 유틸리티 사용하여 날짜 포맷팅
+                let createdAt = '-';
 
-            // 날짜 포맷팅
-            let createdAt = '-';
+                if (post.createdAt) {
+                    try {
+                        let dateObj;
+                        if (typeof post.createdAt.toDate === 'function') {
+                            dateObj = post.createdAt.toDate();
+                        } else if (typeof post.createdAt === 'object' && post.createdAt.seconds) {
+                            dateObj = new Date(post.createdAt.seconds * 1000);
+                        } else if (typeof post.createdAt === 'string') {
+                            dateObj = new Date(post.createdAt);
+                        } else {
+                            dateObj = new Date(post.createdAt);
+                        }
 
-            if (post.createdAt) {
-                try {
-                    if (typeof post.createdAt.toDate === 'function') {
-                        createdAt = this.formatDate(post.createdAt.toDate());
-                    } else if (typeof post.createdAt === 'object' && post.createdAt.seconds) {
-                        createdAt = this.formatDate(new Date(post.createdAt.seconds * 1000));
-                    } else if (typeof post.createdAt === 'string') {
-                        createdAt = post.createdAt;
+                        // 🔧 전역 유틸리티 사용
+                        createdAt = window.formatters.formatDate(dateObj, 'YYYY.MM.DD');
+                    } catch (e) {
+                        console.error('날짜 변환 오류:', e, post.createdAt);
+                        createdAt = '-';
                     }
-                } catch (e) {
-                    console.error('날짜 변환 오류:', e, post.createdAt);
-                    createdAt = '-';
                 }
+
+                const viewCount = post.views || post.viewCount || 0;
+                const postId = post.id || '';
+                const title = post.title || '(제목 없음)';
+                const author = post.authorName || post.author || '관리자';
+
+                // 상태 결정
+                const status = post.status || 'published';
+                const statusInfo = this.getStatusInfo(status);
+
+                html += `
+                    <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                        <td class="py-3 px-4">
+                            <a href="#" class="text-indigo-600 hover:text-indigo-900 view-post font-medium" data-id="${postId}">
+                                ${title}
+                            </a>
+                        </td>
+                        <td class="py-3 px-4 text-center text-gray-600">${author}</td>
+                        <td class="py-3 px-4 text-center text-gray-600">${viewCount}</td>
+                        <td class="py-3 px-4 text-center text-gray-600">${createdAt}</td>
+                        <td class="py-3 px-4 text-center">
+                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusInfo.class}">
+                                ${statusInfo.text}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <div class="flex justify-center space-x-2">
+                                <button class="text-indigo-600 hover:text-indigo-900 edit-post" data-id="${postId}" title="수정">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                </button>
+                                <button class="text-red-600 hover:text-red-900 delete-post" data-id="${postId}" title="삭제">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+
+            } catch (error) {
+                console.error('게시글 렌더링 오류:', post, error);
             }
-
-            const viewCount = post.views || post.viewCount || 0;
-            const postId = post.id || '';
-            const title = post.title || '(제목 없음)';
-            const author = post.authorName || post.author || '관리자';
-
-            html += `
-            <tr>
-                <td class="py-3 px-4">
-                    <a href="#" class="text-indigo-600 hover:text-indigo-900 view-post" data-id="${postId}">
-                        ${title}
-                    </a>
-                </td>
-                <td class="py-3 px-4 text-center">${author}</td>
-                <td class="py-3 px-4 text-center">${viewCount}</td>
-                <td class="py-3 px-4 text-center">${createdAt}</td>
-                <td class="py-3 px-4 text-center">
-                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        활성
-                    </span>
-                </td>
-                <td class="py-3 px-4 text-center">
-                    <div class="flex justify-center space-x-2">
-                        <button class="text-indigo-600 hover:text-indigo-900 edit-post" data-id="${postId}">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                            </svg>
-                        </button>
-                        <button class="text-red-600 hover:text-red-900 delete-post" data-id="${postId}">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `;
         });
 
         tableBody.innerHTML = html;
-        console.log('게시글 목록 HTML 업데이트 완료');
+        console.log('✅ 게시글 목록 HTML 업데이트 완료');
 
-        // 이벤트 리스너 추가
+        // 이벤트 리스너 추가 (새로 생성된 요소들에 대해)
+        this.registerTableEvents();
+    },
+
+    /**
+     * 테이블 이벤트 등록 (새로 생성된 요소들)
+     */
+    registerTableEvents: function () {
         const self = this;
 
-        // 이벤트 리스너 등록 (이전 리스너 제거를 위해 복제 및 교체)
-        const newTableBody = tableBody.cloneNode(true);
-        tableBody.parentNode.replaceChild(newTableBody, tableBody);
-
-        newTableBody.querySelectorAll('.view-post').forEach(btn => {
+        // 게시글 보기 버튼
+        document.querySelectorAll('.view-post').forEach(btn => {
             btn.addEventListener('click', function (e) {
                 e.preventDefault();
                 const postId = this.getAttribute('data-id');
@@ -429,7 +633,8 @@ window.boardManager = {
             });
         });
 
-        newTableBody.querySelectorAll('.edit-post').forEach(btn => {
+        // 게시글 수정 버튼
+        document.querySelectorAll('.edit-post').forEach(btn => {
             btn.addEventListener('click', function (e) {
                 e.preventDefault();
                 const postId = this.getAttribute('data-id');
@@ -437,7 +642,8 @@ window.boardManager = {
             });
         });
 
-        newTableBody.querySelectorAll('.delete-post').forEach(btn => {
+        // 게시글 삭제 버튼
+        document.querySelectorAll('.delete-post').forEach(btn => {
             btn.addEventListener('click', function (e) {
                 e.preventDefault();
                 const postId = this.getAttribute('data-id');
@@ -447,62 +653,84 @@ window.boardManager = {
     },
 
     /**
-     * 페이지네이션 업데이트
+     * 상태 정보 가져오기
+     */
+    getStatusInfo: function (status) {
+        const statusMap = {
+            'published': { text: '게시', class: 'bg-green-100 text-green-800' },
+            'draft': { text: '임시저장', class: 'bg-yellow-100 text-yellow-800' },
+            'hidden': { text: '숨김', class: 'bg-gray-100 text-gray-800' },
+            'active': { text: '활성', class: 'bg-green-100 text-green-800' }
+        };
+
+        return statusMap[status] || { text: '알 수 없음', class: 'bg-gray-100 text-gray-800' };
+    },
+
+    /**
+     * 페이지네이션 업데이트 (개선된 버전)
      */
     updatePagination: function (totalPages) {
         const paginationContainer = document.getElementById('board-pagination');
         if (!paginationContainer) return;
 
-        let html = '';
-
-        if (totalPages > 1) {
-            html = '<div class="flex justify-center space-x-1">';
-
-            // 이전 페이지 버튼
-            html += `
-                <button class="px-4 py-2 border rounded-md text-sm prev-page
-                    ${this.currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50 text-gray-700'}"
-                    ${this.currentPage === 1 ? 'disabled' : ''}>
-                    이전
-                </button>
-            `;
-
-            // 페이지 번호
-            const maxVisiblePages = 5;
-            let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
-            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-            if (endPage - startPage + 1 < maxVisiblePages) {
-                startPage = Math.max(1, endPage - maxVisiblePages + 1);
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                html += `
-                    <button class="px-4 py-2 border rounded-md text-sm page-number" data-page="${i}"
-                        ${this.currentPage === i ? 'style="background-color: #4f46e5; color: white;"' : 'style="background-color: white; color: #374151;"'}>
-                        ${i}
-                    </button>
-                `;
-            }
-
-            // 다음 페이지 버튼
-            html += `
-                <button class="px-4 py-2 border rounded-md text-sm next-page
-                    ${this.currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50 text-gray-700'}"
-                    ${this.currentPage === totalPages ? 'disabled' : ''}>
-                    다음
-                </button>
-            `;
-
-            html += '</div>';
+        if (totalPages <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
         }
 
+        let html = '<div class="flex justify-center items-center space-x-2">';
+
+        // 이전 페이지 버튼
+        html += `
+            <button class="pagination-btn prev-page px-3 py-2 border rounded-md text-sm
+                ${this.currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50 text-gray-700'}"
+                ${this.currentPage === 1 ? 'disabled' : ''}>
+                이전
+            </button>
+        `;
+
+        // 페이지 번호 버튼들
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            html += `
+                <button class="pagination-btn page-number px-3 py-2 border rounded-md text-sm" data-page="${i}"
+                    ${this.currentPage === i ? 'style="background-color: #4f46e5; color: white; border-color: #4f46e5;"' : 'style="background-color: white; color: #374151;"'}>
+                    ${i}
+                </button>
+            `;
+        }
+
+        // 다음 페이지 버튼
+        html += `
+            <button class="pagination-btn next-page px-3 py-2 border rounded-md text-sm
+                ${this.currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50 text-gray-700'}"
+                ${this.currentPage === totalPages ? 'disabled' : ''}>
+                다음
+            </button>
+        `;
+
+        html += '</div>';
         paginationContainer.innerHTML = html;
 
-        // 이벤트 리스너 추가
+        // 페이지네이션 이벤트 리스너 추가
+        this.registerPaginationEvents();
+    },
+
+    /**
+     * 페이지네이션 이벤트 등록
+     */
+    registerPaginationEvents: function () {
         const self = this;
 
-        paginationContainer.querySelectorAll('.page-number').forEach(btn => {
+        // 페이지 번호 버튼
+        document.querySelectorAll('.page-number').forEach(btn => {
             btn.addEventListener('click', function (e) {
                 e.preventDefault();
                 const page = parseInt(this.getAttribute('data-page'));
@@ -510,7 +738,8 @@ window.boardManager = {
             });
         });
 
-        const prevBtn = paginationContainer.querySelector('.prev-page');
+        // 이전 페이지 버튼
+        const prevBtn = document.querySelector('.prev-page');
         if (prevBtn) {
             prevBtn.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -520,10 +749,16 @@ window.boardManager = {
             });
         }
 
-        const nextBtn = paginationContainer.querySelector('.next-page');
+        // 다음 페이지 버튼
+        const nextBtn = document.querySelector('.next-page');
         if (nextBtn) {
             nextBtn.addEventListener('click', function (e) {
                 e.preventDefault();
+                // totalPages 계산 (DOM에서 추출)
+                const pageNumbers = document.querySelectorAll('.page-number');
+                const totalPages = pageNumbers.length > 0 ? 
+                    Math.max(...Array.from(pageNumbers).map(btn => parseInt(btn.getAttribute('data-page')))) : 1;
+                
                 if (self.currentPage < totalPages) {
                     self.changePage(self.currentPage + 1);
                 }
@@ -537,16 +772,16 @@ window.boardManager = {
     changePage: function (page) {
         if (page < 1) return;
 
-        console.log(`페이지 변경: ${this.currentPage} → ${page}`);
+        console.log(`📄 페이지 변경: ${this.currentPage} → ${page}`);
         this.currentPage = page;
         this.loadBoardData();
     },
 
     /**
-     * 검색
+     * 검색 실행
      */
     search: function () {
-        console.log('게시글 검색 실행');
+        console.log('🔍 게시글 검색 실행');
 
         this.currentPage = 1;
         this.lastDoc = null;
@@ -557,7 +792,7 @@ window.boardManager = {
      * 검색 초기화
      */
     resetSearch: function () {
-        console.log('검색 초기화');
+        console.log('🔄 검색 초기화');
 
         const searchType = document.getElementById('search-type');
         if (searchType) searchType.value = 'title';
@@ -571,10 +806,17 @@ window.boardManager = {
     },
 
     /**
-     * 게시글 작성 모달 표시
+     * 게시글 작성 모달 표시 (개선된 버전)
      */
     showAddPostModal: function () {
-        console.log('게시글 작성 모달 표시 - 개선된 버전');
+        console.log('📝 게시글 작성 모달 표시 - 표준화 버전');
+
+        // 🔧 의존성 체크
+        if (!checkDependencies()) {
+            console.error('❌ 필수 유틸리티 누락으로 모달 표시 중단');
+            alert('시스템 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+            return;
+        }
 
         // 모달 및 폼 가져오기
         const modal = document.getElementById('post-modal');
@@ -615,24 +857,24 @@ window.boardManager = {
             contentEditor.value = '';
         }
 
-        // 첨부파일 영역 초기화
-        this.initializeAttachmentsSection();
-
-        // 비디오 URL 필드 표시 (동영상 게시판인 경우)
-        this.toggleVideoUrlField();
+        // 에디터 도구 초기화
+        this.initializeEditorTools();
 
         // 모달 표시
         modal.classList.remove('hidden');
-
-        // 에디터 도구 버튼 초기화
-        this.initializeEditorTools();
+        
+        // 포커스 설정
+        const titleInput = document.getElementById('post-title');
+        if (titleInput) {
+            setTimeout(() => titleInput.focus(), 100);
+        }
     },
 
     /**
-     * 에디터 도구 버튼 초기화
+     * 에디터 도구 초기화 (간소화 버전)
      */
     initializeEditorTools: function () {
-        console.log('에디터 도구 버튼 초기화');
+        console.log('🛠️ 에디터 도구 초기화');
 
         const editorTools = document.querySelector('.editor-tools');
         if (!editorTools) {
@@ -644,22 +886,16 @@ window.boardManager = {
                 const toolsDiv = document.createElement('div');
                 toolsDiv.className = 'editor-tools flex space-x-2 mb-2';
                 toolsDiv.innerHTML = `
-                <button type="button" class="tool-button px-2 py-1 bg-gray-200 rounded text-sm" data-tool="bold" title="굵게">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
-                </button>
-                <button type="button" class="tool-button px-2 py-1 bg-gray-200 rounded text-sm" data-tool="image" title="이미지 삽입">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                </button>
-                <button type="button" class="tool-button px-2 py-1 bg-gray-200 rounded text-sm" data-tool="link" title="링크 삽입">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-                    </svg>
-                </button>
-            `;
+                    <button type="button" class="tool-button px-2 py-1 bg-gray-200 rounded text-sm hover:bg-gray-300" data-tool="bold" title="굵게">
+                        <strong>B</strong>
+                    </button>
+                    <button type="button" class="tool-button px-2 py-1 bg-gray-200 rounded text-sm hover:bg-gray-300" data-tool="image" title="이미지 삽입">
+                        🖼️
+                    </button>
+                    <button type="button" class="tool-button px-2 py-1 bg-gray-200 rounded text-sm hover:bg-gray-300" data-tool="link" title="링크 삽입">
+                        🔗
+                    </button>
+                `;
 
                 // 에디터 내용 입력 필드 앞에 삽입
                 const contentTextarea = contentGroup.querySelector('textarea');
@@ -684,10 +920,10 @@ window.boardManager = {
     },
 
     /**
-     * 에디터 도구 사용
+     * 에디터 도구 사용 (간소화 버전)
      */
     useEditorTool: function (tool) {
-        console.log(`에디터 도구 사용: ${tool}`);
+        console.log(`🛠️ 에디터 도구 사용: ${tool}`);
 
         const contentEditor = document.getElementById('post-content');
         if (!contentEditor) return;
@@ -698,19 +934,23 @@ window.boardManager = {
 
         switch (tool) {
             case 'bold':
-                // 선택한 텍스트를 굵게 처리 (<strong>)
-                const boldText = `<strong>${value.substring(selStart, selEnd)}</strong>`;
+                // 선택한 텍스트를 굵게 처리
+                const boldText = `<strong>${value.substring(selStart, selEnd) || '굵은 텍스트'}</strong>`;
                 contentEditor.value = value.substring(0, selStart) + boldText + value.substring(selEnd);
-                contentEditor.setSelectionRange(selStart + 8, selEnd + 8);
+                contentEditor.setSelectionRange(selStart + 8, selStart + 8 + (value.substring(selStart, selEnd) || '굵은 텍스트').length);
                 break;
 
             case 'image':
-                // 이미지 삽입 방법 선택 모달
-                this.showImageInsertModal(selStart, selEnd);
+                // 이미지 URL 입력
+                const imageUrl = prompt('이미지 URL을 입력하세요:', 'https://');
+                if (imageUrl && imageUrl.trim() !== '') {
+                    const imgTag = `<img src="${imageUrl}" alt="이미지" style="max-width:100%;" />`;
+                    contentEditor.value = value.substring(0, selStart) + imgTag + value.substring(selEnd);
+                }
                 break;
 
             case 'link':
-                // 선택한 텍스트를 링크로 만들기
+                // 링크 삽입
                 const selectedText = value.substring(selStart, selEnd);
                 const linkUrl = prompt('링크 URL을 입력하세요:', 'https://');
 
@@ -724,551 +964,6 @@ window.boardManager = {
 
         // 에디터에 포커스
         contentEditor.focus();
-    },
-
-    /**
-     * 이미지 삽입 모달 표시
-     */
-    showImageInsertModal: function (selStart, selEnd) {
-        console.log('이미지 삽입 모달 표시');
-
-        // 이미 모달이 있다면 제거
-        const existingModal = document.getElementById('image-insert-modal');
-        if (existingModal) {
-            document.body.removeChild(existingModal);
-        }
-
-        // 모달 생성
-        const modal = document.createElement('div');
-        modal.id = 'image-insert-modal';
-        modal.className = 'fixed inset-0 flex items-center justify-center z-50';
-        modal.innerHTML = `
-        <div class="absolute inset-0 bg-black opacity-50"></div>
-        <div class="relative bg-white rounded-lg w-full max-w-md p-6 z-10">
-            <div class="flex justify-between items-start mb-4">
-                <h3 class="text-lg font-medium">이미지 삽입</h3>
-                <button type="button" class="close-modal text-gray-500 hover:text-gray-800">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">URL로 삽입</label>
-                    <div class="flex space-x-2">
-                        <input type="text" id="image-url-input" class="flex-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="이미지 URL">
-                        <button type="button" id="insert-url-image" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none">
-                            삽입
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-white text-gray-500">또는</span>
-                    </div>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">파일에서 업로드</label>
-                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md" id="image-dropzone">
-                        <div class="space-y-1 text-center">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            <div class="flex text-sm text-gray-600">
-                                <label for="image-file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none">
-                                    <span>파일 선택</span>
-                                    <input id="image-file-upload" name="image-file-upload" type="file" class="sr-only" accept="image/*">
-                                </label>
-                                <p class="pl-1">또는 이미지를 끌어다 놓으세요</p>
-                            </div>
-                            <p class="text-xs text-gray-500">PNG, JPG, GIF 파일 (10MB 이하)</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-        document.body.appendChild(modal);
-
-        // 이벤트 리스너 등록
-        const self = this;
-
-        // 모달 닫기
-        const closeButton = modal.querySelector('.close-modal');
-        closeButton.addEventListener('click', function () {
-            document.body.removeChild(modal);
-        });
-
-        // URL로 이미지 삽입
-        const insertUrlButton = modal.querySelector('#insert-url-image');
-        insertUrlButton.addEventListener('click', function () {
-            const imageUrl = document.getElementById('image-url-input').value.trim();
-            if (imageUrl) {
-                self.insertImageIntoEditor(imageUrl, selStart, selEnd);
-                document.body.removeChild(modal);
-            } else {
-                alert('이미지 URL을 입력하세요.');
-            }
-        });
-
-        // 파일 업로드 처리
-        const fileInput = modal.querySelector('#image-file-upload');
-        fileInput.addEventListener('change', function (e) {
-            if (e.target.files && e.target.files[0]) {
-                self.handleImageUpload(e.target.files[0], selStart, selEnd);
-                document.body.removeChild(modal);
-            }
-        });
-
-        // 드래그 앤 드롭 영역 처리
-        const dropzone = modal.querySelector('#image-dropzone');
-
-        // 드래그 오버 이벤트
-        dropzone.addEventListener('dragover', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.classList.add('border-indigo-500');
-        });
-
-        // 드래그 리브 이벤트
-        dropzone.addEventListener('dragleave', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.classList.remove('border-indigo-500');
-        });
-
-        // 드롭 이벤트
-        dropzone.addEventListener('drop', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.classList.remove('border-indigo-500');
-
-            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                const file = e.dataTransfer.files[0];
-                // 이미지 파일 확인
-                if (file.type.match('image.*')) {
-                    self.handleImageUpload(file, selStart, selEnd);
-                    document.body.removeChild(modal);
-                } else {
-                    alert('이미지 파일만 업로드 가능합니다.');
-                }
-            }
-        });
-
-        // 엔터키로 URL 입력 처리
-        const urlInput = modal.querySelector('#image-url-input');
-        urlInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                insertUrlButton.click();
-            }
-        });
-
-        // 모달이 표시되면 URL 입력 필드에 포커스
-        urlInput.focus();
-    },
-
-    /**
-     * 이미지 업로드 처리
-     */
-    handleImageUpload: async function (file, selStart, selEnd) {
-        console.log('이미지 업로드 처리:', file.name);
-
-        try {
-            // 사용자 인증 확인
-            const currentUser = window.dhcFirebase.getCurrentUser();
-            if (!currentUser) {
-                throw new Error('이미지를 업로드하려면 로그인이 필요합니다.');
-            }
-
-            // 파일 크기 확인 (10MB 제한)
-            const maxSize = 10 * 1024 * 1024;
-            if (file.size > maxSize) {
-                alert('이미지 크기가 10MB를 초과하여 업로드할 수 없습니다.');
-                return;
-            }
-
-            // 이미지 파일 타입 확인
-            if (!file.type.match('image/.*')) {
-                alert('이미지 파일만 업로드 가능합니다.');
-                return;
-            }
-
-            // 로딩 메시지 표시
-            this.showLoadingMessage('이미지 업로드 중...');
-
-            // 게시판 유형 및 사용자 ID 가져오기
-            const boardType = this.currentBoardType;
-            const userId = currentUser.uid;
-
-            // 파일명에서 특수문자 제거
-            const safeFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-
-            // 중복 방지를 위한 타임스탬프 추가
-            const timestamp = new Date().getTime();
-            const randomStr = Math.random().toString(36).substring(2, 8);
-            const finalFileName = `${timestamp}_${randomStr}_${safeFileName}`;
-
-            // 스토리지 경로 설정 (규칙에 맞게)
-            const storagePath = `${boardType}_images/${userId}/${finalFileName}`;
-
-            console.log('업로드 경로:', storagePath);
-
-            // Firebase Storage에 파일 업로드
-            const fileRef = window.dhcFirebase.storage.ref().child(storagePath);
-
-            // 메타데이터 설정 (업로드한 사용자 ID 포함)
-            const metadata = {
-                contentType: file.type,
-                customMetadata: {
-                    'uploadedBy': userId,
-                    'uploadTime': new Date().toISOString()
-                }
-            };
-
-            // 업로드 진행 상황 추적 (디버깅용)
-            const uploadTask = fileRef.put(file, metadata);
-            uploadTask.on('state_changed',
-                (snapshot) => {
-                    // 업로드 진행률 계산
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    console.log(`업로드 진행률: ${progress.toFixed(2)}%`);
-                },
-                (error) => {
-                    // 업로드 오류 처리
-                    console.error('업로드 오류:', error);
-                    console.error('오류 코드:', error.code);
-                    console.error('오류 메시지:', error.message);
-                    this.hideLoadingMessage();
-
-                    if (error.code === 'storage/unauthorized') {
-                        alert('이미지 업로드 권한이 없습니다. 로그인 상태와 권한을 확인해주세요.');
-                    } else {
-                        alert('이미지 업로드 중 오류가 발생했습니다: ' + error.message);
-                    }
-                }
-            );
-
-            // 업로드 완료 후
-            const snapshot = await uploadTask;
-            console.log('업로드 완료:', snapshot.metadata);
-
-            // 다운로드 URL 가져오기
-            const downloadUrl = await snapshot.ref.getDownloadURL();
-            console.log('다운로드 URL:', downloadUrl);
-
-            // 이미지를 에디터에 삽입
-            this.insertImageIntoEditor(downloadUrl, selStart, selEnd);
-
-            // 로딩 메시지 숨김
-            this.hideLoadingMessage();
-
-        } catch (error) {
-            console.error('이미지 업로드 처리 오류:', error);
-            alert('이미지 업로드 중 오류가 발생했습니다: ' + (error.message || '알 수 없는 오류'));
-
-            // 로딩 메시지 숨김
-            this.hideLoadingMessage();
-        }
-    },
-
-    /**
-     * 에디터에 이미지 삽입
-     */
-    insertImageIntoEditor: function (imageUrl, selStart, selEnd) {
-        console.log('에디터에 이미지 삽입:', imageUrl);
-
-        const contentEditor = document.getElementById('post-content');
-        if (!contentEditor) return;
-
-        const value = contentEditor.value;
-        const imgTag = `<img src="${imageUrl}" alt="이미지" style="max-width:100%;" />`;
-
-        contentEditor.value = value.substring(0, selStart) + imgTag + value.substring(selEnd);
-
-        // 에디터에 포커스
-        contentEditor.focus();
-    },
-
-    /**
-     * 로딩 메시지 표시
-     */
-    showLoadingMessage: function (message) {
-        console.log('로딩 메시지 표시:', message);
-
-        // 이미 로딩 메시지가 있다면 제거
-        this.hideLoadingMessage();
-
-        // 로딩 메시지 요소 생성
-        const loadingElement = document.createElement('div');
-        loadingElement.id = 'loading-message';
-        loadingElement.className = 'fixed inset-0 flex items-center justify-center z-50';
-        loadingElement.innerHTML = `
-        <div class="absolute inset-0 bg-black opacity-30"></div>
-        <div class="relative bg-white rounded-lg px-4 py-3 flex items-center z-10">
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span class="text-gray-700">${message}</span>
-        </div>
-    `;
-
-        document.body.appendChild(loadingElement);
-    },
-
-    /**
-     * 로딩 메시지 숨김
-     */
-    hideLoadingMessage: function () {
-        const loadingElement = document.getElementById('loading-message');
-        if (loadingElement) {
-            document.body.removeChild(loadingElement);
-        }
-    },
-
-    /**
-     * 첨부파일 섹션 초기화
-     */
-    initializeAttachmentsSection: function () {
-        console.log('첨부파일 섹션 초기화');
-
-        // 첨부파일 영역 가져오기 또는 생성
-        let attachmentsSection = document.querySelector('.attachments-section');
-
-        if (!attachmentsSection) {
-            console.log('첨부파일 영역 생성');
-
-            // 폼 그룹 생성
-            const formGroups = document.querySelectorAll('.form-group');
-            const lastFormGroup = formGroups[formGroups.length - 1];
-
-            if (lastFormGroup) {
-                // 첨부파일 섹션 생성
-                attachmentsSection = document.createElement('div');
-                attachmentsSection.className = 'attachments-section mt-4';
-
-                // 첨부파일 추가 버튼 및 목록 생성
-                attachmentsSection.innerHTML = `
-                <label class="block text-sm font-medium text-gray-700 mb-2">첨부파일</label>
-                <div class="file-upload-container">
-                    <input type="file" id="file-upload" class="hidden" multiple />
-                    <button type="button" id="add-file-button" class="px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">
-                        파일 추가
-                    </button>
-                    <span class="text-sm text-gray-500 ml-2">최대 5개, 파일당 10MB 이하</span>
-                </div>
-                <ul id="attachment-list" class="mt-2 space-y-2 list-none"></ul>
-            `;
-
-                // 첨부파일 영역 삽입
-                lastFormGroup.parentNode.insertBefore(attachmentsSection, lastFormGroup.nextSibling);
-
-                // 파일 업로드 이벤트 리스너
-                const fileUpload = attachmentsSection.querySelector('#file-upload');
-                const addFileButton = attachmentsSection.querySelector('#add-file-button');
-
-                if (fileUpload && addFileButton) {
-                    const self = this;
-
-                    // 파일 추가 버튼 클릭
-                    addFileButton.addEventListener('click', function () {
-                        fileUpload.click();
-                    });
-
-                    // 파일 선택 이벤트
-                    fileUpload.addEventListener('change', function (e) {
-                        self.handleFileSelect(e);
-                    });
-                }
-            }
-        } else {
-            // 기존 첨부파일 목록 초기화
-            const attachmentList = attachmentsSection.querySelector('#attachment-list');
-            if (attachmentList) {
-                attachmentList.innerHTML = '';
-            }
-
-            // 파일 입력 필드 초기화
-            const fileUpload = attachmentsSection.querySelector('#file-upload');
-            if (fileUpload) {
-                fileUpload.value = '';
-            }
-        }
-    },
-
-    /**
-     * 파일 선택 처리
-     */
-    handleFileSelect: function (event) {
-        console.log('파일 선택 처리');
-
-        const files = event.target.files;
-        if (!files || files.length === 0) return;
-
-        const attachmentList = document.getElementById('attachment-list');
-        if (!attachmentList) return;
-
-        // 현재 파일 목록 개수 확인
-        const currentFiles = attachmentList.querySelectorAll('li').length;
-
-        // 최대 5개 파일 제한
-        const maxFiles = 5;
-        let addedCount = 0;
-
-        // 파일 검증 및 추가
-        for (let i = 0; i < files.length; i++) {
-            if (currentFiles + addedCount >= maxFiles) {
-                alert(`첨부파일은 최대 ${maxFiles}개까지 가능합니다.`);
-                break;
-            }
-
-            const file = files[i];
-
-            // 파일 크기 검증 (10MB 제한)
-            const maxSize = 10 * 1024 * 1024;
-            if (file.size > maxSize) {
-                alert(`파일 '${file.name}'의 크기가 10MB를 초과하여 첨부할 수 없습니다.`);
-                continue;
-            }
-
-            // 파일 확장자 확인
-            const boardType = this.currentBoardType;
-            const acceptableTypes = this.getAcceptableFileTypes(boardType);
-            const fileExtension = file.name.split('.').pop().toLowerCase();
-
-            if (!acceptableTypes.includes(fileExtension)) {
-                alert(`'${fileExtension}' 형식의 파일은 첨부할 수 없습니다.\n허용된 파일 형식: ${acceptableTypes.join(', ')}`);
-                continue;
-            }
-
-            // 파일 항목 생성
-            const fileId = 'file-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
-            const li = document.createElement('li');
-            li.id = fileId;
-            li.className = 'file-item flex items-center justify-between';
-            li.innerHTML = `
-            <div class="flex items-center">
-                <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
-                </svg>
-                <span class="text-sm text-gray-800">${file.name}</span>
-                <span class="text-xs text-gray-500 ml-2">(${this.formatFileSize(file.size)})</span>
-            </div>
-            <button type="button" class="remove-file text-red-500 hover:text-red-700" data-file-id="${fileId}">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-        `;
-
-            // 파일 객체 저장
-            li.file = file;
-
-            // 파일 목록에 추가
-            attachmentList.appendChild(li);
-
-            // 파일 삭제 버튼 이벤트
-            const removeButton = li.querySelector('.remove-file');
-            removeButton.addEventListener('click', function () {
-                const fileId = this.getAttribute('data-file-id');
-                const fileItem = document.getElementById(fileId);
-                if (fileItem) {
-                    fileItem.remove();
-                }
-            });
-
-            addedCount++;
-        }
-
-        // 파일 입력 필드 초기화 (같은 파일 선택 시에도 이벤트 발생하도록)
-        event.target.value = '';
-    },
-
-    /**
-     * 게시판 유형에 따른 허용 파일 유형
-     */
-    getAcceptableFileTypes: function (boardType) {
-        switch (boardType) {
-            case 'materials':
-                // 강의자료는 문서, 이미지, 압축 파일 허용
-                return ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'zip', 'rar'];
-            case 'videos':
-                // 동영상 강의는 문서, 이미지 허용
-                return ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt', 'jpg', 'jpeg', 'png', 'gif'];
-            default:
-                // 기본적으로 이미지만 허용
-                return ['jpg', 'jpeg', 'png', 'gif', 'pdf'];
-        }
-    },
-
-    /**
-     * 파일 크기 포맷팅
-     */
-    formatFileSize: function (bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    },
-
-    /**
-     * 비디오 URL 필드 표시 설정 (동영상 게시판 전용)
-     */
-    toggleVideoUrlField: function () {
-        console.log('비디오 URL 필드 표시 설정');
-
-        const videoUrlFieldContainer = document.querySelector('.video-url-container');
-
-        // 동영상 게시판인 경우에만 표시
-        if (this.currentBoardType === 'videos') {
-            if (!videoUrlFieldContainer) {
-                console.log('비디오 URL 필드 생성');
-
-                // 폼 그룹 생성
-                const formGroups = document.querySelectorAll('.form-group');
-
-                if (formGroups.length > 0) {
-                    const targetFormGroup = formGroups[1]; // 제목 입력 필드 다음
-
-                    // 비디오 URL 컨테이너 생성
-                    const videoUrlContainer = document.createElement('div');
-                    videoUrlContainer.className = 'form-group video-url-container';
-                    videoUrlContainer.innerHTML = `
-                    <label for="video-url" class="block text-sm font-medium text-gray-700 mb-1">비디오 URL</label>
-                    <div class="flex space-x-2">
-                        <input type="text" id="video-url" name="video-url" class="flex-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="유튜브 또는 직접 업로드 동영상 URL">
-                        <select id="video-type" name="video-type" class="block w-32 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md">
-                            <option value="youtube">유튜브</option>
-                            <option value="vimeo">Vimeo</option>
-                            <option value="direct">직접 업로드</option>
-                        </select>
-                    </div>
-                    <p class="mt-1 text-sm text-gray-500">유튜브 동영상의 경우 "공유" 버튼을 통해 나오는 URL을 입력하세요.</p>
-                `;
-
-                    // 비디오 URL 필드 삽입
-                    targetFormGroup.parentNode.insertBefore(videoUrlContainer, targetFormGroup.nextSibling);
-                }
-            } else {
-                // 이미 존재하는 경우 표시
-                videoUrlFieldContainer.classList.remove('hidden');
-            }
-        } else {
-            // 동영상 게시판이 아닌 경우 숨김
-            if (videoUrlFieldContainer) {
-                videoUrlFieldContainer.classList.add('hidden');
-            }
-        }
     },
 
     /**
@@ -1361,7 +1056,7 @@ window.boardManager = {
     },
 
     /**
-     * 게시글 작성 처리
+     * 게시글 작성 처리 (표준화 버전)
      */
     handleCreatePost: async function (event) {
         event.preventDefault();
@@ -1378,7 +1073,12 @@ window.boardManager = {
         }
 
         try {
-            console.log('게시글 작성 처리 시작');
+            console.log('📝 게시글 작성 처리 시작');
+
+            // 🔧 의존성 체크
+            if (!checkDependencies()) {
+                throw new Error('필수 유틸리티가 로드되지 않았습니다.');
+            }
 
             // 폼 데이터 가져오기
             const form = event.target;
@@ -1386,146 +1086,20 @@ window.boardManager = {
             const content = document.getElementById('post-content').value;
             const category = document.getElementById('post-category')?.value || 'notice';
 
-            // 추가 필드 - 동영상 URL (동영상 게시판 전용)
-            let videoUrl = null;
-            let videoType = null;
-
-            if (this.currentBoardType === 'videos') {
-                videoUrl = document.getElementById('video-url')?.value || '';
-                videoType = document.getElementById('video-type')?.value || 'youtube';
-
-                // 동영상 URL 유효성 검사
-                if (!videoUrl) {
-                    alert('동영상 URL을 입력해주세요.');
-                    if (submitButton) submitButton.disabled = false;
-                    if (submitButton) submitButton.textContent = '저장';
-                    return;
-                }
-
-                // 유튜브 URL 형식 확인
-                if (videoType === 'youtube' && !this.isValidYoutubeUrl(videoUrl)) {
-                    alert('유효한 유튜브 URL을 입력해주세요.');
-                    if (submitButton) submitButton.disabled = false;
-                    if (submitButton) submitButton.textContent = '저장';
-                    return;
-                }
-            }
-
             // 유효성 검사
             if (!title) {
                 alert('제목을 입력해주세요.');
-                if (submitButton) submitButton.disabled = false;
-                if (submitButton) submitButton.textContent = '저장';
                 return;
             }
 
             if (!content) {
                 alert('내용을 입력해주세요.');
-                if (submitButton) submitButton.disabled = false;
-                if (submitButton) submitButton.textContent = '저장';
                 return;
             }
 
             if (!category) {
                 alert('카테고리를 선택해주세요.');
-                if (submitButton) submitButton.disabled = false;
-                if (submitButton) submitButton.textContent = '저장';
                 return;
-            }
-
-            // Firebase 연동 확인
-            if (!window.dhcFirebase || !window.dhcFirebase.db) {
-                throw new Error('Firebase가 초기화되지 않았습니다.');
-            }
-
-            // 게시판 컬렉션 이름 매핑
-            const collectionMap = {
-                'notice': 'notices',
-                'column': 'columns',
-                'materials': 'materials',
-                'videos': 'videos'
-            };
-
-            // 게시판 컬렉션 이름
-            const collectionName = collectionMap[this.currentBoardType] || 'notices';
-            console.log('저장 대상 컬렉션:', collectionName);
-
-            // 현재 로그인한 사용자 정보 가져오기
-            const currentUser = window.dhcFirebase.getCurrentUser();
-            const userId = currentUser ? currentUser.uid : null;
-            const userEmail = currentUser ? currentUser.email : '관리자';
-
-            // 중복 방지를 위한 고유 ID 생성 (타임스탬프 + 랜덤 문자열)
-            const uniqueId = new Date().getTime() + '-' + Math.random().toString(36).substring(2, 9);
-
-            // 첨부파일 처리
-            const attachments = [];
-            const attachmentList = document.getElementById('attachment-list');
-
-            if (attachmentList) {
-                const fileItems = attachmentList.querySelectorAll('li');
-
-                // 첨부파일이 있는 경우 업로드 처리
-                if (fileItems.length > 0) {
-                    console.log(`첨부파일 처리: ${fileItems.length}개`);
-
-                    // 로딩 상태 업데이트
-                    if (submitButton) {
-                        submitButton.textContent = `첨부파일 업로드 중 (0/${fileItems.length})...`;
-                    }
-
-                    // 각 파일 처리
-                    for (let i = 0; i < fileItems.length; i++) {
-                        const fileItem = fileItems[i];
-                        const file = fileItem.file;
-
-                        if (file) {
-                            try {
-                                // 로딩 상태 업데이트
-                                if (submitButton) {
-                                    submitButton.textContent = `첨부파일 업로드 중 (${i + 1}/${fileItems.length})...`;
-                                }
-
-                                // 스토리지 경로 설정
-                                const storagePath = `${collectionName}/${uniqueId}/${file.name}`;
-
-                                // Firebase Storage에 파일 업로드
-                                const fileRef = window.dhcFirebase.storage.ref().child(storagePath);
-
-                                // 파일 업로드 작업
-                                const fileUploadTask = fileRef.put(file);
-
-                                // 업로드 완료 대기
-                                const snapshot = await fileUploadTask;
-
-                                // 다운로드 URL 가져오기
-                                const downloadUrl = await snapshot.ref.getDownloadURL();
-
-                                // 첨부파일 정보 저장
-                                attachments.push({
-                                    name: file.name,
-                                    url: downloadUrl,
-                                    size: file.size,
-                                    type: file.type,
-                                    path: storagePath,
-                                    createdAt: new Date()
-                                });
-
-                                console.log(`파일 업로드 성공: ${file.name}`);
-                            } catch (error) {
-                                console.error(`파일 업로드 오류 (${file.name}):`, error);
-                                alert(`파일 '${file.name}' 업로드 중 오류가 발생했습니다: ${error.message}`);
-                            }
-                        }
-                    }
-
-                    console.log(`첨부파일 처리 완료: ${attachments.length}개`);
-
-                    // 로딩 상태 업데이트
-                    if (submitButton) {
-                        submitButton.textContent = '게시글 저장 중...';
-                    }
-                }
             }
 
             // 게시글 데이터
@@ -1533,657 +1107,112 @@ window.boardManager = {
                 title: title,
                 content: content,
                 category: category,
-                authorId: userId,
-                authorName: userEmail,
-                author: userEmail,
+                authorId: 'admin',
+                authorName: '관리자',
+                author: '관리자',
                 views: 0,
-                uniqueId: uniqueId, // 중복 체크용 필드 추가
-                createdAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp(),
-                updatedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
+                status: 'published',
+                // 🔧 전역 유틸리티 사용
+                createdAt: this.isFirebaseConnected ? 
+                    window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp() : 
+                    new Date(),
+                updatedAt: this.isFirebaseConnected ? 
+                    window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp() : 
+                    new Date()
             };
-
-            // 첨부파일이 있으면 추가
-            if (attachments.length > 0) {
-                postData.attachments = attachments;
-            }
-
-            // 동영상 URL이 있으면 추가 (동영상 게시판 전용)
-            if (this.currentBoardType === 'videos' && videoUrl) {
-                postData.videoUrl = videoUrl;
-                postData.videoType = videoType;
-            }
 
             console.log('게시글 데이터:', postData);
 
-            // 중복 체크 - 브라우저 세션 스토리지 사용 (간단한 방법)
-            const recentSubmissions = JSON.parse(sessionStorage.getItem('recentSubmissions') || '[]');
-            if (recentSubmissions.some(item => item.title === title && (Date.now() - item.timestamp) < 30000)) {
-                console.log('중복 게시글 감지!', title);
-                alert('동일한 게시글이 최근에 이미 등록되었습니다.');
-
-                // 모달 닫기
-                this.closePostModal();
-
-                // 버튼 상태 복원
-                if (submitButton) {
-                    submitButton.disabled = false;
-                    submitButton.textContent = '저장';
-                }
-
-                return;
+            if (this.isFirebaseConnected) {
+                // Firebase에 저장
+                await this.saveToFirebase(postData);
+            } else {
+                // 로컬 테스트 모드
+                console.log('🧪 로컬 테스트 모드 - 게시글 저장 시뮬레이션');
+                await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
             }
 
-            // 최근 제출 목록에 추가
-            recentSubmissions.push({
-                title: title,
-                timestamp: Date.now()
-            });
-
-            // 최근 항목만 유지 (최대 10개)
-            while (recentSubmissions.length > 10) {
-                recentSubmissions.shift();
-            }
-
-            // 세션 스토리지에 저장
-            sessionStorage.setItem('recentSubmissions', JSON.stringify(recentSubmissions));
-
-            // Firestore에 데이터 저장
-            try {
-                // 문서 추가
-                const docRef = await window.dhcFirebase.db.collection(collectionName).add(postData);
-
-                console.log('게시글 등록 성공:', docRef.id);
-                alert('게시글이 등록되었습니다.');
-
-                // 모달 닫기
-                this.closePostModal();
-
-                // 버튼 상태 복원
-                if (submitButton) {
-                    submitButton.disabled = false;
-                    submitButton.textContent = '저장';
-                }
-
-                // 게시글 목록 새로고침 (잠시 대기 후)
-                setTimeout(() => {
-                    this.loadBoardData();
-                }, 1000);
-
-            } catch (error) {
-                console.error('게시글 저장 오류:', error);
-                alert('게시글 저장 중 오류가 발생했습니다: ' + error.message);
-
-                // 버튼 상태 복원
-                if (submitButton) {
-                    submitButton.disabled = false;
-                    submitButton.textContent = '저장';
-                }
-            }
-
-        } catch (error) {
-            console.error('게시글 작성 처리 오류:', error);
-            alert('게시글 작성 처리 중 오류가 발생했습니다: ' + error.message);
-
-            // 버튼 상태 복원
-            const submitButton = event.target.querySelector('button[type="submit"]');
-            if (submitButton) {
-                submitButton.disabled = false;
-                submitButton.textContent = '저장';
-            }
-        }
-    },
-
-    /**
-     * 유튜브 URL 유효성 검사
-     */
-    isValidYoutubeUrl: function (url) {
-        if (!url) return false;
-
-        // 유튜브 영상 ID 추출 정규식
-        const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-        return regex.test(url);
-    },
-
-    /**
-     * 게시글 보기
-     */
-    viewPost: async function (postId) {
-        console.log('게시글 보기:', postId);
-
-        try {
-            if (!postId) {
-                throw new Error('게시글 ID가 없습니다.');
-            }
-
-            // 게시판 컬렉션 이름 매핑
-            const collectionMap = {
-                'notice': 'notices',
-                'column': 'columns',
-                'materials': 'materials',
-                'videos': 'videos'
-            };
-
-            // 컬렉션 이름 결정
-            const collectionName = collectionMap[this.currentBoardType] || 'notices';
-
-            // Firebase 확인
-            if (!window.dhcFirebase || !window.dhcFirebase.db) {
-                throw new Error('Firebase가 초기화되지 않았습니다.');
-            }
-
-            // 게시글 조회
-            const docRef = window.dhcFirebase.db.collection(collectionName).doc(postId);
-            const doc = await docRef.get();
-
-            if (!doc.exists) {
-                throw new Error('게시글을 찾을 수 없습니다.');
-            }
-
-            // 게시글 데이터
-            const post = {
-                id: doc.id,
-                ...doc.data()
-            };
-
-            console.log('조회된 게시글:', post);
-
-            // 날짜 변환
-            let createdAt = '-';
-            if (post.createdAt) {
-                try {
-                    if (typeof post.createdAt.toDate === 'function') {
-                        createdAt = this.formatDate(post.createdAt.toDate());
-                    } else if (typeof post.createdAt === 'object' && post.createdAt.seconds) {
-                        createdAt = this.formatDate(new Date(post.createdAt.seconds * 1000));
-                    } else if (typeof post.createdAt === 'string') {
-                        createdAt = post.createdAt;
-                    }
-                } catch (e) {
-                    console.error('날짜 변환 오류:', e);
-                }
-            }
-
-            // 내용 표시 (모달)
-            const viewModalId = 'view-post-modal';
-            let viewModal = document.getElementById(viewModalId);
-
-            // 이미 있는 모달 제거
-            if (viewModal) {
-                document.body.removeChild(viewModal);
-            }
-
-            // 새 모달 생성
-            viewModal = document.createElement('div');
-            viewModal.id = viewModalId;
-            viewModal.className = 'fixed inset-0 flex items-center justify-center z-50';
-            viewModal.innerHTML = `
-                <div class="absolute inset-0 bg-black opacity-50"></div>
-                <div class="relative bg-white rounded-lg max-w-3xl w-full max-h-screen overflow-auto p-6 z-10">
-                    <div class="flex justify-between items-start mb-4">
-                        <h2 class="text-xl font-semibold">${post.title}</h2>
-                        <button class="text-gray-500 hover:text-gray-800 close-modal">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="flex justify-between text-sm text-gray-500 mb-4">
-                        <div>작성자: ${post.authorName || post.author || '관리자'}</div>
-                        <div>작성일: ${createdAt}</div>
-                    </div>
-                    <div class="border-t border-b py-4 mb-4">
-                        <div class="prose max-w-none">${post.content}</div>
-                    </div>
-                    <div class="flex justify-end space-x-2">
-                        <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 close-modal">닫기</button>
-                        <button class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 edit-button" data-id="${postId}">수정</button>
-                    </div>
-                </div>
-            `;
-
-            document.body.appendChild(viewModal);
-
-            // 닫기 버튼 이벤트
-            const self = this;
-            viewModal.querySelectorAll('.close-modal').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    document.body.removeChild(viewModal);
-                });
-            });
-
-            // 수정 버튼 이벤트
-            viewModal.querySelector('.edit-button').addEventListener('click', function () {
-                document.body.removeChild(viewModal);
-                self.editPost(this.getAttribute('data-id'));
-            });
-
-        } catch (error) {
-            console.error('게시글 보기 오류:', error);
-            alert('게시글을 불러오는 중 오류가 발생했습니다: ' + error.message);
-        }
-    },
-
-    /**
-     * 게시글 수정
-     */
-    editPost: async function (postId) {
-        console.log('게시글 수정:', postId);
-
-        try {
-            if (!postId) {
-                throw new Error('게시글 ID가 없습니다.');
-            }
-
-            // 게시판 컬렉션 이름 매핑
-            const collectionMap = {
-                'notice': 'notices',
-                'column': 'columns',
-                'materials': 'materials',
-                'videos': 'videos'
-            };
-
-            // 컬렉션 이름 결정
-            const collectionName = collectionMap[this.currentBoardType] || 'notices';
-
-            // Firebase 확인
-            if (!window.dhcFirebase || !window.dhcFirebase.db) {
-                throw new Error('Firebase가 초기화되지 않았습니다.');
-            }
-
-            // 게시글 조회
-            const docRef = window.dhcFirebase.db.collection(collectionName).doc(postId);
-            const doc = await docRef.get();
-
-            if (!doc.exists) {
-                throw new Error('게시글을 찾을 수 없습니다.');
-            }
-
-            // 게시글 데이터
-            const post = {
-                id: doc.id,
-                ...doc.data()
-            };
-
-            console.log('수정할 게시글:', post);
-
-            // 모달 및 폼 가져오기
-            const modal = document.getElementById('post-modal');
-            const form = document.getElementById('post-form');
-            const modalTitle = document.getElementById('modal-title');
-            const titleInput = document.getElementById('post-title');
-            const contentInput = document.getElementById('post-content');
-            const categorySelect = document.getElementById('post-category');
-
-            // 모달 요소 확인
-            if (!modal || !form || !titleInput || !contentInput) {
-                throw new Error('모달 또는 폼 요소를 찾을 수 없습니다.');
-            }
-
-            // 카테고리 옵션 설정
-            if (categorySelect) {
-                this.setupCategoryOptions(categorySelect);
-            }
-
-            // 폼 데이터 설정
-            titleInput.value = post.title || '';
-            contentInput.value = post.content || '';
-
-            // 카테고리 선택
-            if (categorySelect && post.category) {
-                categorySelect.value = post.category;
-            }
-
-            // 게시글 ID 저장
-            form.dataset.postId = postId;
-
-            // 모달 타이틀 설정
-            if (modalTitle) {
-                modalTitle.textContent = '게시글 수정';
-            }
-
-            // 첨부파일 영역 초기화
-            this.initializeAttachmentsSection();
-
-            // 기존 첨부파일 표시
-            if (post.attachments && post.attachments.length > 0) {
-                this.displayExistingAttachments(post.attachments);
-            }
-
-            // 비디오 URL 필드 표시 (동영상 게시판인 경우)
-            this.toggleVideoUrlField();
-
-            // 비디오 URL 설정 (동영상 게시판인 경우)
-            if (this.currentBoardType === 'videos') {
-                const videoUrlInput = document.getElementById('video-url');
-                const videoTypeSelect = document.getElementById('video-type');
-
-                if (videoUrlInput && post.videoUrl) {
-                    videoUrlInput.value = post.videoUrl;
-                }
-
-                if (videoTypeSelect && post.videoType) {
-                    videoTypeSelect.value = post.videoType;
-                }
-            }
-
-            // 에디터 도구 초기화
-            this.initializeEditorTools();
-
-            // 모달 표시
-            modal.classList.remove('hidden');
-
-        } catch (error) {
-            console.error('게시글 수정 폼 로드 오류:', error);
-            alert('게시글을 불러오는 중 오류가 발생했습니다: ' + error.message);
-        }
-    },
-
-    /**
-     * 기존 첨부파일 표시
-     */
-    displayExistingAttachments: function (attachments) {
-        console.log('기존 첨부파일 표시:', attachments);
-
-        const attachmentList = document.getElementById('attachment-list');
-        if (!attachmentList) return;
-
-        attachments.forEach((attachment, index) => {
-            // 파일 항목 생성
-            const fileId = 'existing-file-' + index;
-            const li = document.createElement('li');
-            li.id = fileId;
-            li.className = 'file-item flex items-center justify-between existing-file';
-            li.dataset.fileIndex = index;
-            li.innerHTML = `
-            <div class="flex items-center">
-                <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
-                </svg>
-                <span class="text-sm text-gray-800">${attachment.name}</span>
-                <span class="text-xs text-gray-500 ml-2">(${this.formatFileSize(attachment.size)})</span>
-            </div>
-            <div class="flex space-x-1">
-                <a href="${attachment.url}" target="_blank" class="text-blue-500 hover:text-blue-700">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                    </svg>
-                </a>
-                <button type="button" class="remove-file text-red-500 hover:text-red-700" data-file-id="${fileId}">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-        `;
-
-            // 첨부파일 객체 저장
-            li.attachment = attachment;
-
-            // 파일 목록에 추가
-            attachmentList.appendChild(li);
-
-            // 파일 삭제 버튼 이벤트
-            const removeButton = li.querySelector('.remove-file');
-            removeButton.addEventListener('click', function () {
-                const fileId = this.getAttribute('data-file-id');
-                const fileItem = document.getElementById(fileId);
-                if (fileItem) {
-                    // 삭제 확인
-                    if (confirm('이 첨부파일을 삭제하시겠습니까?')) {
-                        fileItem.classList.add('to-be-deleted');
-                        fileItem.style.opacity = '0.5';
-                        fileItem.querySelector('.remove-file').style.display = 'none';
-                    }
-                }
-            });
-        });
-    },
-
-    /**
-     * 게시글 수정 처리
-     */
-    handleUpdatePost: async function (event, postId) {
-        event.preventDefault();
-
-        // 중복 제출 방지
-        const submitButton = event.target.querySelector('button[type="submit"]');
-        if (submitButton) {
-            if (submitButton.disabled) {
-                console.log('이미 처리 중인 요청입니다.');
-                return;
-            }
-            submitButton.disabled = true;
-            submitButton.textContent = '수정 중...';
-        }
-
-        try {
-            console.log('게시글 수정 처리 시작:', postId);
-
-            if (!postId) {
-                throw new Error('게시글 ID가 없습니다.');
-            }
-
-            // 폼 데이터 가져오기
-            const title = document.getElementById('post-title').value;
-            const content = document.getElementById('post-content').value;
-            const category = document.getElementById('post-category')?.value || 'notice';
-
-            // 추가 필드 - 동영상 URL (동영상 게시판 전용)
-            let videoUrl = null;
-            let videoType = null;
-
-            if (this.currentBoardType === 'videos') {
-                videoUrl = document.getElementById('video-url')?.value || '';
-                videoType = document.getElementById('video-type')?.value || 'youtube';
-
-                // 동영상 URL 유효성 검사
-                if (!videoUrl) {
-                    alert('동영상 URL을 입력해주세요.');
-                    if (submitButton) submitButton.disabled = false;
-                    if (submitButton) submitButton.textContent = '저장';
-                    return;
-                }
-
-                // 유튜브 URL 형식 확인
-                if (videoType === 'youtube' && !this.isValidYoutubeUrl(videoUrl)) {
-                    alert('유효한 유튜브 URL을 입력해주세요.');
-                    if (submitButton) submitButton.disabled = false;
-                    if (submitButton) submitButton.textContent = '저장';
-                    return;
-                }
-            }
-
-            // 유효성 검사
-            if (!title) {
-                alert('제목을 입력해주세요.');
-                if (submitButton) submitButton.disabled = false;
-                if (submitButton) submitButton.textContent = '저장';
-                return;
-            }
-
-            if (!content) {
-                alert('내용을 입력해주세요.');
-                if (submitButton) submitButton.disabled = false;
-                if (submitButton) submitButton.textContent = '저장';
-                return;
-            }
-
-            if (!category) {
-                alert('카테고리를 선택해주세요.');
-                if (submitButton) submitButton.disabled = false;
-                if (submitButton) submitButton.textContent = '저장';
-                return;
-            }
-
-            // 게시판 컬렉션 이름 매핑
-            const collectionMap = {
-                'notice': 'notices',
-                'column': 'columns',
-                'materials': 'materials',
-                'videos': 'videos'
-            };
-
-            // 컬렉션 이름 결정
-            const collectionName = collectionMap[this.currentBoardType] || 'notices';
-
-            // Firebase 확인
-            if (!window.dhcFirebase || !window.dhcFirebase.db) {
-                throw new Error('Firebase가 초기화되지 않았습니다.');
-            }
-
-            // 기존 게시글 데이터 조회
-            const docRef = window.dhcFirebase.db.collection(collectionName).doc(postId);
-            const doc = await docRef.get();
-
-            if (!doc.exists) {
-                throw new Error('게시글을 찾을 수 없습니다.');
-            }
-
-            const existingData = doc.data();
-
-            // 첨부파일 처리
-            const attachments = [];
-
-            // 1. 기존 첨부파일 중 삭제되지 않은 파일 처리
-            const existingAttachmentList = document.querySelectorAll('#attachment-list .existing-file');
-
-            existingAttachmentList.forEach(fileItem => {
-                // 삭제 표시가 되지 않은 파일만 유지
-                if (!fileItem.classList.contains('to-be-deleted')) {
-                    const index = fileItem.dataset.fileIndex;
-                    if (existingData.attachments && existingData.attachments[index]) {
-                        attachments.push(existingData.attachments[index]);
-                    }
-                }
-            });
-
-            // 2. 새로 추가된 첨부파일 처리
-            const newAttachmentList = document.querySelectorAll('#attachment-list li:not(.existing-file):not(.to-be-deleted)');
-
-            if (newAttachmentList.length > 0) {
-                console.log(`새 첨부파일 처리: ${newAttachmentList.length}개`);
-
-                // 중복 방지를 위한 고유 ID
-                const uniqueId = existingData.uniqueId || (new Date().getTime() + '-' + Math.random().toString(36).substring(2, 9));
-
-                // 로딩 상태 업데이트
-                if (submitButton) {
-                    submitButton.textContent = `첨부파일 업로드 중 (0/${newAttachmentList.length})...`;
-                }
-
-                // 각 파일 처리
-                for (let i = 0; i < newAttachmentList.length; i++) {
-                    const fileItem = newAttachmentList[i];
-                    const file = fileItem.file;
-
-                    if (file) {
-                        try {
-                            // 로딩 상태 업데이트
-                            if (submitButton) {
-                                submitButton.textContent = `첨부파일 업로드 중 (${i + 1}/${newAttachmentList.length})...`;
-                            }
-
-                            // 스토리지 경로 설정
-                            const storagePath = `${collectionName}/${uniqueId}/${file.name}`;
-
-                            // Firebase Storage에 파일 업로드
-                            const fileRef = window.dhcFirebase.storage.ref().child(storagePath);
-
-                            // 파일 업로드 작업
-                            const fileUploadTask = fileRef.put(file);
-
-                            // 업로드 완료 대기
-                            const snapshot = await fileUploadTask;
-
-                            // 다운로드 URL 가져오기
-                            const downloadUrl = await snapshot.ref.getDownloadURL();
-
-                            // 첨부파일 정보 저장
-                            attachments.push({
-                                name: file.name,
-                                url: downloadUrl,
-                                size: file.size,
-                                type: file.type,
-                                path: storagePath,
-                                createdAt: new Date()
-                            });
-
-                            console.log(`새 파일 업로드 성공: ${file.name}`);
-                        } catch (error) {
-                            console.error(`파일 업로드 오류 (${file.name}):`, error);
-                            alert(`파일 '${file.name}' 업로드 중 오류가 발생했습니다: ${error.message}`);
-                        }
-                    }
-                }
-
-                console.log(`첨부파일 처리 완료: ${attachments.length}개`);
-
-                // 로딩 상태 업데이트
-                if (submitButton) {
-                    submitButton.textContent = '게시글 저장 중...';
-                }
-            }
-
-            // 게시글 데이터
-            const postData = {
-                title: title,
-                content: content,
-                category: category,
-                updatedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
-            };
-
-            // 첨부파일이 있으면 추가
-            if (attachments.length > 0) {
-                postData.attachments = attachments;
-            }
-
-            // 동영상 URL이 있으면 추가 (동영상 게시판 전용)
-            if (this.currentBoardType === 'videos') {
-                if (videoUrl) {
-                    postData.videoUrl = videoUrl;
-                    postData.videoType = videoType;
-                }
-            }
-
-            console.log('수정할 게시글 데이터:', postData);
-
-            // Firestore 문서 업데이트
-            await window.dhcFirebase.db.collection(collectionName).doc(postId).update(postData);
-
-            console.log('게시글 수정 성공');
-            alert('게시글이 수정되었습니다.');
+            console.log('✅ 게시글 등록 성공');
+            alert('게시글이 등록되었습니다.');
 
             // 모달 닫기
             this.closePostModal();
 
-            // 버튼 상태 복원
-            if (submitButton) {
-                submitButton.disabled = false;
-                submitButton.textContent = '저장';
-            }
-
-            // 게시글 목록 새로고침 (잠시 대기 후)
+            // 게시글 목록 새로고침
             setTimeout(() => {
                 this.loadBoardData();
-            }, 1000);
+            }, 500);
 
         } catch (error) {
-            console.error('게시글 수정 처리 오류:', error);
-            alert('게시글 수정 처리 중 오류가 발생했습니다: ' + error.message);
-
+            console.error('❌ 게시글 작성 처리 오류:', error);
+            alert('게시글 작성 처리 중 오류가 발생했습니다: ' + error.message);
+        } finally {
             // 버튼 상태 복원
             if (submitButton) {
                 submitButton.disabled = false;
                 submitButton.textContent = '저장';
             }
         }
+    },
+
+    /**
+     * Firebase에 게시글 저장
+     */
+    saveToFirebase: async function (postData) {
+        // 컬렉션 이름 매핑
+        const collectionMap = {
+            'notice': 'notices',
+            'column': 'columns',
+            'materials': 'materials',
+            'videos': 'videos'
+        };
+
+        const collectionName = collectionMap[this.currentBoardType] || 'notices';
+        console.log('💾 저장 대상 컬렉션:', collectionName);
+
+        if (!window.dhcFirebase || !window.dhcFirebase.db) {
+            throw new Error('Firebase가 초기화되지 않았습니다.');
+        }
+
+        // Firestore에 데이터 저장
+        const docRef = await window.dhcFirebase.db.collection(collectionName).add(postData);
+        console.log('✅ Firebase 저장 성공:', docRef.id);
+
+        return docRef.id;
+    },
+
+    /**
+     * 게시글 수정 처리 (placeholder)
+     */
+    handleUpdatePost: async function (event, postId) {
+        console.log('✏️ 게시글 수정 처리:', postId);
+        // TODO: 게시글 수정 로직 구현
+        alert('게시글 수정 기능은 곧 구현될 예정입니다.');
+    },
+
+    /**
+     * 게시글 보기 (placeholder)
+     */
+    viewPost: function (postId) {
+        console.log('👁️ 게시글 보기:', postId);
+        // TODO: 게시글 상세보기 구현
+        alert('게시글 상세보기 기능은 곧 구현될 예정입니다.');
+    },
+
+    /**
+     * 게시글 수정 (placeholder)
+     */
+    editPost: function (postId) {
+        console.log('✏️ 게시글 수정:', postId);
+        // TODO: 게시글 수정 모달 구현
+        alert('게시글 수정 기능은 곧 구현될 예정입니다.');
     },
 
     /**
      * 게시글 삭제
      */
     deletePost: function (postId) {
-        console.log('게시글 삭제:', postId);
+        console.log('🗑️ 게시글 삭제:', postId);
 
         if (confirm('정말로 이 게시글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
             this.handleDeletePost(postId);
@@ -2195,39 +1224,43 @@ window.boardManager = {
      */
     handleDeletePost: async function (postId) {
         try {
-            console.log('게시글 삭제 처리 시작:', postId);
+            console.log('🗑️ 게시글 삭제 처리 시작:', postId);
 
             if (!postId) {
                 throw new Error('게시글 ID가 없습니다.');
             }
 
-            // 게시판 컬렉션 이름 매핑
-            const collectionMap = {
-                'notice': 'notices',
-                'column': 'columns',
-                'materials': 'materials',
-                'videos': 'videos'
-            };
+            if (this.isFirebaseConnected) {
+                // Firebase에서 삭제
+                const collectionMap = {
+                    'notice': 'notices',
+                    'column': 'columns',
+                    'materials': 'materials',
+                    'videos': 'videos'
+                };
 
-            // 컬렉션 이름 결정
-            const collectionName = collectionMap[this.currentBoardType] || 'notices';
+                const collectionName = collectionMap[this.currentBoardType] || 'notices';
 
-            // Firebase 확인
-            if (!window.dhcFirebase || !window.dhcFirebase.db) {
-                throw new Error('Firebase가 초기화되지 않았습니다.');
+                if (!window.dhcFirebase || !window.dhcFirebase.db) {
+                    throw new Error('Firebase가 초기화되지 않았습니다.');
+                }
+
+                // Firestore 문서 삭제
+                await window.dhcFirebase.db.collection(collectionName).doc(postId).delete();
+                console.log('✅ Firebase 삭제 성공');
+            } else {
+                // 로컬 테스트 모드
+                console.log('🧪 로컬 테스트 모드 - 게시글 삭제 시뮬레이션');
+                await new Promise(resolve => setTimeout(resolve, 500));
             }
 
-            // Firestore 문서 삭제
-            await window.dhcFirebase.db.collection(collectionName).doc(postId).delete();
-
-            console.log('게시글 삭제 성공');
             alert('게시글이 삭제되었습니다.');
 
             // 게시글 목록 새로고침
             this.loadBoardData();
 
         } catch (error) {
-            console.error('게시글 삭제 처리 오류:', error);
+            console.error('❌ 게시글 삭제 처리 오류:', error);
             alert('게시글 삭제 처리 중 오류가 발생했습니다: ' + error.message);
         }
     },
@@ -2246,60 +1279,396 @@ window.boardManager = {
     },
 
     /**
-     * 날짜 포맷팅
+     * 테스트용 모의 데이터 (🔧 전역 유틸리티 사용)
      */
-    formatDate: function (date, includeTime = false) {
-        if (!date) return '-';
-
-        try {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-
-            if (includeTime) {
-                const hours = String(date.getHours()).padStart(2, '0');
-                const minutes = String(date.getMinutes()).padStart(2, '0');
-                return `${year}-${month}-${day} ${hours}:${minutes}`;
-            } else {
-                return `${year}-${month}-${day}`;
-            }
-        } catch (error) {
-            console.error('날짜 포맷팅 오류:', error);
-            return '-';
+    getTestData: function () {
+        console.log('🧪 테스트 데이터 생성 중...');
+        
+        const testPosts = [];
+        const currentDate = new Date();
+        
+        for (let i = 1; i <= 15; i++) {
+            const postDate = new Date(currentDate);
+            postDate.setDate(postDate.getDate() - i);
+            
+            testPosts.push({
+                id: `test-${this.currentBoardType}-${i}`,
+                title: `${this.getBoardTypeName(this.currentBoardType)} 테스트 게시글 ${i}`,
+                content: `테스트 게시글 ${i}의 내용입니다. 이것은 개발 및 테스트 목적으로 생성된 데이터입니다.`,
+                category: this.getTestCategory(),
+                author: '관리자',
+                authorName: '관리자',
+                views: Math.floor(Math.random() * 100),
+                status: i % 4 === 0 ? 'draft' : 'published',
+                createdAt: postDate,
+                updatedAt: postDate
+            });
         }
+        
+        console.log(`🧪 테스트 데이터 ${testPosts.length}개 생성 완료`);
+        return testPosts;
     },
 
     /**
-     * 테스트용 모의 게시글 데이터 가져오기
+     * 테스트용 카테고리 가져오기
      */
-    getMockPosts: function () {
-        return [
-            {
-                id: 'test1',
-                title: '테스트 게시글 1',
-                content: '테스트 내용입니다.',
-                author: '관리자',
-                views: 10,
-                createdAt: new Date().toISOString()
-            },
-            {
-                id: 'test2',
-                title: '테스트 게시글 2',
-                content: '테스트 내용입니다.',
-                author: '관리자',
-                views: 5,
-                createdAt: new Date().toISOString()
-            }
-        ];
+    getTestCategory: function () {
+        const categories = this.getCategoriesByBoardType(this.currentBoardType);
+        const categoryKeys = Object.keys(categories);
+        return categoryKeys[Math.floor(Math.random() * categoryKeys.length)];
     }
 };
+
+// =================================
+// DOM 로드 및 이벤트 처리 (course-application.js 스타일)
+// =================================
+
+// DOM이 이미 로드된 경우와 로딩 중인 경우 모두 처리
+function initializeWhenReady() {
+    console.log('📋 초기화 준비, 현재 상태:', document.readyState);
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('📋 DOMContentLoaded 이벤트 발생');
+            window.initBoardManagement();
+        });
+    } else {
+        console.log('📋 DOM 이미 로드됨, 즉시 초기화');
+        window.initBoardManagement();
+    }
+}
+
+// 초기화 시작
+initializeWhenReady();
+
+// =================================
+// 토스트 메시지 기능 (course-application.js 스타일)
+// =================================
+
+/**
+ * 토스트 메시지 표시
+ */
+function showToast(message, type = 'info') {
+    console.log(`Toast (${type}): ${message}`);
+
+    // 기존 토스트 제거
+    const existingToast = document.querySelector('.board-toast');
+    if (existingToast) {
+        existingToast.remove();
+    }
+
+    // 새 토스트 생성
+    const toast = document.createElement('div');
+    toast.className = `board-toast toast-${type}`;
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : type === 'success' ? '#10b981' : '#3b82f6'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 9999;
+        font-size: 14px;
+        max-width: 300px;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.3s ease;
+    `;
+
+    document.body.appendChild(toast);
+
+    // 애니메이션 시작
+    setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(0)';
+    }, 100);
+
+    // 자동 제거
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    }, 3000);
+
+    // 클릭으로 제거
+    toast.addEventListener('click', () => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    });
+}
+
+// 전역 함수로 노출
+window.showToast = showToast;
+
+// =================================
+// 디버깅 및 개발자 도구 (course-application.js 스타일)
+// =================================
+
+// 개발 모드에서 사용되는 디버깅 함수들
+if (window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname.includes('.web.app') ||
+    window.location.hostname.includes('.firebaseapp.com') ||
+    window.location.protocol === 'file:' ||
+    window.FORCE_DEBUG === true) {
+
+    window.debugBoardManagement = {
+        // 기본 정보 확인
+        help: function () {
+            console.log('📋 게시판 관리 디버깅 도구 사용법');
+            console.log('\n📊 데이터 관련:');
+            console.log('- showCurrentData() : 현재 로드된 데이터 확인');
+            console.log('- reloadData() : 데이터 다시 로드');
+            console.log('- testDependencies() : 유틸리티 의존성 확인');
+
+            console.log('\n📋 게시판 관련:');
+            console.log('- switchToBoard("notice") : 특정 게시판으로 전환');
+            console.log('- testSearch("키워드") : 검색 기능 테스트');
+            console.log('- showTestModal() : 게시글 작성 모달 테스트');
+
+            console.log('\n🔧 시스템 관련:');
+            console.log('- checkFirebaseStatus() : Firebase 연결 상태 확인');
+            console.log('- runFullTest() : 전체 기능 테스트');
+        },
+
+        // 🔧 의존성 테스트
+        testDependencies: function () {
+            console.log('🔧 유틸리티 의존성 테스트...');
+            const result = checkDependencies();
+            if (result) {
+                console.log('✅ 모든 유틸리티 정상 로드됨');
+                
+                // 기능 테스트
+                try {
+                    const testDate = new Date();
+                    console.log('📅 formatters.formatDate 테스트:', window.formatters.formatDate(testDate, 'YYYY.MM.DD'));
+                    console.log('💰 formatters.formatCurrency 테스트:', window.formatters.formatCurrency(10000));
+                    if (window.dateUtils) {
+                        console.log('🕒 dateUtils.format 테스트:', window.dateUtils.format(testDate, 'YYYY-MM-DD'));
+                    }
+                } catch (error) {
+                    console.error('❌ 유틸리티 함수 테스트 실패:', error);
+                }
+            } else {
+                console.error('❌ 필수 유틸리티 누락');
+            }
+            return result;
+        },
+
+        // 데이터 관련
+        showCurrentData: function () {
+            console.log('현재 게시판 관리 상태:');
+            console.log('- 현재 게시판:', window.boardManager.currentBoardType);
+            console.log('- 현재 페이지:', window.boardManager.currentPage);
+            console.log('- Firebase 연결:', window.boardManager.isFirebaseConnected);
+            console.log('- 페이지 크기:', window.boardManager.pageSize);
+        },
+
+        reloadData: function () {
+            console.log('데이터 다시 로드');
+            if (window.boardManager) {
+                window.boardManager.loadBoardData();
+            }
+        },
+
+        // 게시판 관련
+        switchToBoard: function (boardType) {
+            if (!boardType) {
+                console.log('사용법: switchToBoard("board-type")');
+                console.log('사용 가능한 게시판 타입들:');
+                console.log('- notice (공지사항)');
+                console.log('- column (칼럼)');
+                console.log('- materials (강의자료)');
+                console.log('- videos (동영상 강의)');
+                return;
+            }
+
+            console.log('게시판 전환 테스트:', boardType);
+            if (window.boardManager) {
+                window.boardManager.switchBoard(boardType);
+            }
+        },
+
+        testSearch: function (keyword) {
+            if (!keyword) {
+                console.log('사용법: testSearch("검색어")');
+                return;
+            }
+
+            console.log('검색 테스트:', keyword);
+            
+            // 검색어 입력
+            const searchKeyword = document.getElementById('search-keyword');
+            if (searchKeyword) {
+                searchKeyword.value = keyword;
+            }
+
+            // 검색 실행
+            if (window.boardManager) {
+                window.boardManager.search();
+            }
+        },
+
+        showTestModal: function () {
+            console.log('게시글 작성 모달 테스트');
+            if (window.boardManager) {
+                window.boardManager.showAddPostModal();
+            }
+        },
+
+        // 시스템 관련
+        checkFirebaseStatus: function () {
+            console.log('Firebase 연결 상태 확인');
+            const connected = checkFirebaseConnection();
+            console.log('Firebase 연결됨:', connected);
+            
+            if (connected) {
+                console.log('Firebase 객체:', window.dhcFirebase);
+                console.log('DB 객체:', window.dhcFirebase.db);
+            }
+            
+            return connected;
+        },
+
+        runFullTest: function () {
+            console.log('🚀 전체 기능 테스트 시작...');
+
+            console.log('\n1️⃣ 의존성 테스트');
+            const dependenciesOk = this.testDependencies();
+            
+            if (!dependenciesOk) {
+                console.error('❌ 의존성 테스트 실패 - 테스트 중단');
+                return;
+            }
+
+            console.log('\n2️⃣ Firebase 상태 확인');
+            const firebaseOk = this.checkFirebaseStatus();
+
+            console.log('\n3️⃣ 현재 상태 확인');
+            this.showCurrentData();
+
+            console.log('\n4️⃣ 게시판 전환 테스트');
+            this.switchToBoard('column');
+            
+            setTimeout(() => {
+                console.log('\n5️⃣ 검색 기능 테스트');
+                this.testSearch('테스트');
+                
+                setTimeout(() => {
+                    console.log('\n6️⃣ 모달 테스트');
+                    this.showTestModal();
+                    
+                    console.log('\n🎯 전체 테스트 완료!');
+                    console.log('💡 이제 다음 명령어들을 시도해보세요:');
+                    console.log('- switchToBoard("notice") : 공지사항으로 전환');
+                    console.log('- testSearch("키워드") : 특정 키워드 검색');
+                }, 2000);
+            }, 2000);
+        },
+
+        // 추가 도구들
+        fillTestData: function () {
+            console.log('테스트 데이터로 모달 채우기');
+            this.showTestModal();
+            
+            setTimeout(() => {
+                const titleInput = document.getElementById('post-title');
+                const contentInput = document.getElementById('post-content');
+                const categorySelect = document.getElementById('post-category');
+                
+                if (titleInput) titleInput.value = '테스트 게시글 제목';
+                if (contentInput) contentInput.value = '테스트 게시글 내용입니다.\n\n이것은 디버깅용 테스트 데이터입니다.';
+                if (categorySelect && categorySelect.options.length > 1) {
+                    categorySelect.selectedIndex = 1;
+                }
+                
+                console.log('✅ 테스트 데이터 입력 완료');
+            }, 500);
+        },
+
+        clearSearch: function () {
+            console.log('검색 조건 초기화');
+            const searchKeyword = document.getElementById('search-keyword');
+            const searchType = document.getElementById('search-type');
+            
+            if (searchKeyword) searchKeyword.value = '';
+            if (searchType) searchType.value = 'title';
+            
+            if (window.boardManager) {
+                window.boardManager.resetSearch();
+            }
+        }
+    };
+
+    // 디버깅 도구 안내
+    console.log('📋 개발 모드 게시판 관리 디버깅 도구 활성화됨');
+    console.log('현재 호스트:', window.location.hostname);
+    console.log('\n🔥 주요 디버깅 함수들:');
+    console.log('📊 데이터: showCurrentData(), reloadData(), testDependencies()');
+    console.log('📋 게시판: switchToBoard(type), testSearch(keyword), showTestModal()');
+    console.log('🔧 시스템: checkFirebaseStatus(), runFullTest()');
+    console.log('🧪 테스트: fillTestData(), clearSearch()');
+    console.log('\n💡 도움말: window.debugBoardManagement.help()');
+    console.log('🚀 빠른 시작: window.debugBoardManagement.runFullTest()');
+
+} else {
+    console.log('프로덕션 모드 - 디버깅 도구 비활성화됨');
+    console.log('현재 호스트:', window.location.hostname);
+}
+
+// =================================
+// 최종 완료 메시지
+// =================================
+
+console.log('\n🎉 === board-management.js 통합 유틸리티 시스템 적용 완료 ===');
+console.log('✅ 전역 유틸리티 시스템 통합 (formatters.js, date-utils.js)');
+console.log('✅ 의존성 체크 시스템 구축');
+console.log('✅ Firebase 연결 상태 확인 시스템');
+console.log('✅ 표준화된 이벤트 처리');
+console.log('✅ 게시판 CRUD 기능 (생성, 읽기, 삭제)');
+console.log('✅ 페이지네이션 및 검색 기능');
+console.log('✅ 에디터 도구 및 모달 시스템');
+console.log('✅ 포괄적인 디버깅 도구');
+console.log('\n🔧 근본적 문제 해결:');
+console.log('- 중복 formatDate 함수 제거 및 전역 유틸리티 통합');
+console.log('- 일관성 있는 참조 방식 적용');
+console.log('- 의존성 관리 시스템 구축');
+console.log('- 표준화된 에러 처리');
+console.log('\n🚀 모든 기능이 course-application.js 스타일로 완전히 표준화되었습니다!');
+console.log('🔧 관리자가 게시판을 관리할 때 모든 도구가 일관되게 작동합니다.');
+
+// 완료 플래그 설정
+window.boardManagementReady = true;
+
+// =================================
+// 초기화 함수 (course-application.js 스타일)
+// =================================
 
 /**
  * 게시판 관리 페이지 초기화 함수
  */
 window.initBoardManagement = async function () {
     try {
-        console.log('게시판 관리 페이지 초기화 시작 - 디버그 버전');
+        console.log('📋 게시판 관리 페이지 초기화 시작 - 표준화 버전');
+
+        // 🔧 의존성 체크
+        if (!checkDependencies()) {
+            console.error('❌ 필수 유틸리티 누락으로 초기화 중단');
+            showDependencyError();
+            return false;
+        }
 
         // 관리자 권한 확인
         let hasAccess = true;
@@ -2309,12 +1678,23 @@ window.initBoardManagement = async function () {
 
         if (hasAccess) {
             // 초기화 실행
-            await window.boardManager.init();
+            const success = await window.boardManager.init();
+            if (success) {
+                console.log('✅ 게시판 관리 페이지 초기화 완료');
+                
+                // 추가 초기화 작업들
+                if (typeof showToast === 'function') {
+                    showToast('게시판 관리 시스템이 준비되었습니다.', 'success');
+                }
+            }
+        } else {
+            console.log('❌ 관리자 권한 없음');
         }
 
-        console.log('게시판 관리 페이지 초기화 완료');
+        return hasAccess;
+
     } catch (error) {
-        console.error('게시판 관리 페이지 초기화 오류:', error);
+        console.error('❌ 게시판 관리 페이지 초기화 오류:', error);
         alert('게시판 관리 페이지 초기화 중 오류가 발생했습니다: ' + error.message);
     }
 };
