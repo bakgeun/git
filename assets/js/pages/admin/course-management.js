@@ -12,15 +12,15 @@ function checkAdminDependencies() {
         { name: 'window.formatters', path: 'formatters.js' },
         { name: 'window.dateUtils', path: 'date-utils.js' }
     ];
-    
+
     const missing = [];
-    
+
     requiredUtils.forEach(util => {
         if (!eval(util.name)) {
             missing.push(util);
         }
     });
-    
+
     if (missing.length > 0) {
         console.error('⚠️ 관리자 페이지 필수 유틸리티가 로드되지 않음:', missing.map(m => m.path));
         console.log('📝 HTML에서 다음 스크립트들이 먼저 로드되어야 합니다:');
@@ -29,10 +29,39 @@ function checkAdminDependencies() {
         });
         return false;
     }
-    
+
     console.log('✅ 관리자 페이지 모든 필수 유틸리티 로드 확인됨');
     return true;
 }
+
+// 🔧 전역 checkDependencies 함수 노출
+window.checkDependencies = checkAdminDependencies;
+
+// 🔧 Firebase 연결 상태 확인 함수 추가
+function checkFirebaseConnection() {
+    console.log('🔥 Firebase 연결 상태 확인...');
+
+    if (!window.dhcFirebase) {
+        console.warn('⚠️ Firebase가 초기화되지 않음');
+        return { connected: false, reason: 'not_initialized' };
+    }
+
+    if (!window.dhcFirebase.db) {
+        console.warn('⚠️ Firestore 데이터베이스가 초기화되지 않음');
+        return { connected: false, reason: 'db_not_initialized' };
+    }
+
+    if (!window.dhcFirebase.auth) {
+        console.warn('⚠️ Firebase Auth가 초기화되지 않음');
+        return { connected: false, reason: 'auth_not_initialized' };
+    }
+
+    console.log('✅ Firebase 연결 상태 정상');
+    return { connected: true };
+}
+
+// 전역 노출
+window.checkFirebaseConnection = checkFirebaseConnection;
 
 // 교육 관리 객체
 window.courseManager = {
@@ -146,7 +175,7 @@ window.courseManager = {
     },
 
     // 🔧 의존성 오류 표시 함수 추가
-    showDependencyError: function() {
+    showDependencyError: function () {
         const tbody = document.querySelector('#course-table tbody');
         if (tbody) {
             tbody.innerHTML = `
@@ -1225,6 +1254,24 @@ if (window.location.hostname === 'localhost' ||
     window.FORCE_DEBUG === true) {
 
     window.debugCourseManager = {
+        // 기존 함수들 유지하되 testDependencies 함수 추가
+        testDependencies: function () {
+            console.log('🔧 교육 관리 의존성 테스트...');
+            const result = checkAdminDependencies();
+            if (result) {
+                console.log('✅ 모든 유틸리티 정상 로드됨');
+
+                // Firebase 연결 상태도 함께 확인
+                const firebaseStatus = checkFirebaseConnection();
+                console.log('Firebase 상태:', firebaseStatus);
+
+                return result && firebaseStatus.connected;
+            } else {
+                console.error('❌ 필수 유틸리티 누락');
+                return false;
+            }
+        },
+        
         // 강사 목록 확인
         showInstructors: function () {
             console.log('현재 강사 목록:', window.courseManager.instructors);
@@ -1259,7 +1306,7 @@ if (window.location.hostname === 'localhost' ||
             const result = checkAdminDependencies();
             if (result) {
                 console.log('✅ 모든 유틸리티 정상 로드됨');
-                
+
                 // 기능 테스트
                 try {
                     const testDate = new Date();

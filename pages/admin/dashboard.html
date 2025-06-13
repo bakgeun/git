@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>관리자 대시보드 - 디지털헬스케어센터</title>
+    <title>Dashboard - 관리자 대시보드 - 디지털헬스케어센터</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap"
         rel="stylesheet">
     <!-- Tailwind CSS Play CDN -->
@@ -34,8 +34,8 @@
                     </a>
                 </div>
 
-                <!-- 사용자 정보 (모바일에서 숨김) -->
-                <div class="flex items-center space-x-4 admin-user-info">
+                <!-- 사용자 정보 (데스크톱에서만 표시) -->
+                <div class="admin-user-info admin-responsive-hidden">
                     <span id="admin-name">관리자</span>
                     <span id="admin-email" class="text-sm text-indigo-200">gostepexercise@gmail.com</span>
                     <button id="admin-logout-button"
@@ -222,7 +222,7 @@
                             <thead>
                                 <tr class="text-left border-b">
                                     <th class="pb-2 text-sm font-medium text-gray-600">이름</th>
-                                    <th class="pb-2 text-sm font-medium text-gray-600">이메일</th>
+                                    <th class="pb-2 text-sm font-medium text-gray-600 hidden md:table-cell">이메일</th>
                                     <th class="pb-2 text-sm font-medium text-gray-600">가입일</th>
                                 </tr>
                             </thead>
@@ -249,7 +249,7 @@
                             <thead>
                                 <tr class="text-left border-b">
                                     <th class="pb-2 text-sm font-medium text-gray-600">교육명</th>
-                                    <th class="pb-2 text-sm font-medium text-gray-600">신청자</th>
+                                    <th class="pb-2 text-sm font-medium text-gray-600 hidden md:table-cell">신청자</th>
                                     <th class="pb-2 text-sm font-medium text-gray-600">신청일</th>
                                 </tr>
                             </thead>
@@ -313,7 +313,7 @@
         </main>
     </div>
 
-    <!-- 🔧 최적화된 스크립트 로딩 섹션 - 중복 실행 방지 -->
+    <!-- 🔧 최적화된 스크립트 로딩 섹션 (cert-management 표준 적용) -->
 
     <!-- Firebase SDK 템플릿 -->
     <script id="firebase-sdk-template" type="text/template">
@@ -323,11 +323,11 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
 
-    <!-- 핵심 유틸리티만 먼저 로드 -->
+    <!-- 🔧 1. 핵심 유틸리티만 먼저 로드 -->
     <script src="{basePath}assets/js/utils/formatters.js"><\/script>
     <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
 
-    <!-- Firebase 설정 및 서비스 -->
+    <!-- 🔧 2. Firebase 설정 및 서비스 -->
     <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
     <script src="{basePath}assets/js/services/auth-service.js"><\/script>
     <script src="{basePath}assets/js/services/db-service.js"><\/script>
@@ -336,23 +336,23 @@
 
     <!-- 추가 스크립트 템플릿 -->
     <script id="additional-scripts-template" type="text/template">
-    <!-- 관리자 전용 유틸리티 -->
+    <!-- 🔧 3. 관리자 전용 유틸리티 -->
     <script src="{basePath}assets/js/utils/admin-auth.js"><\/script>
     
-    <!-- 공통 컴포넌트 -->
+    <!-- 🔧 4. 공통 컴포넌트 -->
     <script src="{basePath}assets/js/components/header.js"><\/script>
     
-    <!-- 관리자 페이지 공통 기능 -->
+    <!-- 🔧 5. 관리자 페이지 공통 기능 -->
     <script src="{basePath}assets/js/pages/admin.js"><\/script>
     
-    <!-- 대시보드 페이지 스크립트 -->
+    <!-- 🔧 6. 대시보드 페이지 스크립트 -->
     <script src="{basePath}assets/js/pages/admin/dashboard.js"><\/script>
     
-    <!-- 메인 스크립트 (가장 마지막) -->
+    <!-- 🔧 7. 메인 스크립트 (가장 마지막) -->
     <script src="{basePath}assets/js/main.js"><\/script>
 </script>
 
-    <!-- 🔧 최적화된 초기화 스크립트 - 완전히 재작성 -->
+    <!-- 🔧 표준화된 초기화 스크립트 (cert-management 표준 적용) -->
     <script>
         console.log('=== 표준화된 대시보드 페이지 로드 완료 ===');
 

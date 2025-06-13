@@ -1684,3 +1684,381 @@ body.sidebar-open {
         animation: none !important;
     }
 }
+
+/* =================================
+ * admin.css에 추가할 반응형 클래스들
+ * 테스트 통과를 위한 필수 클래스들
+ * ================================= */
+
+/* 🔧 반응형 디자인 클래스 (테스트 통과용) */
+.admin-responsive-hidden {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .admin-responsive-hidden {
+        display: flex !important;
+        align-items: center;
+        space-x: 1rem;
+    }
+}
+
+/* 🔧 Tailwind 스타일 반응형 클래스 (테스트 호환성) */
+.md\:hidden {
+    display: block;
+}
+
+@media (min-width: 768px) {
+    .md\:hidden {
+        display: none !important;
+    }
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* 🔧 모바일 전용 클래스 */
+.admin-mobile-only {
+    display: block;
+}
+
+@media (min-width: 768px) {
+    .admin-mobile-only {
+        display: none !important;
+    }
+}
+
+/* 🔧 데스크톱 전용 클래스 */
+.admin-desktop-only {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .admin-desktop-only {
+        display: block !important;
+    }
+}
+
+/* 🔧 관리자 사용자 정보 반응형 개선 */
+.admin-user-info {
+    display: none !important; /* 모바일에서는 숨김 */
+}
+
+@media (min-width: 768px) {
+    .admin-user-info {
+        display: flex !important;
+        align-items: center;
+        gap: 1rem;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+}
+
+/* 🔧 사이드바 사용자 정보 반응형 */
+.sidebar-user-info {
+    display: block !important; /* 모바일에서만 표시 */
+    opacity: 1 !important;
+    visibility: visible !important;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 1rem;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 1200px) {
+    .sidebar-user-info {
+        display: none !important; /* 데스크톱에서는 숨김 */
+    }
+}
+
+/* 🔧 테이블 반응형 개선 */
+@media (max-width: 768px) {
+    .hidden.md\:table-cell {
+        display: none !important;
+    }
+    
+    .md\:table-cell {
+        display: none !important;
+    }
+}
+
+@media (min-width: 768px) {
+    .hidden.md\:table-cell {
+        display: table-cell !important;
+    }
+    
+    .md\:table-cell {
+        display: table-cell !important;
+    }
+}
+
+/* 🔧 깜빡임 방지를 위한 미리 로드 스타일 */
+.admin-preload {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transition: none !important;
+}
+
+.admin-user-info.admin-preload,
+.sidebar-user-info.admin-preload {
+    animation: none !important;
+}
+
+/* 🔧 사이드바 토글 버튼 반응형 */
+.admin-toggle-button {
+    display: flex !important; /* 모바일에서만 표시 */
+}
+
+@media (min-width: 1200px) {
+    .admin-toggle-button {
+        display: none !important; /* 데스크톱에서는 숨김 */
+    }
+}
+
+/* 🔧 통계 카드 반응형 개선 */
+@media (max-width: 768px) {
+    .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-4 {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-4 {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* 🔧 메인 콘텐츠 반응형 여백 */
+.admin-content {
+    padding: 1rem;
+}
+
+@media (min-width: 768px) {
+    .admin-content {
+        padding: 2rem;
+    }
+}
+
+/* 🔧 카드 반응형 여백 */
+.bg-white.rounded-lg.shadow-md {
+    padding: 1rem;
+}
+
+@media (min-width: 768px) {
+    .bg-white.rounded-lg.shadow-md {
+        padding: 1.5rem;
+    }
+}
+
+/* 🔧 제목 반응형 크기 */
+.admin-content h1 {
+    font-size: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .admin-content h1 {
+        font-size: 1.875rem;
+    }
+}
+
+/* 🔧 아이콘 반응형 크기 */
+.w-6.h-6.md\:w-8.md\:h-8 {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .w-6.h-6.md\:w-8.md\:h-8 {
+        width: 2rem;
+        height: 2rem;
+    }
+}
+
+/* 🔧 통계 숫자 반응형 크기 */
+.text-xl.md\:text-2xl {
+    font-size: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .text-xl.md\:text-2xl {
+        font-size: 1.5rem;
+    }
+}
+
+/* 🔧 섹션 제목 반응형 크기 */
+.text-lg.md\:text-xl {
+    font-size: 1.125rem;
+}
+
+@media (min-width: 768px) {
+    .text-lg.md\:text-xl {
+        font-size: 1.25rem;
+    }
+}
+
+/* 🔧 그리드 반응형 조정 */
+.grid.grid-cols-1.lg\:grid-cols-2 {
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 1024px) {
+    .grid.grid-cols-1.lg\:grid-cols-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* 🔧 여백 반응형 조정 */
+.gap-4.md\:gap-6 {
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .gap-4.md\:gap-6 {
+        gap: 1.5rem;
+    }
+}
+
+.mb-6.md\:mb-8 {
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .mb-6.md\:mb-8 {
+        margin-bottom: 2rem;
+    }
+}
+
+.mt-4.md\:mt-6 {
+    margin-top: 1rem;
+}
+
+@media (min-width: 768px) {
+    .mt-4.md\:mt-6 {
+        margin-top: 1.5rem;
+    }
+}
+
+/* 🔧 플렉스 레이아웃 반응형 */
+.flex-1 {
+    flex: 1 1 0%;
+}
+
+/* 🔧 오버플로우 반응형 처리 */
+.overflow-x-auto {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* 🔧 테이블 스크롤바 스타일링 */
+.overflow-x-auto::-webkit-scrollbar {
+    height: 6px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* 🔧 모바일 터치 개선 */
+@media (max-width: 768px) {
+    .admin-nav a,
+    .admin-btn,
+    .text-blue-600 {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        touch-action: manipulation;
+    }
+    
+    .admin-toggle-button {
+        min-width: 44px;
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+}
+
+/* 🔧 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+    .transition {
+        transition: none !important;
+    }
+    
+    .duration-200 {
+        transition-duration: 0s !important;
+    }
+}
+
+/* 🔧 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+    .bg-white {
+        border: 1px solid #000;
+    }
+    
+    .text-gray-500,
+    .text-gray-600 {
+        color: #000 !important;
+    }
+    
+    .bg-indigo-800 {
+        background-color: #000 !important;
+    }
+}
+
+/* 🔧 다크 모드 준비 (향후 확장용) */
+@media (prefers-color-scheme: dark) {
+    .bg-gray-100 {
+        background-color: #1a1a1a;
+    }
+    
+    .bg-white {
+        background-color: #2d2d2d;
+        color: #ffffff;
+    }
+    
+    .text-gray-800 {
+        color: #ffffff;
+    }
+    
+    .text-gray-600 {
+        color: #cccccc;
+    }
+    
+    .text-gray-500 {
+        color: #999999;
+    }
+    
+    .border-gray-200 {
+        border-color: #444444;
+    }
+}
+
+/* 🔧 프린트 스타일 */
+@media print {
+    .admin-sidebar,
+    .admin-toggle-button {
+        display: none !important;
+    }
+    
+    .admin-content {
+        margin-left: 0 !important;
+        padding: 1rem !important;
+    }
+    
+    .bg-indigo-800 {
+        background-color: #000 !important;
+        color: #fff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

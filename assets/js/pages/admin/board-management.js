@@ -53,6 +53,9 @@ function checkBoardDependencies() {
     return true;
 }
 
+// 🔧 전역 checkDependencies 함수 노출 (표준화)
+window.checkDependencies = checkBoardDependencies;
+
 // 🔧 의존성 오류 표시 함수
 function showBoardDependencyError() {
     const tableBody = document.querySelector('#board-table tbody');
