@@ -11,7 +11,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../../assets/css/main.css">
 
-    <!-- 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
+    <!-- 🔧 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
     <script src="../../assets/js/utils/script-loader.js"></script>
 
     <!-- jsPDF 라이브러리 -->
@@ -389,30 +389,47 @@
         </div>
     </div>
 
-    <!-- Firebase SDK 템플릿 (script-loader.js에 의해 처리됨) -->
+    <!-- 🔧 최적화된 스크립트 로딩 순서 (course-application.html과 동일) -->
     <script id="firebase-sdk-template" type="text/template">
+    <!-- Firebase SDK (필수 - 가장 먼저) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
+
+    <!-- 🔧 1. 핵심 유틸리티만 먼저 로드 -->
+    <script src="{basePath}assets/js/utils/formatters.js"><\/script>
+    <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
+
+    <!-- 🔧 2. Firebase 설정 및 서비스 -->
     <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
     <script src="{basePath}assets/js/services/auth-service.js"><\/script>
     <script src="{basePath}assets/js/services/db-service.js"><\/script>
     <script src="{basePath}assets/js/services/storage-service.js"><\/script>
 </script>
 
-    <!-- 추가 스크립트 템플릿 (관리자 페이지용) -->
     <script id="additional-scripts-template" type="text/template">
-    <script src="{basePath}assets/js/utils/formatters.js"><\/script>
-    <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
+    <!-- 🔧 3. 필요시에만 로드되는 유틸리티 -->
+    <script src="{basePath}assets/js/utils/validators.js"><\/script>
+    <script src="{basePath}assets/js/utils/dom-utils.js"><\/script>
     <script src="{basePath}assets/js/utils/admin-auth.js"><\/script>
+    
+    <!-- 🔧 4. 공통 컴포넌트 -->
+    <script src="{basePath}assets/js/components/header.js"><\/script>
+    
+    <!-- 🔧 5. 관리자 공통 스크립트 -->
     <script src="{basePath}assets/js/pages/admin.js"><\/script>
+    
+    <!-- 🔧 6. 페이지별 스크립트 -->
     <script src="{basePath}assets/js/pages/admin/cert-management.js"><\/script>
+    
+    <!-- 🔧 7. 메인 스크립트 (가장 마지막) -->
+    <script src="{basePath}assets/js/main.js"><\/script>
 </script>
 
-    <!-- 초기화 스크립트 -->
+    <!-- 🔧 초기화 스크립트 (표준화됨) -->
     <script>
-        // 페이지 로드 시 실행
+        // 페이지 로드 시 실행 - course-application.html과 동일한 패턴
         window.addEventListener('load', async function () {
             try {
                 console.log('자격증 관리 페이지 초기화 시작');

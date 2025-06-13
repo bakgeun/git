@@ -1,12 +1,12 @@
 /**
- * board-management.js - 완전한 통합 유틸리티 시스템 적용 버전
+ * board-management.js - course-management.js 스타일 완전 표준화 버전
  * 게시판 관리 페이지의 모든 기능을 포함합니다.
  */
 
-console.log('=== 완전한 board-management.js 파일 로드됨 ===');
+console.log('=== board-management.js 표준화 버전 로드 시작 ===');
 
-// 🔧 의존성 체크 시스템
-function checkDependencies() {
+// 🔧 의존성 체크 함수 (course-management.js 스타일)
+function checkBoardDependencies() {
     const requiredUtils = [
         { name: 'window.formatters', path: 'formatters.js' },
         { name: 'window.dateUtils', path: 'date-utils.js' },
@@ -22,7 +22,7 @@ function checkDependencies() {
     });
     
     if (missing.length > 0) {
-        console.error('⚠️ 필수 유틸리티가 로드되지 않음:', missing.map(m => m.path));
+        console.error('⚠️ 게시판 관리 필수 유틸리티가 로드되지 않음:', missing.map(m => m.path));
         console.log('📝 HTML에서 다음 스크립트들이 먼저 로드되어야 합니다:');
         missing.forEach(m => {
             console.log(`   <script src="{basePath}assets/js/utils/${m.path}"></script>`);
@@ -30,7 +30,7 @@ function checkDependencies() {
         return false;
     }
     
-    console.log('✅ 모든 필수 유틸리티 로드 확인됨');
+    console.log('✅ 게시판 관리 모든 필수 유틸리티 로드 확인됨');
     
     // 🔧 추가: formatters 함수들이 실제로 작동하는지 테스트
     try {
@@ -54,7 +54,7 @@ function checkDependencies() {
 }
 
 // 🔧 의존성 오류 표시 함수
-function showDependencyError() {
+function showBoardDependencyError() {
     const tableBody = document.querySelector('#board-table tbody');
     
     if (tableBody) {
@@ -63,8 +63,11 @@ function showDependencyError() {
                 <td colspan="6" class="text-center py-8">
                     <div class="bg-red-50 border border-red-200 rounded-lg p-6">
                         <div class="text-red-600 text-lg font-semibold mb-2">⚠️ 시스템 오류</div>
-                        <p class="text-red-700 mb-4">필수 유틸리티 파일이 로드되지 않았습니다.</p>
+                        <p class="text-red-700 mb-4">게시판 관리에 필요한 유틸리티 파일이 로드되지 않았습니다.</p>
                         <p class="text-red-600 text-sm">페이지를 새로고침하거나 관리자에게 문의하세요.</p>
+                        <button onclick="location.reload()" class="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+                            새로고침
+                        </button>
                     </div>
                 </td>
             </tr>
@@ -88,78 +91,144 @@ function checkFirebaseConnection() {
 // =================================
 
 window.boardManager = {
+    // 초기화 상태 관리
+    initialized: false,
+    
+    // 페이지네이션 및 검색 상태
     currentPage: 1,
     pageSize: 10,
     currentBoardType: 'notice',
     lastDoc: null,
+    
+    // Firebase 연결 상태
     isFirebaseConnected: false,
 
     /**
-     * 초기화 - course-application.js 스타일
+     * 초기화 - course-management.js 스타일 완전 적용
      */
     init: async function () {
+        // 초기화 플래그 설정
+        this.initialized = false;
+
         try {
             console.log('📋 게시판 관리자 초기화 시작 - 표준화 버전');
 
             // 🔧 의존성 체크 먼저 실행
-            if (!checkDependencies()) {
+            if (!checkBoardDependencies()) {
                 console.error('❌ 필수 유틸리티 누락으로 초기화 중단');
-                showDependencyError();
+                showBoardDependencyError();
                 return false;
             }
 
-            // Firebase 연결 확인
-            this.isFirebaseConnected = checkFirebaseConnection();
-            
-            if (this.isFirebaseConnected) {
-                await this.waitForFirebase();
+            // Firebase 초기화 대기 (course-management.js 스타일)
+            if (!window.dhcFirebase || !window.dhcFirebase.db) {
+                console.log('⏳ Firebase 초기화 대기 중...');
+
+                // Firebase 초기화를 최대 10초간 대기
+                let attempts = 0;
+                const maxAttempts = 50; // 10초 (200ms * 50)
+
+                while ((!window.dhcFirebase || !window.dhcFirebase.db) && attempts < maxAttempts) {
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    attempts++;
+                }
+
+                if (!window.dhcFirebase || !window.dhcFirebase.db) {
+                    console.warn('⚠️ Firebase 초기화 시간 초과, 테스트 데이터로 진행');
+                    this.isFirebaseConnected = false;
+                } else {
+                    console.log('✅ Firebase 초기화 완료');
+                    this.isFirebaseConnected = true;
+                }
+            } else {
+                this.isFirebaseConnected = true;
             }
 
             // 이벤트 리스너 등록
+            console.log('🎯 이벤트 리스너 등록 시작');
             this.registerEventListeners();
-
-            // 게시판 데이터 로드
-            await this.loadBoardData();
+            console.log('✅ 이벤트 리스너 등록 완료');
 
             // 게시판 탭 초기화
+            console.log('📑 게시판 탭 초기화 시작');
             this.initBoardTabs();
+            console.log('✅ 게시판 탭 초기화 완료');
 
+            // 게시판 데이터 로드 (재시도 로직 포함)
+            console.log('📋 게시판 데이터 로드 시작');
+            await this.loadBoardDataWithRetry();
+            console.log('✅ 게시판 데이터 로드 완료');
+
+            // 초기화 완료 플래그 설정
+            this.initialized = true;
             console.log('✅ 게시판 관리자 초기화 완료');
             return true;
 
         } catch (error) {
             console.error('❌ 게시판 관리자 초기화 오류:', error);
-            this.showErrorMessage('초기화 중 오류가 발생했습니다: ' + error.message);
+
+            // 초기화 실패 시 테스트 데이터로라도 표시
+            try {
+                console.log('🔄 초기화 실패, 테스트 데이터로 폴백');
+                const testPosts = this.getTestData();
+                this.updateBoardList(testPosts);
+                console.log('✅ 테스트 데이터 폴백 완료');
+            } catch (fallbackError) {
+                console.error('❌ 폴백 데이터 로드도 실패:', fallbackError);
+                this.showErrorMessage('초기화에 실패했습니다. 페이지를 새로고침해주세요.');
+            }
+
+            this.initialized = false;
             return false;
         }
     },
 
     /**
-     * Firebase 초기화 대기 (course-application.js 스타일)
+     * 재시도 로직이 포함된 게시판 데이터 로드 함수
      */
-    waitForFirebase: async function () {
-        console.log('🔥 Firebase 초기화 대기 중...');
+    loadBoardDataWithRetry: async function (maxRetries = 3) {
+        let lastError = null;
 
-        const maxTries = 20;
-        let tries = 0;
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                console.log(`📋 게시판 데이터 로드 시도 ${attempt}/${maxRetries}`);
+                await this.loadBoardData();
+                console.log('✅ 게시판 데이터 로드 성공');
+                return; // 성공하면 함수 종료
+            } catch (error) {
+                lastError = error;
+                console.warn(`⚠️ 게시판 데이터 로드 시도 ${attempt} 실패:`, error);
 
-        while (tries < maxTries) {
-            if (window.dhcFirebase && window.dhcFirebase.db) {
-                console.log('✅ Firebase 초기화 완료 확인됨');
-                return true;
+                if (attempt < maxRetries) {
+                    const delay = attempt * 1000; // 1초, 2초, 3초 간격으로 재시도
+                    console.log(`⏳ ${delay}ms 후 재시도...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
             }
-
-            tries++;
-            console.log(`Firebase 대기 중... (${tries}/${maxTries})`);
-            await new Promise(resolve => setTimeout(resolve, 500));
         }
 
-        console.error('❌ Firebase 초기화 시간 초과');
-        throw new Error('Firebase 초기화가 제대로 완료되지 않았습니다.');
+        // 모든 재시도 실패 시
+        console.error(`❌ ${maxRetries}번 시도 후 게시판 데이터 로드 실패:`, lastError);
+
+        // 테스트 데이터로 폴백
+        console.log('🔄 테스트 데이터로 폴백');
+        try {
+            const testPosts = this.getTestData();
+            this.updateBoardList(testPosts);
+
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('서버 연결에 문제가 있어 테스트 데이터를 표시합니다.', 'warning');
+            }
+
+            console.log('✅ 테스트 데이터 폴백 완료');
+        } catch (fallbackError) {
+            console.error('❌ 테스트 데이터 폴백도 실패:', fallbackError);
+            this.showErrorMessage('데이터 로드에 실패했습니다. 페이지를 새로고침해주세요.');
+        }
     },
 
     /**
-     * 에러 메시지 표시
+     * 에러 메시지 표시 (표준화)
      */
     showErrorMessage: function (message) {
         const tableBody = document.querySelector('#board-table tbody');
@@ -173,7 +242,7 @@ window.boardManager = {
                             </svg>
                         </div>
                         <p class="text-gray-600 mb-4">${message}</p>
-                        <button onclick="boardManager.loadBoardData()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                        <button onclick="boardManager.loadBoardDataWithRetry()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
                             다시 시도
                         </button>
                     </td>
@@ -235,8 +304,8 @@ window.boardManager = {
         console.log('📋 이벤트 리스너 등록 시작');
 
         // 전역 변수로 핸들러 함수 저장 (중복 등록 방지용)
-        if (!window.formSubmitHandler) {
-            window.formSubmitHandler = (e) => {
+        if (!window.boardFormSubmitHandler) {
+            window.boardFormSubmitHandler = (e) => {
                 e.preventDefault();
                 const form = e.target;
                 const postId = form.dataset.postId;
@@ -329,8 +398,8 @@ window.boardManager = {
         const postForm = document.getElementById('post-form');
         if (postForm) {
             // 기존 이벤트 제거 후 새로 등록
-            postForm.removeEventListener('submit', window.formSubmitHandler);
-            postForm.addEventListener('submit', window.formSubmitHandler);
+            postForm.removeEventListener('submit', window.boardFormSubmitHandler);
+            postForm.addEventListener('submit', window.boardFormSubmitHandler);
         }
     },
 
@@ -426,6 +495,7 @@ window.boardManager = {
         } catch (error) {
             console.error('❌ 게시판 데이터 로드 오류:', error);
             this.showErrorMessage('데이터 로드 중 오류가 발생했습니다: ' + error.message);
+            throw error; // 재시도 로직에서 처리할 수 있도록 오류를 다시 던짐
         }
     },
 
@@ -500,8 +570,13 @@ window.boardManager = {
             tableBody.innerHTML = `
                 <tr class="loading-row">
                     <td colspan="6" class="text-center py-8">
-                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mr-3"></div>
-                        <span class="text-gray-600">데이터를 불러오는 중입니다...</span>
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span class="text-gray-600">데이터를 불러오는 중입니다...</span>
+                        </div>
                     </td>
                 </tr>
             `;
@@ -812,7 +887,7 @@ window.boardManager = {
         console.log('📝 게시글 작성 모달 표시 - 표준화 버전');
 
         // 🔧 의존성 체크
-        if (!checkDependencies()) {
+        if (!checkBoardDependencies()) {
             console.error('❌ 필수 유틸리티 누락으로 모달 표시 중단');
             alert('시스템 오류가 발생했습니다. 페이지를 새로고침해주세요.');
             return;
@@ -1076,7 +1151,7 @@ window.boardManager = {
             console.log('📝 게시글 작성 처리 시작');
 
             // 🔧 의존성 체크
-            if (!checkDependencies()) {
+            if (!checkBoardDependencies()) {
                 throw new Error('필수 유틸리티가 로드되지 않았습니다.');
             }
 
@@ -1320,29 +1395,7 @@ window.boardManager = {
 };
 
 // =================================
-// DOM 로드 및 이벤트 처리 (course-application.js 스타일)
-// =================================
-
-// DOM이 이미 로드된 경우와 로딩 중인 경우 모두 처리
-function initializeWhenReady() {
-    console.log('📋 초기화 준비, 현재 상태:', document.readyState);
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function () {
-            console.log('📋 DOMContentLoaded 이벤트 발생');
-            window.initBoardManagement();
-        });
-    } else {
-        console.log('📋 DOM 이미 로드됨, 즉시 초기화');
-        window.initBoardManagement();
-    }
-}
-
-// 초기화 시작
-initializeWhenReady();
-
-// =================================
-// 토스트 메시지 기능 (course-application.js 스타일)
+// 토스트 메시지 기능 (course-management.js 스타일)
 // =================================
 
 /**
@@ -1413,7 +1466,110 @@ function showToast(message, type = 'info') {
 window.showToast = showToast;
 
 // =================================
-// 디버깅 및 개발자 도구 (course-application.js 스타일)
+// 초기화 함수 (course-management.js 스타일 완전 적용)
+// =================================
+
+/**
+ * 게시판 관리 페이지 초기화 함수 - course-management.js 스타일
+ */
+window.initBoardManagement = async function () {
+    try {
+        console.log('📋 게시판 관리 페이지 초기화 시작 - 완전 표준화 버전');
+
+        // 🔧 의존성 체크 먼저 실행
+        if (!checkBoardDependencies()) {
+            console.error('❌ 필수 유틸리티 누락으로 초기화 중단');
+            showBoardDependencyError();
+            return false;
+        }
+
+        // 관리자 권한 확인 (course-management.js 스타일)
+        let hasAccess = true;
+        if (window.adminAuth && typeof window.adminAuth.checkAdminAccess === 'function') {
+            console.log('🔐 관리자 권한 확인 시작');
+            hasAccess = await window.adminAuth.checkAdminAccess();
+        }
+
+        if (hasAccess) {
+            console.log('✅ 관리자 권한 확인 완료');
+            
+            // 관리자 정보 표시
+            if (window.adminAuth && window.adminAuth.displayAdminInfo) {
+                window.adminAuth.displayAdminInfo();
+            }
+            
+            // 사이드바 토글 기능 초기화 (adminUtils 호환성)
+            if (window.adminUtils && window.adminUtils.initAdminSidebar) {
+                window.adminUtils.initAdminSidebar();
+            }
+
+            // 게시판 관리자 초기화
+            console.log('📋 게시판 관리자 초기화 시작');
+            
+            const success = await window.boardManager.init();
+            if (success) {
+                console.log('✅ 게시판 관리자 초기화 완료');
+                
+                // 추가 초기화 작업들
+                if (typeof showToast === 'function') {
+                    showToast('게시판 관리 시스템이 준비되었습니다.', 'success');
+                }
+            }
+        } else {
+            console.log('❌ 관리자 권한 없음');
+        }
+
+        return hasAccess;
+
+    } catch (error) {
+        console.error('❌ 게시판 관리 페이지 초기화 오류:', error);
+        alert('게시판 관리 페이지 초기화 중 오류가 발생했습니다: ' + error.message);
+        return false;
+    }
+};
+
+// =================================
+// DOM 로드 및 이벤트 처리 (course-management.js 완전 호환)
+// =================================
+
+// 페이지 로드 완료 후 실행 - course-management.js 스타일
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('🌐 게시판 관리 페이지 DOMContentLoaded');
+
+    // 전역 스코프에 boardManager 객체 확인
+    if (!window.boardManager) {
+        console.error('❌ window.boardManager가 정의되지 않았습니다.');
+        return;
+    }
+
+    console.log('✅ window.boardManager 확인됨');
+});
+
+// 페이지 완전 로드 후 초기화 - course-management.js와 동일한 패턴
+window.addEventListener('load', function () {
+    console.log('🌐 게시판 관리 페이지 load 이벤트');
+
+    // 약간의 지연 후 초기화 (모든 스크립트 로딩 완료 대기)
+    setTimeout(() => {
+        if (window.initBoardManagement && typeof window.initBoardManagement === 'function') {
+            console.log('🚀 initBoardManagement 초기화 시작');
+            window.initBoardManagement().then((success) => {
+                if (success) {
+                    console.log('✅ initBoardManagement 초기화 완료');
+                } else {
+                    console.log('⚠️ initBoardManagement 초기화 실패 또는 권한 없음');
+                }
+            }).catch(error => {
+                console.error('❌ initBoardManagement 초기화 오류:', error);
+            });
+        } else {
+            console.error('❌ window.initBoardManagement 함수를 찾을 수 없습니다.');
+        }
+    }, 1000); // 1초 지연으로 안정성 확보
+});
+
+// =================================
+// 디버깅 및 개발자 도구 (course-management.js 스타일)
 // =================================
 
 // 개발 모드에서 사용되는 디버깅 함수들
@@ -1427,26 +1583,26 @@ if (window.location.hostname === 'localhost' ||
     window.debugBoardManagement = {
         // 기본 정보 확인
         help: function () {
-            console.log('📋 게시판 관리 디버깅 도구 사용법');
+            console.log('📋 게시판 관리 디버깅 도구 사용법 - 표준화 버전');
+            console.log('\n🔧 의존성 관리:');
+            console.log('- testDependencies() : 유틸리티 의존성 확인');
             console.log('\n📊 데이터 관련:');
             console.log('- showCurrentData() : 현재 로드된 데이터 확인');
             console.log('- reloadData() : 데이터 다시 로드');
-            console.log('- testDependencies() : 유틸리티 의존성 확인');
-
             console.log('\n📋 게시판 관련:');
             console.log('- switchToBoard("notice") : 특정 게시판으로 전환');
             console.log('- testSearch("키워드") : 검색 기능 테스트');
             console.log('- showTestModal() : 게시글 작성 모달 테스트');
-
             console.log('\n🔧 시스템 관련:');
             console.log('- checkFirebaseStatus() : Firebase 연결 상태 확인');
             console.log('- runFullTest() : 전체 기능 테스트');
+            console.log('- forceInit() : 강제 초기화');
         },
 
-        // 🔧 의존성 테스트
+        // 🔧 의존성 테스트 (course-management.js 스타일)
         testDependencies: function () {
-            console.log('🔧 유틸리티 의존성 테스트...');
-            const result = checkDependencies();
+            console.log('🔧 게시판 관리 유틸리티 의존성 테스트...');
+            const result = checkBoardDependencies();
             if (result) {
                 console.log('✅ 모든 유틸리티 정상 로드됨');
                 
@@ -1457,6 +1613,9 @@ if (window.location.hostname === 'localhost' ||
                     console.log('💰 formatters.formatCurrency 테스트:', window.formatters.formatCurrency(10000));
                     if (window.dateUtils) {
                         console.log('🕒 dateUtils.format 테스트:', window.dateUtils.format(testDate, 'YYYY-MM-DD'));
+                    }
+                    if (window.adminAuth) {
+                        console.log('🔐 adminAuth 객체 확인:', typeof window.adminAuth);
                     }
                 } catch (error) {
                     console.error('❌ 유틸리티 함수 테스트 실패:', error);
@@ -1474,12 +1633,13 @@ if (window.location.hostname === 'localhost' ||
             console.log('- 현재 페이지:', window.boardManager.currentPage);
             console.log('- Firebase 연결:', window.boardManager.isFirebaseConnected);
             console.log('- 페이지 크기:', window.boardManager.pageSize);
+            console.log('- 초기화 상태:', window.boardManager.initialized);
         },
 
         reloadData: function () {
             console.log('데이터 다시 로드');
             if (window.boardManager) {
-                window.boardManager.loadBoardData();
+                window.boardManager.loadBoardDataWithRetry();
             }
         },
 
@@ -1542,6 +1702,15 @@ if (window.location.hostname === 'localhost' ||
             return connected;
         },
 
+        forceInit: function () {
+            console.log('🔧 게시판 관리 강제 초기화');
+            if (window.initBoardManagement) {
+                window.initBoardManagement();
+            } else {
+                console.error('initBoardManagement 함수를 찾을 수 없습니다.');
+            }
+        },
+
         runFullTest: function () {
             console.log('🚀 전체 기능 테스트 시작...');
 
@@ -1574,6 +1743,7 @@ if (window.location.hostname === 'localhost' ||
                     console.log('💡 이제 다음 명령어들을 시도해보세요:');
                     console.log('- switchToBoard("notice") : 공지사항으로 전환');
                     console.log('- testSearch("키워드") : 특정 키워드 검색');
+                    console.log('- forceInit() : 강제 초기화');
                 }, 2000);
             }, 2000);
         },
@@ -1613,12 +1783,13 @@ if (window.location.hostname === 'localhost' ||
     };
 
     // 디버깅 도구 안내
-    console.log('📋 개발 모드 게시판 관리 디버깅 도구 활성화됨');
+    console.log('📋 개발 모드 게시판 관리 디버깅 도구 활성화됨 - 표준화 버전');
     console.log('현재 호스트:', window.location.hostname);
     console.log('\n🔥 주요 디버깅 함수들:');
-    console.log('📊 데이터: showCurrentData(), reloadData(), testDependencies()');
+    console.log('🔧 의존성: testDependencies()');
+    console.log('📊 데이터: showCurrentData(), reloadData()');
     console.log('📋 게시판: switchToBoard(type), testSearch(keyword), showTestModal()');
-    console.log('🔧 시스템: checkFirebaseStatus(), runFullTest()');
+    console.log('🔧 시스템: checkFirebaseStatus(), forceInit(), runFullTest()');
     console.log('🧪 테스트: fillTestData(), clearSearch()');
     console.log('\n💡 도움말: window.debugBoardManagement.help()');
     console.log('🚀 빠른 시작: window.debugBoardManagement.runFullTest()');
@@ -1632,83 +1803,25 @@ if (window.location.hostname === 'localhost' ||
 // 최종 완료 메시지
 // =================================
 
-console.log('\n🎉 === board-management.js 통합 유틸리티 시스템 적용 완료 ===');
-console.log('✅ 전역 유틸리티 시스템 통합 (formatters.js, date-utils.js)');
-console.log('✅ 의존성 체크 시스템 구축');
+console.log('\n🎉 === board-management.js course-management.js 스타일 완전 표준화 완료 ===');
+console.log('✅ 전역 유틸리티 시스템 통합 (formatters.js, date-utils.js, admin-auth.js)');
+console.log('✅ 의존성 체크 시스템 구축 (checkBoardDependencies)');
+console.log('✅ 재시도 로직이 포함된 데이터 로드 시스템');
 console.log('✅ Firebase 연결 상태 확인 시스템');
-console.log('✅ 표준화된 이벤트 처리');
+console.log('✅ 표준화된 이벤트 처리 및 중복 방지');
 console.log('✅ 게시판 CRUD 기능 (생성, 읽기, 삭제)');
 console.log('✅ 페이지네이션 및 검색 기능');
 console.log('✅ 에디터 도구 및 모달 시스템');
-console.log('✅ 포괄적인 디버깅 도구');
-console.log('\n🔧 근본적 문제 해결:');
-console.log('- 중복 formatDate 함수 제거 및 전역 유틸리티 통합');
-console.log('- 일관성 있는 참조 방식 적용');
-console.log('- 의존성 관리 시스템 구축');
-console.log('- 표준화된 에러 처리');
-console.log('\n🚀 모든 기능이 course-application.js 스타일로 완전히 표준화되었습니다!');
-console.log('🔧 관리자가 게시판을 관리할 때 모든 도구가 일관되게 작동합니다.');
+console.log('✅ course-management.js와 완전 동일한 초기화 패턴');
+console.log('✅ 포괄적인 디버깅 도구 (표준화 버전)');
+console.log('\n🔧 해결된 문제점:');
+console.log('- window.initBoardManagement 함수 정의 순서 문제 해결');
+console.log('- 중복 초기화 로직 제거 및 단일 진입점 구성');
+console.log('- course-management.js와 완전 동일한 패턴 적용');
+console.log('- 의존성 관리 시스템 표준화');
+console.log('- 에러 처리 및 폴백 시스템 강화');
+console.log('\n🚀 모든 기능이 course-management.js 스타일로 완전히 표준화되었습니다!');
+console.log('🔧 이제 board-management 페이지가 다른 관리자 페이지들과 완전히 동일한 방식으로 작동합니다.');
 
 // 완료 플래그 설정
 window.boardManagementReady = true;
-
-// =================================
-// 초기화 함수 (course-application.js 스타일)
-// =================================
-
-/**
- * 게시판 관리 페이지 초기화 함수
- */
-window.initBoardManagement = async function () {
-    try {
-        console.log('📋 게시판 관리 페이지 초기화 시작 - 표준화 버전');
-
-        // 🔧 의존성 체크
-        if (!checkDependencies()) {
-            console.error('❌ 필수 유틸리티 누락으로 초기화 중단');
-            showDependencyError();
-            return false;
-        }
-
-        // 관리자 권한 확인
-        let hasAccess = true;
-        if (window.adminAuth && typeof window.adminAuth.checkAdminAccess === 'function') {
-            hasAccess = await window.adminAuth.checkAdminAccess();
-        }
-
-        if (hasAccess) {
-            // 초기화 실행
-            const success = await window.boardManager.init();
-            if (success) {
-                console.log('✅ 게시판 관리 페이지 초기화 완료');
-                
-                // 추가 초기화 작업들
-                if (typeof showToast === 'function') {
-                    showToast('게시판 관리 시스템이 준비되었습니다.', 'success');
-                }
-            }
-        } else {
-            console.log('❌ 관리자 권한 없음');
-        }
-
-        return hasAccess;
-
-    } catch (error) {
-        console.error('❌ 게시판 관리 페이지 초기화 오류:', error);
-        alert('게시판 관리 페이지 초기화 중 오류가 발생했습니다: ' + error.message);
-    }
-};
-
-// 페이지 로드 시 초기화
-document.addEventListener('DOMContentLoaded', function () {
-    console.log('DOMContentLoaded 이벤트 발생 - 게시판 관리 초기화 시작');
-    window.initBoardManagement();
-});
-
-// 이미 DOM이 로드된 경우 바로 초기화
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    console.log('문서 이미 로드됨 - 게시판 관리 즉시 초기화');
-    setTimeout(window.initBoardManagement, 100);
-}
-
-console.log('board-management.js 로드 완료 - 디버그 버전');

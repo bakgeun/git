@@ -196,35 +196,43 @@
                         <!-- 검색 유형 선택 -->
                         <div>
                             <label for="search-type" class="block text-sm font-medium text-gray-700 mb-1">검색 유형</label>
-                            <select id="search-type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <select id="search-type"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500">
                                 <option value="title">제목</option>
                                 <option value="content">내용</option>
                                 <option value="author">작성자</option>
                             </select>
                         </div>
-                        
+
                         <!-- 검색 키워드 -->
                         <div>
                             <label for="search-keyword" class="block text-sm font-medium text-gray-700 mb-1">검색어</label>
-                            <input type="text" id="search-keyword" placeholder="검색어를 입력하세요" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <input type="text" id="search-keyword" placeholder="검색어를 입력하세요"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500">
                         </div>
-                        
+
                         <!-- 검색 버튼 -->
                         <div class="flex items-end">
-                            <button onclick="boardManager.search()" class="w-full bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                                <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            <button onclick="boardManager.search()"
+                                class="w-full bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                 </svg>
                                 검색
                             </button>
                         </div>
                     </div>
-                    
+
                     <!-- 검색 초기화 버튼 -->
                     <div class="mt-4 text-right">
                         <button onclick="boardManager.resetSearch()" class="text-sm text-gray-500 hover:text-gray-700">
-                            <svg class="inline-block w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            <svg class="inline-block w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                </path>
                             </svg>
                             초기화
                         </button>
@@ -239,8 +247,7 @@
                     <h2 class="text-lg md:text-xl font-semibold text-gray-800">
                         <span id="board-title">공지사항</span> 목록
                     </h2>
-                    <button id="add-post-button"
-                        class="admin-btn admin-btn-primary whitespace-nowrap">
+                    <button id="add-post-button" class="admin-btn admin-btn-primary whitespace-nowrap">
                         <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -297,7 +304,7 @@
                                 <option value="">-- 카테고리 선택 --</option>
                             </select>
                         </div>
-                        
+
                         <!-- 제목 -->
                         <div class="form-group">
                             <label for="post-title" class="block text-sm font-medium text-gray-700 mb-1">제목</label>
@@ -305,7 +312,7 @@
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
                                 placeholder="게시글 제목을 입력하세요">
                         </div>
-                        
+
                         <!-- 내용 -->
                         <div class="form-group content-group">
                             <label for="post-content" class="block text-sm font-medium text-gray-700 mb-1">내용</label>
@@ -313,14 +320,14 @@
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
                                 placeholder="게시글 내용을 입력하세요"></textarea>
                         </div>
-                        
+
                         <!-- 폼 액션 버튼 -->
                         <div class="flex justify-end space-x-3 pt-4">
                             <button type="button" onclick="boardManager.closePostModal()"
                                 class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                                 취소
                             </button>
-                            <button type="submit" 
+                            <button type="submit"
                                 class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                                 저장
                             </button>
@@ -369,126 +376,20 @@
     <script src="{basePath}assets/js/pages/admin/board-management.js"><\/script>
 </script>
 
-    <!-- 🔧 표준화된 초기화 스크립트 -->
+    <!-- 🔧 course-management.js 스타일 완전 표준화된 초기화 스크립트 -->
     <script>
-        console.log('=== 게시판 관리 페이지 초기화 시작 ===');
+        console.log('=== 게시판 관리 페이지 HTML 초기화 시작 ===');
 
-        // 의존성 체크 함수 (course-application.js 스타일)
-        function checkDependencies() {
-            const requiredUtils = [
-                { name: 'window.formatters', path: 'formatters.js' },
-                { name: 'window.dateUtils', path: 'date-utils.js' },
-                { name: 'window.adminAuth', path: 'admin-auth.js' }
-            ];
-            
-            const missing = [];
-            
-            requiredUtils.forEach(util => {
-                if (!eval(util.name)) {
-                    missing.push(util);
-                }
-            });
-            
-            if (missing.length > 0) {
-                console.error('⚠️ 필수 유틸리티가 로드되지 않음:', missing.map(m => m.path));
-                return false;
-            }
-            
-            console.log('✅ 모든 필수 유틸리티 로드 확인됨');
-            return true;
-        }
+        // 🚨 중요: 모든 초기화 로직은 board-management.js에서 처리됩니다.
+        // HTML에서는 단순히 스크립트 로딩만 담당하고, 실제 초기화는 JS 파일에서 수행합니다.
 
-        // Firebase 연결 상태 확인
-        function checkFirebaseConnection() {
-            if (!window.dhcFirebase || !window.dhcFirebase.db) {
-                console.warn('⚠️ Firebase 연결되지 않음 - 로컬 테스트 모드로 실행');
-                return false;
-            }
-            
-            console.log('✅ Firebase 연결 확인됨');
-            return true;
-        }
+        console.log('📋 게시판 관리 페이지 HTML 로드 완료');
+        console.log('⏳ board-management.js의 초기화를 대기 중...');
 
-        // 페이지 초기화 함수
-        async function initBoardManagementPage() {
-            try {
-                console.log('🔧 의존성 체크 시작');
-                
-                // 의존성 체크
-                if (!checkDependencies()) {
-                    console.error('❌ 필수 유틸리티 누락으로 초기화 중단');
-                    alert('시스템 초기화 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
-                    return;
-                }
+        // course-management.js와 동일한 패턴으로 간소화
+        // 실제 초기화는 board-management.js의 window.addEventListener('load', ...) 에서 처리됩니다.
 
-                // Firebase 연결 확인
-                const firebaseConnected = checkFirebaseConnection();
-                
-                console.log('🔐 관리자 권한 확인 시작');
-                
-                // 관리자 권한 확인
-                const hasAccess = await window.adminAuth.checkAdminAccess();
-                
-                if (hasAccess) {
-                    console.log('✅ 관리자 권한 확인 완료');
-                    
-                    // 관리자 정보 표시
-                    window.adminAuth.displayAdminInfo();
-                    
-                    // 사이드바 토글 기능 초기화
-                    if (window.adminUtils && window.adminUtils.initAdminSidebar) {
-                        window.adminUtils.initAdminSidebar();
-                    }
-
-                    // 게시판 관리자 초기화
-                    console.log('📋 게시판 관리자 초기화 시작');
-                    
-                    // boardManager 로드 대기
-                    let retryCount = 0;
-                    const maxRetries = 50;
-                    
-                    while (!window.boardManager && retryCount < maxRetries) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                        retryCount++;
-                    }
-                    
-                    if (window.boardManager) {
-                        console.log('✅ boardManager 로드 완료');
-                        await window.boardManager.init();
-                        console.log('✅ 게시판 관리자 초기화 완료');
-                    } else {
-                        console.error('❌ boardManager 로드 실패');
-                        alert('게시판 관리자 초기화에 실패했습니다.');
-                    }
-                } else {
-                    console.log('❌ 관리자 권한 없음');
-                }
-                
-            } catch (error) {
-                console.error('❌ 게시판 관리 페이지 초기화 오류:', error);
-                alert('페이지 초기화 중 오류가 발생했습니다: ' + error.message);
-            }
-        }
-
-        // DOM이 이미 로드된 경우와 로딩 중인 경우 모두 처리
-        function initializeWhenReady() {
-            console.log('📋 초기화 준비, 현재 상태:', document.readyState);
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', function () {
-                    console.log('📋 DOMContentLoaded 이벤트 발생');
-                    initBoardManagementPage();
-                });
-            } else {
-                console.log('📋 DOM 이미 로드됨, 즉시 초기화');
-                initBoardManagementPage();
-            }
-        }
-
-        // 초기화 시작
-        initializeWhenReady();
-
-        console.log('=== 게시판 관리 페이지 스크립트 로딩 완료 ===');
+        console.log('=== 게시판 관리 페이지 HTML 스크립트 로딩 완료 ===');
     </script>
 </body>
 
