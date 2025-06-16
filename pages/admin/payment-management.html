@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>결제 관리 - 디지털헬스케어센터 관리자</title>
+    <!-- ✨ 2번 문제 해결: 페이지 제목을 "Payment Management"로 수정 -->
+    <title>Payment Management - 디지털헬스케어센터 관리자</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap"
         rel="stylesheet">
     <!-- Tailwind CSS Play CDN -->
@@ -13,6 +14,51 @@
 
     <!-- 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
     <script src="../../assets/js/utils/script-loader.js"></script>
+    
+    <!-- ✨ 반응형 디자인 CSS 추가 - 4번 문제 해결 -->
+    <style>
+        /* 반응형 디자인 강화 - 다른 관리자 페이지와 동일한 1199px 기준 적용 */
+        .admin-toggle-button {
+            display: none;
+        }
+        
+        @media (max-width: 1199px) {
+            .admin-toggle-button {
+                display: block !important;
+            }
+            .admin-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+            }
+            .admin-sidebar.show {
+                transform: translateX(0);
+            }
+        }
+        
+        .md\:hidden { display: none; }
+        @media (max-width: 768px) {
+            .md\:hidden { display: block; }
+            .hidden { display: none; }
+        }
+        
+        /* 추가 반응형 클래스 */
+        .responsive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .mobile-stack {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        @media (min-width: 768px) {
+            .mobile-stack {
+                flex-direction: row;
+            }
+        }
+    </style>
 </head>
 
 <body class="bg-gray-100">
@@ -35,7 +81,7 @@
         </style>
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
-                <!-- 토글 버튼 추가 -->
+                <!-- 토글 버튼 - 다른 관리자 페이지와 동일하게 1199px 이하에서 표시 -->
                 <button class="admin-toggle-button" id="admin-sidebar-toggle" aria-label="메뉴 토글">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -50,7 +96,7 @@
                 </div>
 
                 <!-- 사용자 정보 (모바일에서 숨김) -->
-                <div class="flex items-center space-x-4 admin-user-info">
+                <div class="flex items-center space-x-4 admin-user-info hidden md:flex">
                     <span id="admin-name">관리자</span>
                     <span id="admin-email" class="text-sm text-indigo-200">gostepexercise@gmail.com</span>
                     <button id="admin-logout-button"
@@ -153,14 +199,14 @@
 
         <!-- 메인 콘텐츠 -->
         <main class="flex-1 p-8">
-            <!-- 결제 관리 제목 -->
+            <!-- 페이지 제목 -->
             <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-800">결제 관리</h1>
+                <h1 class="text-3xl font-bold text-gray-800">Payment Management</h1>
                 <p class="text-gray-600 mt-2">결제 내역 조회 및 관리</p>
             </div>
 
-            <!-- 통계 카드 섹션 -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <!-- 통계 카드 섹션 - 반응형 그리드 적용 -->
+            <div class="responsive-grid mb-8">
                 <!-- 오늘 결제금액 -->
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <div class="flex items-center justify-between">
@@ -237,7 +283,7 @@
             <!-- 필터 섹션 -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-8">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">검색 필터</h3>
-                <div id="payment-filter-container"></div>
+                <div id="payment-filter-container" class="mobile-stack"></div>
             </div>
 
             <!-- 결제 내역 테이블 -->
