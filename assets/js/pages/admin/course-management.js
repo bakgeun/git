@@ -614,6 +614,35 @@ window.courseManager = {
     },
 
     /**
+     * 검색 필터 초기화
+     */
+    resetFilters: function () {
+        console.log('검색 필터 초기화');
+
+        // 검색 필드 초기화
+        const searchInput = document.getElementById('search-course-name');
+        if (searchInput) searchInput.value = '';
+
+        const certificateTypeFilter = document.getElementById('filter-certificate-type');
+        if (certificateTypeFilter) certificateTypeFilter.value = '';
+
+        const statusFilter = document.getElementById('filter-status');
+        if (statusFilter) statusFilter.value = '';
+
+        // 페이지 상태 초기화
+        this.currentPage = 1;
+        this.lastDoc = null;
+
+        // 데이터 새로고침
+        this.loadCourses();
+
+        // 사용자 피드백
+        if (window.adminAuth && window.adminAuth.showNotification) {
+            window.adminAuth.showNotification('검색 필터가 초기화되었습니다.', 'info');
+        }
+    },
+
+    /**
      * 교육 과정 테이블 업데이트
      */
     updateCourseTable: function (courses) {
@@ -621,12 +650,18 @@ window.courseManager = {
 
         if (!courses || courses.length === 0) {
             tbody.innerHTML = `
-                <tr>
-                    <td colspan="9" class="text-center py-4 text-gray-500">
-                        데이터가 없습니다.
-                    </td>
-                </tr>
-            `;
+            <tr>
+                <td colspan="9" class="admin-empty-state">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                        </path>
+                    </svg>
+                    <h3>등록된 교육 과정이 없습니다</h3>
+                    <p>새로운 교육 과정을 추가해보세요.</p>
+                </td>
+            </tr>
+        `;
             return;
         }
 
@@ -643,12 +678,18 @@ window.courseManager = {
 
         if (filteredCourses.length === 0) {
             tbody.innerHTML = `
-                <tr>
-                    <td colspan="9" class="text-center py-4 text-gray-500">
-                        검색 결과가 없습니다.
-                    </td>
-                </tr>
-            `;
+            <tr>
+                <td colspan="9" class="admin-empty-state">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z">
+                        </path>
+                    </svg>
+                    <h3>검색 결과가 없습니다</h3>
+                    <p>다른 검색어로 시도해보세요.</p>
+                </td>
+            </tr>
+        `;
             return;
         }
 
@@ -673,42 +714,61 @@ window.courseManager = {
 
                 const getStatusBadge = (status) => {
                     const badges = {
-                        'active': '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">모집중</span>',
-                        'closed': '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">마감</span>',
-                        'completed': '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">종료</span>',
-                        'preparing': '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">준비중</span>'
+                        'active': '<span class="status-badge status-active">모집중</span>',
+                        'closed': '<span class="status-badge status-suspended">마감</span>',
+                        'completed': '<span class="status-badge status-inactive">종료</span>',
+                        'preparing': '<span class="status-badge status-available">준비중</span>'
                     };
-                    return badges[status] || status;
+                    return badges[status] || `<span class="status-badge status-inactive">${status}</span>`;
                 };
 
                 // 기수 생성
                 const coursePeriod = this.generateCoursePeriod(startDate);
 
+                // 🎯 반응형 테이블: data-label 속성 추가
                 html += `
-                    <tr>
-                        <td>${this.getCertificateName(course.certificateType)}</td>
-                        <td>${coursePeriod}</td>
-                        <td>${course.instructor || '-'}</td>
-                        <td>${formatDate(startDate)} ~ ${formatDate(endDate)}</td>
-                        <td>${formatDate(applyStartDate)} ~ ${formatDate(applyEndDate)}</td>
-                        <td>${formatCurrency(course.price)}</td>
-                        <td>${course.enrolledCount || 0}/${course.capacity}명</td>
-                        <td>${getStatusBadge(course.status)}</td>
-                        <td>
-                            <div class="flex space-x-2">
-                                <button onclick="courseManager.viewCourse('${course.id}')" class="text-blue-600 hover:text-blue-800">
-                                    상세
-                                </button>
-                                <button onclick="courseManager.editCourse('${course.id}')" class="text-indigo-600 hover:text-indigo-800">
-                                    수정
-                                </button>
-                                <button onclick="courseManager.deleteCourse('${course.id}')" class="text-red-600 hover:text-red-800">
-                                    삭제
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td data-label="자격증">${this.getCertificateName(course.certificateType)}</td>
+                    <td data-label="기수">${coursePeriod}</td>
+                    <td data-label="강사">${course.instructor || '-'}</td>
+                    <td data-label="교육기간">${formatDate(startDate)} ~ ${formatDate(endDate)}</td>
+                    <td data-label="신청기간">${formatDate(applyStartDate)} ~ ${formatDate(applyEndDate)}</td>
+                    <td data-label="수강료">${formatCurrency(course.price)}</td>
+                    <td data-label="정원/신청자">${course.enrolledCount || 0}/${course.capacity}명</td>
+                    <td data-label="상태">${getStatusBadge(course.status)}</td>
+                    <td data-label="작업">
+                        <div class="table-actions">
+                            <button onclick="courseManager.viewCourse('${course.id}')" 
+                                class="table-action-btn btn-view" title="상세 보기">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                    </path>
+                                </svg>
+                                상세
+                            </button>
+                            <button onclick="courseManager.editCourse('${course.id}')" 
+                                class="table-action-btn btn-edit" title="수정">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                    </path>
+                                </svg>
+                                수정
+                            </button>
+                            <button onclick="courseManager.deleteCourse('${course.id}')" 
+                                class="table-action-btn btn-delete" title="삭제">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                    </path>
+                                </svg>
+                                삭제
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
 
             } catch (error) {
                 console.error('과정 렌더링 오류:', course, error);
@@ -1271,7 +1331,7 @@ if (window.location.hostname === 'localhost' ||
                 return false;
             }
         },
-        
+
         // 강사 목록 확인
         showInstructors: function () {
             console.log('현재 강사 목록:', window.courseManager.instructors);

@@ -738,89 +738,141 @@ window.userManager = {
 
         if (!users || users.length === 0) {
             userList.innerHTML = `
-                <tr>
-                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">
-                        등록된 회원이 없습니다.
-                    </td>
-                </tr>
-            `;
+            <tr>
+                <td colspan="7" class="admin-empty-state">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                        </path>
+                    </svg>
+                    <h3>등록된 회원이 없습니다</h3>
+                    <p>새로운 회원이 가입하면 여기에 표시됩니다.</p>
+                </td>
+            </tr>
+        `;
             return;
         }
 
         let html = '';
 
         users.forEach((user, index) => {
-            // 🔧 전역 유틸리티 사용
+            // 🔧 전역 유틸리티 사용하여 날짜 포맷팅
             const createdAt = user.createdAt ?
                 (typeof user.createdAt.toDate === 'function' ?
                     window.formatters.formatDate(user.createdAt.toDate()) :
                     user.createdAt) :
                 '-';
 
-            const isAdmin = user.userType === 'admin';
+            const userNumber = index + 1 + ((this.currentPage - 1) * this.pageSize);
+            const displayName = user.displayName || '미설정';
+            const email = user.email || '';
+            const userType = user.userType || 'student';
+            const status = user.status || 'active';
+
+            const isAdmin = userType === 'admin';
             const canEdit = !isAdmin;
 
+            // 상태 및 유형 정보
+            const statusInfo = this.getStatusInfo(status);
+            const userTypeInfo = this.getUserTypeInfo(userType);
+
             html += `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">${index + 1 + ((this.currentPage - 1) * this.pageSize)}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="text-sm font-medium text-gray-900">${user.displayName || '미설정'}</div>
-                            ${isAdmin ? '<span class="ml-2 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">관리자</span>' : ''}
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">${user.email}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <span class="text-sm text-gray-900">${this.getUserTypeName(user.userType)}</span>
-                            ${canEdit ? `
-                                <button onclick="userManager.quickRoleChange('${user.id}', '${user.userType}')" 
-                                    class="ml-2 text-xs text-indigo-600 hover:text-indigo-900 underline">
-                                    변경
-                                </button>
-                            ` : ''}
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                ${this.getStatusBadgeClass(user.status)}">
-                                ${this.getStatusName(user.status)}
-                            </span>
-                            ${canEdit ? `
-                                <button onclick="userManager.quickStatusChange('${user.id}', '${user.status}')" 
-                                    class="ml-2 text-xs text-indigo-600 hover:text-indigo-900 underline">
-                                    변경
-                                </button>
-                            ` : ''}
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ${createdAt}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td data-label="번호">
+                    <div class="flex items-center">
+                        <span class="text-sm font-medium text-gray-900">${userNumber}</span>
+                    </div>
+                </td>
+                <td data-label="이름">
+                    <div class="flex items-center">
+                        <span class="text-sm font-medium text-gray-900">${displayName}</span>
+                        ${isAdmin ? '<span class="ml-2 user-type-badge type-admin">관리자</span>' : ''}
+                    </div>
+                </td>
+                <td data-label="이메일">
+                    <div class="text-sm text-gray-900 text-truncate">${email}</div>
+                </td>
+                <td data-label="회원 유형">
+                    <div class="flex items-center flex-wrap gap-2">
+                        <span class="user-type-badge ${userTypeInfo.class}">${userTypeInfo.text}</span>
+                        ${canEdit ? `
+                            <button onclick="userManager.quickRoleChange('${user.id}', '${userType}')" 
+                                class="table-action-btn btn-edit" title="권한 변경">
+                                변경
+                            </button>
+                        ` : ''}
+                    </div>
+                </td>
+                <td data-label="상태">
+                    <div class="flex items-center flex-wrap gap-2">
+                        <span class="status-badge ${statusInfo.class}">${statusInfo.text}</span>
+                        ${canEdit ? `
+                            <button onclick="userManager.quickStatusChange('${user.id}', '${status}')" 
+                                class="table-action-btn btn-edit" title="상태 변경">
+                                변경
+                            </button>
+                        ` : ''}
+                    </div>
+                </td>
+                <td data-label="가입일">
+                    <span class="text-sm text-gray-500">${createdAt}</span>
+                </td>
+                <td data-label="관리">
+                    <div class="table-actions">
                         ${canEdit ? `
                             <button onclick="userManager.editUser('${user.id}')" 
-                                class="text-indigo-600 hover:text-indigo-900 mr-3">
+                                class="table-action-btn btn-edit" title="회원 정보 수정">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                    </path>
+                                </svg>
                                 수정
                             </button>
                             <button onclick="userManager.deleteUser('${user.id}')" 
-                                class="text-red-600 hover:text-red-900">
+                                class="table-action-btn btn-delete" title="회원 삭제">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                    </path>
+                                </svg>
                                 삭제
                             </button>
                         ` : `
-                            <span class="text-gray-400">편집 불가</span>
+                            <span class="text-gray-400 text-sm">편집 불가</span>
                         `}
-                    </td>
-                </tr>
-            `;
+                    </div>
+                </td>
+            </tr>
+        `;
         });
 
         userList.innerHTML = html;
+    },
+
+    /**
+ * 🎯 상태 정보 가져오기 (개선된 버전)
+ */
+    getStatusInfo: function (status) {
+        const statusMap = {
+            'active': { text: '활성', class: 'status-active' },
+            'inactive': { text: '비활성', class: 'status-inactive' },
+            'suspended': { text: '정지', class: 'status-suspended' }
+        };
+        return statusMap[status] || { text: '알 수 없음', class: 'status-inactive' };
+    },
+
+    /**
+     * 🎯 사용자 유형 정보 가져오기 (새로 추가)
+     */
+    getUserTypeInfo: function (userType) {
+        const typeMap = {
+            'admin': { text: '관리자', class: 'type-admin' },
+            'instructor': { text: '강사', class: 'type-instructor' },
+            'student': { text: '수강생', class: 'type-student' },
+            'user': { text: '일반회원', class: 'type-student' }
+        };
+        return typeMap[userType] || { text: '일반회원', class: 'type-student' };
     },
 
     /**
@@ -1036,49 +1088,75 @@ window.userManager = {
 
         if (!paginationContainer) return;
 
+        if (totalPages <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
+        }
+
         let html = '';
 
-        if (totalPages > 1) {
-            html = '<div class="flex space-x-1">';
+        // 이전 페이지 버튼
+        html += `
+        <button onclick="userManager.changePage(${this.currentPage - 1})" 
+            class="admin-pagination-btn ${this.currentPage === 1 ? 'cursor-not-allowed opacity-50' : ''}"
+            ${this.currentPage === 1 ? 'disabled' : ''}>
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            <span class="hide-mobile">이전</span>
+        </button>
+    `;
 
-            html += `
-                <button onclick="userManager.changePage(${this.currentPage - 1})" 
-                    class="px-4 py-2 border rounded-md text-sm 
-                    ${this.currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50 text-gray-700'}"
-                    ${this.currentPage === 1 ? 'disabled' : ''}>
-                    이전
-                </button>
-            `;
+        // 페이지 번호 버튼들
+        const maxVisiblePages = window.innerWidth <= 480 ? 3 : 5;
+        let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
-            const maxVisiblePages = 5;
-            let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
-            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-            if (endPage - startPage + 1 < maxVisiblePages) {
-                startPage = Math.max(1, endPage - maxVisiblePages + 1);
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                html += `
-                    <button onclick="userManager.changePage(${i})" 
-                        class="px-4 py-2 border rounded-md text-sm 
-                        ${this.currentPage === i ? 'bg-indigo-600 text-white' : 'bg-white hover:bg-gray-50 text-gray-700'}">
-                        ${i}
-                    </button>
-                `;
-            }
-
-            html += `
-                <button onclick="userManager.changePage(${this.currentPage + 1})" 
-                    class="px-4 py-2 border rounded-md text-sm 
-                    ${this.currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50 text-gray-700'}"
-                    ${this.currentPage === totalPages ? 'disabled' : ''}>
-                    다음
-                </button>
-            `;
-
-            html += '</div>';
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
         }
+
+        // 첫 페이지가 표시 범위에 없으면 첫 페이지와 점선 추가
+        if (startPage > 1) {
+            html += `
+            <button onclick="userManager.changePage(1)" class="admin-pagination-btn">1</button>
+        `;
+            if (startPage > 2) {
+                html += `<span class="admin-pagination-btn cursor-default">...</span>`;
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            html += `
+            <button onclick="userManager.changePage(${i})" 
+                class="admin-pagination-btn page-number ${this.currentPage === i ? 'active' : ''}"
+                data-page="${i}">
+                ${i}
+            </button>
+        `;
+        }
+
+        // 마지막 페이지가 표시 범위에 없으면 점선과 마지막 페이지 추가
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                html += `<span class="admin-pagination-btn cursor-default">...</span>`;
+            }
+            html += `
+            <button onclick="userManager.changePage(${totalPages})" class="admin-pagination-btn">${totalPages}</button>
+        `;
+        }
+
+        // 다음 페이지 버튼
+        html += `
+        <button onclick="userManager.changePage(${this.currentPage + 1})" 
+            class="admin-pagination-btn ${this.currentPage === totalPages ? 'cursor-not-allowed opacity-50' : ''}"
+            ${this.currentPage === totalPages ? 'disabled' : ''}>
+            <span class="hide-mobile">다음</span>
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+        </button>
+    `;
 
         paginationContainer.innerHTML = html;
     },

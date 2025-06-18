@@ -194,34 +194,44 @@
             </div>
 
             <!-- 검색 필터 -->
-            <div class="bg-white rounded-lg shadow-md p-4 mb-6">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                        <label for="search-name" class="block text-sm font-medium text-gray-700 mb-2">이름 검색</label>
-                        <input type="text" id="search-name" placeholder="이름을 입력하세요"
-                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+            <div class="admin-filters-container">
+                <div class="admin-filters-grid">
+                    <div class="admin-filter-group">
+                        <label for="search-name" class="admin-filter-label">이름 검색</label>
+                        <input type="text" id="search-name" placeholder="이름을 입력하세요" class="admin-filter-input">
                     </div>
-                    <div>
-                        <label for="search-cert-number" class="block text-sm font-medium text-gray-700 mb-2">자격증
-                            번호</label>
+                    <div class="admin-filter-group">
+                        <label for="search-cert-number" class="admin-filter-label">자격증 번호</label>
                         <input type="text" id="search-cert-number" placeholder="자격증 번호를 입력하세요"
-                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            class="admin-filter-input">
                     </div>
-                    <div>
-                        <label for="filter-status" class="block text-sm font-medium text-gray-700 mb-2">상태</label>
-                        <select id="filter-status"
-                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    <div class="admin-filter-group">
+                        <label for="filter-status" class="admin-filter-label">상태</label>
+                        <select id="filter-status" class="admin-filter-select">
                             <option value="">전체</option>
                             <option value="active">유효</option>
                             <option value="expired">만료</option>
                             <option value="suspended">정지</option>
                         </select>
                     </div>
-                    <div class="flex items-end">
-                        <button onclick="certManager.search()" class="admin-btn admin-btn-primary w-full">
-                            검색
-                        </button>
-                    </div>
+                </div>
+                <div class="admin-filter-actions">
+                    <button onclick="certManager.resetFilters()" class="admin-btn admin-btn-secondary">
+                        <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                            </path>
+                        </svg>
+                        초기화
+                    </button>
+                    <button onclick="certManager.search()" class="admin-btn admin-btn-primary">
+                        <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z">
+                            </path>
+                        </svg>
+                        검색
+                    </button>
                 </div>
             </div>
 
@@ -251,8 +261,10 @@
                         </button>
                     </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table id="cert-table" class="admin-table">
+
+                <!-- 🎯 반응형 테이블 컨테이너 추가 -->
+                <div class="admin-table-container">
+                    <table id="cert-table" class="admin-table admin-table-responsive">
                         <thead>
                             <tr>
                                 <th>
@@ -270,13 +282,17 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td colspan="8" class="text-center py-4 text-gray-500">데이터 로딩 중...</td>
+                                <td colspan="8" class="admin-loading-state">
+                                    <div class="admin-loading-spinner"></div>
+                                    <span class="text-gray-600">데이터 로딩 중...</span>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
+
                 <!-- 페이지네이션 -->
-                <div id="cert-pagination" class="p-4 border-t border-gray-200"></div>
+                <div id="cert-pagination" class="admin-pagination"></div>
             </div>
         </main>
     </div>
@@ -416,6 +432,7 @@
     
     <!-- 🔧 4. 공통 컴포넌트 -->
     <script src="{basePath}assets/js/components/header.js"><\/script>
+    <script src="{basePath}assets/js/components/toast.js"><\/script>
     
     <!-- 🔧 5. 관리자 공통 스크립트 -->
     <script src="{basePath}assets/js/pages/admin.js"><\/script>

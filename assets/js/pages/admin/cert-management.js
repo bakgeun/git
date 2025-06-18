@@ -12,15 +12,15 @@ function checkDependencies() {
         { name: 'window.dateUtils', path: 'date-utils.js' }
         // validators.js와 dom-utils.js는 실제로 사용하지 않으므로 제거
     ];
-    
+
     const missing = [];
-    
+
     requiredUtils.forEach(util => {
         if (!eval(util.name)) {
             missing.push(util);
         }
     });
-    
+
     if (missing.length > 0) {
         console.error('⚠️ 필수 유틸리티가 로드되지 않음:', missing.map(m => m.path));
         console.log('📝 HTML에서 다음 스크립트들이 먼저 로드되어야 합니다:');
@@ -29,44 +29,44 @@ function checkDependencies() {
         });
         return false;
     }
-    
+
     console.log('✅ 모든 필수 유틸리티 로드 확인됨');
-    
+
     // 🔧 추가: formatters 함수들이 실제로 작동하는지 테스트
     try {
         const testDate = new Date();
         const testFormatDate = window.formatters.formatDate(testDate, 'YYYY.MM.DD');
         const testFormatCurrency = window.formatters.formatCurrency(350000);
-        
+
         console.log('✅ formatters.formatDate 테스트 성공:', testFormatDate);
         console.log('✅ formatters.formatCurrency 테스트 성공:', testFormatCurrency);
-        
+
         if (!testFormatDate || !testFormatCurrency) {
             throw new Error('포맷터 함수 결과가 유효하지 않습니다.');
         }
-        
+
     } catch (error) {
         console.error('❌ 유틸리티 함수 테스트 실패:', error);
         return false;
     }
-    
+
     return true;
 }
 
 // 🔧 Firebase 연결 상태 확인
 function checkFirebaseConnection() {
     console.log('🔥 Firebase 연결 상태 확인...');
-    
+
     if (!window.dhcFirebase) {
         console.warn('⚠️ Firebase가 초기화되지 않음 - 테스트 모드로 동작');
         return { connected: false, reason: 'not_initialized' };
     }
-    
+
     if (!window.dhcFirebase.db) {
         console.warn('⚠️ Firestore 데이터베이스가 초기화되지 않음');
         return { connected: false, reason: 'db_not_initialized' };
     }
-    
+
     console.log('✅ Firebase 연결 상태 정상');
     return { connected: true };
 }
@@ -119,7 +119,7 @@ function initCertManagementPage() {
 // 🔧 의존성 오류 표시 함수
 function showDependencyError() {
     const tableBody = document.querySelector('#cert-table tbody');
-    
+
     if (tableBody) {
         tableBody.innerHTML = `
             <tr>
@@ -139,7 +139,7 @@ function showDependencyError() {
 
 function initCertManager() {
     console.log('🎓 자격증 관리자 초기화 시작');
-    
+
     // 전역 certManager 객체 생성
     window.certManager = {
         currentPage: 1,
@@ -260,7 +260,7 @@ function initCertManager() {
                 if (firebaseStatus.connected && window.dbService) {
                     try {
                         console.log('Firebase에서 자격증 데이터 로드 시작');
-                        
+
                         // 필터 옵션 설정 - 인덱스 오류 방지를 위해 단순화된 쿼리 사용
                         let query = window.dhcFirebase.db.collection('certificates')
                             .where('certificateType', '==', this.currentCertType);
@@ -436,10 +436,18 @@ function initCertManager() {
 
             if (!certificates || certificates.length === 0) {
                 tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="8" class="text-center py-4 text-gray-500">자격증 데이터가 없습니다.</td>
-                    </tr>
-                `;
+            <tr>
+                <td colspan="8" class="admin-empty-state">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                        </path>
+                    </svg>
+                    <h3>등록된 자격증이 없습니다</h3>
+                    <p>새로운 자격증을 발급해보세요.</p>
+                </td>
+            </tr>
+        `;
                 return;
             }
 
@@ -455,78 +463,145 @@ function initCertManager() {
                     ? window.formatters.formatDate(cert.expiryDate.toDate(), 'YYYY-MM-DD')
                     : (cert.expiryDate ? window.formatters.formatDate(cert.expiryDate, 'YYYY-MM-DD') : '-');
 
+                const getStatusBadge = (status) => {
+                    const badges = {
+                        'active': '<span class="cert-status-badge status-valid">유효</span>',
+                        'expired': '<span class="cert-status-badge status-expired">만료</span>',
+                        'revoked': '<span class="cert-status-badge status-suspended">취소</span>',
+                        'suspended': '<span class="cert-status-badge status-suspended">정지</span>'
+                    };
+                    return badges[status] || `<span class="cert-status-badge status-expired">${this.getStatusText(status)}</span>`;
+                };
+
+                // 🎯 반응형 테이블: data-label 속성 추가 + PDF 드롭다운 개선
                 tableHtml += `
-                    <tr>
-                        <td class="text-center">
-                            <input type="checkbox" class="cert-checkbox" data-id="${cert.id}">
-                        </td>
-                        <td>${cert.certificateNumber || cert.certNumber || '-'}</td>
-                        <td>${cert.holderName || cert.name || '-'}</td>
-                        <td>${cert.courseName || cert.course || '-'}</td>
-                        <td>${issueDate}</td>
-                        <td>${expiryDate}</td>
-                        <td>
-                            <span class="px-2 py-1 rounded-full text-xs 
-                                ${cert.status === 'active' ? 'bg-green-100 text-green-800' :
-                        cert.status === 'expired' ? 'bg-red-100 text-red-800' :
-                            'bg-yellow-100 text-yellow-800'}">
-                                ${this.getStatusText(cert.status)}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="flex space-x-2">
-                                <button onclick="certManager.viewCertDetails('${cert.id}')" 
-                                    class="text-blue-600 hover:text-blue-800">
-                                    상세
-                                </button>
-                                <button onclick="certManager.editCert('${cert.id}')" 
-                                    class="text-indigo-600 hover:text-indigo-800">
-                                    수정
-                                </button>
-                                <div class="relative inline-block">
-                                    <button onclick="certManager.showPdfOptions('${cert.id}')" 
-                                        class="text-green-600 hover:text-green-800">
-                                        PDF
-                                    </button>
-                                    <div id="pdf-dropdown-${cert.id}" class="hidden absolute z-10 bg-white rounded shadow-lg mt-1 py-1" style="min-width: 120px;">
-                                        <a href="#" onclick="certManager.downloadCertPdf('${cert.id}', 'ko'); event.preventDefault();" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">한글 PDF</a>
-                                        <a href="#" onclick="certManager.downloadCertPdf('${cert.id}', 'en'); event.preventDefault();" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">영문 PDF</a>
-                                    </div>
-                                </div>
-                                ${cert.status !== 'suspended' && cert.status !== 'revoked' ? `
-                                    <button onclick="certManager.revokeCertificate('${cert.id}')" 
-                                        class="text-red-600 hover:text-red-800">
-                                        취소
-                                    </button>
-                                ` : ''}
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td data-label="선택" class="text-center">
+                    <input type="checkbox" class="cert-checkbox" data-id="${cert.id}">
+                </td>
+                <td data-label="자격증 번호">${cert.certificateNumber || cert.certNumber || '-'}</td>
+                <td data-label="수료자명">${cert.holderName || cert.name || '-'}</td>
+                <td data-label="교육 과정">${cert.courseName || cert.course || '-'}</td>
+                <td data-label="발급일">${issueDate}</td>
+                <td data-label="만료일">${expiryDate}</td>
+                <td data-label="상태">${getStatusBadge(cert.status)}</td>
+                <td data-label="작업">
+                    <div class="table-actions">
+                        <button onclick="certManager.viewCertDetails('${cert.id}')" 
+                            class="table-action-btn btn-view" title="상세 보기">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                </path>
+                            </svg>
+                            상세
+                        </button>
+                        <button onclick="certManager.editCert('${cert.id}')" 
+                            class="table-action-btn btn-edit" title="수정">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                </path>
+                            </svg>
+                            수정
+                        </button>
+                        
+                        <!-- 🔧 개선된 PDF 드롭다운 -->
+                        <div class="cert-pdf-dropdown">
+                            <button onclick="certManager.togglePdfDropdown('${cert.id}')" 
+                                class="cert-pdf-btn" title="PDF 다운로드">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                        d="M12 10v6m0 0l-3-3m3 3l3-3M9 5l7 7-7 7">
+                                    </path>
+                                </svg>
+                                PDF
+                            </button>
+                            <div id="pdf-dropdown-${cert.id}" class="cert-pdf-menu hidden">
+                                <a href="#" onclick="certManager.downloadCertPdf('${cert.id}', 'ko'); event.preventDefault();">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                        </path>
+                                    </svg>
+                                    한글 PDF
+                                </a>
+                                <a href="#" onclick="certManager.downloadCertPdf('${cert.id}', 'en'); event.preventDefault();">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                        </path>
+                                    </svg>
+                                    영문 PDF
+                                </a>
                             </div>
-                        </td>
-                    </tr>
-                `;
+                        </div>
+                        
+                        ${cert.status !== 'suspended' && cert.status !== 'revoked' ? `
+                            <button onclick="certManager.revokeCertificate('${cert.id}')" 
+                                class="table-action-btn btn-delete" title="자격증 취소">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                    </path>
+                                </svg>
+                                취소
+                            </button>
+                        ` : ''}
+                    </div>
+                </td>
+            </tr>
+        `;
             });
 
             tableBody.innerHTML = tableHtml;
 
-            // PDF 드롭다운 이벤트 처리
-            certificates.forEach(cert => {
-                const button = document.querySelector(`button[onclick="certManager.showPdfOptions('${cert.id}')"]`);
-                if (button) {
-                    button.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const dropdown = document.getElementById(`pdf-dropdown-${cert.id}`);
-                        dropdown.classList.toggle('hidden');
+            // 🔧 개선된 PDF 드롭다운 이벤트 처리
+            this.initPdfDropdowns();
+        },
+
+        /**
+         * PDF 드롭다운 토글 (새로 추가)
+         */
+        togglePdfDropdown: function (certId) {
+            const dropdown = document.getElementById(`pdf-dropdown-${certId}`);
+            if (!dropdown) return;
+
+            // 다른 모든 드롭다운 닫기
+            document.querySelectorAll('[id^="pdf-dropdown-"]').forEach(dd => {
+                if (dd.id !== `pdf-dropdown-${certId}`) {
+                    dd.classList.add('hidden');
+                }
+            });
+
+            // 현재 드롭다운 토글
+            dropdown.classList.toggle('hidden');
+            dropdown.classList.toggle('show');
+        },
+
+        /**
+         * PDF 드롭다운 초기화 (새로 추가)
+         */
+        initPdfDropdowns: function () {
+            // 전역 클릭 이벤트로 드롭다운 닫기
+            document.addEventListener('click', (e) => {
+                // PDF 버튼이나 드롭다운 내부 클릭이 아닌 경우만 닫기
+                if (!e.target.closest('.cert-pdf-dropdown')) {
+                    document.querySelectorAll('[id^="pdf-dropdown-"]').forEach(dropdown => {
+                        dropdown.classList.add('hidden');
+                        dropdown.classList.remove('show');
                     });
                 }
             });
 
-            // 전역 클릭 이벤트로 드롭다운 닫기
-            document.addEventListener('click', (e) => {
-                const dropdowns = document.querySelectorAll('[id^="pdf-dropdown-"]');
-                dropdowns.forEach(dropdown => {
-                    if (!dropdown.contains(e.target) && !e.target.matches('button[onclick^="certManager.showPdfOptions"]')) {
+            // ESC 키로 드롭다운 닫기
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('[id^="pdf-dropdown-"]').forEach(dropdown => {
                         dropdown.classList.add('hidden');
-                    }
-                });
+                        dropdown.classList.remove('show');
+                    });
+                }
             });
         },
 
@@ -607,6 +682,35 @@ function initCertManager() {
             this.currentPage = 1;
             this.lastDoc = null;
             this.loadCertificates();
+        },
+
+        /**
+         * 검색 필터 초기화
+         */
+        resetFilters: function () {
+            console.log('검색 필터 초기화');
+
+            // 검색 필드 초기화
+            const searchName = document.getElementById('search-name');
+            if (searchName) searchName.value = '';
+
+            const searchCertNumber = document.getElementById('search-cert-number');
+            if (searchCertNumber) searchCertNumber.value = '';
+
+            const statusFilter = document.getElementById('filter-status');
+            if (statusFilter) statusFilter.value = '';
+
+            // 페이지 상태 초기화
+            this.currentPage = 1;
+            this.lastDoc = null;
+
+            // 데이터 새로고침
+            this.loadCertificates();
+
+            // 사용자 피드백
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('검색 필터가 초기화되었습니다.', 'info');
+            }
         },
 
         /**
@@ -784,7 +888,7 @@ function initCertManager() {
                 if (firebaseStatus.connected && window.dbService) {
                     try {
                         console.log('Firebase에서 교육 과정 로드 시작');
-                        
+
                         // 현재 자격증 유형에 맞는 교육 과정만 조회 - 단순 쿼리로 수정
                         const query = window.dhcFirebase.db.collection('courses')
                             .where('certificateType', '==', this.currentCertType);
@@ -819,17 +923,17 @@ function initCertManager() {
                 } else {
                     // 테스트 데이터
                     courses = [
-                        { 
-                            id: 'course1', 
-                            title: '2025년 1기 건강운동처방사 과정', 
-                            startDate: '2025-01-15', 
-                            endDate: '2025-03-15' 
+                        {
+                            id: 'course1',
+                            title: '2025년 1기 건강운동처방사 과정',
+                            startDate: '2025-01-15',
+                            endDate: '2025-03-15'
                         },
-                        { 
-                            id: 'course2', 
-                            title: '2024년 4기 건강운동처방사 과정', 
-                            startDate: '2024-10-01', 
-                            endDate: '2024-12-15' 
+                        {
+                            id: 'course2',
+                            title: '2024년 4기 건강운동처방사 과정',
+                            startDate: '2024-10-01',
+                            endDate: '2024-12-15'
                         }
                     ];
                 }
@@ -2595,7 +2699,7 @@ if (window.location.hostname === 'localhost' ||
             const result = checkDependencies();
             if (result) {
                 console.log('✅ 모든 유틸리티 정상 로드됨');
-                
+
                 // 기능 테스트
                 try {
                     const testDate = new Date();
@@ -2629,11 +2733,11 @@ if (window.location.hostname === 'localhost' ||
                 console.log('현재 자격증 유형:', window.certManager.currentCertType);
                 console.log('현재 페이지:', window.certManager.currentPage);
                 console.log('페이지 크기:', window.certManager.pageSize);
-                
+
                 // 테이블에서 현재 표시된 자격증들 확인
                 const rows = document.querySelectorAll('#cert-table tbody tr');
                 console.log('테이블 행 수:', rows.length);
-                
+
                 if (rows.length > 0 && !rows[0].textContent.includes('로딩') && !rows[0].textContent.includes('없습니다')) {
                     console.log('표시된 자격증들:');
                     rows.forEach((row, index) => {
@@ -2685,13 +2789,13 @@ if (window.location.hostname === 'localhost' ||
             }
 
             console.log('검색 테스트:', keyword);
-            
+
             // 검색어 입력
             const searchInput = document.getElementById('search-name');
             if (searchInput) {
                 searchInput.value = keyword;
                 console.log('✅ 검색어 입력됨:', keyword);
-                
+
                 // 검색 실행
                 if (window.certManager) {
                     window.certManager.search();
@@ -2718,7 +2822,7 @@ if (window.location.hostname === 'localhost' ||
             if (window.certManager) {
                 window.certManager.showIssueCertModal();
                 console.log('✅ 발급 모달 열림');
-                
+
                 // 잠시 기다린 후 데이터 입력
                 setTimeout(() => {
                     const fields = {
@@ -2750,10 +2854,10 @@ if (window.location.hostname === 'localhost' ||
 
         simulateIssuance: function () {
             console.log('자격증 발급 시뮬레이션...');
-            
+
             // 테스트 데이터 먼저 입력
             this.fillTestIssuanceData();
-            
+
             // 3초 후 발급 처리 시뮬레이션
             setTimeout(() => {
                 const form = document.getElementById('cert-issue-form');
@@ -2788,7 +2892,7 @@ if (window.location.hostname === 'localhost' ||
         downloadTestPdf: function (lang = 'ko') {
             console.log(`테스트 PDF 다운로드 (${lang}):`, 'cert1');
             this.testPdfGeneration('cert1');
-            
+
             if (lang === 'en') {
                 setTimeout(() => {
                     if (window.certManager) {
@@ -2805,7 +2909,7 @@ if (window.location.hostname === 'localhost' ||
 
             console.log('\n1️⃣ 의존성 및 유틸리티 테스트');
             const dependenciesOk = this.testDependencies();
-            
+
             if (!dependenciesOk) {
                 console.error('❌ 의존성 테스트 실패 - 테스트 중단');
                 return;
@@ -2819,15 +2923,15 @@ if (window.location.hostname === 'localhost' ||
 
             console.log('\n4️⃣ 자격증 유형 전환 테스트');
             this.switchCertType('pilates');
-            
+
             setTimeout(() => {
                 console.log('\n5️⃣ 검색 기능 테스트');
                 this.testSearch('홍길동');
-                
+
                 setTimeout(() => {
                     console.log('\n6️⃣ 원래 유형으로 복원');
                     this.switchCertType('health-exercise');
-                    
+
                     console.log('\n🎯 전체 테스트 완료!');
                     console.log('💡 이제 다음 명령어들을 시도해보세요:');
                     console.log('- fillTestIssuanceData() : 발급 데이터 입력 테스트');
@@ -2837,7 +2941,7 @@ if (window.location.hostname === 'localhost' ||
         },
 
         // 실시간 업데이트 관련 (향후 확장용)
-        enableRealtime: function() {
+        enableRealtime: function () {
             console.log('🔄 실시간 업데이트 기능은 향후 추가 예정');
         }
     };

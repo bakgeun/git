@@ -1,11 +1,11 @@
 /**
- * board-management.js - course-management.js 스타일 완전 표준화 버전
- * 게시판 관리 페이지의 모든 기능을 포함합니다.
+ * board-management.js - 다른 관리자 페이지와 완전 통일된 버전
+ * Toast 시스템 제거, 반응형 테이블 통일, 스크립트 로딩 표준화
  */
 
-console.log('=== board-management.js 표준화 버전 로드 시작 ===');
+console.log('=== board-management.js 통일된 버전 로드 시작 ===');
 
-// 🔧 의존성 체크 함수 (course-management.js 스타일)
+// 🔧 의존성 체크 함수 (다른 관리자 페이지와 동일)
 function checkBoardDependencies() {
     const requiredUtils = [
         { name: 'window.formatters', path: 'formatters.js' },
@@ -63,15 +63,15 @@ function showBoardDependencyError() {
     if (tableBody) {
         tableBody.innerHTML = `
             <tr>
-                <td colspan="6" class="text-center py-8">
-                    <div class="bg-red-50 border border-red-200 rounded-lg p-6">
-                        <div class="text-red-600 text-lg font-semibold mb-2">⚠️ 시스템 오류</div>
-                        <p class="text-red-700 mb-4">게시판 관리에 필요한 유틸리티 파일이 로드되지 않았습니다.</p>
-                        <p class="text-red-600 text-sm">페이지를 새로고침하거나 관리자에게 문의하세요.</p>
-                        <button onclick="location.reload()" class="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
-                            새로고침
-                        </button>
-                    </div>
+                <td colspan="6" class="admin-empty-state">
+                    <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3>⚠️ 시스템 오류</h3>
+                    <p>게시판 관리에 필요한 유틸리티 파일이 로드되지 않았습니다.<br>페이지를 새로고침하거나 관리자에게 문의하세요.</p>
+                    <button onclick="location.reload()" class="admin-btn admin-btn-primary mt-4">
+                        새로고침
+                    </button>
                 </td>
             </tr>
         `;
@@ -90,7 +90,7 @@ function checkFirebaseConnection() {
 }
 
 // =================================
-// 게시판 관리 메인 객체 (완전 표준화 버전)
+// 게시판 관리 메인 객체 (통일된 버전)
 // =================================
 
 window.boardManager = {
@@ -107,14 +107,14 @@ window.boardManager = {
     isFirebaseConnected: false,
 
     /**
-     * 초기화 - course-management.js 스타일 완전 적용
+     * 초기화 - 다른 관리자 페이지와 동일한 패턴
      */
     init: async function () {
         // 초기화 플래그 설정
         this.initialized = false;
 
         try {
-            console.log('📋 게시판 관리자 초기화 시작 - 표준화 버전');
+            console.log('📋 게시판 관리자 초기화 시작 - 통일된 버전');
 
             // 🔧 의존성 체크 먼저 실행
             if (!checkBoardDependencies()) {
@@ -123,7 +123,7 @@ window.boardManager = {
                 return false;
             }
 
-            // Firebase 초기화 대기 (course-management.js 스타일)
+            // Firebase 초기화 대기
             if (!window.dhcFirebase || !window.dhcFirebase.db) {
                 console.log('⏳ Firebase 초기화 대기 중...');
 
@@ -160,7 +160,7 @@ window.boardManager = {
             // 게시판 데이터 로드 (재시도 로직 포함)
             console.log('📋 게시판 데이터 로드 시작');
             await this.loadBoardDataWithRetry();
-            console.log('✅ 게시판 데이터 로드 완료');
+            console.log('✅게시판 데이터 로드 완료');
 
             // 초기화 완료 플래그 설정
             this.initialized = true;
@@ -219,8 +219,11 @@ window.boardManager = {
             const testPosts = this.getTestData();
             this.updateBoardList(testPosts);
 
+            // 🔧 통일된 알림 시스템 사용 (adminAuth 또는 showToast)
             if (window.adminAuth && window.adminAuth.showNotification) {
                 window.adminAuth.showNotification('서버 연결에 문제가 있어 테스트 데이터를 표시합니다.', 'warning');
+            } else if (typeof showToast === 'function') {
+                showToast('서버 연결에 문제가 있어 테스트 데이터를 표시합니다.', 'warning');
             }
 
             console.log('✅ 테스트 데이터 폴백 완료');
@@ -231,21 +234,20 @@ window.boardManager = {
     },
 
     /**
-     * 에러 메시지 표시 (표준화)
+     * 에러 메시지 표시 (통일된 방식)
      */
     showErrorMessage: function (message) {
         const tableBody = document.querySelector('#board-table tbody');
         if (tableBody) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="6" class="text-center py-8">
-                        <div class="text-red-500 mb-4">
-                            <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <p class="text-gray-600 mb-4">${message}</p>
-                        <button onclick="boardManager.loadBoardDataWithRetry()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                    <td colspan="6" class="admin-empty-state">
+                        <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h3>오류 발생</h3>
+                        <p>${message}</p>
+                        <button onclick="boardManager.loadBoardDataWithRetry()" class="admin-btn admin-btn-primary mt-4">
                             다시 시도
                         </button>
                     </td>
@@ -253,8 +255,10 @@ window.boardManager = {
             `;
         }
 
-        // 추가로 toast 메시지도 표시
-        if (typeof showToast === 'function') {
+        // 🔧 통일된 알림 시스템 사용
+        if (window.adminAuth && window.adminAuth.showNotification) {
+            window.adminAuth.showNotification(message, 'error');
+        } else if (typeof showToast === 'function') {
             showToast(message, 'error');
         }
     },
@@ -448,7 +452,7 @@ window.boardManager = {
     },
 
     /**
-     * 게시판 데이터 로드 (표준화 버전)
+     * 게시판 데이터 로드 (통일된 버전)
      */
     loadBoardData: async function () {
         console.log('📋 게시판 데이터 로드 시작:', this.currentBoardType);
@@ -572,14 +576,9 @@ window.boardManager = {
         if (tableBody) {
             tableBody.innerHTML = `
                 <tr class="loading-row">
-                    <td colspan="6" class="text-center py-8">
-                        <div class="flex items-center justify-center space-x-2">
-                            <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <span class="text-gray-600">데이터를 불러오는 중입니다...</span>
-                        </div>
+                    <td colspan="6" class="admin-loading-state">
+                        <div class="admin-loading-spinner"></div>
+                        <span class="text-gray-600">데이터를 불러오는 중입니다...</span>
                     </td>
                 </tr>
             `;
@@ -587,7 +586,7 @@ window.boardManager = {
     },
 
     /**
-     * 게시글 목록 업데이트 (🔧 전역 유틸리티 사용)
+     * 🎯 게시글 목록 업데이트 (반응형 테이블 통일)
      */
     updateBoardList: function (posts) {
         const tableBody = document.querySelector('#board-table tbody');
@@ -601,14 +600,12 @@ window.boardManager = {
         if (!posts || posts.length === 0) {
             tableBody.innerHTML = `
                 <tr class="no-results">
-                    <td colspan="6" class="text-center py-12">
-                        <div class="text-gray-400 mb-4">
-                            <svg class="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-medium text-gray-900 mb-2">등록된 게시글이 없습니다</h3>
-                        <p class="text-gray-500">새로운 게시글을 추가해보세요.</p>
+                    <td colspan="6" class="admin-empty-state">
+                        <svg class="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <h3>등록된 게시글이 없습니다</h3>
+                        <p>새로운 게시글을 추가해보세요.</p>
                     </td>
                 </tr>
             `;
@@ -652,32 +649,35 @@ window.boardManager = {
                 const status = post.status || 'published';
                 const statusInfo = this.getStatusInfo(status);
 
+                // 🎯 반응형 테이블: data-label 속성 추가 (다른 관리자 페이지와 통일)
                 html += `
-                    <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td class="py-3 px-4">
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td data-label="제목" class="py-3 px-4">
                             <a href="#" class="text-indigo-600 hover:text-indigo-900 view-post font-medium" data-id="${postId}">
                                 ${title}
                             </a>
                         </td>
-                        <td class="py-3 px-4 text-center text-gray-600">${author}</td>
-                        <td class="py-3 px-4 text-center text-gray-600">${viewCount}</td>
-                        <td class="py-3 px-4 text-center text-gray-600">${createdAt}</td>
-                        <td class="py-3 px-4 text-center">
-                            <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusInfo.class}">
+                        <td data-label="작성자" class="py-3 px-4 text-center text-gray-600">${author}</td>
+                        <td data-label="조회수" class="py-3 px-4 text-center text-gray-600">${viewCount}</td>
+                        <td data-label="작성일" class="py-3 px-4 text-center text-gray-600">${createdAt}</td>
+                        <td data-label="상태" class="py-3 px-4 text-center">
+                            <span class="status-badge ${statusInfo.class}">
                                 ${statusInfo.text}
                             </span>
                         </td>
-                        <td class="py-3 px-4 text-center">
-                            <div class="flex justify-center space-x-2">
-                                <button class="text-indigo-600 hover:text-indigo-900 edit-post" data-id="${postId}" title="수정">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                    </svg>
+                        <td data-label="작업" class="py-3 px-4 text-center">
+                            <div class="table-actions">
+                                <button class="table-action-btn btn-edit edit-post" data-id="${postId}" title="수정">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828 L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                        </svg>
+                                    수정
                                 </button>
-                                <button class="text-red-600 hover:text-red-900 delete-post" data-id="${postId}" title="삭제">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <button class="table-action-btn btn-delete delete-post" data-id="${postId}" title="삭제">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                     </svg>
+                                    삭제
                                 </button>
                             </div>
                         </td>
@@ -735,17 +735,17 @@ window.boardManager = {
      */
     getStatusInfo: function (status) {
         const statusMap = {
-            'published': { text: '게시', class: 'bg-green-100 text-green-800' },
-            'draft': { text: '임시저장', class: 'bg-yellow-100 text-yellow-800' },
-            'hidden': { text: '숨김', class: 'bg-gray-100 text-gray-800' },
-            'active': { text: '활성', class: 'bg-green-100 text-green-800' }
+            'published': { text: '게시', class: 'status-active' },
+            'draft': { text: '임시저장', class: 'status-inactive' },
+            'hidden': { text: '숨김', class: 'status-inactive' },
+            'active': { text: '활성', class: 'status-active' }
         };
 
-        return statusMap[status] || { text: '알 수 없음', class: 'bg-gray-100 text-gray-800' };
+        return statusMap[status] || { text: '알 수 없음', class: 'status-inactive' };
     },
 
     /**
-     * 페이지네이션 업데이트 (개선된 버전)
+     * 페이지네이션 업데이트 (통일된 버전)
      */
     updatePagination: function (totalPages) {
         const paginationContainer = document.getElementById('board-pagination');
@@ -756,19 +756,22 @@ window.boardManager = {
             return;
         }
 
-        let html = '<div class="flex justify-center items-center space-x-2">';
+        let html = '<div class="admin-pagination">';
 
         // 이전 페이지 버튼
         html += `
-            <button class="pagination-btn prev-page px-3 py-2 border rounded-md text-sm
-                ${this.currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50 text-gray-700'}"
+            <button class="admin-pagination-btn ${this.currentPage === 1 ? 'cursor-not-allowed opacity-50' : ''}" 
+                onclick="boardManager.changePage(${this.currentPage - 1})"
                 ${this.currentPage === 1 ? 'disabled' : ''}>
-                이전
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                <span class="hide-mobile">이전</span>
             </button>
         `;
 
         // 페이지 번호 버튼들
-        const maxVisiblePages = 5;
+        const maxVisiblePages = window.innerWidth <= 480 ? 3 : 5;
         let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
         let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
@@ -778,8 +781,8 @@ window.boardManager = {
 
         for (let i = startPage; i <= endPage; i++) {
             html += `
-                <button class="pagination-btn page-number px-3 py-2 border rounded-md text-sm" data-page="${i}"
-                    ${this.currentPage === i ? 'style="background-color: #4f46e5; color: white; border-color: #4f46e5;"' : 'style="background-color: white; color: #374151;"'}>
+                <button class="admin-pagination-btn page-number ${this.currentPage === i ? 'active' : ''}" 
+                    onclick="boardManager.changePage(${i})" data-page="${i}">
                     ${i}
                 </button>
             `;
@@ -787,61 +790,18 @@ window.boardManager = {
 
         // 다음 페이지 버튼
         html += `
-            <button class="pagination-btn next-page px-3 py-2 border rounded-md text-sm
-                ${this.currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50 text-gray-700'}"
+            <button class="admin-pagination-btn ${this.currentPage === totalPages ? 'cursor-not-allowed opacity-50' : ''}" 
+                onclick="boardManager.changePage(${this.currentPage + 1})"
                 ${this.currentPage === totalPages ? 'disabled' : ''}>
-                다음
+                <span class="hide-mobile">다음</span>
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
             </button>
         `;
 
         html += '</div>';
         paginationContainer.innerHTML = html;
-
-        // 페이지네이션 이벤트 리스너 추가
-        this.registerPaginationEvents();
-    },
-
-    /**
-     * 페이지네이션 이벤트 등록
-     */
-    registerPaginationEvents: function () {
-        const self = this;
-
-        // 페이지 번호 버튼
-        document.querySelectorAll('.page-number').forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                e.preventDefault();
-                const page = parseInt(this.getAttribute('data-page'));
-                self.changePage(page);
-            });
-        });
-
-        // 이전 페이지 버튼
-        const prevBtn = document.querySelector('.prev-page');
-        if (prevBtn) {
-            prevBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                if (self.currentPage > 1) {
-                    self.changePage(self.currentPage - 1);
-                }
-            });
-        }
-
-        // 다음 페이지 버튼
-        const nextBtn = document.querySelector('.next-page');
-        if (nextBtn) {
-            nextBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                // totalPages 계산 (DOM에서 추출)
-                const pageNumbers = document.querySelectorAll('.page-number');
-                const totalPages = pageNumbers.length > 0 ? 
-                    Math.max(...Array.from(pageNumbers).map(btn => parseInt(btn.getAttribute('data-page')))) : 1;
-                
-                if (self.currentPage < totalPages) {
-                    self.changePage(self.currentPage + 1);
-                }
-            });
-        }
     },
 
     /**
@@ -884,15 +844,23 @@ window.boardManager = {
     },
 
     /**
-     * 게시글 작성 모달 표시 (개선된 버전)
+     * 게시글 작성 모달 표시 (통일된 버전)
      */
     showAddPostModal: function () {
-        console.log('📝 게시글 작성 모달 표시 - 표준화 버전');
+        console.log('📝 게시글 작성 모달 표시 - 통일된 버전');
 
         // 🔧 의존성 체크
         if (!checkBoardDependencies()) {
             console.error('❌ 필수 유틸리티 누락으로 모달 표시 중단');
-            alert('시스템 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+            
+            // 🔧 통일된 알림 시스템 사용
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('시스템 오류가 발생했습니다. 페이지를 새로고침해주세요.', 'error');
+            } else if (typeof showToast === 'function') {
+                showToast('시스템 오류가 발생했습니다. 페이지를 새로고침해주세요.', 'error');
+            } else {
+                alert('시스템 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+            }
             return;
         }
 
@@ -905,13 +873,29 @@ window.boardManager = {
         // 모달 요소 확인
         if (!modal) {
             console.error('post-modal 요소를 찾을 수 없습니다.');
-            alert('모달 요소를 찾을 수 없습니다. 페이지를 다시 로드해주세요.');
+            
+            // 🔧 통일된 알림 시스템 사용
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('모달 요소를 찾을 수 없습니다. 페이지를 다시 로드해주세요.', 'error');
+            } else if (typeof showToast === 'function') {
+                showToast('모달 요소를 찾을 수 없습니다. 페이지를 다시 로드해주세요.', 'error');
+            } else {
+                alert('모달 요소를 찾을 수 없습니다. 페이지를 다시 로드해주세요.');
+            }
             return;
         }
 
         if (!form) {
             console.error('post-form 요소를 찾을 수 없습니다.');
-            alert('폼 요소를 찾을 수 없습니다. 페이지를 다시 로드해주세요.');
+            
+            // 🔧 통일된 알림 시스템 사용
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('폼 요소를 찾을 수 없습니다. 페이지를 다시 로드해주세요.', 'error');
+            } else if (typeof showToast === 'function') {
+                showToast('폼 요소를 찾을 수 없습니다. 페이지를 다시 로드해주세요.', 'error');
+            } else {
+                alert('폼 요소를 찾을 수 없습니다. 페이지를 다시 로드해주세요.');
+            }
             return;
         }
 
@@ -1134,7 +1118,7 @@ window.boardManager = {
     },
 
     /**
-     * 게시글 작성 처리 (표준화 버전)
+     * 게시글 작성 처리 (통일된 버전)
      */
     handleCreatePost: async function (event) {
         event.preventDefault();
@@ -1166,17 +1150,38 @@ window.boardManager = {
 
             // 유효성 검사
             if (!title) {
-                alert('제목을 입력해주세요.');
+                // 🔧 통일된 알림 시스템 사용
+                if (window.adminAuth && window.adminAuth.showNotification) {
+                    window.adminAuth.showNotification('제목을 입력해주세요.', 'error');
+                } else if (typeof showToast === 'function') {
+                    showToast('제목을 입력해주세요.', 'error');
+                } else {
+                    alert('제목을 입력해주세요.');
+                }
                 return;
             }
 
             if (!content) {
-                alert('내용을 입력해주세요.');
+                // 🔧 통일된 알림 시스템 사용
+                if (window.adminAuth && window.adminAuth.showNotification) {
+                    window.adminAuth.showNotification('내용을 입력해주세요.', 'error');
+                } else if (typeof showToast === 'function') {
+                    showToast('내용을 입력해주세요.', 'error');
+                } else {
+                    alert('내용을 입력해주세요.');
+                }
                 return;
             }
 
             if (!category) {
-                alert('카테고리를 선택해주세요.');
+                // 🔧 통일된 알림 시스템 사용
+                if (window.adminAuth && window.adminAuth.showNotification) {
+                    window.adminAuth.showNotification('카테고리를 선택해주세요.', 'error');
+                } else if (typeof showToast === 'function') {
+                    showToast('카테고리를 선택해주세요.', 'error');
+                } else {
+                    alert('카테고리를 선택해주세요.');
+                }
                 return;
             }
 
@@ -1211,7 +1216,15 @@ window.boardManager = {
             }
 
             console.log('✅ 게시글 등록 성공');
-            alert('게시글이 등록되었습니다.');
+            
+            // 🔧 통일된 알림 시스템 사용
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('게시글이 등록되었습니다.', 'success');
+            } else if (typeof showToast === 'function') {
+                showToast('게시글이 등록되었습니다.', 'success');
+            } else {
+                alert('게시글이 등록되었습니다.');
+            }
 
             // 모달 닫기
             this.closePostModal();
@@ -1223,7 +1236,15 @@ window.boardManager = {
 
         } catch (error) {
             console.error('❌ 게시글 작성 처리 오류:', error);
-            alert('게시글 작성 처리 중 오류가 발생했습니다: ' + error.message);
+            
+            // 🔧 통일된 알림 시스템 사용
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('게시글 작성 처리 중 오류가 발생했습니다: ' + error.message, 'error');
+            } else if (typeof showToast === 'function') {
+                showToast('게시글 작성 처리 중 오류가 발생했습니다: ' + error.message, 'error');
+            } else {
+                alert('게시글 작성 처리 중 오류가 발생했습니다: ' + error.message);
+            }
         } finally {
             // 버튼 상태 복원
             if (submitButton) {
@@ -1265,7 +1286,15 @@ window.boardManager = {
     handleUpdatePost: async function (event, postId) {
         console.log('✏️ 게시글 수정 처리:', postId);
         // TODO: 게시글 수정 로직 구현
-        alert('게시글 수정 기능은 곧 구현될 예정입니다.');
+        
+        // 🔧 통일된 알림 시스템 사용
+        if (window.adminAuth && window.adminAuth.showNotification) {
+            window.adminAuth.showNotification('게시글 수정 기능은 곧 구현될 예정입니다.', 'info');
+        } else if (typeof showToast === 'function') {
+            showToast('게시글 수정 기능은 곧 구현될 예정입니다.', 'info');
+        } else {
+            alert('게시글 수정 기능은 곧 구현될 예정입니다.');
+        }
     },
 
     /**
@@ -1274,7 +1303,15 @@ window.boardManager = {
     viewPost: function (postId) {
         console.log('👁️ 게시글 보기:', postId);
         // TODO: 게시글 상세보기 구현
-        alert('게시글 상세보기 기능은 곧 구현될 예정입니다.');
+        
+        // 🔧 통일된 알림 시스템 사용
+        if (window.adminAuth && window.adminAuth.showNotification) {
+            window.adminAuth.showNotification('게시글 상세보기 기능은 곧 구현될 예정입니다.', 'info');
+        } else if (typeof showToast === 'function') {
+            showToast('게시글 상세보기 기능은 곧 구현될 예정입니다.', 'info');
+        } else {
+            alert('게시글 상세보기 기능은 곧 구현될 예정입니다.');
+        }
     },
 
     /**
@@ -1283,7 +1320,15 @@ window.boardManager = {
     editPost: function (postId) {
         console.log('✏️ 게시글 수정:', postId);
         // TODO: 게시글 수정 모달 구현
-        alert('게시글 수정 기능은 곧 구현될 예정입니다.');
+        
+        // 🔧 통일된 알림 시스템 사용
+        if (window.adminAuth && window.adminAuth.showNotification) {
+            window.adminAuth.showNotification('게시글 수정 기능은 곧 구현될 예정입니다.', 'info');
+        } else if (typeof showToast === 'function') {
+            showToast('게시글 수정 기능은 곧 구현될 예정입니다.', 'info');
+        } else {
+            alert('게시글 수정 기능은 곧 구현될 예정입니다.');
+        }
     },
 
     /**
@@ -1332,14 +1377,29 @@ window.boardManager = {
                 await new Promise(resolve => setTimeout(resolve, 500));
             }
 
-            alert('게시글이 삭제되었습니다.');
+            // 🔧 통일된 알림 시스템 사용
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('게시글이 삭제되었습니다.', 'success');
+            } else if (typeof showToast === 'function') {
+                showToast('게시글이 삭제되었습니다.', 'success');
+            } else {
+                alert('게시글이 삭제되었습니다.');
+            }
 
             // 게시글 목록 새로고침
             this.loadBoardData();
 
         } catch (error) {
             console.error('❌ 게시글 삭제 처리 오류:', error);
-            alert('게시글 삭제 처리 중 오류가 발생했습니다: ' + error.message);
+            
+            // 🔧 통일된 알림 시스템 사용
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('게시글 삭제 처리 중 오류가 발생했습니다: ' + error.message, 'error');
+            } else if (typeof showToast === 'function') {
+                showToast('게시글 삭제 처리 중 오류가 발생했습니다: ' + error.message, 'error');
+            } else {
+                alert('게시글 삭제 처리 중 오류가 발생했습니다: ' + error.message);
+            }
         }
     },
 
@@ -1398,86 +1458,15 @@ window.boardManager = {
 };
 
 // =================================
-// 토스트 메시지 기능 (course-management.js 스타일)
+// 초기화 함수 (다른 관리자 페이지와 완전 통일)
 // =================================
 
 /**
- * 토스트 메시지 표시
- */
-function showToast(message, type = 'info') {
-    console.log(`Toast (${type}): ${message}`);
-
-    // 기존 토스트 제거
-    const existingToast = document.querySelector('.board-toast');
-    if (existingToast) {
-        existingToast.remove();
-    }
-
-    // 새 토스트 생성
-    const toast = document.createElement('div');
-    toast.className = `board-toast toast-${type}`;
-    toast.textContent = message;
-    toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : type === 'success' ? '#10b981' : '#3b82f6'};
-        color: white;
-        padding: 12px 20px;
-        border-radius: 6px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        z-index: 9999;
-        font-size: 14px;
-        max-width: 300px;
-        opacity: 0;
-        transform: translateX(100%);
-        transition: all 0.3s ease;
-    `;
-
-    document.body.appendChild(toast);
-
-    // 애니메이션 시작
-    setTimeout(() => {
-        toast.style.opacity = '1';
-        toast.style.transform = 'translateX(0)';
-    }, 100);
-
-    // 자동 제거
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-    }, 3000);
-
-    // 클릭으로 제거
-    toast.addEventListener('click', () => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-    });
-}
-
-// 전역 함수로 노출
-window.showToast = showToast;
-
-// =================================
-// 초기화 함수 (course-management.js 스타일 완전 적용)
-// =================================
-
-/**
- * 게시판 관리 페이지 초기화 함수 - course-management.js 스타일
+ * 게시판 관리 페이지 초기화 함수 - 다른 관리자 페이지와 완전 통일
  */
 window.initBoardManagement = async function () {
     try {
-        console.log('📋 게시판 관리 페이지 초기화 시작 - 완전 표준화 버전');
+        console.log('📋 게시판 관리 페이지 초기화 시작 - 완전 통일 버전');
 
         // 🔧 의존성 체크 먼저 실행
         if (!checkBoardDependencies()) {
@@ -1486,7 +1475,7 @@ window.initBoardManagement = async function () {
             return false;
         }
 
-        // 관리자 권한 확인 (course-management.js 스타일)
+        // 관리자 권한 확인 (다른 관리자 페이지와 동일한 패턴)
         let hasAccess = true;
         if (window.adminAuth && typeof window.adminAuth.checkAdminAccess === 'function') {
             console.log('🔐 관리자 권한 확인 시작');
@@ -1501,7 +1490,7 @@ window.initBoardManagement = async function () {
                 window.adminAuth.displayAdminInfo();
             }
             
-            // 사이드바 토글 기능 초기화 (adminUtils 호환성)
+            // 사이드바 토글 기능 초기화 (다른 관리자 페이지와 동일)
             if (window.adminUtils && window.adminUtils.initAdminSidebar) {
                 window.adminUtils.initAdminSidebar();
             }
@@ -1513,8 +1502,10 @@ window.initBoardManagement = async function () {
             if (success) {
                 console.log('✅ 게시판 관리자 초기화 완료');
                 
-                // 추가 초기화 작업들
-                if (typeof showToast === 'function') {
+                // 추가 초기화 작업들 - 다른 관리자 페이지와 통일된 알림
+                if (window.adminAuth && window.adminAuth.showNotification) {
+                    window.adminAuth.showNotification('게시판 관리 시스템이 준비되었습니다.', 'success');
+                } else if (typeof showToast === 'function') {
                     showToast('게시판 관리 시스템이 준비되었습니다.', 'success');
                 }
             }
@@ -1526,16 +1517,24 @@ window.initBoardManagement = async function () {
 
     } catch (error) {
         console.error('❌ 게시판 관리 페이지 초기화 오류:', error);
-        alert('게시판 관리 페이지 초기화 중 오류가 발생했습니다: ' + error.message);
+        
+        // 🔧 통일된 알림 시스템 사용
+        if (window.adminAuth && window.adminAuth.showNotification) {
+            window.adminAuth.showNotification('게시판 관리 페이지 초기화 중 오류가 발생했습니다: ' + error.message, 'error');
+        } else if (typeof showToast === 'function') {
+            showToast('게시판 관리 페이지 초기화 중 오류가 발생했습니다: ' + error.message, 'error');
+        } else {
+            alert('게시판 관리 페이지 초기화 중 오류가 발생했습니다: ' + error.message);
+        }
         return false;
     }
 };
 
 // =================================
-// DOM 로드 및 이벤트 처리 (course-management.js 완전 호환)
+// DOM 로드 및 이벤트 처리 (다른 관리자 페이지와 완전 호환)
 // =================================
 
-// 페이지 로드 완료 후 실행 - course-management.js 스타일
+// 페이지 로드 완료 후 실행 - 다른 관리자 페이지와 동일한 패턴
 document.addEventListener('DOMContentLoaded', function () {
     console.log('🌐 게시판 관리 페이지 DOMContentLoaded');
 
@@ -1548,7 +1547,7 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('✅ window.boardManager 확인됨');
 });
 
-// 페이지 완전 로드 후 초기화 - course-management.js와 동일한 패턴
+// 페이지 완전 로드 후 초기화 - 다른 관리자 페이지와 동일한 패턴
 window.addEventListener('load', function () {
     console.log('🌐 게시판 관리 페이지 load 이벤트');
 
@@ -1572,7 +1571,7 @@ window.addEventListener('load', function () {
 });
 
 // =================================
-// 디버깅 및 개발자 도구 (course-management.js 스타일)
+// 디버깅 및 개발자 도구 (다른 관리자 페이지와 동일한 패턴)
 // =================================
 
 // 개발 모드에서 사용되는 디버깅 함수들
@@ -1586,7 +1585,7 @@ if (window.location.hostname === 'localhost' ||
     window.debugBoardManagement = {
         // 기본 정보 확인
         help: function () {
-            console.log('📋 게시판 관리 디버깅 도구 사용법 - 표준화 버전');
+            console.log('📋 게시판 관리 디버깅 도구 사용법 - 통일된 버전');
             console.log('\n🔧 의존성 관리:');
             console.log('- testDependencies() : 유틸리티 의존성 확인');
             console.log('\n📊 데이터 관련:');
@@ -1602,7 +1601,7 @@ if (window.location.hostname === 'localhost' ||
             console.log('- forceInit() : 강제 초기화');
         },
 
-        // 🔧 의존성 테스트 (course-management.js 스타일)
+        // 🔧 의존성 테스트 (다른 관리자 페이지와 동일)
         testDependencies: function () {
             console.log('🔧 게시판 관리 유틸리티 의존성 테스트...');
             const result = checkBoardDependencies();
@@ -1786,7 +1785,7 @@ if (window.location.hostname === 'localhost' ||
     };
 
     // 디버깅 도구 안내
-    console.log('📋 개발 모드 게시판 관리 디버깅 도구 활성화됨 - 표준화 버전');
+    console.log('📋 개발 모드 게시판 관리 디버깅 도구 활성화됨 - 통일된 버전');
     console.log('현재 호스트:', window.location.hostname);
     console.log('\n🔥 주요 디버깅 함수들:');
     console.log('🔧 의존성: testDependencies()');
@@ -1806,7 +1805,9 @@ if (window.location.hostname === 'localhost' ||
 // 최종 완료 메시지
 // =================================
 
-console.log('\n🎉 === board-management.js course-management.js 스타일 완전 표준화 완료 ===');
+console.log('\n🎉 === board-management.js 다른 관리자 페이지와 완전 통일 완료 ===');
+console.log('✅ Toast 시스템 제거 및 통일된 알림 시스템 적용');
+console.log('✅ 반응형 테이블 시스템 통일 (data-label 속성 추가)');
 console.log('✅ 전역 유틸리티 시스템 통합 (formatters.js, date-utils.js, admin-auth.js)');
 console.log('✅ 의존성 체크 시스템 구축 (checkBoardDependencies)');
 console.log('✅ 재시도 로직이 포함된 데이터 로드 시스템');
@@ -1815,15 +1816,15 @@ console.log('✅ 표준화된 이벤트 처리 및 중복 방지');
 console.log('✅ 게시판 CRUD 기능 (생성, 읽기, 삭제)');
 console.log('✅ 페이지네이션 및 검색 기능');
 console.log('✅ 에디터 도구 및 모달 시스템');
-console.log('✅ course-management.js와 완전 동일한 초기화 패턴');
-console.log('✅ 포괄적인 디버깅 도구 (표준화 버전)');
+console.log('✅ 다른 관리자 페이지와 완전 동일한 초기화 패턴');
+console.log('✅ 포괄적인 디버깅 도구 (통일된 버전)');
 console.log('\n🔧 해결된 문제점:');
-console.log('- window.initBoardManagement 함수 정의 순서 문제 해결');
-console.log('- 중복 초기화 로직 제거 및 단일 진입점 구성');
-console.log('- course-management.js와 완전 동일한 패턴 적용');
+console.log('- 기존 Toast 시스템 제거 및 adminAuth/showToast 통일');
+console.log('- 반응형 테이블 data-label 속성 추가');
+console.log('- 다른 관리자 페이지와 완전 동일한 패턴 적용');
 console.log('- 의존성 관리 시스템 표준화');
 console.log('- 에러 처리 및 폴백 시스템 강화');
-console.log('\n🚀 모든 기능이 course-management.js 스타일로 완전히 표준화되었습니다!');
+console.log('\n🚀 board-management가 다른 관리자 페이지들과 완전히 통일되었습니다!');
 console.log('🔧 이제 board-management 페이지가 다른 관리자 페이지들과 완전히 동일한 방식으로 작동합니다.');
 
 // 완료 플래그 설정

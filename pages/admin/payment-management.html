@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- ✨ 2번 문제 해결: 페이지 제목을 "Payment Management"로 수정 -->
-    <title>Payment Management - 디지털헬스케어센터 관리자</title>
+    <title>결제 관리 - Payment Management - 디지털헬스케어센터</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap"
         rel="stylesheet">
     <!-- Tailwind CSS Play CDN -->
@@ -14,74 +13,14 @@
 
     <!-- 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
     <script src="../../assets/js/utils/script-loader.js"></script>
-    
-    <!-- ✨ 반응형 디자인 CSS 추가 - 4번 문제 해결 -->
-    <style>
-        /* 반응형 디자인 강화 - 다른 관리자 페이지와 동일한 1199px 기준 적용 */
-        .admin-toggle-button {
-            display: none;
-        }
-        
-        @media (max-width: 1199px) {
-            .admin-toggle-button {
-                display: block !important;
-            }
-            .admin-sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease-in-out;
-            }
-            .admin-sidebar.show {
-                transform: translateX(0);
-            }
-        }
-        
-        .md\:hidden { display: none; }
-        @media (max-width: 768px) {
-            .md\:hidden { display: block; }
-            .hidden { display: none; }
-        }
-        
-        /* 추가 반응형 클래스 */
-        .responsive-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-        }
-        
-        .mobile-stack {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        @media (min-width: 768px) {
-            .mobile-stack {
-                flex-direction: row;
-            }
-        }
-    </style>
 </head>
 
 <body class="bg-gray-100">
     <!-- 관리자 헤더 -->
     <header class="bg-indigo-800 text-white admin-header">
-        <style>
-            /* 인라인 스타일로 깜빡임 방지 */
-            .admin-user-info {
-                display: flex !important;
-                opacity: 1 !important;
-                visibility: visible !important;
-            }
-
-            #admin-name,
-            #admin-email,
-            #admin-logout-button {
-                opacity: 1 !important;
-                visibility: visible !important;
-            }
-        </style>
         <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
-                <!-- 토글 버튼 - 다른 관리자 페이지와 동일하게 1199px 이하에서 표시 -->
+                <!-- 토글 버튼 -->
                 <button class="admin-toggle-button" id="admin-sidebar-toggle" aria-label="메뉴 토글">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -96,7 +35,7 @@
                 </div>
 
                 <!-- 사용자 정보 (모바일에서 숨김) -->
-                <div class="flex items-center space-x-4 admin-user-info hidden md:flex">
+                <div class="flex items-center space-x-4 admin-user-info">
                     <span id="admin-name">관리자</span>
                     <span id="admin-email" class="text-sm text-indigo-200">gostepexercise@gmail.com</span>
                     <button id="admin-logout-button"
@@ -114,27 +53,14 @@
     <div class="flex">
         <!-- 사이드바 -->
         <aside class="w-64 bg-indigo-900 min-h-screen text-white admin-sidebar">
-            <style>
-                /* 사이드바 사용자 정보 인라인 스타일 */
-                .sidebar-user-info {
-                    opacity: 1 !important;
-                    visibility: visible !important;
-                    padding: 1rem;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-                    margin-bottom: 1rem;
-                    background-color: rgba(0, 0, 0, 0.2);
-                }
-            </style>
-
-            <!-- 사이드바 사용자 정보 (초기에 미리 추가) -->
-            <div class="sidebar-user-info" style="opacity: 1 !important; visibility: visible !important;">
+            <!-- 사이드바 사용자 정보 -->
+            <div class="sidebar-user-info">
                 <div class="text-white mb-2">
-                    <div class="font-bold" style="opacity: 1 !important;">관리자</div>
-                    <div class="text-indigo-200 text-sm" style="opacity: 1 !important;">gostepexercise@gmail.com</div>
+                    <div class="font-bold">관리자</div>
+                    <div class="text-indigo-200 text-sm">gostepexercise@gmail.com</div>
                 </div>
                 <button id="sidebar-logout-button"
-                    class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md text-sm text-white w-full"
-                    style="opacity: 1 !important;">
+                    class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md text-sm text-white w-full">
                     로그아웃
                 </button>
             </div>
@@ -198,157 +124,357 @@
         </aside>
 
         <!-- 메인 콘텐츠 -->
-        <main class="flex-1 p-8">
-            <!-- 페이지 제목 -->
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-800">Payment Management</h1>
-                <p class="text-gray-600 mt-2">결제 내역 조회 및 관리</p>
+        <main class="flex-1 p-4 md:p-8 admin-content">
+            <!-- 알림 영역 -->
+            <div id="admin-notification" style="display: none;"></div>
+
+            <!-- 결제 관리 헤더 -->
+            <div class="mb-6 md:mb-8">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800">결제 관리</h1>
+                <p class="text-gray-600 mt-2">결제 내역 조회, 환불 처리 및 결제 통계 관리</p>
             </div>
 
-            <!-- 통계 카드 섹션 - 반응형 그리드 적용 -->
-            <div class="responsive-grid mb-8">
+            <!-- 통계 카드 섹션 -->
+            <div class="stats-grid">
                 <!-- 오늘 결제금액 -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-500 mb-1">오늘 결제금액</p>
-                            <p class="text-2xl font-bold text-blue-600" id="today-payment-amount">₩0</p>
-                            <p class="text-sm text-gray-500" id="today-payment-count">0건</p>
+                <div class="stat-card">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z">
+                                    </path>
+                                </svg>
+                            </div>
                         </div>
-                        <div class="bg-blue-100 p-3 rounded-full">
-                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z">
-                                </path>
-                            </svg>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-500">오늘 결제</div>
+                            <div class="text-xl md:text-2xl font-bold text-gray-900" id="today-payment-amount">₩0</div>
+                            <div class="text-sm text-gray-500" id="today-payment-count">0건</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 이번 달 결제금액 -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-500 mb-1">이번 달 결제금액</p>
-                            <p class="text-2xl font-bold text-green-600" id="month-payment-amount">₩0</p>
-                            <p class="text-sm text-gray-500" id="month-payment-count">0건</p>
+                <div class="stat-card">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                    </path>
+                                </svg>
+                            </div>
                         </div>
-                        <div class="bg-green-100 p-3 rounded-full">
-                            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                </path>
-                            </svg>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-500">이번 달</div>
+                            <div class="text-xl md:text-2xl font-bold text-gray-900" id="month-payment-amount">₩0</div>
+                            <div class="text-sm text-gray-500" id="month-payment-count">0건</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 환불 요청 -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-500 mb-1">환불 요청</p>
-                            <p class="text-2xl font-bold text-orange-600" id="refund-request-count">0</p>
-                            <p class="text-sm text-gray-500">건</p>
+                <div class="stat-card">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                    </path>
+                                </svg>
+                            </div>
                         </div>
-                        <div class="bg-orange-100 p-3 rounded-full">
-                            <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-                                </path>
-                            </svg>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-500">환불 요청</div>
+                            <div class="text-xl md:text-2xl font-bold text-gray-900" id="refund-request-count">0</div>
+                            <div class="text-sm text-gray-500">건</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 결제 실패 -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-500 mb-1">결제 실패 (7일)</p>
-                            <p class="text-2xl font-bold text-red-600" id="failed-payment-count">0</p>
-                            <p class="text-sm text-gray-500">건</p>
+                <div class="stat-card">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                    </path>
+                                </svg>
+                            </div>
                         </div>
-                        <div class="bg-red-100 p-3 rounded-full">
-                            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                                </path>
-                            </svg>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-500">결제 실패</div>
+                            <div class="text-xl md:text-2xl font-bold text-gray-900" id="failed-payment-count">0</div>
+                            <div class="text-sm text-gray-500">7일</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 필터 섹션 -->
-            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <!-- 검색 및 필터 섹션 -->
+            <div class="admin-filters-container">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">검색 필터</h3>
-                <div id="payment-filter-container" class="mobile-stack"></div>
+                <div class="admin-filters-grid">
+                    <div class="admin-filter-group md:col-span-2">
+                        <label for="search-keyword" class="admin-filter-label">검색어</label>
+                        <input id="search-keyword" type="text" placeholder="결제번호, 결제자명으로 검색" class="admin-filter-input">
+                    </div>
+                    <div class="admin-filter-group">
+                        <label for="payment-status" class="admin-filter-label">결제 상태</label>
+                        <select id="payment-status" class="admin-filter-select">
+                            <option value="">전체</option>
+                            <option value="pending">대기중</option>
+                            <option value="completed">완료</option>
+                            <option value="failed">실패</option>
+                            <option value="cancelled">취소</option>
+                            <option value="refund_requested">환불요청</option>
+                            <option value="refunded">환불완료</option>
+                        </select>
+                    </div>
+                    <div class="admin-filter-group">
+                        <label for="payment-method" class="admin-filter-label">결제 방법</label>
+                        <select id="payment-method" class="admin-filter-select">
+                            <option value="">전체</option>
+                            <option value="card">신용카드</option>
+                            <option value="transfer">계좌이체</option>
+                            <option value="vbank">가상계좌</option>
+                        </select>
+                    </div>
+                    <div class="admin-filter-group">
+                        <label for="date-range" class="admin-filter-label">기간</label>
+                        <div class="flex space-x-2">
+                            <input type="date" id="start-date" class="flex-1 admin-filter-input">
+                            <input type="date" id="end-date" class="flex-1 admin-filter-input">
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-filter-actions">
+                    <button id="reset-filters" class="admin-btn admin-btn-secondary">
+                        초기화
+                    </button>
+                    <button id="apply-filters" class="admin-btn admin-btn-primary">
+                        검색
+                    </button>
+                </div>
             </div>
 
             <!-- 결제 내역 테이블 -->
-            <div class="bg-white rounded-lg shadow-md">
+            <div class="admin-table-container">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-800">결제 내역</h3>
                 </div>
-                <div id="payment-table"></div>
-                <div id="payment-pagination" class="px-6 py-4 border-t border-gray-200"></div>
+                <table class="admin-table admin-table-responsive" id="payment-table">
+                    <thead>
+                        <tr>
+                            <th>결제번호</th>
+                            <th>결제자</th>
+                            <th>교육과정</th>
+                            <th>결제금액</th>
+                            <th>결제방법</th>
+                            <th>결제일시</th>
+                            <th>상태</th>
+                            <th>작업</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payment-list">
+                        <!-- 로딩 상태 -->
+                        <tr>
+                            <td colspan="8" class="admin-loading-state">
+                                <div class="admin-loading-spinner"></div>
+                                <span class="text-gray-600">데이터를 불러오는 중입니다...</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div class="admin-pagination" id="payment-pagination">
+                <!-- 페이지네이션이 여기에 동적으로 로드됩니다 -->
             </div>
         </main>
     </div>
 
-    <!-- 🔧 course-application.html 스타일의 최적화된 스크립트 로딩 -->
+    <!-- 결제 상세 모달 -->
+    <div id="payment-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg w-full max-w-2xl p-6 relative max-h-90vh overflow-y-auto">
+            <button onclick="closePaymentDetailModal()" 
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            <h2 class="text-2xl font-bold mb-6">결제 상세 정보</h2>
+            <div id="payment-detail-content">
+                <!-- 상세 내용이 여기에 동적으로 로드됩니다 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 환불 처리 모달 -->
+    <div id="refund-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg w-full max-w-md p-6 relative">
+            <button onclick="closeRefundModal()" 
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            <h2 class="text-2xl font-bold mb-6">환불 처리</h2>
+            <form id="refund-form">
+                <div class="mb-4">
+                    <label for="refund-amount" class="block text-sm font-medium text-gray-700">환불 금액</label>
+                    <input type="number" id="refund-amount" name="refund-amount" readonly
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-100">
+                </div>
+                <div class="mb-4">
+                    <label for="refund-reason" class="block text-sm font-medium text-gray-700">환불 사유</label>
+                    <textarea id="refund-reason" name="refund-reason" rows="3" required
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button type="button" onclick="closeRefundModal()"
+                        class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 mr-2">
+                        취소
+                    </button>
+                    <button type="submit"
+                        class="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700">
+                        환불 처리
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 표준화된 스크립트 로딩 -->
     <script id="firebase-sdk-template" type="text/template">
-    <!-- Firebase SDK (필수 - 가장 먼저) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
 
-    <!-- 🔧 1. 핵심 유틸리티만 먼저 로드 -->
+    <!-- 핵심 유틸리티 -->
     <script src="{basePath}assets/js/utils/formatters.js"><\/script>
     <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
 
-    <!-- 🔧 2. Firebase 설정 및 서비스 -->
+    <!-- Firebase 설정 및 서비스 -->
     <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
     <script src="{basePath}assets/js/services/auth-service.js"><\/script>
     <script src="{basePath}assets/js/services/db-service.js"><\/script>
     <script src="{basePath}assets/js/services/storage-service.js"><\/script>
-</script>
+    </script>
 
     <script id="additional-scripts-template" type="text/template">
-    <!-- 🔧 3. 필요시에만 로드되는 유틸리티 -->
-    <script src="{basePath}assets/js/utils/validators.js"><\/script>
-    <script src="{basePath}assets/js/utils/dom-utils.js"><\/script>
-    
-    <!-- 🔧 4. 관리자 전용 유틸리티 -->
+    <!-- 관리자 전용 유틸리티 -->
     <script src="{basePath}assets/js/utils/admin-auth.js"><\/script>
     
-    <!-- 🔧 5. 공통 컴포넌트 -->
+    <!-- 공통 컴포넌트 -->
+    <script src="{basePath}assets/js/components/header.js"><\/script>
     <script src="{basePath}assets/js/components/modal.js"><\/script>
     <script src="{basePath}assets/js/components/pagination.js"><\/script>
     
-    <!-- 🔧 6. 관리자 공통 스크립트 -->
+    <!-- Toast 알림 시스템 -->
+    <script src="{basePath}assets/js/components/toast.js"><\/script>
+    
+    <!-- 관리자 페이지 공통 기능 -->
     <script src="{basePath}assets/js/pages/admin.js"><\/script>
     
-    <!-- 🔧 7. 페이지별 스크립트 (가장 마지막) -->
+    <!-- 결제 관리 페이지 스크립트 -->
     <script src="{basePath}assets/js/pages/admin/payment-management.js"><\/script>
-</script>
+    
+    <!-- 메인 스크립트 -->
+    <script src="{basePath}assets/js/main.js"><\/script>
+    </script>
 
-    <!-- 🔧 course-management.js 스타일 완전 표준화된 초기화 스크립트 -->
+    <!-- 결제 관리 초기화 스크립트 (표준화) -->
     <script>
-        console.log('=== 결제 관리 페이지 HTML 초기화 시작 ===');
+        window.addEventListener('load', async function () {
+            console.log('=== 표준화된 결제 관리 페이지 로드 완료 ===');
 
-        // 🚨 중요: 모든 초기화 로직은 payment-management.js에서 처리됩니다.
-        // HTML에서는 단순히 스크립트 로딩만 담당하고, 실제 초기화는 JS 파일에서 수행합니다.
-        
-        console.log('💳 결제 관리 페이지 HTML 로드 완료');
-        console.log('⏳ payment-management.js의 초기화를 대기 중...');
-        
-        // course-management.js와 동일한 패턴으로 간소화
-        // 실제 초기화는 payment-management.js의 window.addEventListener('load', ...) 에서 처리됩니다.
+            try {
+                // payment-management.js에서 제공하는 초기화 함수 호출
+                if (typeof initPaymentManagement === 'function') {
+                    console.log('✅ initPaymentManagement 함수 발견, 초기화 시작');
+                    await initPaymentManagement();
+                } else {
+                    console.error('❌ payment-management.js의 initPaymentManagement 함수를 찾을 수 없습니다.');
+                }
 
-        console.log('=== 결제 관리 페이지 HTML 스크립트 로딩 완료 ===');
+                // 관리자 공통 기능 초기화
+                if (typeof adminUtils !== 'undefined' && adminUtils.initAdminSidebar) {
+                    console.log('✅ 관리자 사이드바 초기화');
+                    adminUtils.initAdminSidebar();
+                }
+
+                if (window.adminUtils && window.adminUtils.initAdminPage) {
+                    console.log('✅ adminUtils.initAdminPage 호출');
+                    window.adminUtils.initAdminPage();
+                }
+
+                console.log('🎉 표준화된 결제 관리 초기화 완료');
+
+            } catch (error) {
+                console.error('❌ 결제 관리 초기화 오류:', error);
+            }
+        });
+
+        // 전역 함수 정의 (모달 관련)
+        function closePaymentDetailModal() {
+            const modal = document.getElementById('payment-detail-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function closeRefundModal() {
+            const modal = document.getElementById('refund-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // 결제 상세 보기 함수
+        window.viewPaymentDetail = function(paymentId) {
+            if (window.paymentManager && window.paymentManager.viewPaymentDetail) {
+                window.paymentManager.viewPaymentDetail(paymentId);
+            } else {
+                console.error('paymentManager가 로드되지 않았습니다.');
+            }
+        };
+
+        // 환불 모달 표시 함수
+        window.showRefundModal = function(paymentId) {
+            if (window.paymentManager && window.paymentManager.showRefundModal) {
+                window.paymentManager.showRefundModal(paymentId);
+            } else {
+                console.error('paymentManager가 로드되지 않았습니다.');
+            }
+        };
+
+        // 결제 취소 함수
+        window.cancelPayment = function(paymentId) {
+            if (window.paymentManager && window.paymentManager.cancelPayment) {
+                window.paymentManager.cancelPayment(paymentId);
+            } else {
+                console.error('paymentManager가 로드되지 않았습니다.');
+            }
+        };
+
+        // 페이지 변경 함수
+        window.changePage = function(page) {
+            if (window.paymentManager && window.paymentManager.changePage) {
+                window.paymentManager.changePage(page);
+            } else {
+                console.error('paymentManager가 로드되지 않았습니다.');
+            }
+        };
     </script>
 </body>
 
