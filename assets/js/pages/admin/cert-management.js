@@ -184,6 +184,14 @@ function initCertManager() {
                 });
             }
 
+            // 자격증 수정 폼 제출 이벤트 (새로 추가)
+            const certEditForm = document.getElementById('cert-edit-form');
+            if (certEditForm) {
+                certEditForm.addEventListener('submit', (e) => {
+                    this.handleUpdateCertificate(e);
+                });
+            }
+
             // 검색어 입력 시 엔터키 이벤트
             const searchInputs = document.querySelectorAll('#search-name, #search-cert-number');
             searchInputs.forEach(input => {
@@ -203,6 +211,32 @@ function initCertManager() {
             if (bulkFileInput) {
                 bulkFileInput.addEventListener('change', this.handleBulkFileUpload.bind(this));
             }
+
+            // 모달 외부 클릭 시 닫기 이벤트 (새로 추가)
+            document.addEventListener('click', (e) => {
+                // 상세보기 모달 외부 클릭
+                const detailModal = document.getElementById('cert-detail-modal');
+                if (detailModal && e.target === detailModal) {
+                    this.closeCertDetailModal();
+                }
+
+                // 수정 모달 외부 클릭
+                const editModal = document.getElementById('cert-edit-modal');
+                if (editModal && e.target === editModal) {
+                    this.closeCertEditModal();
+                }
+            });
+
+            // ESC 키로 모달 닫기 (새로 추가)
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    // 모든 모달 닫기
+                    this.closeCertDetailModal();
+                    this.closeCertEditModal();
+                    this.closeIssueCertModal();
+                    this.closeBulkIssuanceModal();
+                }
+            });
         },
 
         /**
@@ -1111,8 +1145,8 @@ function initCertManager() {
         viewCertDetails: async function (certId) {
             try {
                 // 로딩 표시
-                if (window.adminUtils?.showLoadingOverlay) {
-                    window.adminUtils.showLoadingOverlay(true);
+                if (window.adminAuth?.showNotification) {
+                    window.adminAuth.showNotification('자격증 정보를 불러오는 중...', 'info');
                 }
 
                 let cert = null;
@@ -1184,103 +1218,103 @@ function initCertManager() {
                     userEmail = 'user@example.com';
                 }
 
-                // 모달 내용 생성 - 🔧 전역 유틸리티 사용
-                const modalContent = `
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <h4 class="font-medium text-gray-700">자격증 번호</h4>
-                                <p>${cert.certificateNumber || cert.certNumber || '-'}</p>
-                            </div>
-                            <div>
-                                <h4 class="font-medium text-gray-700">자격증 종류</h4>
-                                <p>${this.getCertTypeName(cert.certificateType || this.currentCertType)}</p>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <h4 class="font-medium text-gray-700">수료자 정보</h4>
-                            <p>${cert.holderName || userName} (${cert.holderEmail || userEmail})</p>
-                        </div>
-                        
-                        <div>
-                            <h4 class="font-medium text-gray-700">교육 과정</h4>
-                            <p>${courseName}</p>
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <h4 class="font-medium text-gray-700">발급일</h4>
-                                <p>${this.formatDate(cert.issueDate) || cert.issueDate || '-'}</p>
-                            </div>
-                            <div>
-                                <h4 class="font-medium text-gray-700">만료일</h4>
-                                <p>${this.formatDate(cert.expiryDate) || cert.expiryDate || '-'}</p>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <h4 class="font-medium text-gray-700">상태</h4>
-                            <p>
-                                <span class="px-2 py-1 rounded-full text-xs 
-                                    ${cert.status === 'active' ? 'bg-green-100 text-green-800' :
+                // 모달 내용 생성
+                const modalContent = document.getElementById('cert-detail-content');
+                modalContent.innerHTML = `
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <h4 class="font-medium text-gray-700">자격증 번호</h4>
+                    <p class="text-gray-900">${cert.certificateNumber || cert.certNumber || '-'}</p>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-700">자격증 종류</h4>
+                    <p class="text-gray-900">${this.getCertTypeName(cert.certificateType || this.currentCertType)}</p>
+                </div>
+            </div>
+            
+            <div>
+                <h4 class="font-medium text-gray-700">수료자 정보</h4>
+                <p class="text-gray-900">${cert.holderName || userName} (${cert.holderEmail || userEmail})</p>
+            </div>
+            
+            <div>
+                <h4 class="font-medium text-gray-700">교육 과정</h4>
+                <p class="text-gray-900">${courseName}</p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <h4 class="font-medium text-gray-700">발급일</h4>
+                    <p class="text-gray-900">${this.formatDate(cert.issueDate) || cert.issueDate || '-'}</p>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-700">만료일</h4>
+                    <p class="text-gray-900">${this.formatDate(cert.expiryDate) || cert.expiryDate || '-'}</p>
+                </div>
+            </div>
+            
+            <div>
+                <h4 class="font-medium text-gray-700">상태</h4>
+                <p>
+                    <span class="px-2 py-1 rounded-full text-xs 
+                        ${cert.status === 'active' ? 'bg-green-100 text-green-800' :
                         cert.status === 'expired' ? 'bg-red-100 text-red-800' :
                             'bg-yellow-100 text-yellow-800'}">
-                                    ${this.getStatusText(cert.status)}
-                                </span>
-                            </p>
-                        </div>
-                        
-                        <div>
-                            <h4 class="font-medium text-gray-700">비고</h4>
-                            <p class="whitespace-pre-wrap">${cert.remarks || '-'}</p>
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <h4 class="font-medium text-gray-700">등록일시</h4>
-                                <p>${this.formatDate(cert.createdAt, true) || '-'}</p>
-                            </div>
-                            <div>
-                                <h4 class="font-medium text-gray-700">수정일시</h4>
-                                <p>${this.formatDate(cert.updatedAt, true) || '-'}</p>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-4 pt-4 border-t border-gray-200">
-                            <h4 class="font-medium text-gray-700">자격증 PDF 다운로드</h4>
-                            <div class="flex space-x-3 mt-2">
-                                <button onclick="certManager.downloadCertPdf('${certId}', 'ko'); adminUtils.closeModal();" class="admin-btn admin-btn-secondary">
-                                    한글 PDF
-                                </button>
-                                <button onclick="certManager.downloadCertPdf('${certId}', 'en'); adminUtils.closeModal();" class="admin-btn admin-btn-primary">
-                                    영문 PDF
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                        ${this.getStatusText(cert.status)}
+                    </span>
+                </p>
+            </div>
+            
+            <div>
+                <h4 class="font-medium text-gray-700">비고</h4>
+                <p class="text-gray-900 whitespace-pre-wrap">${cert.remarks || '-'}</p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <h4 class="font-medium text-gray-700">등록일시</h4>
+                    <p class="text-gray-900">${this.formatDate(cert.createdAt, true) || '-'}</p>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-700">수정일시</h4>
+                    <p class="text-gray-900">${this.formatDate(cert.updatedAt, true) || '-'}</p>
+                </div>
+            </div>
+            
+            <div class="mt-4 pt-4 border-t border-gray-200">
+                <h4 class="font-medium text-gray-700">자격증 PDF 다운로드</h4>
+                <div class="flex space-x-3 mt-2">
+                    <button onclick="certManager.downloadCertPdf('${certId}', 'ko'); certManager.closeCertDetailModal();" 
+                        class="admin-btn admin-btn-secondary">
+                        한글 PDF
+                    </button>
+                    <button onclick="certManager.downloadCertPdf('${certId}', 'en'); certManager.closeCertDetailModal();" 
+                        class="admin-btn admin-btn-primary">
+                        영문 PDF
+                    </button>
+                </div>
+            </div>
+        `;
 
                 // 모달 표시
-                if (window.adminUtils?.showModal) {
-                    window.adminUtils.showModal({
-                        title: '자격증 상세 정보',
-                        content: modalContent,
-                        buttons: [
-                            { label: '닫기', type: 'secondary', handler: 'adminUtils.closeModal()' }
-                        ]
-                    });
-                } else {
-                    alert(`자격증 상세 정보:\n자격증 번호: ${cert.certificateNumber || cert.certNumber}\n수료자: ${cert.holderName || userName}\n상태: ${this.getStatusText(cert.status)}`);
+                const modal = document.getElementById('cert-detail-modal');
+                if (modal) {
+                    modal.classList.remove('hidden');
                 }
+
             } catch (error) {
                 console.error('자격증 상세 정보 조회 오류:', error);
                 window.adminAuth?.showNotification('자격증 정보 조회 중 오류가 발생했습니다.', 'error');
-            } finally {
-                // 로딩 종료
-                if (window.adminUtils?.showLoadingOverlay) {
-                    window.adminUtils.showLoadingOverlay(false);
-                }
+            }
+        },
+
+        /**
+         * 자격증 상세보기 모달 닫기
+         */
+        closeCertDetailModal: function () {
+            const modal = document.getElementById('cert-detail-modal');
+            if (modal) {
+                modal.classList.add('hidden');
             }
         },
 
@@ -1290,8 +1324,8 @@ function initCertManager() {
         editCert: async function (certId) {
             try {
                 // 로딩 표시
-                if (window.adminUtils?.showLoadingOverlay) {
-                    window.adminUtils.showLoadingOverlay(true);
+                if (window.adminAuth?.showNotification) {
+                    window.adminAuth.showNotification('자격증 정보를 불러오는 중...', 'info');
                 }
 
                 let cert = null;
@@ -1327,100 +1361,59 @@ function initCertManager() {
                     }
                 }
 
-                // 모달 내용 생성 (수정 폼) - 🔧 전역 유틸리티 사용
-                const modalContent = `
-                    <form id="edit-cert-form" onsubmit="certManager.handleUpdateCertificate(event, '${certId}')">
-                        <div class="space-y-4">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">자격증 번호</label>
-                                    <input type="text" value="${cert.certificateNumber || cert.certNumber || ''}" readonly
-                                        class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100">
-                                    <p class="text-xs text-gray-500 mt-1">자격증 번호는 변경할 수 없습니다.</p>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">수료자명</label>
-                                    <input type="text" value="${cert.holderName || cert.name || ''}" readonly
-                                        class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100">
-                                    <p class="text-xs text-gray-500 mt-1">수료자명은 변경할 수 없습니다.</p>
-                                </div>
-                            </div>
-                            
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">발급일 <span class="text-red-500">*</span></label>
-                                    <input type="date" name="issueDate" required
-                                        value="${this.formatDateToInput(cert.issueDate) || cert.issueDate || ''}"
-                                        class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">만료일 <span class="text-red-500">*</span></label>
-                                    <input type="date" name="expiryDate" required
-                                        value="${this.formatDateToInput(cert.expiryDate) || cert.expiryDate || ''}"
-                                        class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">상태 <span class="text-red-500">*</span></label>
-                                <select name="status" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                                    <option value="active" ${cert.status === 'active' ? 'selected' : ''}>유효</option>
-                                    <option value="expired" ${cert.status === 'expired' ? 'selected' : ''}>만료</option>
-                                    <option value="revoked" ${cert.status === 'revoked' || cert.status === 'suspended' ? 'selected' : ''}>취소</option>
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">비고</label>
-                                <textarea name="remarks" rows="3" 
-                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">${cert.remarks || ''}</textarea>
-                            </div>
-                        </div>
-                    </form>
-                `;
+                // 폼에 데이터 입력
+                document.getElementById('edit-cert-id').value = certId;
+                document.getElementById('edit-cert-number').value = cert.certificateNumber || cert.certNumber || '';
+                document.getElementById('edit-holder-name').value = cert.holderName || cert.name || '';
+                document.getElementById('edit-issue-date').value = this.formatDateToInput(cert.issueDate) || cert.issueDate || '';
+                document.getElementById('edit-expiry-date').value = this.formatDateToInput(cert.expiryDate) || cert.expiryDate || '';
+                document.getElementById('edit-status').value = cert.status || 'active';
+                document.getElementById('edit-remarks').value = cert.remarks || '';
 
                 // 모달 표시
-                if (window.adminUtils?.showModal) {
-                    window.adminUtils.showModal({
-                        title: '자격증 정보 수정',
-                        content: modalContent,
-                        buttons: [
-                            { label: '취소', type: 'secondary', handler: 'adminUtils.closeModal()' },
-                            { label: '저장', type: 'primary', handler: 'document.getElementById("edit-cert-form").submit()' }
-                        ]
-                    });
-                } else {
-                    alert('자격증 수정 기능은 adminUtils가 필요합니다.');
+                const modal = document.getElementById('cert-edit-modal');
+                if (modal) {
+                    modal.classList.remove('hidden');
                 }
+
             } catch (error) {
                 console.error('자격증 수정 폼 로드 오류:', error);
                 window.adminAuth?.showNotification('자격증 정보 조회 중 오류가 발생했습니다.', 'error');
-            } finally {
-                // 로딩 종료
-                if (window.adminUtils?.showLoadingOverlay) {
-                    window.adminUtils.showLoadingOverlay(false);
-                }
+            }
+        },
+
+        /**
+         * 자격증 수정 모달 닫기
+         */
+        closeCertEditModal: function () {
+            const modal = document.getElementById('cert-edit-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+
+                // 폼 초기화
+                const form = document.getElementById('cert-edit-form');
+                if (form) form.reset();
             }
         },
 
         /**
          * 자격증 수정 처리
          */
-        handleUpdateCertificate: async function (event, certId) {
+        handleUpdateCertificate: async function (event) {
             event.preventDefault();
 
             try {
                 // 로딩 표시
-                if (window.adminUtils?.showLoadingOverlay) {
-                    window.adminUtils.showLoadingOverlay(true);
+                if (window.adminAuth?.showNotification) {
+                    window.adminAuth.showNotification('자격증 정보를 수정하는 중...', 'info');
                 }
 
                 // 폼 데이터 가져오기
-                const form = event.target;
-                const issueDate = form.elements.issueDate.value;
-                const expiryDate = form.elements.expiryDate.value;
-                const status = form.elements.status.value;
-                const remarks = form.elements.remarks.value;
+                const certId = document.getElementById('edit-cert-id').value;
+                const issueDate = document.getElementById('edit-issue-date').value;
+                const expiryDate = document.getElementById('edit-expiry-date').value;
+                const status = document.getElementById('edit-status').value;
+                const remarks = document.getElementById('edit-remarks').value;
 
                 // 유효성 검사
                 if (!issueDate || !expiryDate || !status) {
@@ -1446,9 +1439,7 @@ function initCertManager() {
                         await docRef.update(updateData);
 
                         // 모달 닫기
-                        if (window.adminUtils?.closeModal) {
-                            window.adminUtils.closeModal();
-                        }
+                        this.closeCertEditModal();
 
                         // 성공 메시지
                         window.adminAuth?.showNotification('자격증 정보가 성공적으로 수정되었습니다.', 'success');
@@ -1463,9 +1454,7 @@ function initCertManager() {
                     // 테스트 환경에서는 성공으로 처리
                     setTimeout(() => {
                         // 모달 닫기
-                        if (window.adminUtils?.closeModal) {
-                            window.adminUtils.closeModal();
-                        }
+                        this.closeCertEditModal();
 
                         // 성공 메시지
                         window.adminAuth?.showNotification('자격증 정보가 성공적으로 수정되었습니다.', 'success');
@@ -1477,11 +1466,6 @@ function initCertManager() {
             } catch (error) {
                 console.error('자격증 정보 수정 오류:', error);
                 window.adminAuth?.showNotification('자격증 정보 수정 중 오류가 발생했습니다.', 'error');
-            } finally {
-                // 로딩 종료
-                if (window.adminUtils?.showLoadingOverlay) {
-                    window.adminUtils.showLoadingOverlay(false);
-                }
             }
         },
 
