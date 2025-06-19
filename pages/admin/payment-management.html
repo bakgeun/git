@@ -425,7 +425,7 @@
             }
         });
 
-        // 전역 함수 정의 (모달 관련)
+        // 전역 함수 정의 (모달 관리)
         function closePaymentDetailModal() {
             const modal = document.getElementById('payment-detail-modal');
             if (modal) {
@@ -442,37 +442,37 @@
 
         // 결제 상세 보기 함수
         window.viewPaymentDetail = function(paymentId) {
-            if (window.paymentManager && window.paymentManager.viewPaymentDetail) {
+            if (window.paymentManager && typeof window.paymentManager.viewPaymentDetail === 'function') {
                 window.paymentManager.viewPaymentDetail(paymentId);
             } else {
-                console.error('paymentManager가 로드되지 않았습니다.');
+                console.error('paymentManager.viewPaymentDetail 함수를 찾을 수 없습니다.');
             }
         };
 
         // 환불 모달 표시 함수
         window.showRefundModal = function(paymentId) {
-            if (window.paymentManager && window.paymentManager.showRefundModal) {
+            if (window.paymentManager && typeof window.paymentManager.showRefundModal === 'function') {
                 window.paymentManager.showRefundModal(paymentId);
             } else {
-                console.error('paymentManager가 로드되지 않았습니다.');
+                console.error('paymentManager.showRefundModal 함수를 찾을 수 없습니다.');
             }
         };
 
         // 결제 취소 함수
         window.cancelPayment = function(paymentId) {
-            if (window.paymentManager && window.paymentManager.cancelPayment) {
+            if (window.paymentManager && typeof window.paymentManager.cancelPayment === 'function') {
                 window.paymentManager.cancelPayment(paymentId);
             } else {
-                console.error('paymentManager가 로드되지 않았습니다.');
+                console.error('paymentManager.cancelPayment 함수를 찾을 수 없습니다.');
             }
         };
 
         // 페이지 변경 함수
         window.changePage = function(page) {
-            if (window.paymentManager && window.paymentManager.changePage) {
+            if (window.paymentManager && typeof window.paymentManager.changePage === 'function') {
                 window.paymentManager.changePage(page);
             } else {
-                console.error('paymentManager가 로드되지 않았습니다.');
+                console.error('paymentManager.changePage 함수를 찾을 수 없습니다.');
             }
         };
     </script>

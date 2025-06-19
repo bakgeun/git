@@ -1,5 +1,5 @@
 /**
- * payment-management.js - 100% 통합 테스트 통과 버전
+ * payment-management.js - 완전한 통합 유틸리티 시스템 적용 버전
  * 결제 관리 페이지의 모든 기능을 포함합니다.
  */
 
@@ -11,12 +11,12 @@ console.log('=== 완전한 표준화된 payment-management.js 파일 로드됨 =
 
 let paymentManagerInitialized = false;
 let authStateListener = null;
-let realtimeListenersSetup = false; // 🔧 실시간 리스너 중복 방지
+let realtimeListenersSetup = false; // 실시간 리스너 중복 방지
 
-// 🔧 실시간 리스너 참조 저장 (메모리 누수 방지)
+// 실시간 리스너 참조 저장 (메모리 누수 방지)
 let paymentsListener = null;
 
-// 🔧 페이지네이션 상태
+// 페이지네이션 상태
 let currentPage = 1;
 let pageSize = 10;
 let lastDoc = null;
@@ -52,7 +52,7 @@ function checkDependencies() {
     
     console.log('✅ 모든 필수 유틸리티 로드 확인됨');
     
-    // 🔧 추가: 유틸리티 함수들이 실제로 작동하는지 테스트
+    // 추가: 유틸리티 함수들이 실제로 작동하는지 테스트
     try {
         const testDate = new Date();
         const testFormatDate = window.formatters.formatDate(testDate, 'YYYY.MM.DD');
@@ -73,7 +73,7 @@ function checkDependencies() {
     return true;
 }
 
-// 🔧 Firebase 연결 상태 확인 - 누락된 함수 추가 ✨
+// Firebase 연결 상태 확인
 function checkFirebaseConnection() {
     console.log('🔥 Firebase 연결 상태 확인...');
     
@@ -109,7 +109,7 @@ function initializeWhenReady() {
 // 초기화 시작
 initializeWhenReady();
 
-// 🔧 의존성 오류 표시 함수
+// 의존성 오류 표시 함수
 function showDependencyError() {
     const mainContent = document.querySelector('main');
     
@@ -143,7 +143,7 @@ async function initPaymentManagement() {
     console.log('=== initPaymentManagement 실행 시작 ===');
     
     try {
-        // 🔧 의존성 체크 먼저 실행
+        // 의존성 체크 먼저 실행
         if (!checkDependencies()) {
             console.error('❌ 필수 유틸리티 누락으로 초기화 중단');
             showDependencyError();
@@ -212,7 +212,7 @@ function initializeWithAuth() {
         const currentUser = window.dhcFirebase.getCurrentUser();
         console.log('초기 인증 상태:', currentUser ? `${currentUser.email} 로그인됨` : '로그인하지 않음');
         
-        // 🔧 기존 리스너 제거 (중복 방지)
+        // 기존 리스너 제거 (중복 방지)
         if (authStateListener) {
             console.log('⚠️ 기존 인증 리스너 제거');
             authStateListener();
@@ -329,14 +329,6 @@ async function initializePaymentManager(user) {
     console.log('✅ 인증된 사용자로 결제 관리 초기화:', user.email);
     
     try {
-        // 🔔 Toast 시스템 테스트 및 초기화
-        console.log('🔔 Toast 시스템 테스트 중...');
-        const toastReady = testToastSystem();
-        
-        if (!toastReady) {
-            console.warn('⚠️ Toast 시스템 미준비 - 기본 알림 사용');
-        }
-        
         // 기본 UI 기능들
         initBasicUI();
         
@@ -346,40 +338,8 @@ async function initializePaymentManager(user) {
         // 로그아웃 버튼 설정
         setupLogoutButton();
         
-        // 검색 필터 설정
-        setupFilters();
-        
-        // 🔔 Toast로 로딩 알림
-        const loadingToast = showLoadingToast('결제 데이터를 불러오는 중...');
-        
-        try {
-            // 결제 통계 로드
-            await loadPaymentStats();
-            
-            // 결제 내역 로드
-            await loadPayments();
-            
-            // 로딩 완료
-            hideToast(loadingToast);
-            
-            // 🔔 초기화 완료 알림
-            if (toastReady) {
-                setTimeout(() => {
-                    showSuccessMessage('결제 관리 시스템이 준비되었습니다.');
-                }, 500);
-            }
-            
-        } catch (dataError) {
-            hideToast(loadingToast);
-            console.error('❌ 데이터 로드 오류:', dataError);
-            showErrorMessage('일부 데이터를 불러오는데 실패했습니다.');
-        }
-        
-        // 실시간 업데이트 설정 (중복 방지)
-        setupRealtimeUpdates();
-        
-        // 관리자 전용 기능 초기화
-        initAdminFeatures();
+        // 결제 관리자 초기화
+        await window.paymentManager.init();
         
         paymentManagerInitialized = true;
         console.log('✅ 결제 관리 초기화 완료');
@@ -396,12 +356,6 @@ async function initializePaymentManager(user) {
 function initBasicUI() {
     console.log('🎨 기본 UI 기능 초기화');
     
-    // 스크롤 애니메이션
-    initScrollAnimations();
-    
-    // 부드러운 스크롤
-    initSmoothScroll();
-    
     // 관리자 페이지 공통 기능 초기화 (중복 방지)
     if (window.adminUtils && typeof window.adminUtils.initAdminPage === 'function') {
         // admin.js에서 이미 초기화했는지 확인
@@ -411,21 +365,6 @@ function initBasicUI() {
             console.log('⚠️ adminUtils가 이미 초기화됨 - 중복 방지');
         }
     }
-}
-
-/**
- * 관리자 전용 기능 초기화
- */
-function initAdminFeatures() {
-    console.log('🔧 관리자 전용 기능 초기화');
-    
-    // 관리자 네비게이션 설정
-    if (window.adminAuth && typeof window.adminAuth.setupAdminNavigation === 'function') {
-        window.adminAuth.setupAdminNavigation();
-    }
-    
-    // 키보드 단축키 설정
-    setupKeyboardShortcuts();
 }
 
 /**
@@ -439,7 +378,7 @@ function displayAdminInfo(user = null) {
             const adminNameElement = document.getElementById('admin-name');
             const adminEmailElement = document.getElementById('admin-email');
             
-            // 🔧 전역 유틸리티 사용
+            // 전역 유틸리티 사용
             const displayName = currentUser.displayName || '관리자';
             const email = currentUser.email;
             
@@ -531,295 +470,328 @@ async function handleLogout(e) {
 }
 
 // =================================
-// 결제 관리 데이터 로드 기능들
+// 결제 관리 객체 (메인 기능)
 // =================================
 
-/**
- * 검색 필터 설정
- */
-function setupFilters() {
-    console.log('🔍 검색 필터 설정');
-    
-    // 필터 컨테이너 확인
-    const filterContainer = document.getElementById('payment-filter-container');
-    if (!filterContainer) {
-        console.warn('필터 컨테이너를 찾을 수 없습니다.');
-        return;
-    }
-    
-    // 기본 필터 HTML 생성
-    const filterHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">검색</label>
-                <input type="text" id="search-keyword" placeholder="결제번호 또는 결제자명" 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">결제 상태</label>
-                <select id="payment-status" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">전체</option>
-                    <option value="pending">대기중</option>
-                    <option value="completed">완료</option>
-                    <option value="failed">실패</option>
-                    <option value="cancelled">취소</option>
-                    <option value="refund_requested">환불요청</option>
-                    <option value="refunded">환불완료</option>
-                </select>
-            </div>
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">결제 방법</label>
-                <select id="payment-method" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">전체</option>
-                    <option value="card">신용카드</option>
-                    <option value="transfer">계좌이체</option>
-                    <option value="vbank">가상계좌</option>
-                </select>
-            </div>
-            <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">기간</label>
-                <div class="flex space-x-2">
-                    <input type="date" id="start-date" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <input type="date" id="end-date" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-            </div>
-        </div>
-        <div class="mt-4 flex justify-end space-x-2">
-            <button id="reset-filters" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
-                초기화
-            </button>
-            <button id="apply-filters" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-                검색
-            </button>
-        </div>
-    `;
-    
-    filterContainer.innerHTML = filterHTML;
-    
-    // 필터 이벤트 등록
-    const applyButton = document.getElementById('apply-filters');
-    const resetButton = document.getElementById('reset-filters');
-    
-    if (applyButton) {
-        applyButton.addEventListener('click', applyFilters);
-    }
-    
-    if (resetButton) {
-        resetButton.addEventListener('click', resetFilters);
-    }
-    
-    // 엔터 키로 검색
-    const searchInput = document.getElementById('search-keyword');
-    if (searchInput) {
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                applyFilters();
+window.paymentManager = {
+    currentPage: 1,
+    pageSize: 10,
+    lastDoc: null,
+    filters: {},
+    currentPayments: [],
+
+    /**
+     * 초기화 함수
+     */
+    init: async function () {
+        try {
+            console.log('결제 관리자 초기화 시작');
+
+            // 관리자 정보 표시
+            if (window.adminAuth && typeof window.adminAuth.displayAdminInfo === 'function') {
+                await window.adminAuth.displayAdminInfo();
             }
-        });
-    }
-}
 
-/**
- * 필터 적용
- */
-function applyFilters() {
-    console.log('🔍 필터 적용');
-    
-    currentFilters = {
-        searchKeyword: document.getElementById('search-keyword')?.value || '',
-        status: document.getElementById('payment-status')?.value || '',
-        paymentMethod: document.getElementById('payment-method')?.value || '',
-        startDate: document.getElementById('start-date')?.value || '',
-        endDate: document.getElementById('end-date')?.value || ''
-    };
-    
-    console.log('적용된 필터:', currentFilters);
-    
-    // 🔔 필터 적용 알림
-    const activeFilters = Object.entries(currentFilters).filter(([key, value]) => value.trim() !== '');
-    if (activeFilters.length > 0) {
-        showInfoMessage(`${activeFilters.length}개의 필터가 적용되었습니다.`);
-    }
-    
-    // 첫 페이지로 리셋
-    currentPage = 1;
-    lastDoc = null;
-    
-    // 데이터 다시 로드
-    loadPayments();
-}
+            // 이벤트 리스너 등록
+            this.registerEventListeners();
 
-/**
- * 필터 초기화 - Toast 알림 추가
- */
-function resetFilters() {
-    console.log('🔄 필터 초기화');
-    
-    // 모든 필터 입력값 초기화
-    const filterInputs = [
-        'search-keyword',
-        'payment-status', 
-        'payment-method',
-        'start-date',
-        'end-date'
-    ];
-    
-    filterInputs.forEach(id => {
-        const element = document.getElementById(id);
+            // 결제 통계 로드
+            await this.loadPaymentStats();
+
+            // 결제 목록 로드
+            await this.loadPayments();
+
+            console.log('결제 관리자 초기화 완료');
+            return true;
+        } catch (error) {
+            console.error('결제 관리자 초기화 오류:', error);
+            if (window.showErrorToast) {
+                window.showErrorToast('초기화 중 오류가 발생했습니다.');
+            }
+            return false;
+        }
+    },
+
+    /**
+     * 이벤트 리스너 등록
+     */
+    registerEventListeners: function () {
+        console.log('이벤트 리스너 등록 시작');
+
+        const applyButton = document.getElementById('apply-filters');
+        const resetButton = document.getElementById('reset-filters');
+
+        if (applyButton) {
+            applyButton.addEventListener('click', this.applyFilters.bind(this));
+        }
+
+        if (resetButton) {
+            resetButton.addEventListener('click', this.resetFilters.bind(this));
+        }
+
+        const searchInput = document.getElementById('search-keyword');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.applyFilters();
+                }
+            });
+        }
+
+        console.log('이벤트 리스너 등록 완료');
+    },
+
+    /**
+     * Firebase 사용 가능 여부 확인
+     */
+    isFirebaseAvailable: function () {
+        try {
+            return window.dhcFirebase &&
+                window.dhcFirebase.db &&
+                window.dbService &&
+                window.dhcFirebase.auth &&
+                window.dhcFirebase.auth.currentUser;
+        } catch (error) {
+            console.log('Firebase 가용성 확인 오류:', error);
+            return false;
+        }
+    },
+
+    /**
+     * 결제 통계 로드
+     */
+    loadPaymentStats: async function () {
+        console.log('📊 결제 통계 로드 시작');
+        
+        try {
+            if (this.isFirebaseAvailable()) {
+                // 실제 Firebase 데이터 로드
+                await this.loadRealPaymentStats();
+            } else {
+                // 더미 데이터 표시
+                this.displayDummyStats();
+            }
+        } catch (error) {
+            console.error('결제 통계 로드 오류:', error);
+            this.displayDummyStats();
+        }
+    },
+
+    /**
+     * 실제 결제 통계 로드
+     */
+    loadRealPaymentStats: async function () {
+        try {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+            
+            // 오늘 결제
+            const todayPayments = await window.dbService.getDocuments('payments', {
+                where: [
+                    { field: 'status', operator: '==', value: 'completed' },
+                    { field: 'createdAt', operator: '>=', value: today }
+                ]
+            });
+            
+            if (todayPayments.success) {
+                const todayAmount = todayPayments.data.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+                this.updateStatElement('today-payment-amount', window.formatters.formatCurrency(todayAmount));
+                this.updateStatElement('today-payment-count', todayPayments.data.length);
+            }
+            
+            // 이번 달 결제
+            const monthPayments = await window.dbService.getDocuments('payments', {
+                where: [
+                    { field: 'status', operator: '==', value: 'completed' },
+                    { field: 'createdAt', operator: '>=', value: firstDayOfMonth }
+                ]
+            });
+            
+            if (monthPayments.success) {
+                const monthAmount = monthPayments.data.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+                this.updateStatElement('month-payment-amount', window.formatters.formatCurrency(monthAmount));
+                this.updateStatElement('month-payment-count', monthPayments.data.length);
+            }
+            
+            // 환불 요청
+            const refundRequests = await window.dbService.getDocuments('payments', {
+                where: { field: 'status', operator: '==', value: 'refund_requested' }
+            });
+            
+            if (refundRequests.success) {
+                this.updateStatElement('refund-request-count', refundRequests.data.length);
+            }
+            
+            // 최근 7일 결제 실패
+            const failedPayments = await window.dbService.getDocuments('payments', {
+                where: [
+                    { field: 'status', operator: '==', value: 'failed' },
+                    { field: 'createdAt', operator: '>=', value: sevenDaysAgo }
+                ]
+            });
+            
+            if (failedPayments.success) {
+                this.updateStatElement('failed-payment-count', failedPayments.data.length);
+            }
+            
+        } catch (error) {
+            console.error('실제 결제 통계 로드 오류:', error);
+            this.displayDummyStats();
+        }
+    },
+
+    /**
+     * 더미 통계 데이터 표시
+     */
+    displayDummyStats: function () {
+        this.updateStatElement('today-payment-amount', window.formatters.formatCurrency(2500000));
+        this.updateStatElement('today-payment-count', 15);
+        this.updateStatElement('month-payment-amount', window.formatters.formatCurrency(35000000));
+        this.updateStatElement('month-payment-count', 124);
+        this.updateStatElement('refund-request-count', 3);
+        this.updateStatElement('failed-payment-count', 7);
+    },
+
+    /**
+     * 통계 요소 업데이트
+     */
+    updateStatElement: function (elementId, value) {
+        const element = document.getElementById(elementId);
         if (element) {
-            element.value = '';
+            element.textContent = value;
         }
-    });
-    
-    // 🔔 필터 초기화 알림
-    showInfoMessage('모든 필터가 초기화되었습니다.');
-    
-    // 필터 적용
-    applyFilters();
-}
+    },
 
-/**
- * 결제 통계 로드
- */
-async function loadPaymentStats() {
-    console.log('📊 결제 통계 로드 시작');
-    
-    try {
-        // dbService가 없으면 더미 데이터 사용
-        if (!window.dbService) {
-            console.log('dbService가 없어 더미 데이터 사용');
-            displayDummyStats();
-            return;
+    /**
+     * 결제 목록 로드
+     */
+    loadPayments: async function () {
+        console.log('📋 결제 목록 로드 시작');
+        
+        // 로딩 표시
+        this.showLoadingState();
+        
+        try {
+            if (this.isFirebaseAvailable()) {
+                await this.loadRealPayments();
+            } else {
+                this.displayDummyPayments();
+            }
+        } catch (error) {
+            console.error('결제 목록 로드 오류:', error);
+            this.displayDummyPayments();
         }
-        
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-        const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-        
-        // 오늘 결제
-        const todayPayments = await window.dbService.getDocuments('payments', {
-            where: [
-                { field: 'status', operator: '==', value: 'completed' },
-                { field: 'createdAt', operator: '>=', value: today }
-            ]
-        });
-        
-        if (todayPayments.success) {
-            const todayAmount = todayPayments.data.reduce((sum, payment) => sum + (payment.amount || 0), 0);
-            updateElement('today-payment-amount', window.formatters.formatCurrency(todayAmount));
-            updateElement('today-payment-count', todayPayments.data.length);
-        }
-        
-        // 이번 달 결제
-        const monthPayments = await window.dbService.getDocuments('payments', {
-            where: [
-                { field: 'status', operator: '==', value: 'completed' },
-                { field: 'createdAt', operator: '>=', value: firstDayOfMonth }
-            ]
-        });
-        
-        if (monthPayments.success) {
-            const monthAmount = monthPayments.data.reduce((sum, payment) => sum + (payment.amount || 0), 0);
-            updateElement('month-payment-amount', window.formatters.formatCurrency(monthAmount));
-            updateElement('month-payment-count', monthPayments.data.length);
-        }
-        
-        // 환불 요청
-        const refundRequests = await window.dbService.getDocuments('payments', {
-            where: { field: 'status', operator: '==', value: 'refund_requested' }
-        });
-        
-        if (refundRequests.success) {
-            updateElement('refund-request-count', refundRequests.data.length);
-        }
-        
-        // 최근 7일 결제 실패
-        const failedPayments = await window.dbService.getDocuments('payments', {
-            where: [
-                { field: 'status', operator: '==', value: 'failed' },
-                { field: 'createdAt', operator: '>=', value: sevenDaysAgo }
-            ]
-        });
-        
-        if (failedPayments.success) {
-            updateElement('failed-payment-count', failedPayments.data.length);
-        }
-        
-    } catch (error) {
-        console.error('결제 통계 로드 오류:', error);
-        displayDummyStats();
-    }
-}
+    },
 
-/**
- * 더미 통계 데이터 표시
- */
-function displayDummyStats() {
-    updateElement('today-payment-amount', window.formatters.formatCurrency(2500000));
-    updateElement('today-payment-count', 15);
-    updateElement('month-payment-amount', window.formatters.formatCurrency(35000000));
-    updateElement('month-payment-count', 124);
-    updateElement('refund-request-count', 3);
-    updateElement('failed-payment-count', 7);
-}
+    /**
+     * 로딩 상태 표시
+     */
+    showLoadingState: function () {
+        const paymentList = document.getElementById('payment-list');
+        if (paymentList) {
+            paymentList.innerHTML = `
+                <tr>
+                    <td colspan="8" class="admin-loading-state">
+                        <div class="admin-loading-spinner"></div>
+                        <span class="text-gray-600">데이터를 불러오는 중입니다...</span>
+                    </td>
+                </tr>
+            `;
+        }
+    },
 
-/**
- * 결제 내역 로드
- */
-async function loadPayments() {
-    console.log('📋 결제 내역 로드 시작');
-    
-    try {
-        // dbService가 없으면 더미 데이터 사용
-        if (!window.dbService) {
-            console.log('dbService가 없어 더미 데이터 사용');
-            displayDummyPayments();
-            return;
+    /**
+     * 실제 결제 목록 로드
+     */
+    loadRealPayments: async function () {
+        try {
+            const options = {
+                orderBy: { field: 'createdAt', direction: 'desc' },
+                limit: this.pageSize
+            };
+
+            // 필터 적용
+            this.applyFiltersToOptions(options);
+
+            let result;
+            if (this.filters.searchKeyword) {
+                // 검색 결과
+                result = await this.searchPayments(this.filters.searchKeyword, options);
+            } else {
+                // 일반 페이징
+                result = await window.dbService.getPaginatedDocuments('payments', options, this.currentPage > 1 ? this.lastDoc : null);
+            }
+
+            if (result.success) {
+                // 추가 정보 조회
+                const paymentsWithDetails = await this.enrichPaymentData(result.data);
+                
+                this.currentPayments = paymentsWithDetails;
+                this.updatePaymentList(paymentsWithDetails);
+                
+                // 페이지네이션 업데이트
+                if (!this.filters.searchKeyword) {
+                    this.lastDoc = result.lastDoc;
+                    const totalCount = await window.dbService.countDocuments('payments', { where: options.where });
+                    const totalPages = Math.ceil(totalCount.count / this.pageSize);
+                    this.updatePagination(totalPages);
+                } else {
+                    this.updatePagination(1);
+                }
+            } else {
+                console.error('결제 목록 로드 실패:', result.error);
+                if (window.showErrorToast) {
+                    window.showErrorToast('결제 목록을 불러오는데 실패했습니다.');
+                }
+            }
+        } catch (error) {
+            console.error('실제 결제 목록 로드 오류:', error);
+            this.displayDummyPayments();
         }
-        
-        // 필터 옵션 설정
-        const options = {
-            orderBy: { field: 'createdAt', direction: 'desc' },
-            limit: pageSize
-        };
-        
-        // 필터 적용
-        if (currentFilters.status) {
+    },
+
+    /**
+     * 필터를 옵션에 적용
+     */
+    applyFiltersToOptions: function (options) {
+        if (this.filters.status) {
             options.where = options.where || [];
-            options.where.push({ field: 'status', operator: '==', value: currentFilters.status });
+            options.where.push({ field: 'status', operator: '==', value: this.filters.status });
         }
-        
-        if (currentFilters.paymentMethod) {
+
+        if (this.filters.paymentMethod) {
             options.where = options.where || [];
-            options.where.push({ field: 'paymentMethod', operator: '==', value: currentFilters.paymentMethod });
+            options.where.push({ field: 'paymentMethod', operator: '==', value: this.filters.paymentMethod });
         }
-        
-        // 날짜 필터
-        if (currentFilters.startDate) {
+
+        if (this.filters.startDate) {
             options.where = options.where || [];
-            options.where.push({ field: 'createdAt', operator: '>=', value: new Date(currentFilters.startDate) });
+            options.where.push({ field: 'createdAt', operator: '>=', value: new Date(this.filters.startDate) });
         }
-        
-        if (currentFilters.endDate) {
+
+        if (this.filters.endDate) {
             options.where = options.where || [];
-            const endDate = new Date(currentFilters.endDate);
+            const endDate = new Date(this.filters.endDate);
             endDate.setHours(23, 59, 59, 999);
             options.where.push({ field: 'createdAt', operator: '<=', value: endDate });
         }
-        
-        // 검색어 필터 (결제번호 또는 결제자명)
-        let searchResults;
-        if (currentFilters.searchKeyword) {
-            // 복합 검색 (결제번호와 결제자명)
-            const paymentIdResults = await window.dbService.searchDocuments('payments', 'paymentId', currentFilters.searchKeyword, options);
-            const userNameResults = await window.dbService.searchDocuments('payments', 'userName', currentFilters.searchKeyword, options);
-            
+    },
+
+    /**
+     * 결제 검색
+     */
+    searchPayments: async function (keyword, options) {
+        try {
+            const paymentIdResults = await window.dbService.searchDocuments('payments', 'paymentId', keyword, options);
+            const userNameResults = await window.dbService.searchDocuments('payments', 'userName', keyword, options);
+
             // 결과 병합 및 중복 제거
             const combinedResults = [];
             const seenIds = new Set();
-            
+
             if (paymentIdResults.success) {
                 paymentIdResults.data.forEach(item => {
                     if (!seenIds.has(item.id)) {
@@ -828,7 +800,7 @@ async function loadPayments() {
                     }
                 });
             }
-            
+
             if (userNameResults.success) {
                 userNameResults.data.forEach(item => {
                     if (!seenIds.has(item.id)) {
@@ -837,1077 +809,1242 @@ async function loadPayments() {
                     }
                 });
             }
-            
-            searchResults = {
+
+            return {
                 success: true,
                 data: combinedResults,
                 lastDoc: null
             };
-            
-            // 🔔 검색 결과 Toast 알림
-            if (combinedResults.length > 0) {
-                showInfoMessage(`${combinedResults.length}건의 검색 결과를 찾았습니다.`);
-            } else {
-                showWarningMessage('검색 조건에 맞는 결제 내역이 없습니다.');
-            }
-        } else {
-            searchResults = await window.dbService.getPaginatedDocuments('payments', options, currentPage > 1 ? lastDoc : null);
+        } catch (error) {
+            console.error('결제 검색 오류:', error);
+            return { success: false, error };
         }
-        
-        if (searchResults.success) {
-            // 추가 정보 조회 (결제자 정보, 교육과정 정보)
-            const paymentsWithDetails = await Promise.all(searchResults.data.map(async (payment) => {
-                // 결제자 정보
-                if (payment.userId) {
+    },
+
+    /**
+     * 결제 데이터 보강 (사용자 정보, 교육과정 정보 추가)
+     */
+    enrichPaymentData: async function (payments) {
+        return await Promise.all(payments.map(async (payment) => {
+            // 결제자 정보
+            if (payment.userId) {
+                try {
                     const userDoc = await window.dbService.getDocument('users', payment.userId);
                     if (userDoc.success) {
                         payment.userName = userDoc.data.displayName || userDoc.data.email;
                         payment.userEmail = userDoc.data.email;
                         payment.userPhone = userDoc.data.phoneNumber;
                     }
+                } catch (error) {
+                    console.error('사용자 정보 조회 오류:', error);
                 }
-                
-                // 교육과정 정보
-                if (payment.courseId) {
+            }
+
+            // 교육과정 정보
+            if (payment.courseId) {
+                try {
                     const courseDoc = await window.dbService.getDocument('courses', payment.courseId);
                     if (courseDoc.success) {
                         payment.courseName = courseDoc.data.title;
                         payment.courseType = courseDoc.data.certificateType;
                     }
+                } catch (error) {
+                    console.error('교육과정 정보 조회 오류:', error);
                 }
-                
-                return payment;
-            }));
-            
-            // 테이블 업데이트
-            updatePaymentTable(paymentsWithDetails);
-            
-            // 페이지네이션 업데이트
-            if (!currentFilters.searchKeyword) {
-                lastDoc = searchResults.lastDoc;
-                
-                // 전체 결제 수 계산
-                const totalCount = await window.dbService.countDocuments('payments', { where: options.where });
-                const totalPages = Math.ceil(totalCount.count / pageSize);
-                
-                updatePagination(currentPage, totalPages);
-            } else {
-                // 검색 결과의 경우 간단한 페이지네이션
-                updatePagination(1, 1);
             }
-        } else {
-            console.error('결제 내역 로드 실패:', searchResults.error);
-            showErrorMessage('결제 내역을 불러오는데 실패했습니다.');
-        }
-        
-    } catch (error) {
-        console.error('결제 내역 로드 오류:', error);
-        showErrorMessage('결제 내역을 불러오는데 실패했습니다.');
-        displayDummyPayments(); // 오류 시 더미 데이터 표시
-    }
-}
 
-/**
- * 더미 결제 데이터 표시
- */
-function displayDummyPayments() {
-    const dummyPayments = [
-        {
-            id: 'dummy-1',
-            paymentId: 'PAY-20250618-001',
-            userName: '홍길동',
-            userEmail: 'hong@example.com',
-            userPhone: '010-1234-5678',
-            courseName: '건강운동처방사 기본과정',
-            courseType: 'health-exercise',
-            amount: 350000,
-            paymentMethod: 'card',
-            status: 'completed',
-            createdAt: new Date(),
-            pgResponse: {
-                authCode: 'AUTH123456',
-                transactionId: 'TXN789012',
-                cardName: '신한카드',
-                installment: 0
+            return payment;
+        }));
+    },
+
+    /**
+     * 더미 결제 데이터 표시
+     */
+    displayDummyPayments: function () {
+        const dummyPayments = [
+            {
+                id: 'dummy-1',
+                paymentId: 'PAY-20250618-001',
+                userName: '홍길동',
+                userEmail: 'hong@example.com',
+                userPhone: '010-1234-5678',
+                courseName: '건강운동처방사 기본과정',
+                courseType: 'health-exercise',
+                amount: 350000,
+                paymentMethod: 'card',
+                status: 'completed',
+                createdAt: new Date(),
+                pgResponse: {
+                    authCode: 'AUTH123456',
+                    transactionId: 'TXN789012',
+                    cardName: '신한카드',
+                    installment: 0
+                }
+            },
+            {
+                id: 'dummy-2',
+                paymentId: 'PAY-20250618-002',
+                userName: '김영희',
+                userEmail: 'kim@example.com',
+                userPhone: '010-2345-6789',
+                courseName: '운동재활전문가 기본과정',
+                courseType: 'rehabilitation',
+                amount: 420000,
+                paymentMethod: 'transfer',
+                status: 'completed',
+                createdAt: new Date(Date.now() - 3600000)
+            },
+            {
+                id: 'dummy-3',
+                paymentId: 'PAY-20250618-003',
+                userName: '박철수',
+                userEmail: 'park@example.com',
+                userPhone: '010-3456-7890',
+                courseName: '필라테스 전문가 기본과정',
+                courseType: 'pilates',
+                amount: 480000,
+                paymentMethod: 'vbank',
+                status: 'pending',
+                createdAt: new Date(Date.now() - 7200000)
+            },
+            {
+                id: 'dummy-4',
+                paymentId: 'PAY-20250618-004',
+                userName: '이민수',
+                userEmail: 'lee@example.com',
+                userPhone: '010-4567-8901',
+                courseName: '레크리에이션지도자 기본과정',
+                courseType: 'recreation',
+                amount: 280000,
+                paymentMethod: 'card',
+                status: 'refund_requested',
+                createdAt: new Date(Date.now() - 86400000)
+            },
+            {
+                id: 'dummy-5',
+                paymentId: 'PAY-20250618-005',
+                userName: '정하나',
+                userEmail: 'jung@example.com',
+                userPhone: '010-5678-9012',
+                courseName: '건강운동처방사 심화과정',
+                courseType: 'health-exercise',
+                amount: 450000,
+                paymentMethod: 'card',
+                status: 'failed',
+                createdAt: new Date(Date.now() - 172800000)
             }
-        },
-        {
-            id: 'dummy-2',
-            paymentId: 'PAY-20250618-002',
-            userName: '김영희',
-            userEmail: 'kim@example.com',
-            userPhone: '010-2345-6789',
-            courseName: '운동재활전문가 기본과정',
-            courseType: 'rehabilitation',
-            amount: 420000,
-            paymentMethod: 'transfer',
-            status: 'completed',
-            createdAt: new Date(Date.now() - 3600000)
-        },
-        {
-            id: 'dummy-3',
-            paymentId: 'PAY-20250618-003',
-            userName: '박철수',
-            userEmail: 'park@example.com',
-            userPhone: '010-3456-7890',
-            courseName: '필라테스 전문가 기본과정',
-            courseType: 'pilates',
-            amount: 480000,
-            paymentMethod: 'vbank',
-            status: 'pending',
-            createdAt: new Date(Date.now() - 7200000)
-        },
-        {
-            id: 'dummy-4',
-            paymentId: 'PAY-20250618-004',
-            userName: '이민수',
-            userEmail: 'lee@example.com',
-            userPhone: '010-4567-8901',
-            courseName: '레크리에이션지도자 기본과정',
-            courseType: 'recreation',
-            amount: 280000,
-            paymentMethod: 'card',
-            status: 'refund_requested',
-            createdAt: new Date(Date.now() - 86400000)
-        },
-        {
-            id: 'dummy-5',
-            paymentId: 'PAY-20250618-005',
-            userName: '정하나',
-            userEmail: 'jung@example.com',
-            userPhone: '010-5678-9012',
-            courseName: '건강운동처방사 심화과정',
-            courseType: 'health-exercise',
-            amount: 450000,
-            paymentMethod: 'card',
-            status: 'failed',
-            createdAt: new Date(Date.now() - 172800000)
-        },
-        {
-            id: 'dummy-6',
-            paymentId: 'PAY-20250618-006',
-            userName: '최서연',
-            userEmail: 'choi@example.com',
-            userPhone: '010-6789-0123',
-            courseName: '필라테스 전문가 심화과정',
-            courseType: 'pilates',
-            amount: 520000,
-            paymentMethod: 'transfer',
-            status: 'completed',
-            createdAt: new Date(Date.now() - 259200000)
-        }
-    ];
-    
-    updatePaymentTable(dummyPayments);
-    updatePagination(1, 1);
-    
-    // 🔔 더미 데이터 로드 알림
-    showInfoMessage('테스트 데이터를 표시하고 있습니다.');
-}
+        ];
 
-/**
- * 결제 테이블 업데이트 - 반응형 및 빈 상태 처리 개선
- */
-function updatePaymentTable(payments) {
-    console.log('📋 결제 테이블 업데이트, 결제 수:', payments.length);
-    
-    const tableContainer = document.getElementById('payment-table');
-    const emptyState = document.getElementById('payment-empty-state');
-    
-    if (!tableContainer) {
-        console.error('테이블 컨테이너를 찾을 수 없습니다.');
-        return;
-    }
-    
-    // 빈 상태 처리
-    if (payments.length === 0) {
-        // 테이블 숨기기
-        const table = tableContainer.querySelector('table');
-        if (table) {
-            table.style.display = 'none';
+        this.currentPayments = dummyPayments;
+        this.updatePaymentList(dummyPayments);
+        this.updatePagination(1);
+    },
+
+    /**
+     * 결제 목록 업데이트
+     */
+    updatePaymentList: function (payments) {
+        console.log('📋 결제 목록 업데이트, 결제 수:', payments.length);
+
+        const paymentList = document.getElementById('payment-list');
+        if (!paymentList) {
+            console.error('결제 목록 요소를 찾을 수 없습니다.');
+            return;
         }
-        
-        // 빈 상태 표시
-        if (emptyState) {
-            emptyState.classList.remove('hidden');
-        }
-        
-        return;
-    }
-    
-    // 빈 상태 숨기기
-    if (emptyState) {
-        emptyState.classList.add('hidden');
-    }
-    
-    // 테이블 HTML 생성 (반응형 클래스 적용)
-    const tableHTML = `
-        <table class="admin-table admin-table-responsive">
-            <thead>
+
+        if (!payments || payments.length === 0) {
+            paymentList.innerHTML = `
                 <tr>
-                    <th>결제번호</th>
-                    <th>결제자</th>
-                    <th class="hidden md:table-cell">교육과정</th>
-                    <th>결제금액</th>
-                    <th class="hidden md:table-cell">결제방법</th>
-                    <th class="hidden lg:table-cell">결제일시</th>
-                    <th>상태</th>
-                    <th>작업</th>
+                    <td colspan="8" class="admin-empty-state">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
+                            </path>
+                        </svg>
+                        <h3>등록된 결제 내역이 없습니다</h3>
+                        <p>새로운 결제가 완료되면 여기에 표시됩니다.</p>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                ${payments.map(payment => createPaymentTableRow(payment)).join('')}
-            </tbody>
-        </table>
-    `;
-    
-    tableContainer.innerHTML = tableHTML;
-    
-    // 테이블 이벤트 등록
-    attachTableEvents();
-    
-    // 🔔 로드 완료 알림 (선택적)
-    if (payments.length > 0) {
-        console.log(`✅ ${payments.length}건의 결제 내역을 표시했습니다.`);
-    }
-}
-
-/**
- * 더미 결제 데이터 표시 - 반응형 개선
- */
-function displayDummyPayments() {
-    const dummyPayments = [
-        {
-            id: 'dummy-1',
-            paymentId: 'PAY-20250618-001',
-            userName: '홍길동',
-            userEmail: 'hong@example.com',
-            userPhone: '010-1234-5678',
-            courseName: '건강운동처방사 기본과정',
-            courseType: 'health-exercise',
-            amount: 350000,
-            paymentMethod: 'card',
-            status: 'completed',
-            createdAt: new Date(),
-            pgResponse: {
-                authCode: 'AUTH123456',
-                transactionId: 'TXN789012',
-                cardName: '신한카드',
-                installment: 0
-            }
-        },
-        {
-            id: 'dummy-2',
-            paymentId: 'PAY-20250618-002',
-            userName: '김영희',
-            userEmail: 'kim@example.com',
-            userPhone: '010-2345-6789',
-            courseName: '운동재활전문가 기본과정',
-            courseType: 'rehabilitation',
-            amount: 420000,
-            paymentMethod: 'transfer',
-            status: 'completed',
-            createdAt: new Date(Date.now() - 3600000)
-        },
-        {
-            id: 'dummy-3',
-            paymentId: 'PAY-20250618-003',
-            userName: '박철수',
-            userEmail: 'park@example.com',
-            userPhone: '010-3456-7890',
-            courseName: '필라테스 전문가 기본과정',
-            courseType: 'pilates',
-            amount: 480000,
-            paymentMethod: 'vbank',
-            status: 'pending',
-            createdAt: new Date(Date.now() - 7200000)
-        },
-        {
-            id: 'dummy-4',
-            paymentId: 'PAY-20250618-004',
-            userName: '이민수',
-            userEmail: 'lee@example.com',
-            userPhone: '010-4567-8901',
-            courseName: '레크리에이션지도자 기본과정',
-            courseType: 'recreation',
-            amount: 280000,
-            paymentMethod: 'card',
-            status: 'refund_requested',
-            createdAt: new Date(Date.now() - 86400000)
-        },
-        {
-            id: 'dummy-5',
-            paymentId: 'PAY-20250618-005',
-            userName: '정하나',
-            userEmail: 'jung@example.com',
-            userPhone: '010-5678-9012',
-            courseName: '건강운동처방사 심화과정',
-            courseType: 'health-exercise',
-            amount: 450000,
-            paymentMethod: 'card',
-            status: 'failed',
-            createdAt: new Date(Date.now() - 172800000)
-        },
-        {
-            id: 'dummy-6',
-            paymentId: 'PAY-20250618-006',
-            userName: '최서연',
-            userEmail: 'choi@example.com',
-            userPhone: '010-6789-0123',
-            courseName: '필라테스 전문가 심화과정',
-            courseType: 'pilates',
-            amount: 520000,
-            paymentMethod: 'transfer',
-            status: 'completed',
-            createdAt: new Date(Date.now() - 259200000)
+            `;
+            return;
         }
-    ];
-    
-    updatePaymentTable(dummyPayments);
-    updatePagination(1, 1);
-    
-    // 🔔 더미 데이터 로드 알림
-    showInfoMessage('테스트 데이터를 표시하고 있습니다.');
-}
 
-/**
- * 추가 유틸리티 함수들
- */
-
-/**
- * 데이터 내보내기 함수
- */
-function exportPaymentData() {
-    console.log('📊 결제 데이터 내보내기');
-    showInfoMessage('데이터 내보내기 기능을 준비 중입니다.');
-    
-    // TODO: 실제 구현 시 CSV/Excel 내보내기 로직 추가
-}
-
-/**
- * 결제 데이터 새로고침 함수
- */
-function refreshPaymentData() {
-    console.log('🔄 결제 데이터 새로고침');
-    
-    // 🔔 새로고침 알림
-    const loadingToast = showLoadingToast('데이터를 새로고침하고 있습니다...');
-    
-    // 통계와 목록 모두 새로고침
-    Promise.all([
-        loadPaymentStats(),
-        loadPayments()
-    ]).then(() => {
-        hideToast(loadingToast);
-        showSuccessMessage('데이터가 성공적으로 새로고침되었습니다.');
-    }).catch((error) => {
-        hideToast(loadingToast);
-        console.error('새로고침 오류:', error);
-        showErrorMessage('데이터 새로고침 중 오류가 발생했습니다.');
-    });
-}
-
-/**
- * 키보드 단축키 설정
- */
-function setupKeyboardShortcuts() {
-    document.addEventListener('keydown', (e) => {
-        // Ctrl/Cmd + R: 새로고침 (기본 브라우저 새로고침 방지하고 데이터만 새로고침)
-        if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-            e.preventDefault();
-            refreshPaymentData();
-        }
-        
-        // Ctrl/Cmd + F: 검색 필드에 포커스
-        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-            e.preventDefault();
-            const searchInput = document.getElementById('search-keyword');
-            if (searchInput) {
-                searchInput.focus();
-                searchInput.select();
-            }
-        }
-        
-        // ESC: 필터 초기화
-        if (e.key === 'Escape') {
-            resetFilters();
-        }
-    });
-}
-
-/**
- * 스크롤 애니메이션 초기화
- */
-function initScrollAnimations() {
-    // 스크롤 시 헤더에 그림자 효과
-    let lastScrollTop = 0;
-    const header = document.querySelector('.admin-header');
-    
-    window.addEventListener('scroll', () => {
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        
-        if (scrollTop > 10) {
-            header?.classList.add('shadow-lg');
-        } else {
-            header?.classList.remove('shadow-lg');
-        }
-        
-        lastScrollTop = scrollTop;
-    }, false);
-}
-
-/**
- * 부드러운 스크롤 초기화
- */
-function initSmoothScroll() {
-    // 페이지 내 앵커 링크에 부드러운 스크롤 적용
-    document.addEventListener('click', (e) => {
-        if (e.target.matches('a[href^="#"]')) {
-            e.preventDefault();
-            const target = document.querySelector(e.target.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        }
-    });
-}
-
-// 전역 함수로 노출
-window.exportPaymentData = exportPaymentData;
-window.refreshPaymentData = refreshPaymentData;
-
-console.log('✅ Payment Management 반응형 테이블 시스템 적용 완료');
-
-/**
- * 결제 테이블 업데이트
- */
-function updatePaymentTable(payments) {
-    console.log('📋 결제 테이블 업데이트, 결제 수:', payments.length);
-    
-    const tableContainer = document.getElementById('payment-table');
-    const emptyState = document.getElementById('payment-empty-state');
-    
-    if (!tableContainer) {
-        console.error('테이블 컨테이너를 찾을 수 없습니다.');
-        return;
-    }
-    
-    // 빈 상태 처리
-    if (payments.length === 0) {
-        // 테이블 숨기기
-        const table = tableContainer.querySelector('table');
-        if (table) {
-            table.style.display = 'none';
-        }
-        
-        // 빈 상태 표시
-        if (emptyState) {
-            emptyState.classList.remove('hidden');
-        }
-        
-        return;
-    }
-    
-    // 빈 상태 숨기기
-    if (emptyState) {
-        emptyState.classList.add('hidden');
-    }
-    
-    // 테이블 HTML 생성 (반응형 클래스 적용)
-    const tableHTML = `
-        <table class="admin-table admin-table-responsive">
-            <thead>
-                <tr>
-                    <th>결제번호</th>
-                    <th>결제자</th>
-                    <th class="hidden md:table-cell">교육과정</th>
-                    <th>결제금액</th>
-                    <th class="hidden md:table-cell">결제방법</th>
-                    <th class="hidden lg:table-cell">결제일시</th>
-                    <th>상태</th>
-                    <th>작업</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${payments.map(payment => createPaymentTableRow(payment)).join('')}
-            </tbody>
-        </table>
-    `;
-    
-    tableContainer.innerHTML = tableHTML;
-    
-    // 테이블 이벤트 등록
-    attachTableEvents();
-    
-    // 🔔 로드 완료 알림 (선택적)
-    if (payments.length > 0) {
-        console.log(`✅ ${payments.length}건의 결제 내역을 표시했습니다.`);
-    }
-}
-
-/**
- * 결제 테이블 행 생성
- */
-function createPaymentTableRow(payment) {
-    // 🔧 전역 유틸리티 사용
-    const formatDate = (date) => {
-        if (!date) return '-';
-        if (date.toDate) {
-            return window.formatters.formatDate(date.toDate(), 'YYYY-MM-DD HH:mm');
-        }
-        return window.formatters.formatDate(date, 'YYYY-MM-DD HH:mm');
-    };
-    
-    const formatCurrency = (amount) => {
-        return window.formatters.formatCurrency(amount || 0);
-    };
-    
-    const getPaymentMethodName = (method) => {
-        const methods = {
-            'card': '신용카드',
-            'transfer': '계좌이체',
-            'vbank': '가상계좌'
-        };
-        return methods[method] || method;
-    };
-    
-    const getStatusBadge = (status) => {
-        const statusConfig = {
-            'pending': { class: 'status-badge status-active', text: '대기중' },
-            'completed': { class: 'status-badge status-active', text: '완료' },
-            'failed': { class: 'status-badge status-expired', text: '실패' },
-            'cancelled': { class: 'status-badge status-inactive', text: '취소' },
-            'refund_requested': { class: 'status-badge status-suspended', text: '환불요청' },
-            'refunded': { class: 'status-badge status-inactive', text: '환불완료' }
-        };
-        
-        const config = statusConfig[status] || { class: 'status-badge status-inactive', text: status };
-        return `<span class="${config.class}">${config.text}</span>`;
-    };
-    
-    const getActionButtons = (payment) => {
-        const buttons = [];
-        
-        // 상세 보기 버튼 (항상 표시)
-        buttons.push(`
-            <button onclick="viewPaymentDetail('${payment.id}')" 
-                    class="table-action-btn btn-view">
-                상세
-            </button>
-        `);
-        
-        // 환불 버튼 (완료된 결제만)
-        if (payment.status === 'completed' || payment.status === 'refund_requested') {
-            buttons.push(`
-                <button onclick="showRefundModal('${payment.id}')" 
-                        class="table-action-btn btn-edit">
-                    환불
-                </button>
-            `);
-        }
-        
-        // 취소 버튼 (대기중인 결제만)
-        if (payment.status === 'pending') {
-            buttons.push(`
-                <button onclick="cancelPayment('${payment.id}')" 
-                        class="table-action-btn btn-delete">
-                    취소
-                </button>
-            `);
-        }
-        
-        return `<div class="table-actions">${buttons.join('')}</div>`;
-    };
-    
-    return `
-        <tr class="hover:bg-gray-50" data-payment-id="${payment.id}">
-            <td data-label="결제번호" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                ${payment.paymentId || '-'}
-            </td>
-            <td data-label="결제자" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <div>
-                    <div class="font-medium">${payment.userName || '알 수 없음'}</div>
-                    <div class="text-gray-500 text-xs">${payment.userEmail || ''}</div>
-                </div>
-            </td>
-            <td data-label="교육과정" class="px-6 py-4 text-sm text-gray-900">
-                ${payment.courseName || '-'}
-            </td>
-            <td data-label="결제금액" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                ${formatCurrency(payment.amount)}
-            </td>
-            <td data-label="결제방법" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                ${getPaymentMethodName(payment.paymentMethod)}
-            </td>
-            <td data-label="결제일시" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                ${formatDate(payment.createdAt)}
-            </td>
-            <td data-label="상태" class="px-6 py-4 whitespace-nowrap">
-                ${getStatusBadge(payment.status)}
-            </td>
-            <td data-label="작업" class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                ${getActionButtons(payment)}
-            </td>
-        </tr>
-    `;
-}
-
-/**
- * 테이블 이벤트 등록
- */
-function attachTableEvents() {
-    // 테이블 행 클릭 시 상세 보기
-    const tableRows = document.querySelectorAll('tbody tr[data-payment-id]');
-    tableRows.forEach(row => {
-        row.addEventListener('click', (e) => {
-            // 버튼 클릭은 제외
-            if (e.target.tagName === 'BUTTON') return;
-            
-            const paymentId = row.dataset.paymentId;
-            if (paymentId) {
-                viewPaymentDetail(paymentId);
-            }
+        let html = '';
+        payments.forEach((payment, index) => {
+            html += this.createPaymentTableRow(payment, index);
         });
-    });
-}
 
-/**
- * 페이지네이션 업데이트
- */
-function updatePagination(current, total) {
-    const paginationContainer = document.getElementById('payment-pagination');
-    if (!paginationContainer) return;
-    
-    if (total <= 1) {
-        paginationContainer.innerHTML = '';
-        return;
-    }
-    
-    let paginationHTML = '<div class="flex items-center justify-between">';
-    
-    // 이전 버튼
-    if (current > 1) {
-        paginationHTML += `
-            <button onclick="changePage(${current - 1})" 
-                    class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                이전
+        paymentList.innerHTML = html;
+    },
+
+    /**
+     * 결제 테이블 행 생성
+     */
+    createPaymentTableRow: function (payment, index) {
+        const formatDate = (date) => {
+            if (!date) return '-';
+            if (date.toDate) {
+                return window.formatters.formatDate(date.toDate(), 'YYYY-MM-DD HH:mm');
+            }
+            return window.formatters.formatDate(date, 'YYYY-MM-DD HH:mm');
+        };
+
+        const formatCurrency = (amount) => {
+            return window.formatters.formatCurrency(amount || 0);
+        };
+
+        const getPaymentMethodName = (method) => {
+            const methods = {
+                'card': '신용카드',
+                'transfer': '계좌이체',
+                'vbank': '가상계좌'
+            };
+            return methods[method] || method;
+        };
+
+        const getStatusBadge = (status) => {
+            const statusConfig = {
+                'pending': { class: 'status-badge bg-yellow-100 text-yellow-800', text: '대기중' },
+                'completed': { class: 'status-badge bg-green-100 text-green-800', text: '완료' },
+                'failed': { class: 'status-badge bg-red-100 text-red-800', text: '실패' },
+                'cancelled': { class: 'status-badge bg-gray-100 text-gray-800', text: '취소' },
+                'refund_requested': { class: 'status-badge bg-orange-100 text-orange-800', text: '환불요청' },
+                'refunded': { class: 'status-badge bg-blue-100 text-blue-800', text: '환불완료' }
+            };
+
+            const config = statusConfig[status] || { class: 'status-badge bg-gray-100 text-gray-800', text: status };
+            return `<span class="${config.class}">${config.text}</span>`;
+        };
+
+        const getActionButtons = (payment) => {
+            const buttons = [];
+
+            // 상세 보기 버튼 (항상 표시)
+            buttons.push(`
+                <button onclick="viewPaymentDetail('${payment.id}')" 
+                        class="table-action-btn btn-view">
+                    상세
+                </button>
+            `);
+
+            // 환불 버튼 (완료된 결제만)
+            if (payment.status === 'completed' || payment.status === 'refund_requested') {
+                buttons.push(`
+                    <button onclick="showRefundModal('${payment.id}')" 
+                            class="table-action-btn btn-edit">
+                        환불
+                    </button>
+                `);
+            }
+
+            // 취소 버튼 (대기중인 결제만)
+            if (payment.status === 'pending') {
+                buttons.push(`
+                    <button onclick="cancelPayment('${payment.id}')" 
+                            class="table-action-btn btn-delete">
+                        취소
+                    </button>
+                `);
+            }
+
+            return buttons.join(' ');
+        };
+
+        const paymentNumber = index + 1 + ((this.currentPage - 1) * this.pageSize);
+
+        return `
+            <tr class="hover:bg-gray-50 transition-colors" data-payment-id="${payment.id}">
+                <td data-label="결제번호">
+                    <div class="font-medium text-gray-900">
+                        ${payment.paymentId || `#${paymentNumber}`}
+                    </div>
+                </td>
+                <td data-label="결제자">
+                    <div>
+                        <div class="font-medium text-gray-900">${payment.userName || '알 수 없음'}</div>
+                        <div class="text-sm text-gray-500">${payment.userEmail || ''}</div>
+                    </div>
+                </td>
+                <td data-label="교육과정">
+                    <div class="text-sm text-gray-900">
+                        ${payment.courseName || '-'}
+                    </div>
+                </td>
+                <td data-label="결제금액">
+                    <div class="font-medium text-gray-900">
+                        ${formatCurrency(payment.amount)}
+                    </div>
+                </td>
+                <td data-label="결제방법">
+                    <div class="text-sm text-gray-900">
+                        ${getPaymentMethodName(payment.paymentMethod)}
+                    </div>
+                </td>
+                <td data-label="결제일시">
+                    <div class="text-sm text-gray-500">
+                        ${formatDate(payment.createdAt)}
+                    </div>
+                </td>
+                <td data-label="상태">
+                    ${getStatusBadge(payment.status)}
+                </td>
+                <td data-label="작업">
+                    <div class="table-actions">
+                        ${getActionButtons(payment)}
+                    </div>
+                </td>
+            </tr>
+        `;
+    },
+
+    /**
+     * 페이지네이션 업데이트
+     */
+    updatePagination: function (totalPages) {
+        const paginationContainer = document.getElementById('payment-pagination');
+        if (!paginationContainer) return;
+
+        if (totalPages <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
+        }
+
+        let html = '<div class="flex items-center justify-center gap-2">';
+
+        // 이전 페이지 버튼
+        html += `
+            <button onclick="changePage(${this.currentPage - 1})" 
+                    class="admin-pagination-btn ${this.currentPage === 1 ? 'cursor-not-allowed opacity-50' : ''}"
+                    ${this.currentPage === 1 ? 'disabled' : ''}>
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                <span class="hide-mobile">이전</span>
             </button>
         `;
-    } else {
-        paginationHTML += `
-            <button disabled class="px-3 py-2 text-sm font-medium text-gray-300 bg-gray-100 border border-gray-300 rounded-md cursor-not-allowed">
-                이전
+
+        // 페이지 번호 버튼들
+        const maxVisiblePages = window.innerWidth <= 480 ? 3 : 5;
+        let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        // 첫 페이지가 표시 범위에 없으면 첫 페이지와 점선 추가
+        if (startPage > 1) {
+            html += `<button onclick="changePage(1)" class="admin-pagination-btn">1</button>`;
+            if (startPage > 2) {
+                html += `<span class="admin-pagination-btn cursor-default">...</span>`;
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            html += `
+                <button onclick="changePage(${i})" 
+                    class="admin-pagination-btn ${this.currentPage === i ? 'active' : ''}"
+                    data-page="${i}">
+                    ${i}
+                </button>
+            `;
+        }
+
+        // 마지막 페이지가 표시 범위에 없으면 점선과 마지막 페이지 추가
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                html += `<span class="admin-pagination-btn cursor-default">...</span>`;
+            }
+            html += `<button onclick="changePage(${totalPages})" class="admin-pagination-btn">${totalPages}</button>`;
+        }
+
+        // 다음 페이지 버튼
+        html += `
+            <button onclick="changePage(${this.currentPage + 1})" 
+                    class="admin-pagination-btn ${this.currentPage === totalPages ? 'cursor-not-allowed opacity-50' : ''}"
+                    ${this.currentPage === totalPages ? 'disabled' : ''}>
+                <span class="hide-mobile">다음</span>
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
             </button>
         `;
-    }
-    
-    // 페이지 정보
-    paginationHTML += `
-        <span class="text-sm text-gray-700">
-            ${current} / ${total} 페이지
-        </span>
-    `;
-    
-    // 다음 버튼
-    if (current < total) {
-        paginationHTML += `
-            <button onclick="changePage(${current + 1})" 
-                    class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                다음
-            </button>
+
+        html += '</div>';
+        paginationContainer.innerHTML = html;
+    },
+
+    /**
+     * 페이지 변경
+     */
+    changePage: function (page) {
+        if (page < 1) return;
+        this.currentPage = page;
+        this.loadPayments();
+    },
+
+    /**
+     * 필터 적용
+     */
+    applyFilters: function () {
+        console.log('🔍 필터 적용');
+
+        this.filters = {
+            searchKeyword: document.getElementById('search-keyword')?.value || '',
+            status: document.getElementById('payment-status')?.value || '',
+            paymentMethod: document.getElementById('payment-method')?.value || '',
+            startDate: document.getElementById('start-date')?.value || '',
+            endDate: document.getElementById('end-date')?.value || ''
+        };
+
+        // 첫 페이지로 리셋
+        this.currentPage = 1;
+        this.lastDoc = null;
+
+        // 데이터 다시 로드
+        this.loadPayments();
+    },
+
+    /**
+     * 필터 초기화
+     */
+    resetFilters: function () {
+        console.log('🔄 필터 초기화');
+
+        // 모든 필터 입력값 초기화
+        document.getElementById('search-keyword').value = '';
+        document.getElementById('payment-status').value = '';
+        document.getElementById('payment-method').value = '';
+        document.getElementById('start-date').value = '';
+        document.getElementById('end-date').value = '';
+
+        // 필터 적용
+        this.applyFilters();
+    },
+
+    /**
+     * 결제 상세 보기
+     */
+    viewPaymentDetail: async function (paymentId) {
+        console.log('📋 결제 상세 보기:', paymentId);
+
+        try {
+            let payment = this.currentPayments.find(p => p.id === paymentId);
+
+            if (!payment && this.isFirebaseAvailable()) {
+                const paymentDoc = await window.dbService.getDocument('payments', paymentId);
+                if (paymentDoc.success) {
+                    payment = paymentDoc.data;
+                    payment = (await this.enrichPaymentData([payment]))[0];
+                }
+            }
+
+            if (!payment) {
+                if (window.showErrorToast) {
+                    window.showErrorToast('결제 정보를 찾을 수 없습니다.');
+                }
+                return;
+            }
+
+            this.showPaymentDetailModal(payment);
+
+        } catch (error) {
+            console.error('결제 상세 조회 오류:', error);
+            if (window.showErrorToast) {
+                window.showErrorToast('결제 정보를 불러오는데 실패했습니다.');
+            }
+        }
+    },
+
+    /**
+     * 결제 상세 모달 표시
+     */
+    showPaymentDetailModal: function (payment) {
+        const modal = document.getElementById('payment-detail-modal');
+        const content = document.getElementById('payment-detail-content');
+
+        if (!modal || !content) return;
+
+        const formatDate = (date) => {
+            if (!date) return '-';
+            if (date.toDate) {
+                return window.formatters.formatDate(date.toDate(), 'YYYY-MM-DD HH:mm:ss');
+            }
+            return window.formatters.formatDate(date, 'YYYY-MM-DD HH:mm:ss');
+        };
+
+        const formatCurrency = (amount) => {
+            return window.formatters.formatCurrency(amount || 0);
+        };
+
+        const getStatusText = (status) => {
+            const statusMap = {
+                'pending': '대기중',
+                'completed': '완료',
+                'failed': '실패',
+                'cancelled': '취소',
+                'refund_requested': '환불요청',
+                'refunded': '환불완료'
+            };
+            return statusMap[status] || status;
+        };
+
+        const getPaymentMethodText = (method) => {
+            const methods = {
+                'card': '신용카드',
+                'transfer': '계좌이체',
+                'vbank': '가상계좌'
+            };
+            return methods[method] || method;
+        };
+
+        content.innerHTML = `
+            <div class="space-y-6">
+                <!-- 기본 정보 -->
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-3">기본 정보</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500">결제번호</label>
+                            <p class="mt-1 text-sm font-medium text-gray-900">${payment.paymentId || '-'}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500">결제상태</label>
+                            <p class="mt-1 text-sm font-medium text-gray-900">${getStatusText(payment.status)}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500">결제금액</label>
+                            <p class="mt-1 text-lg font-bold text-gray-900">${formatCurrency(payment.amount)}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500">결제방법</label>
+                            <p class="mt-1 text-sm text-gray-900">${getPaymentMethodText(payment.paymentMethod)}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500">결제일시</label>
+                            <p class="mt-1 text-sm text-gray-900">${formatDate(payment.createdAt)}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 결제자 정보 -->
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-3">결제자 정보</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500">이름</label>
+                            <p class="mt-1 text-sm text-gray-900">${payment.userName || '-'}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500">이메일</label>
+                            <p class="mt-1 text-sm text-gray-900">${payment.userEmail || '-'}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500">연락처</label>
+                            <p class="mt-1 text-sm text-gray-900">${payment.userPhone || '-'}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 교육과정 정보 -->
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-3">교육과정 정보</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500">교육과정명</label>
+                            <p class="mt-1 text-sm text-gray-900">${payment.courseName || '-'}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500">자격증 유형</label>
+                            <p class="mt-1 text-sm text-gray-900">${payment.courseType || '-'}</p>
+                        </div>
+                    </div>
+                </div>
+
+                ${payment.pgResponse ? `
+                <!-- PG 응답 정보 -->
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-3">PG 응답 정보</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${payment.pgResponse.authCode ? `
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500">승인번호</label>
+                            <p class="mt-1 text-sm text-gray-900">${payment.pgResponse.authCode}</p>
+                        </div>
+                        ` : ''}
+                        ${payment.pgResponse.transactionId ? `
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500">거래번호</label>
+                            <p class="mt-1 text-sm text-gray-900">${payment.pgResponse.transactionId}</p>
+                        </div>
+                        ` : ''}
+                        ${payment.pgResponse.cardName ? `
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500">카드사</label>
+                            <p class="mt-1 text-sm text-gray-900">${payment.pgResponse.cardName}</p>
+                        </div>
+                        ` : ''}
+                        ${payment.pgResponse.installment !== undefined ? `
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500">할부</label>
+                            <p class="mt-1 text-sm text-gray-900">${payment.pgResponse.installment === 0 ? '일시불' : payment.pgResponse.installment + '개월'}</p>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+                ` : ''}
+            </div>
         `;
-    } else {
-        paginationHTML += `
-            <button disabled class="px-3 py-2 text-sm font-medium text-gray-300 bg-gray-100 border border-gray-300 rounded-md cursor-not-allowed">
-                다음
-            </button>
-        `;
-    }
-    
-    paginationHTML += '</div>';
-    
-    paginationContainer.innerHTML = paginationHTML;
-}
 
-/**
- * 페이지 변경
- */
-function changePage(page) {
-    if (page < 1) return;
-    
-    currentPage = page;
-    loadPayments();
-}
+        modal.classList.remove('hidden');
+    },
 
-/**
- * 요소 업데이트 헬퍼 함수
- */
-function updateElement(elementId, value) {
-    const element = document.getElementById(elementId);
-    if (element) {
-        element.textContent = value;
-    } else {
-        console.warn(`요소를 찾을 수 없음: ${elementId}`);
-    }
-}
+    /**
+     * 환불 모달 표시
+     */
+    showRefundModal: async function (paymentId) {
+        console.log('💰 환불 모달 표시:', paymentId);
 
-// 전역 함수로 노출
-window.changePage = changePage;
+        try {
+            let payment = this.currentPayments.find(p => p.id === paymentId);
 
-// =================================
-// 결제 관리 액션 함수들
-// =================================
+            if (!payment && this.isFirebaseAvailable()) {
+                const paymentDoc = await window.dbService.getDocument('payments', paymentId);
+                if (paymentDoc.success) {
+                    payment = paymentDoc.data;
+                }
+            }
 
-/**
- * 결제 상세 보기
- */
-async function viewPaymentDetail(paymentId) {
-    console.log('📋 결제 상세 보기:', paymentId);
-    
-    try {
-        showLoadingOverlay(true);
-        
-        let payment = null;
-        
-        if (!window.dbService) {
-            // 더미 데이터에서 찾기
-            const dummyPayments = [
-                {
-                    id: 'dummy-1',
-                    paymentId: 'PAY-20250613-001',
-                    userName: '홍길동',
-                    userEmail: 'hong@example.com',
-                    userPhone: '010-1234-5678',
-                    courseName: '건강운동처방사 기본과정',
-                    amount: 350000,
-                    paymentMethod: 'card',
-                    status: 'completed',
-                    createdAt: new Date(),
-                    pgResponse: {
-                        authCode: 'AUTH123456',
-                        transactionId: 'TXN789012',
-                        cardName: '신한카드',
-                        installment: 0
+            if (!payment) {
+                if (window.showErrorToast) {
+                    window.showErrorToast('결제 정보를 찾을 수 없습니다.');
+                }
+                return;
+            }
+
+            if (payment.status !== 'completed' && payment.status !== 'refund_requested') {
+                if (window.showWarningToast) {
+                    window.showWarningToast('완료된 결제만 환불 처리할 수 있습니다.');
+                }
+                return;
+            }
+
+            const modal = document.getElementById('refund-modal');
+            const amountInput = document.getElementById('refund-amount');
+            const reasonInput = document.getElementById('refund-reason');
+
+            if (modal && amountInput && reasonInput) {
+                amountInput.value = window.formatters.formatCurrency(payment.amount);
+                reasonInput.value = '';
+                
+                // 환불 폼에 결제 ID 저장
+                const form = document.getElementById('refund-form');
+                if (form) {
+                    form.dataset.paymentId = paymentId;
+                }
+
+                modal.classList.remove('hidden');
+            }
+
+        } catch (error) {
+            console.error('환불 모달 표시 오류:', error);
+            if (window.showErrorToast) {
+                window.showErrorToast('환불 처리 중 오류가 발생했습니다.');
+            }
+        }
+    },
+
+    /**
+     * 결제 취소
+     */
+    cancelPayment: async function (paymentId) {
+        console.log('❌ 결제 취소:', paymentId);
+
+        if (!confirm('정말로 이 결제를 취소하시겠습니까?')) {
+            return;
+        }
+
+        try {
+            let payment = this.currentPayments.find(p => p.id === paymentId);
+
+            if (!payment) {
+                if (window.showErrorToast) {
+                    window.showErrorToast('결제 정보를 찾을 수 없습니다.');
+                }
+                return;
+            }
+
+            if (payment.status !== 'pending') {
+                if (window.showWarningToast) {
+                    window.showWarningToast('대기중인 결제만 취소할 수 있습니다.');
+                }
+                return;
+            }
+
+            if (this.isFirebaseAvailable()) {
+                const result = await window.dbService.updateDocument('payments', paymentId, {
+                    status: 'cancelled',
+                    cancelledAt: new Date(),
+                    cancelReason: '관리자 취소'
+                });
+
+                if (result.success) {
+                    if (window.showSuccessToast) {
+                        window.showSuccessToast('결제가 성공적으로 취소되었습니다.');
+                    }
+                    this.loadPayments();
+                    this.loadPaymentStats();
+                } else {
+                    if (window.showErrorToast) {
+                        window.showErrorToast('결제 취소에 실패했습니다.');
                     }
                 }
-            ];
-            payment = dummyPayments.find(p => p.id === paymentId) || dummyPayments[0];
-        } else {
-            const paymentDoc = await window.dbService.getDocument('payments', paymentId);
+            } else {
+                // 더미 데이터에서 상태 변경
+                payment.status = 'cancelled';
+                this.updatePaymentList(this.currentPayments);
+                if (window.showSuccessToast) {
+                    window.showSuccessToast('결제가 취소되었습니다 (테스트 모드).');
+                }
+            }
+
+        } catch (error) {
+            console.error('결제 취소 오류:', error);
+            if (window.showErrorToast) {
+                window.showErrorToast('결제 취소 중 오류가 발생했습니다.');
+            }
+        }
+    }
+};
+
+// =================================
+// 실시간 리스너 관리
+// =================================
+
+/**
+ * 실시간 업데이트 설정 (중복 방지)
+ */
+function setupRealtimeUpdates() {
+    if (realtimeListenersSetup) {
+        console.log('⚠️ 실시간 리스너가 이미 설정됨 - 중복 방지');
+        return;
+    }
+
+    if (!window.dhcFirebase || !window.dhcFirebase.db) {
+        console.log('Firebase가 준비되지 않아 실시간 업데이트를 설정할 수 없습니다.');
+        return;
+    }
+
+    try {
+        // 결제 컬렉션 실시간 리스너
+        paymentsListener = window.dhcFirebase.db.collection('payments')
+            .orderBy('createdAt', 'desc')
+            .limit(50)
+            .onSnapshot((snapshot) => {
+                console.log('📊 실시간 결제 데이터 업데이트');
+                // 통계만 업데이트 (목록은 수동 새로고침)
+                if (window.paymentManager) {
+                    window.paymentManager.loadPaymentStats();
+                }
+            }, (error) => {
+                console.error('실시간 결제 리스너 오류:', error);
+            });
+
+        realtimeListenersSetup = true;
+        console.log('✅ 실시간 업데이트 설정 완료');
+
+    } catch (error) {
+        console.error('실시간 리스너 설정 오류:', error);
+    }
+}
+
+/**
+ * 실시간 리스너 정리
+ */
+function cleanupRealtimeListeners() {
+    console.log('🧹 실시간 리스너 정리 시작');
+
+    if (paymentsListener) {
+        paymentsListener();
+        paymentsListener = null;
+        console.log('✅ 결제 리스너 정리 완료');
+    }
+
+    realtimeListenersSetup = false;
+    console.log('✅ 모든 실시간 리스너 정리 완료');
+}
+
+// =================================
+// 폼 이벤트 처리
+// =================================
+
+// 환불 폼 제출 처리
+document.addEventListener('DOMContentLoaded', function() {
+    const refundForm = document.getElementById('refund-form');
+    if (refundForm) {
+        refundForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            if (!paymentDoc.success) {
-                showErrorMessage('결제 정보를 불러올 수 없습니다.');
+            const paymentId = this.dataset.paymentId;
+            const reason = document.getElementById('refund-reason').value.trim();
+            
+            if (!reason) {
+                if (window.showWarningToast) {
+                    window.showWarningToast('환불 사유를 입력해주세요.');
+                }
                 return;
             }
             
-            payment = paymentDoc.data;
-            
-            // 추가 정보 조회
-            if (payment.userId) {
-                const userDoc = await window.dbService.getDocument('users', payment.userId);
-                if (userDoc.success) {
-                    payment.userName = userDoc.data.displayName || userDoc.data.email;
-                    payment.userEmail = userDoc.data.email;
-                    payment.userPhone = userDoc.data.phoneNumber;
-                }
+            if (!confirm('환불을 처리하시겠습니까?')) {
+                return;
             }
             
-            if (payment.courseId) {
-                const courseDoc = await window.dbService.getDocument('courses', payment.courseId);
-                if (courseDoc.success) {
-                    payment.courseName = courseDoc.data.title;
-                    payment.courseType = courseDoc.data.certificateType;
+            try {
+                if (window.paymentManager.isFirebaseAvailable()) {
+                    const result = await window.dbService.updateDocument('payments', paymentId, {
+                        status: 'refunded',
+                        refundedAt: new Date(),
+                        refundReason: reason,
+                        refundProcessedBy: window.dhcFirebase.getCurrentUser()?.email
+                    });
+                    
+                    if (result.success) {
+                        if (window.showSuccessToast) {
+                            window.showSuccessToast('환불이 성공적으로 처리되었습니다.');
+                        }
+                        document.getElementById('refund-modal').classList.add('hidden');
+                        window.paymentManager.loadPayments();
+                        window.paymentManager.loadPaymentStats();
+                    } else {
+                        if (window.showErrorToast) {
+                            window.showErrorToast('환불 처리에 실패했습니다.');
+                        }
+                    }
+                } else {
+                    // 테스트 모드
+                    const payment = window.paymentManager.currentPayments.find(p => p.id === paymentId);
+                    if (payment) {
+                        payment.status = 'refunded';
+                        window.paymentManager.updatePaymentList(window.paymentManager.currentPayments);
+                    }
+                    document.getElementById('refund-modal').classList.add('hidden');
+                    if (window.showSuccessToast) {
+                        window.showSuccessToast('환불이 처리되었습니다 (테스트 모드).');
+                    }
+                }
+                
+            } catch (error) {
+                console.error('환불 처리 오류:', error);
+                if (window.showErrorToast) {
+                    window.showErrorToast('환불 처리 중 오류가 발생했습니다.');
                 }
             }
-        }
-        
-        // 모달 컨텐츠 생성
-        const modalContent = createPaymentDetailModal(payment);
-        
-        // 모달 표시
-        showModal({
-            title: '결제 상세 정보',
-            content: modalContent,
-            size: 'large',
-            buttons: [
-                {
-                    label: '닫기',
-                    type: 'secondary',
-                    handler: 'closeModal()'
-                }
-            ]
         });
-        
-    } catch (error) {
-        console.error('결제 상세 조회 오류:', error);
-        showErrorMessage('결제 정보를 불러오는데 실패했습니다.');
-    } finally {
-        showLoadingOverlay(false);
     }
-}
+});
 
 // =================================
-// 🔔 Toast 알림 시스템 통합
-// payment-management.js에 추가할 코드
+// 메시지 및 알림 시스템
 // =================================
 
 /**
- * 성공 메시지 표시 (Toast 시스템 사용)
- */
-function showSuccessMessage(message) {
-    if (window.showSuccessToast) {
-        window.showSuccessToast(message);
-    } else if (window.adminAuth && window.adminAuth.showNotification) {
-        window.adminAuth.showNotification(message, 'success');
-    } else {
-        console.log('✅ 성공:', message);
-        alert('✅ ' + message);
-    }
-}
-
-/**
- * 오류 메시지 표시 (Toast 시스템 사용)
+ * 오류 메시지 표시
  */
 function showErrorMessage(message) {
     if (window.showErrorToast) {
         window.showErrorToast(message);
-    } else if (window.adminAuth && window.adminAuth.showNotification) {
-        window.adminAuth.showNotification(message, 'error');
     } else {
-        console.error('❌ 오류:', message);
-        alert('❌ ' + message);
+        showNotification(message, 'error');
     }
 }
 
 /**
- * 경고 메시지 표시 (Toast 시스템 사용)
+ * 성공 메시지 표시
  */
-function showWarningMessage(message) {
-    if (window.showWarningToast) {
-        window.showWarningToast(message);
-    } else if (window.adminAuth && window.adminAuth.showNotification) {
-        window.adminAuth.showNotification(message, 'warning');
+function showSuccessMessage(message) {
+    if (window.showSuccessToast) {
+        window.showSuccessToast(message);
     } else {
-        console.warn('⚠️ 경고:', message);
-        alert('⚠️ ' + message);
+        showNotification(message, 'success');
     }
 }
 
 /**
- * 정보 메시지 표시 (Toast 시스템 사용)
+ * 정보 메시지 표시
  */
 function showInfoMessage(message) {
     if (window.showInfoToast) {
         window.showInfoToast(message);
-    } else if (window.adminAuth && window.adminAuth.showNotification) {
-        window.adminAuth.showNotification(message, 'info');
     } else {
-        console.info('ℹ️ 정보:', message);
-        alert('ℹ️ ' + message);
+        showNotification(message, 'info');
     }
 }
 
 /**
- * 로딩 Toast 표시
+ * 경고 메시지 표시
  */
-function showLoadingToast(message = '처리 중입니다...') {
-    if (window.showToast) {
-        return window.showToast(message, 'info', {
-            duration: 0, // 수동으로 제거할 때까지 유지
-            dismissible: false,
-            showProgress: false
-        });
-    }
-    return null;
-}
-
-/**
- * 특정 Toast 제거
- */
-function hideToast(toastElement) {
-    if (toastElement && toastElement.remove) {
-        toastElement.remove();
-    }
-}
-
-// =================================
-// 🔧 기존 함수들을 Toast 시스템으로 업데이트
-// =================================
-
-/**
- * 환불 처리 함수 - Toast 시스템 적용
- */
-async function processRefund(paymentId, refundData) {
-    console.log('💰 환불 처리 시작:', paymentId, refundData);
-    
-    const loadingToast = showLoadingToast('환불을 처리하고 있습니다...');
-    
-    try {
-        if (!window.dbService) {
-            // 더미 데이터 처리
-            setTimeout(() => {
-                hideToast(loadingToast);
-                showSuccessMessage('환불이 성공적으로 처리되었습니다.');
-                loadPayments(); // 목록 새로고침
-            }, 2000);
-            return;
-        }
-        
-        // 실제 환불 처리
-        const result = await window.dbService.updateDocument('payments', paymentId, {
-            status: 'refunded',
-            refundData: refundData,
-            refundedAt: new Date(),
-            updatedAt: new Date()
-        });
-        
-        hideToast(loadingToast);
-        
-        if (result.success) {
-            showSuccessMessage('환불이 성공적으로 처리되었습니다.');
-            loadPayments(); // 목록 새로고침
-        } else {
-            showErrorMessage('환불 처리 중 오류가 발생했습니다.');
-        }
-        
-    } catch (error) {
-        hideToast(loadingToast);
-        console.error('환불 처리 오류:', error);
-        showErrorMessage('환불 처리 중 오류가 발생했습니다.');
-    }
-}
-
-/**
- * 결제 취소 함수 - Toast 시스템 적용
- */
-async function cancelPayment(paymentId) {
-    console.log('🚫 결제 취소:', paymentId);
-    
-    if (!confirm('이 결제를 취소하시겠습니까?')) {
-        return;
-    }
-    
-    const loadingToast = showLoadingToast('결제를 취소하고 있습니다...');
-    
-    try {
-        if (!window.dbService) {
-            // 더미 데이터 처리
-            setTimeout(() => {
-                hideToast(loadingToast);
-                showSuccessMessage('결제가 성공적으로 취소되었습니다.');
-                loadPayments(); // 목록 새로고침
-            }, 1500);
-            return;
-        }
-        
-        // 실제 취소 처리
-        const result = await window.dbService.updateDocument('payments', paymentId, {
-            status: 'cancelled',
-            cancelledAt: new Date(),
-            updatedAt: new Date()
-        });
-        
-        hideToast(loadingToast);
-        
-        if (result.success) {
-            showSuccessMessage('결제가 성공적으로 취소되었습니다.');
-            loadPayments(); // 목록 새로고침
-        } else {
-            showErrorMessage('결제 취소 중 오류가 발생했습니다.');
-        }
-        
-    } catch (error) {
-        hideToast(loadingToast);
-        console.error('결제 취소 오류:', error);
-        showErrorMessage('결제 취소 중 오류가 발생했습니다.');
-    }
-}
-
-/**
- * 환불 모달 표시 함수 - Toast 시스템 적용
- */
-function showRefundModal(paymentId) {
-    console.log('💰 환불 모달 표시:', paymentId);
-    
-    // 간단한 환불 사유 입력 받기
-    const refundReason = prompt('환불 사유를 입력하세요:');
-    
-    if (refundReason === null) {
-        // 취소한 경우
-        return;
-    }
-    
-    if (!refundReason.trim()) {
-        showWarningMessage('환불 사유를 입력해주세요.');
-        return;
-    }
-    
-    // 환불 처리 실행
-    processRefund(paymentId, {
-        reason: refundReason.trim(),
-        requestedAt: new Date(),
-        requestedBy: 'admin'
-    });
-}
-
-// =================================
-// 🔧 로딩 오버레이 함수들을 Toast로 통합
-// =================================
-
-/**
- * 로딩 오버레이 표시/숨김 - Toast 시스템으로 대체
- */
-function showLoadingOverlay(show = true) {
-    if (show) {
-        // 로딩 Toast 표시
-        if (!window.currentLoadingToast) {
-            window.currentLoadingToast = showLoadingToast('데이터를 불러오는 중...');
-        }
+function showWarningMessage(message) {
+    if (window.showWarningToast) {
+        window.showWarningToast(message);
     } else {
-        // 로딩 Toast 숨김
-        if (window.currentLoadingToast) {
-            hideToast(window.currentLoadingToast);
-            window.currentLoadingToast = null;
-        }
+        showNotification(message, 'warning');
     }
 }
-
-// =================================
-// 🔧 기존 초기화 함수에 Toast 테스트 추가
-// =================================
 
 /**
- * Toast 시스템 테스트 함수
+ * 기본 알림 메시지 표시 (Toast 시스템이 없는 경우)
  */
-function testToastSystem() {
-    console.log('🧪 Toast 시스템 테스트 시작');
-    
-    if (!window.showToast) {
-        console.warn('⚠️ Toast 시스템이 로드되지 않음');
-        return false;
+function showNotification(message, type = 'info') {
+    // adminAuth 유틸리티 사용 시도
+    if (window.adminAuth && typeof window.adminAuth.showNotification === 'function') {
+        window.adminAuth.showNotification(message, type);
+        return;
     }
-    
-    try {
-        // 간단한 테스트 메시지
-        showInfoMessage('결제 관리 시스템이 준비되었습니다.');
-        console.log('✅ Toast 시스템 테스트 성공');
-        return true;
-    } catch (error) {
-        console.error('❌ Toast 시스템 테스트 실패:', error);
-        return false;
+
+    // 기본 알림 시스템
+    const existingNotification = document.querySelector('.admin-notification');
+    if (existingNotification) {
+        existingNotification.remove();
     }
+
+    const notification = document.createElement('div');
+    notification.className = `admin-notification fixed top-4 right-4 z-50 max-w-md p-4 rounded-lg shadow-lg`;
+
+    let bgColor = 'bg-blue-100 border-blue-400 text-blue-700';
+    let icon = 'ℹ️';
+
+    switch (type) {
+        case 'error':
+            bgColor = 'bg-red-100 border-red-400 text-red-700';
+            icon = '❌';
+            break;
+        case 'success':
+            bgColor = 'bg-green-100 border-green-400 text-green-700';
+            icon = '✅';
+            break;
+        case 'warning':
+            bgColor = 'bg-yellow-100 border-yellow-400 text-yellow-700';
+            icon = '⚠️';
+            break;
+    }
+
+    notification.className += ` ${bgColor} border`;
+
+    notification.innerHTML = `
+        <div class="flex items-start">
+            <div class="flex-shrink-0 mr-3">
+                <span class="text-lg">${icon}</span>
+            </div>
+            <div class="flex-1">
+                <p class="text-sm font-medium">${message}</p>
+            </div>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-semibold hover:opacity-70">
+                ×
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    const autoRemoveTime = type === 'error' ? 7000 : 4000;
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, autoRemoveTime);
 }
 
 // =================================
-// 🔧 전역 함수로 노출 (HTML에서 호출용)
+// 전역 함수 노출
 // =================================
 
-window.showRefundModal = showRefundModal;
-window.cancelPayment = cancelPayment;
-window.processRefund = processRefund;
-window.testToastSystem = testToastSystem;
+// 결제 관리 페이지 초기화 함수 (전역)
+window.initPaymentManagement = initPaymentManagement;
 
-console.log('✅ Payment Management Toast 시스템 통합 완료');
+// 페이지 변경 함수 (전역)
+window.changePage = function(page) {
+    if (window.paymentManager) {
+        window.paymentManager.changePage(page);
+    }
+};
+
+// 결제 상세 보기 함수 (전역)
+window.viewPaymentDetail = function(paymentId) {
+    if (window.paymentManager) {
+        window.paymentManager.viewPaymentDetail(paymentId);
+    }
+};
+
+// 환불 모달 표시 함수 (전역)
+window.showRefundModal = function(paymentId) {
+    if (window.paymentManager) {
+        window.paymentManager.showRefundModal(paymentId);
+    }
+};
+
+// 결제 취소 함수 (전역)
+window.cancelPayment = function(paymentId) {
+    if (window.paymentManager) {
+        window.paymentManager.cancelPayment(paymentId);
+    }
+};
+
+// =================================
+// 페이지 종료 시 정리 (최적화)
+// =================================
+
+// 페이지 언로드 시 리스너 정리
+window.addEventListener('beforeunload', function () {
+    console.log('🔄 페이지 종료 - 리스너 정리');
+    if (authStateListener) {
+        authStateListener();
+        authStateListener = null;
+    }
+    cleanupRealtimeListeners();
+});
+
+// =================================
+// 디버깅 및 개발자 도구
+// =================================
+
+// 개발 모드에서 사용되는 디버깅 함수들
+if (window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname.includes('.web.app') ||
+    window.location.hostname.includes('.firebaseapp.com') ||
+    window.location.protocol === 'file:' ||
+    window.FORCE_DEBUG === true) {
+
+    window.debugPaymentManagement = {
+        // 기본 정보 확인
+        help: function () {
+            console.log('🎯 결제 관리 디버깅 도구 사용법');
+            console.log('\n📊 데이터 관련:');
+            console.log('- testDependencies() : 유틸리티 의존성 확인');
+            console.log('- refreshPayments() : 결제 목록 새로고침');
+            console.log('- getPaymentStats() : 결제 통계 조회');
+            console.log('- testPaymentData() : 더미 데이터 표시');
+
+            console.log('\n🔧 시스템 관련:');
+            console.log('- checkFirebase() : Firebase 연결 상태 확인');
+            console.log('- checkAuth() : 인증 상태 확인');
+            console.log('- testPaymentManager() : paymentManager 객체 테스트');
+
+            console.log('\n🎨 UI 관련:');
+            console.log('- testNotification(message, type) : 알림 테스트');
+            console.log('- simulatePaymentLoad() : 결제 로딩 시뮬레이션');
+            console.log('- testModal() : 모달 테스트');
+
+            console.log('\n🧪 종합 테스트:');
+            console.log('- runFullTest() : 전체 기능 테스트');
+        },
+
+        // 의존성 테스트
+        testDependencies: function () {
+            console.log('🔧 결제 관리 의존성 테스트...');
+            const result = checkDependencies();
+            if (result) {
+                console.log('✅ 모든 유틸리티 정상 로드됨');
+
+                // Firebase 연결 상태도 함께 확인
+                const firebaseStatus = checkFirebaseConnection();
+                console.log('Firebase 상태:', firebaseStatus);
+
+                return result && firebaseStatus.connected;
+            } else {
+                console.error('❌ 필수 유틸리티 누락');
+                return false;
+            }
+        },
+
+        // 의존성 테스트
+        checkDependencies: checkDependencies,
+
+        // 데이터 관련
+        refreshPayments: function () {
+            if (window.paymentManager) {
+                return window.paymentManager.loadPayments();
+            } else {
+                console.error('paymentManager를 찾을 수 없습니다.');
+            }
+        },
+
+        getPaymentStats: function () {
+            if (window.paymentManager) {
+                return window.paymentManager.loadPaymentStats();
+            } else {
+                console.error('paymentManager를 찾을 수 없습니다.');
+            }
+        },
+
+        testPaymentData: function () {
+            if (window.paymentManager) {
+                window.paymentManager.displayDummyPayments();
+                window.paymentManager.displayDummyStats();
+                console.log('✅ 더미 데이터 표시 완료');
+            } else {
+                console.error('paymentManager를 찾을 수 없습니다.');
+            }
+        },
+
+        // 시스템 관련
+        checkFirebase: function () {
+            console.log('🔥 Firebase 상태 확인');
+            console.log('- dhcFirebase:', !!window.dhcFirebase);
+            console.log('- auth:', !!window.dhcFirebase?.auth);
+            console.log('- db:', !!window.dhcFirebase?.db);
+            console.log('- dbService:', !!window.dbService);
+            console.log('- 현재 사용자:', window.dhcFirebase?.getCurrentUser()?.email || '없음');
+        },
+
+        checkAuth: function () {
+            console.log('🔐 인증 상태 확인');
+            const user = window.dhcFirebase?.getCurrentUser();
+            if (user) {
+                console.log('✅ 로그인됨:', user.email);
+                console.log('- displayName:', user.displayName);
+                console.log('- uid:', user.uid);
+            } else {
+                console.log('❌ 로그인되지 않음');
+            }
+        },
+
+        testPaymentManager: function () {
+            console.log('💳 paymentManager 객체 테스트');
+            console.log('- paymentManager 존재:', !!window.paymentManager);
+            console.log('- currentPayments 길이:', window.paymentManager?.currentPayments?.length || 0);
+            console.log('- currentPage:', window.paymentManager?.currentPage || 'N/A');
+            console.log('- 주요 메서드들:');
+            console.log('  - loadPayments:', typeof window.paymentManager?.loadPayments);
+            console.log('  - loadPaymentStats:', typeof window.paymentManager?.loadPaymentStats);
+            console.log('  - viewPaymentDetail:', typeof window.paymentManager?.viewPaymentDetail);
+            console.log('  - showRefundModal:', typeof window.paymentManager?.showRefundModal);
+        },
+
+        // UI 관련
+        testNotification: function (message = '테스트 알림입니다', type = 'info') {
+            if (window.showToast) {
+                window.showToast(message, type);
+            } else {
+                showNotification(message, type);
+            }
+        },
+
+        simulatePaymentLoad: async function () {
+            console.log('💳 결제 로딩 시뮬레이션 시작');
+
+            if (window.showInfoToast) {
+                window.showInfoToast('시뮬레이션 결제 로딩 중...');
+            }
+
+            // 시뮬레이션 지연
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            if (window.paymentManager) {
+                await window.paymentManager.loadPayments();
+                await window.paymentManager.loadPaymentStats();
+            }
+
+            if (window.showSuccessToast) {
+                window.showSuccessToast('시뮬레이션 결제 로딩 완료');
+            }
+            console.log('✅ 결제 로딩 시뮬레이션 완료');
+        },
+
+        testModal: function () {
+            console.log('🔨 모달 테스트');
+            
+            // 더미 결제 데이터로 상세 모달 테스트
+            if (window.paymentManager && window.paymentManager.currentPayments.length > 0) {
+                const firstPayment = window.paymentManager.currentPayments[0];
+                window.paymentManager.showPaymentDetailModal(firstPayment);
+                console.log('✅ 결제 상세 모달 테스트 완료');
+            } else {
+                console.log('⚠️ 표시할 결제 데이터가 없습니다. 먼저 더미 데이터를 로드하세요.');
+                console.log('💡 testPaymentData() 함수를 실행해보세요.');
+            }
+        },
+
+        // 종합 테스트
+        runFullTest: async function () {
+            console.log('🚀 결제 관리 전체 기능 테스트 시작...');
+
+            console.log('\n1️⃣ 의존성 및 유틸리티 테스트');
+            const dependenciesOk = this.testDependencies();
+
+            if (!dependenciesOk) {
+                console.error('❌ 의존성 테스트 실패 - 테스트 중단');
+                return;
+            }
+
+            console.log('\n2️⃣ Firebase 연결 테스트');
+            this.checkFirebase();
+
+            console.log('\n3️⃣ 인증 상태 테스트');
+            this.checkAuth();
+
+            console.log('\n4️⃣ paymentManager 객체 테스트');
+            this.testPaymentManager();
+
+            console.log('\n5️⃣ 결제 데이터 시뮬레이션');
+            await this.simulatePaymentLoad();
+
+            console.log('\n6️⃣ 알림 시스템 테스트');
+            this.testNotification('테스트 완료!', 'success');
+
+            console.log('\n7️⃣ 모달 시스템 테스트');
+            setTimeout(() => {
+                this.testModal();
+            }, 1000);
+
+            console.log('\n🎯 전체 테스트 완료!');
+            console.log('💡 이제 다음 명령어들을 시도해보세요:');
+            console.log('- refreshPayments() : 실제 결제 목록 새로고침');
+            console.log('- getPaymentStats() : 결제 통계 업데이트');
+            console.log('- testNotification("메시지", "error") : 다른 타입 알림');
+        }
+    };
+
+    // 디버깅 도구 안내
+    console.log('🎯 개발 모드 결제 관리 디버깅 도구 활성화됨');
+    console.log('현재 호스트:', window.location.hostname);
+    console.log('\n🔥 주요 디버깅 함수들:');
+    console.log('📊 데이터: testDependencies(), refreshPayments(), getPaymentStats(), testPaymentData()');
+    console.log('🔧 시스템: checkFirebase(), checkAuth(), testPaymentManager()');
+    console.log('🎨 UI: testNotification(), simulatePaymentLoad(), testModal()');
+    console.log('🧪 테스트: runFullTest()');
+    console.log('\n💡 도움말: window.debugPaymentManagement.help()');
+    console.log('🚀 빠른 시작: window.debugPaymentManagement.runFullTest()');
+
+} else {
+    console.log('프로덕션 모드 - 디버깅 도구 비활성화됨');
+    console.log('현재 호스트:', window.location.hostname);
+}
+
+// =================================
+// 최종 완료 메시지
+// =================================
+
+console.log('\n🎉 === payment-management.js 통합 유틸리티 시스템 적용 완료 ===');
+console.log('✅ 전역 변수 선언 최적화');
+console.log('✅ 전역 유틸리티 시스템 통합');
+console.log('✅ 의존성 체크 시스템 구축');
+console.log('✅ Firebase 연결 상태 강화');
+console.log('✅ 관리자 권한 확인 개선');
+console.log('✅ 중복 실행 방지 시스템 구축');
+console.log('✅ 이벤트 리스너 중복 방지');
+console.log('✅ 메모리 누수 방지 (beforeunload 정리)');
+console.log('✅ 향상된 Toast 알림 시스템');
+console.log('✅ 반응형 테이블 시스템 준비');
+console.log('✅ 포괄적인 디버깅 도구');
+console.log('\n🔧 다른 관리자 페이지와 동일한 표준 적용:');
+console.log('- checkDependencies() 의존성 체크');
+console.log('- window.formatters, window.dateUtils 전역 유틸리티 사용');
+console.log('- 최적화된 스크립트 로딩 순서 준비');
+console.log('- Firebase 연결 상태 확인 강화');
+console.log('- 디버깅 도구 시스템 구축');
+console.log('- Toast 알림 시스템 통합');
+console.log('\n🚀 결제 관리 페이지가 완전히 표준화되었습니다!');
+
+// 완료 플래그 설정
+window.paymentManagementReady = true;
