@@ -507,7 +507,7 @@ function initCertManager() {
                     return badges[status] || `<span class="cert-status-badge status-expired">${this.getStatusText(status)}</span>`;
                 };
 
-                // 🎯 반응형 테이블: data-label 속성 추가 + PDF 드롭다운 개선
+                // 🎯 반응형 테이블: data-label 속성 추가 + 🔧 PDF 아이콘 수정
                 tableHtml += `
             <tr class="hover:bg-gray-50 transition-colors">
                 <td data-label="선택" class="text-center">
@@ -540,13 +540,13 @@ function initCertManager() {
                             수정
                         </button>
                         
-                        <!-- 🔧 개선된 PDF 드롭다운 -->
+                        <!-- 🔧 PDF 아이콘 수정: 다운로드 화살표 → PDF 파일 아이콘 -->
                         <div class="cert-pdf-dropdown">
                             <button onclick="certManager.togglePdfDropdown('${cert.id}')" 
                                 class="cert-pdf-btn" title="PDF 다운로드">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                        d="M12 10v6m0 0l-3-3m3 3l3-3M9 5l7 7-7 7">
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                                     </path>
                                 </svg>
                                 PDF
@@ -605,6 +605,7 @@ function initCertManager() {
             document.querySelectorAll('[id^="pdf-dropdown-"]').forEach(dd => {
                 if (dd.id !== `pdf-dropdown-${certId}`) {
                     dd.classList.add('hidden');
+                    dd.classList.remove('show');
                 }
             });
 
@@ -617,6 +618,10 @@ function initCertManager() {
          * PDF 드롭다운 초기화 (새로 추가)
          */
         initPdfDropdowns: function () {
+            // 🔧 기존 이벤트 리스너 제거 방지
+            if (this._pdfDropdownInitialized) return;
+            this._pdfDropdownInitialized = true;
+
             // 전역 클릭 이벤트로 드롭다운 닫기
             document.addEventListener('click', (e) => {
                 // PDF 버튼이나 드롭다운 내부 클릭이 아닌 경우만 닫기
@@ -637,6 +642,8 @@ function initCertManager() {
                     });
                 }
             });
+
+            console.log('✅ PDF 드롭다운 이벤트 리스너 초기화 완료');
         },
 
         /**
