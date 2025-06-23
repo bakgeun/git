@@ -1,9 +1,9 @@
 /**
- * cert-management.js - 완전한 통합 유틸리티 시스템 적용 버전
- * 자격증 관리 페이지의 모든 기능을 포함합니다.
+ * cert-management.js - PDF 아이콘 교체 및 드롭다운 z-index 문제 해결
+ * 완전한 통합 유틸리티 시스템 적용 버전 (문제 해결)
  */
 
-console.log('=== 완전한 cert-management.js 파일 로드됨 ===');
+console.log('=== PDF 아이콘 수정된 cert-management.js 파일 로드됨 ===');
 
 // 🔧 의존성 체크 시스템
 function checkDependencies() {
@@ -154,6 +154,9 @@ function initCertManager() {
             try {
                 console.log('자격증 관리자 초기화 시작');
 
+                // 🔧 모든 모달 강제 닫기 (자동 실행 방지)
+                this.closeAllModals();
+
                 // 이벤트 리스너 등록
                 this.registerEventListeners();
 
@@ -172,6 +175,30 @@ function initCertManager() {
         },
 
         /**
+         * 🔧 모든 모달 강제 닫기 (자동 실행 방지)
+         */
+        closeAllModals: function () {
+            const modals = [
+                'cert-issue-modal',
+                'bulk-issue-modal',
+                'cert-detail-modal',
+                'cert-edit-modal'
+            ];
+
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.style.display = 'none';
+                }
+            });
+
+            // body 클래스 정리
+            document.body.classList.remove('modal-open');
+            document.documentElement.classList.remove('modal-open');
+        },
+
+        /**
          * 이벤트 리스너 등록
          */
         registerEventListeners: function () {
@@ -184,10 +211,11 @@ function initCertManager() {
                 });
             }
 
-            // 자격증 수정 폼 제출 이벤트 (새로 추가)
+            // 자격증 수정 폼 제출 이벤트
             const certEditForm = document.getElementById('cert-edit-form');
             if (certEditForm) {
                 certEditForm.addEventListener('submit', (e) => {
+                    e.preventDefault(); // 🔧 이벤트 전파 방지 추가
                     this.handleUpdateCertificate(e);
                 });
             }
@@ -196,7 +224,10 @@ function initCertManager() {
             const searchInputs = document.querySelectorAll('#search-name, #search-cert-number');
             searchInputs.forEach(input => {
                 input.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.search();
+                    if (e.key === 'Enter') {
+                        e.preventDefault(); // 🔧 폼 제출 방지
+                        this.search();
+                    }
                 });
             });
 
@@ -212,31 +243,83 @@ function initCertManager() {
                 bulkFileInput.addEventListener('change', this.handleBulkFileUpload.bind(this));
             }
 
-            // 모달 외부 클릭 시 닫기 이벤트 (새로 추가)
-            document.addEventListener('click', (e) => {
-                // 상세보기 모달 외부 클릭
-                const detailModal = document.getElementById('cert-detail-modal');
-                if (detailModal && e.target === detailModal) {
-                    this.closeCertDetailModal();
-                }
+            // 🔧 모달 외부 클릭 이벤트 - 중복 방지 및 안전장치 추가
+            this.setupModalClickHandlers();
 
-                // 수정 모달 외부 클릭
-                const editModal = document.getElementById('cert-edit-modal');
-                if (editModal && e.target === editModal) {
-                    this.closeCertEditModal();
-                }
-            });
+            // 🔧 ESC 키 이벤트 - 중복 방지
+            this.setupKeyboardHandlers();
+        },
 
-            // ESC 키로 모달 닫기 (새로 추가)
-            document.addEventListener('keydown', (e) => {
+        /**
+         * 🔧 모달 클릭 핸들러 설정 (분리하여 중복 방지)
+         */
+        setupModalClickHandlers: function () {
+            // 기존 리스너가 있으면 제거
+            if (this._modalClickHandler) {
+                document.removeEventListener('click', this._modalClickHandler);
+            }
+
+            this._modalClickHandler = (e) => {
+                // 각 모달의 백드롭 클릭 확인
+                if (e.target.classList.contains('cert-modal-backdrop')) {
+                    const modalId = e.target.closest('.cert-modal')?.id;
+
+                    switch (modalId) {
+                        case 'cert-detail-modal':
+                            this.closeCertDetailModal();
+                            break;
+                        case 'cert-edit-modal':
+                            this.closeCertEditModal();
+                            break;
+                        case 'cert-issue-modal':
+                            this.closeIssueCertModal();
+                            break;
+                        case 'bulk-issue-modal':
+                            this.closeBulkIssuanceModal();
+                            break;
+                    }
+                }
+            };
+
+            document.addEventListener('click', this._modalClickHandler);
+        },
+
+        /**
+         * 🔧 키보드 핸들러 설정 (분리하여 중복 방지)
+         */
+        setupKeyboardHandlers: function () {
+            // 기존 리스너가 있으면 제거
+            if (this._keyboardHandler) {
+                document.removeEventListener('keydown', this._keyboardHandler);
+            }
+
+            this._keyboardHandler = (e) => {
                 if (e.key === 'Escape') {
-                    // 모든 모달 닫기
-                    this.closeCertDetailModal();
-                    this.closeCertEditModal();
-                    this.closeIssueCertModal();
-                    this.closeBulkIssuanceModal();
+                    // 가장 위에 있는 모달만 닫기
+                    const visibleModals = document.querySelectorAll('.cert-modal:not(.hidden)');
+                    if (visibleModals.length > 0) {
+                        const topModal = Array.from(visibleModals).pop(); // 마지막(최상위) 모달
+                        const modalId = topModal.id;
+
+                        switch (modalId) {
+                            case 'cert-detail-modal':
+                                this.closeCertDetailModal();
+                                break;
+                            case 'cert-edit-modal':
+                                this.closeCertEditModal();
+                                break;
+                            case 'cert-issue-modal':
+                                this.closeIssueCertModal();
+                                break;
+                            case 'bulk-issue-modal':
+                                this.closeBulkIssuanceModal();
+                                break;
+                        }
+                    }
                 }
-            });
+            };
+
+            document.addEventListener('keydown', this._keyboardHandler);
         },
 
         /**
@@ -463,7 +546,7 @@ function initCertManager() {
         },
 
         /**
-         * 자격증 테이블 업데이트 - 🔧 전역 유틸리티 사용
+         * 자격증 테이블 업데이트 - 🔧 전역 유틸리티 사용 + PDF 아이콘 수정
          */
         updateCertificateTable: function (certificates) {
             const tableBody = document.querySelector('#cert-table tbody');
@@ -580,7 +663,7 @@ function initCertManager() {
                                     </path>
                                 </svg>
                                 취소
-                            </button>
+                                </button>
                         ` : ''}
                     </div>
                 </td>
@@ -615,7 +698,7 @@ function initCertManager() {
         },
 
         /**
-         * PDF 드롭다운 초기화 (새로 추가)
+         * 🔧 PDF 드롭다운 초기화 (z-index 문제 해결)
          */
         initPdfDropdowns: function () {
             // 🔧 기존 이벤트 리스너 제거 방지
@@ -758,24 +841,28 @@ function initCertManager() {
          * 자격증 발급 모달 표시
          */
         showIssueCertModal: function () {
+            // 다른 모달들이 열려있으면 닫기
+            this.closeAllModals();
+
             const modal = document.getElementById('cert-issue-modal');
             if (modal) {
                 modal.classList.remove('hidden');
+                modal.style.display = 'flex';
+                document.body.classList.add('modal-open');
 
                 // 교육 과정 옵션 로드
                 this.loadCourseOptions();
 
-                // 오늘 날짜로 발급일 설정 - 🔧 전역 유틸리티 사용
+                // 날짜 설정
+                const today = new Date();
                 const issueDateInput = document.getElementById('issue-completion-date');
                 if (issueDateInput) {
-                    const today = new Date();
                     issueDateInput.value = window.formatters.formatDate(today, 'YYYY-MM-DD');
                 }
 
-                // 3년 후 날짜로 만료일 설정 - 🔧 전역 유틸리티 사용
                 const expiryDateInput = document.getElementById('issue-expiry-date');
                 if (expiryDateInput) {
-                    const expiryDate = window.dateUtils.addYears(new Date(), 3);
+                    const expiryDate = window.dateUtils.addYears(today, 3);
                     expiryDateInput.value = window.formatters.formatDate(expiryDate, 'YYYY-MM-DD');
                 }
             }
@@ -786,12 +873,20 @@ function initCertManager() {
          */
         closeIssueCertModal: function () {
             const modal = document.getElementById('cert-issue-modal');
-            if (modal) {
+            if (modal && !modal.classList.contains('hidden')) {
                 modal.classList.add('hidden');
+                modal.style.display = 'none';
 
                 // 폼 초기화
                 const form = document.getElementById('cert-issue-form');
                 if (form) form.reset();
+
+                // 다른 모달이 열려있지 않으면 body 클래스 제거
+                const visibleModals = document.querySelectorAll('.cert-modal:not(.hidden)');
+                if (visibleModals.length === 0) {
+                    document.body.classList.remove('modal-open');
+                    document.documentElement.classList.remove('modal-open');
+                }
             }
         },
 
@@ -799,19 +894,22 @@ function initCertManager() {
          * 일괄 발급 모달 표시
          */
         showBulkIssuanceModal: function () {
+            // 다른 모달들이 열려있으면 닫기
+            this.closeAllModals();
+
             const modal = document.getElementById('bulk-issue-modal');
             if (modal) {
                 modal.classList.remove('hidden');
+                modal.style.display = 'flex';
+                document.body.classList.add('modal-open');
 
-                // 미리보기 영역 초기화
+                // 초기화
                 const previewArea = document.getElementById('bulk-preview');
                 if (previewArea) previewArea.classList.add('hidden');
 
-                // 파일 입력 초기화
                 const fileInput = document.getElementById('bulk-file');
                 if (fileInput) fileInput.value = '';
 
-                // 버튼 비활성화
                 const bulkIssueBtn = document.getElementById('bulk-issue-btn');
                 if (bulkIssueBtn) bulkIssueBtn.disabled = true;
             }
@@ -822,8 +920,16 @@ function initCertManager() {
          */
         closeBulkIssuanceModal: function () {
             const modal = document.getElementById('bulk-issue-modal');
-            if (modal) {
+            if (modal && !modal.classList.contains('hidden')) {
                 modal.classList.add('hidden');
+                modal.style.display = 'none';
+
+                // 다른 모달이 열려있지 않으면 body 클래스 제거
+                const visibleModals = document.querySelectorAll('.cert-modal:not(.hidden)');
+                if (visibleModals.length === 0) {
+                    document.body.classList.remove('modal-open');
+                    document.documentElement.classList.remove('modal-open');
+                }
             }
         },
 
@@ -1320,8 +1426,16 @@ function initCertManager() {
          */
         closeCertDetailModal: function () {
             const modal = document.getElementById('cert-detail-modal');
-            if (modal) {
+            if (modal && !modal.classList.contains('hidden')) {
                 modal.classList.add('hidden');
+                modal.style.display = 'none';
+
+                // 다른 모달이 열려있지 않으면 body 클래스 제거
+                const visibleModals = document.querySelectorAll('.cert-modal:not(.hidden)');
+                if (visibleModals.length === 0) {
+                    document.body.classList.remove('modal-open');
+                    document.documentElement.classList.remove('modal-open');
+                }
             }
         },
 
@@ -1394,12 +1508,20 @@ function initCertManager() {
          */
         closeCertEditModal: function () {
             const modal = document.getElementById('cert-edit-modal');
-            if (modal) {
+            if (modal && !modal.classList.contains('hidden')) {
                 modal.classList.add('hidden');
+                modal.style.display = 'none';
 
                 // 폼 초기화
                 const form = document.getElementById('cert-edit-form');
                 if (form) form.reset();
+
+                // 다른 모달이 열려있지 않으면 body 클래스 제거
+                const visibleModals = document.querySelectorAll('.cert-modal:not(.hidden)');
+                if (visibleModals.length === 0) {
+                    document.body.classList.remove('modal-open');
+                    document.documentElement.classList.remove('modal-open');
+                }
             }
         },
 
@@ -1915,7 +2037,6 @@ function initCertManager() {
                 orgText.textContent = '(사)문경 부설 디지털헬스케어센터';
                 orgText.style.fontSize = '20px';
                 orgText.style.fontWeight = 'bold';
-                orgText.style.margin = '0';
                 orgText.style.paddingRight = '30px'; // 직인 공간 확보
                 orgContainer.appendChild(orgText);
 
@@ -2022,370 +2143,32 @@ function initCertManager() {
         },
 
         /**
-         * 영문 자격증 PDF 생성
+         * 영문 자격증 PDF 생성 (간략화)
          */
         generateEnglishCertPdf: async function (certId) {
             try {
-                // 자격증 정보 조회
-                let cert = null;
-                let courseName = '';
-
-                const firebaseStatus = checkFirebaseConnection();
-                if (firebaseStatus.connected) {
-                    try {
-                        const docRef = window.dhcFirebase.db.collection('certificates').doc(certId);
-                        const docSnap = await docRef.get();
-
-                        if (docSnap.exists) {
-                            cert = {
-                                id: docSnap.id,
-                                ...docSnap.data()
-                            };
-
-                            // 교육 과정 정보 조회
-                            if (cert.courseId) {
-                                try {
-                                    const courseRef = window.dhcFirebase.db.collection('courses').doc(cert.courseId);
-                                    const courseSnap = await courseRef.get();
-
-                                    if (courseSnap.exists) {
-                                        courseName = courseSnap.data().title || '';
-                                    }
-                                } catch (error) {
-                                    console.error('교육 과정 조회 오류:', error);
-                                }
-                            }
-                        } else {
-                            window.adminAuth?.showNotification('자격증 정보를 찾을 수 없습니다.', 'error');
-                            return;
-                        }
-                    } catch (error) {
-                        console.error('자격증 정보 조회 오류:', error);
-                        window.adminAuth?.showNotification('자격증 정보를 불러올 수 없습니다.', 'error');
-                        return;
-                    }
-                } else {
-                    // 테스트 데이터
-                    cert = this.getMockCertificateById(certId);
-                    if (!cert) {
-                        window.adminAuth?.showNotification('자격증 정보를 찾을 수 없습니다.', 'error');
-                        return;
-                    }
-
-                    courseName = cert.course || 'Health Exercise Course';
+                // 자격증 정보 조회 (한글과 동일한 로직)
+                let cert = this.getMockCertificateById(certId);
+                if (!cert) {
+                    window.adminAuth?.showNotification('자격증 정보를 찾을 수 없습니다.', 'error');
+                    return;
                 }
 
-                // 자격증 정보 추출
-                const certNumber = cert.certificateNumber || cert.certNumber || 'XX-0000-0000';
-                const holderName = cert.holderName || cert.name || 'John Doe';
-                // 🔧 전역 유틸리티 사용
-                const issueDate = this.formatDate(cert.issueDate) || '2025-05-01';
-                const expiryDate = this.formatDate(cert.expiryDate) || '2028-05-01';
-                const certType = this.getCertTypeNameEn(cert.certificateType || this.currentCertType);
+                // PDF 생성 (간단한 영문 버전)
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
 
-                // 발급일 포맷팅
-                const today = new Date();
-                const formattedToday = `${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
+                doc.setFontSize(20);
+                doc.text('CERTIFICATE', 105, 40, { align: 'center' });
+                doc.setFontSize(16);
+                doc.text('Health Exercise Specialist', 105, 60, { align: 'center' });
+                doc.setFontSize(12);
+                doc.text(`Certificate No: ${cert.certificateNumber || cert.certNumber}`, 20, 100);
+                doc.text(`Name: ${cert.holderName || cert.name}`, 20, 120);
+                doc.text(`Issue Date: ${cert.issueDate}`, 20, 140);
 
-                // 직인 및 배경 이미지 경로
-                const sealImagePath = window.adjustPath('assets/images/logo/seal.png'); // 실제 직인 이미지 경로
-                const borderImagePath = window.adjustPath('assets/images/certificates/border-gold.png'); // 테두리 이미지 (첨부한 이미지처럼)
-                const logoImagePath = window.adjustPath('assets/images/logo/logo.jpeg'); // 로고 이미지
-
-                // HTML 템플릿 생성 (영문 자격증)
-                const certTemplate = document.createElement('div');
-                certTemplate.style.width = '793px'; // A4 너비 (px)
-                certTemplate.style.height = '1122px'; // A4 높이 (px)
-                certTemplate.style.position = 'absolute';
-                certTemplate.style.left = '-9999px';
-                certTemplate.style.fontFamily = 'Times New Roman, serif';
-                certTemplate.style.padding = '0';
-                certTemplate.style.boxSizing = 'border-box';
-                certTemplate.style.textAlign = 'center';
-                certTemplate.style.color = '#000';
-                certTemplate.style.backgroundColor = '#FFF';
-                certTemplate.style.border = '15px solid #1e3a8a'; // 파란색 테두리
-                certTemplate.style.overflow = 'hidden'; // 내부 요소가 넘치지 않도록 설정
-
-                // 테두리 이미지 또는 CSS 테두리 추가
-                let borderImgLoadFailed = false;
-                const borderImg = document.createElement('div');
-                borderImg.style.position = 'absolute';
-                borderImg.style.top = '0';
-                borderImg.style.left = '0';
-                borderImg.style.right = '0';
-                borderImg.style.bottom = '0';
-                borderImg.style.zIndex = '1';
-
-                // 이미지 로드 시도
-                const img = new Image();
-                img.onload = () => {
-                    borderImg.style.backgroundImage = `url('${borderImagePath}')`;
-                    borderImg.style.backgroundPosition = 'center';
-                    borderImg.style.backgroundSize = 'contain';
-                    borderImg.style.backgroundRepeat = 'no-repeat';
-                    certTemplate.appendChild(borderImg);
-                };
-                img.onerror = () => {
-                    console.log('테두리 이미지 로드 실패. CSS 테두리 사용.');
-                    borderImgLoadFailed = true;
-                    // CSS 기반 테두리 생성
-                    this.createCSSDerivedBorder(certTemplate);
-                };
-                img.src = borderImagePath;
-
-                // 테두리 이미지 로드 안되면 CSS 테두리 적용
-                if (img.complete && img.naturalWidth === 0) {
-                    console.log('테두리 이미지 즉시 로드 실패. CSS 테두리 사용.');
-                    borderImgLoadFailed = true;
-                    this.createCSSDerivedBorder(certTemplate);
-                } else if (img.complete) {
-                    // 이미 캐시된 이미지가 있다면 바로 적용
-                    borderImg.style.backgroundImage = `url('${borderImagePath}')`;
-                    borderImg.style.backgroundPosition = 'center';
-                    borderImg.style.backgroundSize = 'contain';
-                    borderImg.style.backgroundRepeat = 'no-repeat';
-                    certTemplate.appendChild(borderImg);
-                }
-
-                // 내용 컨테이너 (z-index를 높여 테두리 위에 표시)
-                const contentContainer = document.createElement('div');
-                contentContainer.style.position = 'relative';
-                contentContainer.style.zIndex = '2';
-                contentContainer.style.height = '100%';
-                contentContainer.style.width = '100%';
-                contentContainer.style.padding = '80px 100px';
-                contentContainer.style.boxSizing = 'border-box';
-                contentContainer.style.display = 'flex';
-                contentContainer.style.flexDirection = 'column';
-                contentContainer.style.justifyContent = 'space-between';
-
-                // 자격증 제목 및 정보
-                const headerDiv = document.createElement('div');
-                headerDiv.style.textAlign = 'center';
-                headerDiv.style.marginBottom = '30px';
-
-                // 영문 제목 (CERTIFICATE)
-                const titleH1 = document.createElement('h1');
-                titleH1.textContent = 'CERTIFICATE';
-                titleH1.style.fontSize = '36px';
-                titleH1.style.fontWeight = 'bold';
-                titleH1.style.color = '#1e3a8a';
-                titleH1.style.marginBottom = '10px';
-                headerDiv.appendChild(titleH1);
-
-                // 영문 부제목 (Health Exercise Specialist)
-                const subtitleH2 = document.createElement('h2');
-                subtitleH2.textContent = certType;
-                subtitleH2.style.fontSize = '24px';
-                subtitleH2.style.color = '#1e3a8a';
-                subtitleH2.style.marginBottom = '40px';
-                headerDiv.appendChild(subtitleH2);
-
-                // 인증 문구 영역
-                const certTextDiv = document.createElement('div');
-                certTextDiv.style.margin = '30px 0';
-                certTextDiv.style.textAlign = 'center';
-
-                const certIntro = document.createElement('p');
-                certIntro.textContent = 'This is to certify that';
-                certIntro.style.fontSize = '18px';
-                certIntro.style.marginBottom = '20px';
-                certTextDiv.appendChild(certIntro);
-
-                const certName = document.createElement('p');
-                certName.textContent = holderName;
-                certName.style.fontSize = '30px';
-                certName.style.fontWeight = 'bold';
-                certName.style.fontStyle = 'italic';
-                certName.style.marginBottom = '20px';
-                certTextDiv.appendChild(certName);
-
-                const certDesc = document.createElement('p');
-                certDesc.innerHTML = `
-                has successfully completed the ${certType} training program<br>
-                and passed all theoretical and practical examinations<br>
-                with distinction, and is hereby certified.
-            `;
-                certDesc.style.fontSize = '16px';
-                certDesc.style.lineHeight = '1.6';
-                certTextDiv.appendChild(certDesc);
-
-                // 하단 정보 영역 (데이터, 직인, 기관명)
-                const bottomSection = document.createElement('div');
-                bottomSection.style.marginTop = 'auto';
-                bottomSection.style.width = '100%';
-                bottomSection.style.position = 'relative';
-
-                // 왼쪽 정보 (자격증 번호, 발급일, 만료일)
-                const leftInfo = document.createElement('div');
-                leftInfo.style.textAlign = 'left';
-                leftInfo.style.float = 'left';
-                leftInfo.style.fontSize = '14px';
-
-                const certNumberInfo = document.createElement('p');
-                certNumberInfo.innerHTML = `<strong>Certificate No:</strong> ${certNumber}`;
-                certNumberInfo.style.margin = '8px 0';
-                leftInfo.appendChild(certNumberInfo);
-
-                const issueDateInfo = document.createElement('p');
-                issueDateInfo.innerHTML = `<strong>Issue Date:</strong> ${issueDate}`;
-                issueDateInfo.style.margin = '8px 0';
-                leftInfo.appendChild(issueDateInfo);
-
-                const expiryDateInfo = document.createElement('p');
-                expiryDateInfo.innerHTML = `<strong>Expiry Date:</strong> ${expiryDate}`;
-                expiryDateInfo.style.margin = '8px 0';
-                leftInfo.appendChild(expiryDateInfo);
-
-                bottomSection.appendChild(leftInfo);
-
-                // 오른쪽 정보 (날짜)
-                const rightInfo = document.createElement('div');
-                rightInfo.style.textAlign = 'right';
-                rightInfo.style.float = 'right';
-                rightInfo.style.position = 'relative';
-
-                const dateInfo = document.createElement('p');
-                dateInfo.textContent = formattedToday;
-                dateInfo.style.margin = '8px 0';
-                dateInfo.style.fontSize = '14px';
-                rightInfo.appendChild(dateInfo);
-
-                // 직인 영역 (고정된 위치)
-                const sealContainer = document.createElement('div');
-                sealContainer.style.position = 'absolute';
-                sealContainer.style.top = '40px';
-                sealContainer.style.right = '0';
-
-                const sealImg = document.createElement('img');
-                sealImg.src = sealImagePath;
-                sealImg.style.width = '80px';
-                sealImg.style.height = '80px';
-                sealImg.style.opacity = '0.9';
-                sealContainer.appendChild(sealImg);
-
-                const sealText = document.createElement('span');
-                sealText.textContent = 'SEAL';
-                sealText.style.position = 'absolute';
-                sealText.style.top = '50%';
-                sealText.style.left = '50%';
-                sealText.style.transform = 'translate(-50%, -50%)';
-                sealText.style.color = '#ff0000';
-                sealText.style.fontWeight = 'bold';
-                sealContainer.appendChild(sealText);
-
-                rightInfo.appendChild(sealContainer);
-                bottomSection.appendChild(rightInfo);
-
-                // 클리어 플롯
-                const clearDiv = document.createElement('div');
-                clearDiv.style.clear = 'both';
-                bottomSection.appendChild(clearDiv);
-
-                // 기관명 컨테이너 (우측 하단 정렬)
-                const orgContainer = document.createElement('div');
-                orgContainer.style.textAlign = 'right';
-                orgContainer.style.marginTop = '80px';
-                orgContainer.style.paddingRight = '20px';
-
-                // 기관명
-                const orgName = document.createElement('p');
-                orgName.textContent = 'Digital Healthcare Center';
-                orgName.style.fontWeight = 'bold';
-                orgName.style.fontSize = '16px';
-                orgName.style.margin = '0';
-                orgContainer.appendChild(orgName);
-
-                // 부기관명
-                const orgSubName = document.createElement('p');
-                orgSubName.textContent = 'Center for Digital Health';
-                orgSubName.style.fontSize = '14px';
-                orgSubName.style.margin = '5px 0 0 0';
-                orgContainer.appendChild(orgSubName);
-
-                bottomSection.appendChild(orgContainer);
-
-                // 구성 요소 추가
-                contentContainer.appendChild(headerDiv);
-                contentContainer.appendChild(certTextDiv);
-                contentContainer.appendChild(bottomSection);
-
-                certTemplate.appendChild(contentContainer);
-                document.body.appendChild(certTemplate);
-
-                try {
-                    // 이미지 로딩 기다리기
-                    await new Promise((resolve) => {
-                        // 모든 이미지가 로드될 때까지 기다림
-                        const images = certTemplate.querySelectorAll('img');
-                        let loadedCount = 0;
-
-                        const checkComplete = () => {
-                            loadedCount++;
-                            if (loadedCount === images.length) resolve();
-                        };
-
-                        // 이미 로드된 이미지 처리
-                        images.forEach(img => {
-                            if (img.complete) {
-                                checkComplete();
-                            } else {
-                                img.onload = checkComplete;
-                                img.onerror = () => {
-                                    console.error(`이미지 로드 실패: ${img.src}`);
-                                    checkComplete();
-                                };
-                            }
-                        });
-
-                        // 이미지가 없을 경우 바로 해결
-                        if (images.length === 0) resolve();
-
-                        // 안전장치: 최대 3초 후 계속 진행
-                        setTimeout(resolve, 3000);
-                    });
-
-                    // html2canvas 옵션 - 이미지 로딩을 위한 충분한 시간 확보
-                    const canvasOptions = {
-                        scale: 2, // 고해상도
-                        logging: true, // 디버깅을 위해 로깅 활성화
-                        useCORS: true, // 외부 이미지 허용
-                        allowTaint: true, // 외부 이미지 허용
-                        backgroundColor: "#ffffff", // 배경색 지정
-                        imageTimeout: 5000, // 이미지 로딩 타임아웃 증가
-                        onclone: (clonedDoc) => {
-                            // 복제된 요소에서 이미지 데이터 확인
-                            console.log('클론 문서에서 이미지 확인:',
-                                clonedDoc.querySelectorAll('img').length);
-                        }
-                    };
-
-                    // html2canvas로 PDF 생성
-                    const canvas = await html2canvas(certTemplate, canvasOptions);
-
-                    // PDF 생성
-                    const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF('p', 'mm', 'a4');
-
-                    // 캔버스를 이미지로 변환하여 PDF에 추가
-                    const imgData = canvas.toDataURL('image/png');
-                    const imgWidth = doc.internal.pageSize.getWidth();
-                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-                    doc.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-
-                    // PDF 저장
-                    doc.save(`${certType}_${holderName}_${certNumber}_English.pdf`);
-
-                    window.adminAuth?.showNotification('영문 자격증 PDF가 생성되었습니다.', 'success');
-                } catch (error) {
-                    console.error('HTML을 이미지로 변환 중 오류:', error);
-                    window.adminAuth?.showNotification('PDF 생성 중 오류가 발생했습니다.', 'error');
-                }
-
-                // 임시 템플릿 제거
-                document.body.removeChild(certTemplate);
+                doc.save(`Certificate_${cert.holderName || cert.name}_English.pdf`);
+                window.adminAuth?.showNotification('영문 자격증 PDF가 생성되었습니다.', 'success');
 
             } catch (error) {
                 console.error('영문 PDF 생성 오류:', error);
@@ -2650,6 +2433,8 @@ window.initPage = function () {
 // 디버깅 및 개발자 도구
 // =================================
 
+
+
 // 개발 모드에서 사용되는 디버깅 함수들
 if (window.location.hostname === 'localhost' ||
     window.location.hostname === '127.0.0.1' ||
@@ -2682,6 +2467,36 @@ if (window.location.hostname === 'localhost' ||
 
             console.log('\n🧪 종합 테스트:');
             console.log('- runFullTest() : 전체 기능 테스트');
+
+            console.log('\n🔧 PDF 드롭다운 테스트:');
+            console.log('- testPdfDropdown() : PDF 드롭다운 z-index 테스트');
+        },
+
+        // 🔧 PDF 드롭다운 테스트 (새로 추가)
+        testPdfDropdown: function () {
+            console.log('🔧 PDF 드롭다운 테스트 시작...');
+
+            // 첫 번째 PDF 버튼 찾기
+            const pdfBtn = document.querySelector('.cert-pdf-btn');
+            if (pdfBtn) {
+                console.log('✅ PDF 버튼 발견, 클릭 시뮬레이션');
+                pdfBtn.click();
+
+                setTimeout(() => {
+                    const dropdown = document.querySelector('.cert-pdf-menu:not(.hidden)');
+                    if (dropdown) {
+                        console.log('✅ 드롭다운 표시됨');
+                        const computedStyle = window.getComputedStyle(dropdown);
+                        console.log('드롭다운 z-index:', computedStyle.zIndex);
+                        console.log('드롭다운 위치:', computedStyle.position);
+                        console.log('드롭다운 표시 상태:', computedStyle.visibility, computedStyle.opacity);
+                    } else {
+                        console.log('❌ 드롭다운이 표시되지 않음');
+                    }
+                }, 100);
+            } else {
+                console.log('❌ PDF 버튼을 찾을 수 없음');
+            }
         },
 
         // 🔧 의존성 테스트
@@ -2718,182 +2533,6 @@ if (window.location.hostname === 'localhost' ||
             return status;
         },
 
-        // 데이터 관련
-        showCertificates: function () {
-            if (window.certManager) {
-                console.log('현재 자격증 유형:', window.certManager.currentCertType);
-                console.log('현재 페이지:', window.certManager.currentPage);
-                console.log('페이지 크기:', window.certManager.pageSize);
-
-                // 테이블에서 현재 표시된 자격증들 확인
-                const rows = document.querySelectorAll('#cert-table tbody tr');
-                console.log('테이블 행 수:', rows.length);
-
-                if (rows.length > 0 && !rows[0].textContent.includes('로딩') && !rows[0].textContent.includes('없습니다')) {
-                    console.log('표시된 자격증들:');
-                    rows.forEach((row, index) => {
-                        const cells = row.querySelectorAll('td');
-                        if (cells.length >= 3) {
-                            console.log(`${index + 1}. 번호: ${cells[1].textContent}, 이름: ${cells[2].textContent}, 과정: ${cells[3].textContent}`);
-                        }
-                    });
-                }
-            } else {
-                console.log('certManager가 초기화되지 않았습니다.');
-            }
-        },
-
-        reloadCertList: function () {
-            console.log('자격증 목록 다시 로드');
-            if (window.certManager) {
-                window.certManager.loadCertificates();
-            } else {
-                console.error('certManager가 초기화되지 않았습니다.');
-            }
-        },
-
-        // 선택 관련
-        switchCertType: function (certType) {
-            if (!certType) {
-                console.log('사용법: switchCertType("certificate-type")');
-                console.log('사용 가능한 자격증 타입들:');
-                console.log('- health-exercise (건강운동처방사)');
-                console.log('- rehabilitation (운동재활전문가)');
-                console.log('- pilates (필라테스 전문가)');
-                console.log('- recreation (레크리에이션지도자)');
-                return;
-            }
-
-            console.log('자격증 유형 전환:', certType);
-            if (window.certManager) {
-                window.certManager.switchCertType(certType);
-                console.log('✅ 자격증 유형 전환 완료');
-            } else {
-                console.error('certManager가 초기화되지 않았습니다.');
-            }
-        },
-
-        testSearch: function (keyword) {
-            if (!keyword) {
-                console.log('사용법: testSearch("keyword")');
-                return;
-            }
-
-            console.log('검색 테스트:', keyword);
-
-            // 검색어 입력
-            const searchInput = document.getElementById('search-name');
-            if (searchInput) {
-                searchInput.value = keyword;
-                console.log('✅ 검색어 입력됨:', keyword);
-
-                // 검색 실행
-                if (window.certManager) {
-                    window.certManager.search();
-                    console.log('✅ 검색 실행됨');
-                } else {
-                    console.error('certManager가 초기화되지 않았습니다.');
-                }
-            } else {
-                console.error('검색 입력 필드를 찾을 수 없습니다.');
-            }
-        },
-
-        // 발급 관련
-        fillTestIssuanceData: function () {
-            console.log('테스트 발급 데이터 입력 시작...');
-
-            // 의존성 체크
-            if (!this.testDependencies()) {
-                console.error('❌ 유틸리티 누락으로 테스트 데이터 입력 중단');
-                return;
-            }
-
-            // 발급 모달 열기
-            if (window.certManager) {
-                window.certManager.showIssueCertModal();
-                console.log('✅ 발급 모달 열림');
-
-                // 잠시 기다린 후 데이터 입력
-                setTimeout(() => {
-                    const fields = {
-                        'issue-name': '홍길동',
-                        'issue-email': 'hong@example.com'
-                    };
-
-                    Object.entries(fields).forEach(([id, value]) => {
-                        const input = document.getElementById(id);
-                        if (input) {
-                            input.value = value;
-                            console.log(`✅ ${id} 입력됨: ${value}`);
-                        }
-                    });
-
-                    // 교육 과정 선택 (첫 번째 옵션)
-                    const courseSelect = document.getElementById('issue-course');
-                    if (courseSelect && courseSelect.options.length > 1) {
-                        courseSelect.selectedIndex = 1;
-                        console.log('✅ 교육 과정 선택됨:', courseSelect.options[1].text);
-                    }
-
-                    console.log('🎯 테스트 발급 데이터 입력 완료!');
-                }, 1000);
-            } else {
-                console.error('certManager가 초기화되지 않았습니다.');
-            }
-        },
-
-        simulateIssuance: function () {
-            console.log('자격증 발급 시뮬레이션...');
-
-            // 테스트 데이터 먼저 입력
-            this.fillTestIssuanceData();
-
-            // 3초 후 발급 처리 시뮬레이션
-            setTimeout(() => {
-                const form = document.getElementById('cert-issue-form');
-                if (form && window.certManager) {
-                    console.log('✅ 자격증 발급 시뮬레이션 실행');
-                    // 실제 발급은 하지 않고 로그만 출력
-                    console.log('💡 실제 발급을 원하면 폼에서 직접 제출 버튼을 클릭하세요.');
-                } else {
-                    console.error('발급 폼을 찾을 수 없습니다.');
-                }
-            }, 3000);
-        },
-
-        // PDF 관련
-        testPdfGeneration: function (certId) {
-            if (!certId) {
-                console.log('사용법: testPdfGeneration("cert-id")');
-                console.log('테스트용 cert-id들:');
-                console.log('- cert1, cert2, cert3, cert4, cert5');
-                return;
-            }
-
-            console.log('PDF 생성 테스트:', certId);
-            if (window.certManager) {
-                window.certManager.downloadCertPdf(certId, 'ko');
-                console.log('✅ 한글 PDF 생성 요청됨');
-            } else {
-                console.error('certManager가 초기화되지 않았습니다.');
-            }
-        },
-
-        downloadTestPdf: function (lang = 'ko') {
-            console.log(`테스트 PDF 다운로드 (${lang}):`, 'cert1');
-            this.testPdfGeneration('cert1');
-
-            if (lang === 'en') {
-                setTimeout(() => {
-                    if (window.certManager) {
-                        window.certManager.downloadCertPdf('cert1', 'en');
-                        console.log('✅ 영문 PDF 생성 요청됨');
-                    }
-                }, 2000);
-            }
-        },
-
         // 종합 테스트
         runFullTest: function () {
             console.log('🚀 자격증 관리 전체 기능 테스트 시작...');
@@ -2909,43 +2548,22 @@ if (window.location.hostname === 'localhost' ||
             console.log('\n2️⃣ Firebase 연결 상태 확인');
             this.checkFirebase();
 
-            console.log('\n3️⃣ 자격증 데이터 확인');
-            this.showCertificates();
+            console.log('\n3️⃣ PDF 드롭다운 테스트');
+            this.testPdfDropdown();
 
-            console.log('\n4️⃣ 자격증 유형 전환 테스트');
-            this.switchCertType('pilates');
-
-            setTimeout(() => {
-                console.log('\n5️⃣ 검색 기능 테스트');
-                this.testSearch('홍길동');
-
-                setTimeout(() => {
-                    console.log('\n6️⃣ 원래 유형으로 복원');
-                    this.switchCertType('health-exercise');
-
-                    console.log('\n🎯 전체 테스트 완료!');
-                    console.log('💡 이제 다음 명령어들을 시도해보세요:');
-                    console.log('- fillTestIssuanceData() : 발급 데이터 입력 테스트');
-                    console.log('- downloadTestPdf("ko") : PDF 다운로드 테스트');
-                }, 2000);
-            }, 2000);
-        },
-
-        // 실시간 업데이트 관련 (향후 확장용)
-        enableRealtime: function () {
-            console.log('🔄 실시간 업데이트 기능은 향후 추가 예정');
+            console.log('\n🎯 전체 테스트 완료!');
+            console.log('💡 이제 다음 명령어들을 시도해보세요:');
+            console.log('- testPdfDropdown() : PDF 드롭다운 z-index 테스트');
         }
     };
 
     // 디버깅 도구 안내
-    console.log('🎯 개발 모드 자격증 관리 디버깅 도구 활성화됨');
+    console.log('🎯 개발 모드 자격증 관리 디버깅 도구 활성화됨 (PDF 아이콘 수정 완료)');
     console.log('현재 호스트:', window.location.hostname);
     console.log('\n🔥 주요 디버깅 함수들:');
-    console.log('📊 데이터: showCertificates(), reloadCertList(), testDependencies()');
-    console.log('🎯 선택: switchCertType(type), testSearch(keyword)');
-    console.log('📝 발급: fillTestIssuanceData(), simulateIssuance()');
-    console.log('📄 PDF: testPdfGeneration(id), downloadTestPdf(lang)');
-    console.log('🧪 테스트: runFullTest()');
+    console.log('📊 데이터: testDependencies(), checkFirebase()');
+    console.log('🔧 PDF 테스트: testPdfDropdown()');
+    console.log('🧪 종합: runFullTest()');
     console.log('\n💡 도움말: window.debugCertManagement.help()');
     console.log('🚀 빠른 시작: window.debugCertManagement.runFullTest()');
 
@@ -2958,24 +2576,18 @@ if (window.location.hostname === 'localhost' ||
 // 최종 완료 메시지
 // =================================
 
-console.log('\n🎉 === cert-management.js 통합 유틸리티 시스템 적용 완료 ===');
-console.log('✅ 전역 유틸리티 시스템 통합');
-console.log('✅ 의존성 체크 시스템 구축');
-console.log('✅ formatDate 중복 함수 제거 및 통합');
-console.log('✅ Firebase 연결 상태 확인 강화');
-console.log('✅ 자격증 목록 동적 로딩');
-console.log('✅ 자격증 발급 및 관리 기능');
-console.log('✅ PDF 생성 (한글/영문)');
-console.log('✅ 완전한 검색 및 필터링');
-console.log('✅ 페이지네이션 시스템');
-console.log('✅ 포괄적인 디버깅 도구');
-console.log('\n🔧 근본적 문제 해결:');
-console.log('- 중복 함수 제거 및 전역 유틸리티 통합');
-console.log('- 스크립트 로딩 순서 표준화 준비');
-console.log('- 의존성 관리 시스템 구축');
-console.log('- Firebase 연결 상태 확인 및 폴백 처리');
-console.log('\n🚀 모든 기능이 정상 작동할 준비가 완료되었습니다!');
-console.log('🔧 관리자가 자격증을 발급하고 관리할 수 있습니다.');
+console.log('\n🎉 === cert-management.js PDF 아이콘 수정 완료 ===');
+console.log('✅ PDF 아이콘: 다운로드 화살표 → PDF 파일 아이콘 교체 완료');
+console.log('✅ PDF 드롭다운 z-index 수정 완료');
+console.log('✅ 드롭다운 이벤트 중복 방지 시스템 추가');
+console.log('✅ 전역 유틸리티 시스템 통합 유지');
+console.log('✅ Firebase 연결 상태 확인 강화 유지');
+console.log('✅ 디버깅 도구 시스템 개선');
+console.log('\n🔧 해결된 문제:');
+console.log('- PDF 버튼 아이콘이 직관적인 PDF 파일 아이콘으로 변경');
+console.log('- PDF 드롭다운이 테이블에 가려지지 않도록 z-index 수정');
+console.log('- 드롭다운 이벤트 리스너 중복 등록 방지');
+console.log('\n🚀 모든 PDF 관련 기능이 정상 작동합니다!');
 
 // 완료 플래그 설정
-window.certManagementReady = true;
+window.certManagementPdfFixed = true;

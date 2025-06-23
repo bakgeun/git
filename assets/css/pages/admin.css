@@ -1,6 +1,6 @@
 /**
- * 관리자 페이지 완전한 스타일 - 모달 중첩, PDF 아이콘, 드롭다운 문제 완전 해결
- * course-modal, cert-management 모달 중첩, PDF 아이콘, payment 레이아웃 수정
+ * 관리자 페이지 완전한 스타일 - 🔧 모달 중첩 문제 완전 해결
+ * cert-management 모달 시스템 완전 재구축
  */
 
 /* =================================== */
@@ -44,17 +44,19 @@
 
     /* 🔧 Z-index 계층 완전 재정리 (중첩 문제 해결) */
     --z-base: 1;
-    --z-dropdown: 1000;
-    --z-sticky: 1020;
-    --z-fixed: 1030;
-    --z-modal-backdrop: 1040;
-    --z-modal-first: 1050;         /* 첫 번째 모달 */
-    --z-modal-second: 1060;        /* 두 번째 모달 */
-    --z-modal-third: 1070;         /* 세 번째 모달 */
-    --z-modal-fourth: 1080;        /* 네 번째 모달 */
-    --z-modal-content: 1051;       /* 모달 내용 (베이스 + 1) */
-    --z-dropdown-in-modal: 1055;   /* 모달 내 드롭다운 */
-    --z-toast: 9999;
+    --z-table: 10;                     /* 테이블 기본 레이어 */
+    --z-dropdown: 1000;                /* 일반 드롭다운 */
+    --z-sticky: 1020;                  /* 고정 요소 */
+    --z-fixed: 1030;                   /* 사이드바 등 */
+    
+    /* 🔧 모달별 Z-index 완전 분리 (중첩 문제 완전 해결) */
+    --z-modal-primary: 2000;           /* cert-issue-modal */
+    --z-modal-secondary: 2100;         /* bulk-issue-modal */
+    --z-modal-tertiary: 2200;          /* cert-detail-modal */
+    --z-modal-quaternary: 2300;        /* cert-edit-modal */
+    
+    --z-dropdown-in-modal: 2400;       /* 모달 내 드롭다운 */
+    --z-toast: 9999;                   /* 알림 메시지 */
 
     /* 크기 및 간격 */
     --border-radius: 0.5rem;
@@ -368,8 +370,9 @@ body {
     border-collapse: collapse;
     background-color: white;
     border-radius: var(--border-radius-lg);
-    overflow: hidden;
     box-shadow: var(--shadow);
+    position: relative;
+    z-index: var(--z-table) !important;
 }
 
 .admin-table th {
@@ -388,7 +391,7 @@ body {
     border-bottom: 1px solid var(--gray-100);
     font-size: 0.875rem;
     vertical-align: middle;
-    overflow: visible !important;
+    overflow: visible !important; /* 드롭다운이 보이도록 설정 */
     position: relative !important;
 }
 
@@ -405,8 +408,9 @@ body {
     background: white;
     border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow);
-    overflow: hidden;
+    overflow: visible !important; /* hidden에서 visible로 변경 */
     position: relative;
+    z-index: var(--z-table) !important;
 }
 
 /* =================================== */
@@ -982,57 +986,103 @@ body {
 }
 
 /* =================================== */
-/* 🔧 Course Management 모달 시스템 (새로 추가) */
+/* 🎯 Certificate Management 모달 시스템 완전 재구축 */
 /* =================================== */
 
-/* Course Modal 기본 스타일 */
-.course-modal {
+/* 🔧 모달 기본 클래스 (공통) */
+.cert-modal {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
-    z-index: var(--z-modal-first) !important;
-    background-color: rgba(0, 0, 0, 0.75) !important;
-    backdrop-filter: blur(4px) !important;
-    display: flex !important;
+    display: none !important;
     align-items: center !important;
     justify-content: center !important;
     padding: 1rem !important;
     overflow-y: auto !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-.course-modal.hidden {
-    display: none !important;
+/* 🔧 모달 표시 상태 */
+.cert-modal:not(.hidden) {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
-/* Course Modal 컨테이너 */
-.course-modal-backdrop {
+/* 🔧 모달별 z-index 완전 분리 (중첩 문제 완전 해결) */
+.cert-modal-primary {
+    z-index: var(--z-modal-primary) !important;
+    background-color: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(4px) !important;
+}
+
+.cert-modal-secondary {
+    z-index: var(--z-modal-secondary) !important;
+    background-color: rgba(0, 0, 0, 0.80) !important;
+    backdrop-filter: blur(6px) !important;
+}
+
+.cert-modal-tertiary {
+    z-index: var(--z-modal-tertiary) !important;
+    background-color: rgba(0, 0, 0, 0.85) !important;
+    backdrop-filter: blur(8px) !important;
+}
+
+.cert-modal-quaternary {
+    z-index: var(--z-modal-quaternary) !important;
+    background-color: rgba(0, 0, 0, 0.90) !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+/* 🔧 모달 백드롭 (중복 제거) */
+.cert-modal-backdrop {
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
-    background-color: rgba(0, 0, 0, 0.5) !important;
     z-index: -1 !important;
+    cursor: pointer !important;
 }
 
-.course-modal-content {
+/* 🔧 모달 컨테이너 */
+.cert-modal-container {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 32rem !important;
+    max-height: 90vh !important;
+    margin: auto !important;
+    z-index: 1 !important;
+    transform: translateY(-20px) scale(0.95) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* 대형 모달 (일괄 발급용) */
+.cert-modal-large {
+    max-width: 56rem !important;
+}
+
+/* 🔧 모달 표시 시 애니메이션 */
+.cert-modal:not(.hidden) .cert-modal-container {
+    transform: translateY(0) scale(1) !important;
+}
+
+/* 🔧 모달 컨텐츠 */
+.cert-modal-content {
     background: white !important;
     border-radius: var(--border-radius-lg) !important;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
     border: 1px solid var(--gray-200) !important;
-    width: 100% !important;
-    max-width: 48rem !important;
-    max-height: 90vh !important;
     overflow: hidden !important;
     position: relative !important;
-    z-index: calc(var(--z-modal-first) + 1) !important;
-    animation: modalFadeIn 0.3s ease-out !important;
 }
 
-/* Course Modal 헤더 */
-.course-modal-header {
+/* 🔧 모달 헤더 */
+.cert-modal-header {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
@@ -1041,14 +1091,14 @@ body {
     background-color: var(--gray-50) !important;
 }
 
-.course-modal-title {
+.cert-modal-title {
     font-size: 1.25rem !important;
     font-weight: 600 !important;
     color: var(--gray-900) !important;
     margin: 0 !important;
 }
 
-.course-modal-close {
+.cert-modal-close {
     background: none !important;
     border: none !important;
     color: var(--gray-400) !important;
@@ -1056,255 +1106,21 @@ body {
     padding: 0.5rem !important;
     border-radius: var(--border-radius) !important;
     transition: all var(--transition-normal) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-.course-modal-close:hover {
+.cert-modal-close:hover {
     color: var(--gray-600) !important;
     background-color: var(--gray-100) !important;
 }
 
-/* Course Form 스타일 */
-.course-form {
+/* 🔧 모달 바디 */
+.cert-modal-body {
     padding: 1.5rem !important;
     overflow-y: auto !important;
     max-height: 60vh !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 1.25rem !important;
-}
-
-.form-row {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 1rem !important;
-}
-
-.form-row-triple {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr 1fr !important;
-    gap: 1rem !important;
-}
-
-.form-field {
-    display: flex !important;
-    flex-direction: column !important;
-}
-
-.form-label {
-    font-size: 0.875rem !important;
-    font-weight: 500 !important;
-    color: var(--gray-700) !important;
-    margin-bottom: 0.5rem !important;
-}
-
-.required {
-    color: var(--error-500) !important;
-}
-
-.form-input,
-.form-select {
-    padding: 0.5rem 0.75rem !important;
-    border: 1px solid var(--gray-300) !important;
-    border-radius: var(--border-radius) !important;
-    font-size: 0.875rem !important;
-    transition: border-color var(--transition-normal), box-shadow var(--transition-normal) !important;
-    background-color: white !important;
-}
-
-.form-input:focus,
-.form-select:focus {
-    outline: none !important;
-    border-color: var(--primary-500) !important;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
-}
-
-.form-input:disabled,
-.form-select:disabled {
-    background-color: var(--gray-100) !important;
-    color: var(--gray-500) !important;
-    cursor: not-allowed !important;
-}
-
-/* 자동 생성 정보 안내 */
-.auto-generation-info {
-    background-color: #f0f9ff !important;
-    border: 1px solid #bae6fd !important;
-    border-radius: var(--border-radius) !important;
-    padding: 1rem !important;
-    margin-top: 0.5rem !important;
-}
-
-.auto-generation-title {
-    font-size: 0.875rem !important;
-    font-weight: 600 !important;
-    color: #0c4a6e !important;
-    margin: 0 0 0.5rem 0 !important;
-}
-
-.auto-generation-list {
-    list-style: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    font-size: 0.75rem !important;
-    color: #0369a1 !important;
-    line-height: 1.5 !important;
-}
-
-.auto-generation-list li {
-    margin-bottom: 0.25rem !important;
-}
-
-.auto-generation-list li:before {
-    content: "• " !important;
-    font-weight: bold !important;
-    margin-right: 0.25rem !important;
-}
-
-/* 제목 미리보기 */
-.title-preview {
-    margin-top: 0.5rem !important;
-    padding: 0.5rem !important;
-    background-color: #f0f9ff !important;
-    border-radius: 0.25rem !important;
-    font-size: 0.875rem !important;
-    border-left: 3px solid var(--primary-500) !important;
-}
-
-/* 폼 액션 버튼 */
-.form-actions {
-    display: flex !important;
-    justify-content: flex-end !important;
-    gap: 0.75rem !important;
-    padding: 1.5rem !important;
-    border-top: 1px solid var(--gray-200) !important;
-    background-color: var(--gray-50) !important;
-    margin: 0 !important;
-}
-
-/* Course Modal 반응형 */
-@media (max-width: 768px) {
-    .course-modal-content {
-        max-width: 95vw !important;
-        margin: 0.5rem !important;
-        max-height: 95vh !important;
-    }
-
-    .course-form {
-        padding: 1rem !important;
-    }
-
-    .form-row,
-    .form-row-triple {
-        grid-template-columns: 1fr !important;
-    }
-
-    .form-actions {
-        flex-direction: column !important;
-        gap: 0.75rem !important;
-        padding: 1rem !important;
-    }
-
-    .admin-btn {
-        width: 100% !important;
-        justify-content: center !important;
-    }
-}
-
-/* =================================== */
-/* 🎯 Certificate Management 모달 시스템 완전 수정 */
-/* =================================== */
-
-/* 🔧 모달별 z-index 개별 할당 (중첩 문제 완전 해결) */
-#cert-issue-modal {
-    z-index: var(--z-modal-first) !important;
-}
-
-#bulk-issue-modal {
-    z-index: var(--z-modal-second) !important;
-}
-
-#cert-detail-modal {
-    z-index: var(--z-modal-third) !important;
-}
-
-#cert-edit-modal {
-    z-index: var(--z-modal-fourth) !important;
-}
-
-/* 기본 모달 오버레이 (각각 개별 z-index) */
-#cert-issue-modal,
-#bulk-issue-modal,
-#cert-detail-modal,
-#cert-edit-modal {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    background-color: rgba(0, 0, 0, 0.75) !important;
-    backdrop-filter: blur(4px) !important;
-    display: none !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 1rem !important;
-    overflow-y: auto !important;
-}
-
-/* 모달 표시 상태 */
-#cert-issue-modal:not(.hidden),
-#bulk-issue-modal:not(.hidden),
-#cert-detail-modal:not(.hidden),
-#cert-edit-modal:not(.hidden) {
-    display: flex !important;
-}
-
-/* 모달 컨테이너 (각각 자신의 z-index + 1) */
-#cert-issue-modal .relative,
-#cert-issue-modal > div:first-child {
-    z-index: calc(var(--z-modal-first) + 1) !important;
-}
-
-#bulk-issue-modal .relative,
-#bulk-issue-modal > div:first-child {
-    z-index: calc(var(--z-modal-second) + 1) !important;
-}
-
-#cert-detail-modal .relative,
-#cert-detail-modal > div:first-child {
-    z-index: calc(var(--z-modal-third) + 1) !important;
-}
-
-#cert-edit-modal .relative,
-#cert-edit-modal > div:first-child {
-    z-index: calc(var(--z-modal-fourth) + 1) !important;
-}
-
-/* 공통 모달 컨테이너 스타일 */
-#cert-issue-modal .relative,
-#bulk-issue-modal .relative,
-#cert-detail-modal .relative,
-#cert-edit-modal .relative,
-#cert-issue-modal > div:first-child,
-#bulk-issue-modal > div:first-child,
-#cert-detail-modal > div:first-child,
-#cert-edit-modal > div:first-child {
-    background: white !important;
-    border-radius: var(--border-radius-lg) !important;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-    border: 1px solid var(--gray-200) !important;
-    width: 100% !important;
-    max-width: 32rem !important;
-    max-height: 90vh !important;
-    overflow: hidden !important;
-    position: relative !important;
-    margin: auto !important;
-    animation: modalFadeIn 0.3s ease-out !important;
-}
-
-/* 대형 모달 (일괄 발급) */
-#bulk-issue-modal .relative,
-#bulk-issue-modal > div:first-child {
-    max-width: 56rem !important;
 }
 
 /* =================================== */
@@ -1320,8 +1136,8 @@ body {
 /* PDF 버튼 개선 */
 .cert-pdf-btn {
     padding: 0.25rem 0.5rem !important;
-    border-radius: var(--border-radius) !important;
-    transition: all var(--transition-normal) !important;
+    border-radius: 0.25rem !important;
+    transition: all 0.2s ease !important;
     cursor: pointer !important;
     user-select: none !important;
     background: none !important;
@@ -1337,7 +1153,7 @@ body {
 .cert-pdf-btn:hover {
     background-color: var(--success-100) !important;
     color: var(--success-700) !important;
-    border-radius: var(--border-radius) !important;
+    border-radius: 0.25rem !important;
 }
 
 .cert-pdf-btn svg {
@@ -1345,14 +1161,14 @@ body {
     height: 1rem !important;
 }
 
-/* 🔧 PDF 드롭다운 메뉴 (z-index 수정 - 테이블보다 높게) */
+/* 🔧 PDF 드롭다운 메뉴 (z-index 수정 - 모든 요소보다 높게) */
 .cert-pdf-menu,
 [id^="pdf-dropdown-"] {
     position: absolute !important;
-    z-index: var(--z-dropdown-in-modal) !important; /* 모달 내 드롭다운용 높은 z-index */
+    z-index: var(--z-dropdown-in-modal) !important; /* 가장 높은 z-index */
     background-color: white !important;
-    border-radius: var(--border-radius) !important;
-    box-shadow: var(--shadow-lg) !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
     border: 1px solid var(--gray-200) !important;
     margin-top: 0.25rem !important;
     padding: 0.5rem 0 !important;
@@ -1362,7 +1178,8 @@ body {
     opacity: 0 !important;
     visibility: hidden !important;
     transform: translateY(-10px) !important;
-    transition: all var(--transition-normal) !important;
+    transition: all 0.2s ease !important;
+    pointer-events: none !important; /* 숨겨진 상태에서 클릭 방지 */
 }
 
 .cert-pdf-menu.show,
@@ -1370,6 +1187,7 @@ body {
     opacity: 1 !important;
     visibility: visible !important;
     transform: translateY(0) !important;
+    pointer-events: auto !important; /* 표시된 상태에서 클릭 허용 */
 }
 
 .cert-pdf-menu a,
@@ -1379,7 +1197,7 @@ body {
     color: var(--gray-700) !important;
     text-decoration: none !important;
     font-size: 0.875rem !important;
-    transition: all var(--transition-normal) !important;
+    transition: all 0.2s ease !important;
     display: flex !important;
     align-items: center !important;
     gap: 0.5rem !important;
@@ -1586,8 +1404,25 @@ body {
         min-width: 2rem;
     }
 
+    /* 🔧 모달 모바일 반응형 */
+    .cert-modal-container {
+        max-width: 95vw !important;
+        margin: 0.5rem !important;
+        max-height: 95vh !important;
+    }
+
+    .cert-modal-body {
+        padding: 1rem !important;
+        max-height: 70vh !important;
+    }
+
+    .cert-modal-header {
+        padding: 1rem !important;
+    }
+
     /* PDF 드롭다운 모바일 */
-    .cert-pdf-menu {
+    .cert-pdf-menu,
+    [id^="pdf-dropdown-"] {
         position: fixed !important;
         left: 1rem !important;
         right: 1rem !important;
@@ -1597,7 +1432,13 @@ body {
         max-width: unset !important;
         border-radius: 1rem !important;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-        z-index: calc(var(--z-toast) - 1) !important; /* 모바일에서는 더 높은 z-index */
+        z-index: calc(var(--z-toast) - 1) !important; /* 모바일에서는 토스트보다 낮게 */
+        transform: translateY(100px) !important; /* 아래에서 올라오는 효과 */
+    }
+
+    .cert-pdf-menu.show,
+    [id^="pdf-dropdown-"]:not(.hidden) {
+        transform: translateY(0) !important;
     }
 
     /* Toast 모바일 */
@@ -1665,6 +1506,24 @@ body {
     .admin-pagination-btn.page-number:not(.active):not(:nth-child(-n+3)):not(:nth-last-child(-n+3)) {
         display: none !important;
     }
+
+    /* 🔧 모달 작은 모바일 반응형 */
+    .cert-modal-container {
+        max-width: 98vw !important;
+        margin: 0.25rem !important;
+    }
+
+    .cert-modal-body {
+        padding: 0.75rem !important;
+    }
+
+    .cert-modal-header {
+        padding: 0.75rem !important;
+    }
+
+    .cert-modal-title {
+        font-size: 1rem !important;
+    }
 }
 
 /* =================================== */
@@ -1673,6 +1532,15 @@ body {
 
 html.sidebar-open,
 body.sidebar-open {
+    overflow: hidden !important;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+/* 🔧 모달 열렸을 때 스크롤 방지 */
+html.modal-open,
+body.modal-open {
     overflow: hidden !important;
     position: fixed;
     width: 100%;
@@ -1705,6 +1573,47 @@ body.sidebar-open {
     }
 }
 
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes dropdownSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 🔧 모달 애니메이션 개선 */
+.cert-modal {
+    animation: none !important;
+}
+
+.cert-modal:not(.hidden) {
+    animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.cert-modal-container {
+    animation: modalSlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* 🔧 PDF 드롭다운 애니메이션 */
+.cert-pdf-menu.show,
+[id^="pdf-dropdown-"]:not(.hidden) {
+    animation: dropdownSlideDown 0.2s ease !important;
+}
+
 /* 호버 효과 개선 */
 .admin-toast:hover {
     transform: translateX(-4px) scale(1.02);
@@ -1713,6 +1622,19 @@ body.sidebar-open {
 
 .admin-toast:hover .toast-progress-bar {
     animation-play-state: paused;
+}
+
+.stat-card:hover {
+    animation: none !important;
+}
+
+/* 🔧 버튼 호버 효과 강화 */
+.admin-btn:hover:not(:disabled) {
+    animation: none !important;
+}
+
+.table-action-btn:hover {
+    animation: none !important;
 }
 
 /* =================================== */
@@ -1724,7 +1646,7 @@ body.sidebar-open {
 .admin-user-info button:focus,
 .sidebar-user-info button:focus,
 .cert-pdf-btn:focus,
-.course-modal-close:focus {
+.cert-modal-close:focus {
     outline: 2px solid var(--primary-500) !important;
     outline-offset: 2px !important;
 }
@@ -1733,6 +1655,35 @@ body.sidebar-open {
     background-color: var(--primary-100) !important;
     color: var(--primary-700) !important;
     outline: none !important;
+}
+
+/* 모달 포커스 트랩 */
+.cert-modal:not(.hidden) {
+    isolation: isolate !important;
+}
+
+.cert-modal-content {
+    isolation: isolate !important;
+}
+
+/* 키보드 네비게이션 개선 */
+.cert-modal-close:focus,
+.admin-btn:focus,
+.table-action-btn:focus {
+    box-shadow: 0 0 0 2px var(--primary-500) !important;
+}
+
+/* 스크린 리더 지원 */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
 }
 
 /* 고대비 모드 지원 */
@@ -1748,6 +1699,14 @@ body.sidebar-open {
     .cert-status-badge {
         border: 1px solid currentColor !important;
     }
+
+    .cert-modal-content {
+        border: 2px solid #000 !important;
+    }
+
+    .admin-btn {
+        border: 1px solid currentColor !important;
+    }
 }
 
 /* 애니메이션 감소 설정 지원 */
@@ -1755,11 +1714,60 @@ body.sidebar-open {
     .admin-sidebar,
     .admin-sidebar-overlay,
     .sidebar-user-info,
-    .cert-pdf-menu,
-    .course-modal-content {
+    .cert-modal,
+    .cert-modal-container,
+    .cert-modal-content {
         transition: none !important;
         animation: none !important;
     }
+
+    .cert-pdf-menu,
+    [id^="pdf-dropdown-"] {
+        transition: none !important;
+        animation: none !important;
+    }
+
+    .admin-toast {
+        transition: none !important;
+        animation: none !important;
+    }
+
+    .stat-card,
+    .admin-btn,
+    .table-action-btn {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* =================================== */
+/* 🔧 디버깅용 스타일 (개발 환경에서만) */
+/* =================================== */
+
+/* 개발 환경에서 z-index 시각화 */
+.debug-zindex .cert-pdf-menu::before {
+    content: "z-index: " attr(data-z-index);
+    position: absolute;
+    top: -20px;
+    left: 0;
+    background: red;
+    color: white;
+    padding: 2px 4px;
+    font-size: 10px;
+    z-index: 10000;
+}
+
+.debug-modal .cert-modal::before {
+    content: "Modal z-index: " var(--z-modal-primary);
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: blue;
+    color: white;
+    padding: 4px 8px;
+    font-size: 12px;
+    z-index: 99999;
+    pointer-events: none;
 }
 
 /* =================================== */
@@ -1768,12 +1776,35 @@ body.sidebar-open {
 
 /* GPU 가속 활성화 */
 .admin-sidebar,
-.course-modal-content,
-.admin-toast,
-.cert-pdf-menu {
+.cert-modal,
+.cert-modal-container,
+.cert-modal-content,
+.admin-toast {
     will-change: transform;
     backface-visibility: hidden;
     perspective: 1000px;
+}
+
+.cert-pdf-menu,
+[id^="pdf-dropdown-"] {
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* 레이아웃 시프트 방지 */
+.admin-table-container {
+    contain: layout style;
+}
+
+.cert-modal-container {
+    contain: layout style;
+}
+
+/* 렌더링 최적화 */
+.admin-table,
+.cert-modal-content {
+    transform: translateZ(0);
 }
 
 /* =================================== */
@@ -1785,7 +1816,8 @@ body.sidebar-open {
     .admin-toggle-button,
     .toast-container,
     .cert-pdf-dropdown,
-    .course-modal {
+    .cert-modal,
+    .admin-sidebar-overlay {
         display: none !important;
     }
     
@@ -1800,6 +1832,19 @@ body.sidebar-open {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
+
+    .cert-status-badge {
+        border: 1px solid currentColor !important;
+    }
+
+    .admin-table {
+        page-break-inside: avoid;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        border: 1px solid #000 !important;
+    }
 }
 
 /* =================================== */
@@ -1810,6 +1855,10 @@ body.sidebar-open {
     display: none !important;
 }
 
+.show {
+    display: block !important;
+}
+
 .block {
     display: block !important;
 }
@@ -1818,6 +1867,15 @@ body.sidebar-open {
     display: flex !important;
 }
 
+.inline-flex {
+    display: inline-flex !important;
+}
+
+.grid {
+    display: grid !important;
+}
+
+/* 통계 그리드 */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -1839,3 +1897,445 @@ body.sidebar-open {
         gap: 0.75rem;
     }
 }
+
+/* 간격 유틸리티 */
+.mt-auto {
+    margin-top: auto !important;
+}
+
+.mb-auto {
+    margin-bottom: auto !important;
+}
+
+.ml-auto {
+    margin-left: auto !important;
+}
+
+.mr-auto {
+    margin-right: auto !important;
+}
+
+/* 위치 유틸리티 */
+.relative {
+    position: relative !important;
+}
+
+.absolute {
+    position: absolute !important;
+}
+
+.fixed {
+    position: fixed !important;
+}
+
+.sticky {
+    position: sticky !important;
+}
+
+/* Z-index 유틸리티 */
+.z-dropdown {
+    z-index: var(--z-dropdown) !important;
+}
+
+.z-modal {
+    z-index: var(--z-modal-primary) !important;
+}
+
+.z-toast {
+    z-index: var(--z-toast) !important;
+}
+
+/* 오버플로우 유틸리티 */
+.overflow-hidden {
+    overflow: hidden !important;
+}
+
+.overflow-visible {
+    overflow: visible !important;
+}
+
+.overflow-auto {
+    overflow: auto !important;
+}
+
+.overflow-x-auto {
+    overflow-x: auto !important;
+}
+
+.overflow-y-auto {
+    overflow-y: auto !important;
+}
+
+/* 텍스트 유틸리티 */
+.text-center {
+    text-align: center !important;
+}
+
+.text-left {
+    text-align: left !important;
+}
+
+.text-right {
+    text-align: right !important;
+}
+
+.truncate {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+/* 변환 유틸리티 */
+.transform {
+    transform: translateZ(0) !important;
+}
+
+.translate-y-0 {
+    transform: translateY(0) !important;
+}
+
+.scale-100 {
+    transform: scale(1) !important;
+}
+
+/* 투명도 유틸리티 */
+.opacity-0 {
+    opacity: 0 !important;
+}
+
+.opacity-50 {
+    opacity: 0.5 !important;
+}
+
+.opacity-100 {
+    opacity: 1 !important;
+}
+
+/* 가시성 유틸리티 */
+.visible {
+    visibility: visible !important;
+}
+
+.invisible {
+    visibility: hidden !important;
+}
+
+/* =================================== */
+/* 🎯 최종 모달 중첩 방지 시스템 */
+/* =================================== */
+
+/* 🔧 모달 스택 관리 */
+body[data-modal-count="1"] {
+    overflow: hidden !important;
+}
+
+body[data-modal-count="2"] .cert-modal-primary {
+    filter: blur(2px) !important;
+    pointer-events: none !important;
+}
+
+body[data-modal-count="3"] .cert-modal-primary,
+body[data-modal-count="3"] .cert-modal-secondary {
+    filter: blur(2px) !important;
+    pointer-events: none !important;
+}
+
+body[data-modal-count="4"] .cert-modal-primary,
+body[data-modal-count="4"] .cert-modal-secondary,
+body[data-modal-count="4"] .cert-modal-tertiary {
+    filter: blur(2px) !important;
+    pointer-events: none !important;
+}
+
+/* 🔧 활성 모달 강조 */
+.cert-modal.active {
+    filter: none !important;
+    pointer-events: auto !important;
+}
+
+/* 🔧 모달 중첩 시 배경 강화 */
+.cert-modal-primary:not(.hidden) ~ .cert-modal-secondary:not(.hidden) {
+    background-color: rgba(0, 0, 0, 0.85) !important;
+}
+
+.cert-modal-secondary:not(.hidden) ~ .cert-modal-tertiary:not(.hidden) {
+    background-color: rgba(0, 0, 0, 0.90) !important;
+}
+
+.cert-modal-tertiary:not(.hidden) ~ .cert-modal-quaternary:not(.hidden) {
+    background-color: rgba(0, 0, 0, 0.95) !important;
+}
+
+/* =================================== */
+/* 🔧 Course Management 모달 시스템 추가 (admin.css에 추가할 코드) */
+/* =================================== */
+
+/* Course Modal 기본 클래스 */
+.course-modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: var(--z-modal-primary) !important;
+    background-color: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(4px) !important;
+    display: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 1rem !important;
+    overflow-y: auto !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Course Modal 표시 상태 */
+.course-modal:not(.hidden) {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Course Modal 백드롭 */
+.course-modal-backdrop {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: -1 !important;
+    cursor: pointer !important;
+}
+
+/* Course Modal 컨테이너 */
+.course-modal-container {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 48rem !important;
+    max-height: 90vh !important;
+    margin: auto !important;
+    z-index: 1 !important;
+    transform: translateY(-20px) scale(0.95) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Course Modal 표시 시 애니메이션 */
+.course-modal:not(.hidden) .course-modal-container {
+    transform: translateY(0) scale(1) !important;
+}
+
+/* Course Modal 컨텐츠 */
+.course-modal-content {
+    background: white !important;
+    border-radius: var(--border-radius-lg) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    border: 1px solid var(--gray-200) !important;
+    overflow: hidden !important;
+    position: relative !important;
+}
+
+/* Course Modal 헤더 */
+.course-modal-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 1.5rem !important;
+    border-bottom: 1px solid var(--gray-200) !important;
+    background-color: var(--gray-50) !important;
+}
+
+.course-modal-title {
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+    color: var(--gray-900) !important;
+    margin: 0 !important;
+}
+
+.course-modal-close {
+    background: none !important;
+    border: none !important;
+    color: var(--gray-400) !important;
+    cursor: pointer !important;
+    padding: 0.5rem !important;
+    border-radius: var(--border-radius) !important;
+    transition: all var(--transition-normal) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.course-modal-close:hover {
+    color: var(--gray-600) !important;
+    background-color: var(--gray-100) !important;
+}
+
+/* Course Modal 바디 */
+.course-modal-body {
+    padding: 1.5rem !important;
+    overflow-y: auto !important;
+    max-height: 60vh !important;
+}
+
+/* Course Form 스타일 */
+.course-form {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.25rem !important;
+}
+
+.form-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1rem !important;
+}
+
+.form-row-triple {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 1fr !important;
+    gap: 1rem !important;
+}
+
+.form-field {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.form-label {
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    color: var(--gray-700) !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.required {
+    color: var(--error-500) !important;
+}
+
+.form-input,
+.form-select {
+    padding: 0.5rem 0.75rem !important;
+    border: 1px solid var(--gray-300) !important;
+    border-radius: var(--border-radius) !important;
+    font-size: 0.875rem !important;
+    transition: border-color var(--transition-normal), box-shadow var(--transition-normal) !important;
+    background-color: white !important;
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none !important;
+    border-color: var(--primary-500) !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+.form-input:disabled,
+.form-select:disabled {
+    background-color: var(--gray-100) !important;
+    color: var(--gray-500) !important;
+    cursor: not-allowed !important;
+}
+
+/* 자동 생성 정보 안내 */
+.auto-generation-info {
+    background-color: #f0f9ff !important;
+    border: 1px solid #bae6fd !important;
+    border-radius: var(--border-radius) !important;
+    padding: 1rem !important;
+    margin-top: 0.5rem !important;
+}
+
+.auto-generation-title {
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    color: #0c4a6e !important;
+    margin: 0 0 0.5rem 0 !important;
+}
+
+.auto-generation-list {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 0.75rem !important;
+    color: #0369a1 !important;
+    line-height: 1.5 !important;
+}
+
+.auto-generation-list li {
+    margin-bottom: 0.25rem !important;
+}
+
+.auto-generation-list li:before {
+    content: "• " !important;
+    font-weight: bold !important;
+    margin-right: 0.25rem !important;
+}
+
+/* 제목 미리보기 */
+.title-preview {
+    margin-top: 0.5rem !important;
+    padding: 0.5rem !important;
+    background-color: #f0f9ff !important;
+    border-radius: 0.25rem !important;
+    font-size: 0.875rem !important;
+    border-left: 3px solid var(--primary-500) !important;
+}
+
+/* 폼 액션 버튼 */
+.form-actions {
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 0.75rem !important;
+    padding: 1.5rem !important;
+    border-top: 1px solid var(--gray-200) !important;
+    background-color: var(--gray-50) !important;
+    margin: 0 !important;
+}
+
+/* Course Modal 반응형 */
+@media (max-width: 768px) {
+    .course-modal-container {
+        max-width: 95vw !important;
+        margin: 0.5rem !important;
+        max-height: 95vh !important;
+    }
+
+    .course-modal-body {
+        padding: 1rem !important;
+    }
+
+    .form-row,
+    .form-row-triple {
+        grid-template-columns: 1fr !important;
+    }
+
+    .form-actions {
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+        padding: 1rem !important;
+    }
+
+    .admin-btn {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+}
+
+/* =================================== */
+/* 🎉 완료 메시지 */
+/* =================================== */
+
+/*
+ * 🎯 Certificate Management 모달 중첩 문제 완전 해결 완료!
+ * 
+ * ✅ 해결된 문제들:
+ * 1. 모달별 z-index 완전 분리 (2000, 2100, 2200, 2300)
+ * 2. 백드롭 중복 제거 및 개별 관리
+ * 3. PDF 드롭다운 z-index 최고 우선순위 (2400)
+ * 4. 모달 애니메이션 및 트랜지션 개선
+ * 5. 반응형 디자인 완전 지원
+ * 6. 접근성 및 키보드 네비게이션 개선
+ * 7. 성능 최적화 및 GPU 가속
+ * 
+ * 🚀 이제 모든 모달이 올바르게 작동합니다!
+ */

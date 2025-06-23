@@ -297,21 +297,21 @@
         </main>
     </div>
 
-    <!-- 자격증 발급 모달 -->
-    <div id="cert-issue-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-        <div class="flex items-center justify-center min-h-screen px-4">
-            <div class="fixed inset-0 bg-black opacity-50" onclick="certManager.closeIssueCertModal()"></div>
-            <div class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full">
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-semibold">자격증 발급</h3>
-                        <button onclick="certManager.closeIssueCertModal()" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
+    <!-- 🔧 자격증 발급 모달 - 구조 통일 및 z-index 수정 -->
+    <div id="cert-issue-modal" class="cert-modal cert-modal-primary">
+        <div class="cert-modal-backdrop" onclick="certManager.closeIssueCertModal()"></div>
+        <div class="cert-modal-container">
+            <div class="cert-modal-content">
+                <div class="cert-modal-header">
+                    <h3 class="cert-modal-title">자격증 발급</h3>
+                    <button onclick="certManager.closeIssueCertModal()" class="cert-modal-close">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="cert-modal-body">
                     <form id="cert-issue-form" class="space-y-4">
                         <div>
                             <label for="issue-name" class="block text-sm font-medium text-gray-700">수료자명</label>
@@ -356,22 +356,21 @@
         </div>
     </div>
 
-    <!-- 일괄 발급 모달 -->
-    <div id="bulk-issue-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-        <div class="flex items-center justify-center min-h-screen px-4">
-            <div class="fixed inset-0 bg-black opacity-50" onclick="certManager.closeBulkIssuanceModal()"></div>
-            <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-semibold">자격증 일괄 발급</h3>
-                        <button onclick="certManager.closeBulkIssuanceModal()"
-                            class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
+    <!-- 🔧 일괄 발급 모달 - 구조 통일 및 z-index 수정 -->
+    <div id="bulk-issue-modal" class="cert-modal cert-modal-secondary">
+        <div class="cert-modal-backdrop" onclick="certManager.closeBulkIssuanceModal()"></div>
+        <div class="cert-modal-container cert-modal-large">
+            <div class="cert-modal-content">
+                <div class="cert-modal-header">
+                    <h3 class="cert-modal-title">자격증 일괄 발급</h3>
+                    <button onclick="certManager.closeBulkIssuanceModal()" class="cert-modal-close">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="cert-modal-body">
                     <div class="space-y-4">
                         <div>
                             <label for="bulk-file" class="block text-sm font-medium text-gray-700 mb-2">
@@ -405,21 +404,21 @@
         </div>
     </div>
 
-    <!-- 자격증 상세보기 모달 -->
-    <div id="cert-detail-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-        <div class="flex items-center justify-center min-h-screen px-4">
-            <div class="fixed inset-0 bg-black opacity-50" onclick="certManager.closeCertDetailModal()"></div>
-            <div class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-semibold">자격증 상세 정보</h3>
-                        <button onclick="certManager.closeCertDetailModal()" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
+    <!-- 🔧 자격증 상세보기 모달 - 구조 통일 및 z-index 수정 -->
+    <div id="cert-detail-modal" class="cert-modal cert-modal-tertiary">
+        <div class="cert-modal-backdrop" onclick="certManager.closeCertDetailModal()"></div>
+        <div class="cert-modal-container">
+            <div class="cert-modal-content">
+                <div class="cert-modal-header">
+                    <h3 class="cert-modal-title">자격증 상세 정보</h3>
+                    <button onclick="certManager.closeCertDetailModal()" class="cert-modal-close">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="cert-modal-body">
                     <div id="cert-detail-content" class="space-y-4">
                         <!-- 동적으로 내용이 삽입됩니다 -->
                     </div>
@@ -433,21 +432,21 @@
         </div>
     </div>
 
-    <!-- 자격증 수정 모달 -->
-    <div id="cert-edit-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-        <div class="flex items-center justify-center min-h-screen px-4">
-            <div class="fixed inset-0 bg-black opacity-50" onclick="certManager.closeCertEditModal()"></div>
-            <div class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-semibold">자격증 정보 수정</h3>
-                        <button onclick="certManager.closeCertEditModal()" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
+    <!-- 🔧 자격증 수정 모달 - 구조 통일 및 z-index 수정 -->
+    <div id="cert-edit-modal" class="cert-modal cert-modal-quaternary">
+        <div class="cert-modal-backdrop" onclick="certManager.closeCertEditModal()"></div>
+        <div class="cert-modal-container">
+            <div class="cert-modal-content">
+                <div class="cert-modal-header">
+                    <h3 class="cert-modal-title">자격증 정보 수정</h3>
+                    <button onclick="certManager.closeCertEditModal()" class="cert-modal-close">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="cert-modal-body">
                     <form id="cert-edit-form" class="space-y-4">
                         <input type="hidden" id="edit-cert-id" name="certId">
 
@@ -513,8 +512,6 @@
             </div>
         </div>
     </div>
-
-
 
     <!-- 🔧 최적화된 스크립트 로딩 순서 (course-application.html과 동일) -->
     <script id="firebase-sdk-template" type="text/template">

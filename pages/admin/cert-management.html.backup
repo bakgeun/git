@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Management - 디지털헬스케어센터 관리자</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap"
+        rel="stylesheet">
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+
+    <!-- 🔧 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
+    <script src="../../assets/js/utils/script-loader.js"></script>
+
+    <!-- jsPDF 라이브러리 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- html2canvas 라이브러리 (이미지 삽입 시 필요) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+
+<body class="bg-gray-100">
+    <!-- 관리자 헤더 -->
+    <header class="bg-indigo-800 text-white admin-header">
+        <style>
+            /* 인라인 스타일로 깜빡임 방지 */
+            .admin-user-info {
+                display: flex !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+
+            #admin-name,
+            #admin-email,
+            #admin-logout-button {
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+        </style>
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <!-- 토글 버튼 추가 -->
+                <button class="admin-toggle-button" id="admin-sidebar-toggle" aria-label="메뉴 토글">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+
+                <div class="flex items-center">
+                    <a href="javascript:window.location.href=window.adjustPath('index.html')" class="admin-title">
+                        관리자 페이지
+                    </a>
+                </div>
+
+                <!-- 사용자 정보 (모바일에서 숨김) -->
+                <div class="flex items-center space-x-4 admin-user-info">
+                    <span id="admin-name">관리자</span>
+                    <span id="admin-email" class="text-sm text-indigo-200">gostepexercise@gmail.com</span>
+                    <button id="admin-logout-button"
+                        class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md text-sm">
+                        로그아웃
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 사이드바 오버레이 (모바일용) -->
+    <div id="sidebar-overlay" class="admin-sidebar-overlay"></div>
+
+    <div class="flex">
+        <!-- 사이드바 -->
+        <aside class="w-64 bg-indigo-900 min-h-screen text-white admin-sidebar">
+            <style>
+                /* 사이드바 사용자 정보 인라인 스타일 */
+                .sidebar-user-info {
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                    padding: 1rem;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                    margin-bottom: 1rem;
+                    background-color: rgba(0, 0, 0, 0.2);
+                }
+            </style>
+
+            <!-- 사이드바 사용자 정보 (초기에 미리 추가) -->
+            <div class="sidebar-user-info" style="opacity: 1 !important; visibility: visible !important;">
+                <div class="text-white mb-2">
+                    <div class="font-bold" style="opacity: 1 !important;">관리자</div>
+                    <div class="text-indigo-200 text-sm" style="opacity: 1 !important;">gostepexercise@gmail.com</div>
+                </div>
+                <button id="sidebar-logout-button"
+                    class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md text-sm text-white w-full"
+                    style="opacity: 1 !important;">
+                    로그아웃
+                </button>
+            </div>
+
+            <nav class="mt-8 admin-nav">
+                <a href="javascript:window.location.href=window.adjustPath('pages/admin/dashboard.html')"
+                    class="block px-6 py-3 text-indigo-300 hover:bg-indigo-600 hover:text-white transition duration-200">
+                    <svg class="inline-block w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                        </path>
+                    </svg>
+                    대시보드
+                </a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/admin/user-management.html')"
+                    class="block px-6 py-3 text-indigo-300 hover:bg-indigo-600 hover:text-white transition duration-200">
+                    <svg class="inline-block w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                        </path>
+                    </svg>
+                    회원 관리
+                </a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/admin/course-management.html')"
+                    class="block px-6 py-3 text-indigo-300 hover:bg-indigo-600 hover:text-white transition duration-200">
+                    <svg class="inline-block w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                        </path>
+                    </svg>
+                    교육 관리
+                </a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/admin/cert-management.html')"
+                    class="block px-6 py-3 bg-indigo-700 text-white">
+                    <svg class="inline-block w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                        </path>
+                    </svg>
+                    자격증 관리
+                </a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/admin/board-management.html')"
+                    class="block px-6 py-3 text-indigo-300 hover:bg-indigo-600 hover:text-white transition duration-200">
+                    <svg class="inline-block w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+                        </path>
+                    </svg>
+                    게시판 관리
+                </a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/admin/payment-management.html')"
+                    class="block px-6 py-3 text-indigo-300 hover:bg-indigo-600 hover:text-white transition duration-200">
+                    <svg class="inline-block w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
+                        </path>
+                    </svg>
+                    결제 관리
+                </a>
+            </nav>
+        </aside>
+
+        <!-- 메인 콘텐츠 -->
+        <main class="flex-1 p-8">
+            <!-- 알림 영역 -->
+            <div id="admin-notification" style="display: none;"></div>
+
+            <!-- 페이지 헤더 -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-800">자격증 관리</h1>
+                <p class="text-gray-600 mt-2">자격증 발급 및 관리를 합니다.</p>
+            </div>
+
+            <!-- 자격증 타입 선택 탭 -->
+            <div class="border-b border-gray-200 mb-6">
+                <nav class="-mb-px flex space-x-8" id="cert-tabs">
+                    <button onclick="certManager.switchCertType('health-exercise')"
+                        class="cert-tab active border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                        data-cert="health-exercise">
+                        건강운동처방사
+                    </button>
+                    <button onclick="certManager.switchCertType('rehabilitation')"
+                        class="cert-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                        data-cert="rehabilitation">
+                        운동재활전문가
+                    </button>
+                    <button onclick="certManager.switchCertType('pilates')"
+                        class="cert-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                        data-cert="pilates">
+                        필라테스 전문가
+                    </button>
+                    <button onclick="certManager.switchCertType('recreation')"
+                        class="cert-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                        data-cert="recreation">
+                        레크리에이션지도자
+                    </button>
+                </nav>
+            </div>
+
+            <!-- 검색 필터 -->
+            <div class="admin-filters-container">
+                <div class="admin-filters-grid">
+                    <div class="admin-filter-group">
+                        <label for="search-name" class="admin-filter-label">이름 검색</label>
+                        <input type="text" id="search-name" placeholder="이름을 입력하세요" class="admin-filter-input">
+                    </div>
+                    <div class="admin-filter-group">
+                        <label for="search-cert-number" class="admin-filter-label">자격증 번호</label>
+                        <input type="text" id="search-cert-number" placeholder="자격증 번호를 입력하세요"
+                            class="admin-filter-input">
+                    </div>
+                    <div class="admin-filter-group">
+                        <label for="filter-status" class="admin-filter-label">상태</label>
+                        <select id="filter-status" class="admin-filter-select">
+                            <option value="">전체</option>
+                            <option value="active">유효</option>
+                            <option value="expired">만료</option>
+                            <option value="suspended">정지</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="admin-filter-actions">
+                    <button onclick="certManager.resetFilters()" class="admin-btn admin-btn-secondary">
+                        <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                            </path>
+                        </svg>
+                        초기화
+                    </button>
+                    <button onclick="certManager.search()" class="admin-btn admin-btn-primary">
+                        <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z">
+                            </path>
+                        </svg>
+                        검색
+                    </button>
+                </div>
+            </div>
+
+            <!-- 자격증 목록 테이블 -->
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                    <h2 class="text-xl font-semibold text-gray-800">
+                        <span id="cert-type-title">건강운동처방사</span> 자격증 목록
+                    </h2>
+                    <div class="flex space-x-3">
+                        <button onclick="certManager.showBulkIssuanceModal()" class="admin-btn admin-btn-secondary">
+                            <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                            일괄 발급
+                        </button>
+                        <button onclick="certManager.showIssueCertModal()" class="admin-btn admin-btn-primary">
+                            <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            자격증 발급
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 🎯 반응형 테이블 컨테이너 추가 -->
+                <div class="admin-table-container">
+                    <table id="cert-table" class="admin-table admin-table-responsive">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="select-all-certs"
+                                        onchange="certManager.toggleSelectAll(this)">
+                                </th>
+                                <th>자격증 번호</th>
+                                <th>수료자명</th>
+                                <th>교육 과정</th>
+                                <th>발급일</th>
+                                <th>만료일</th>
+                                <th>상태</th>
+                                <th>작업</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="8" class="admin-loading-state">
+                                    <div class="admin-loading-spinner"></div>
+                                    <span class="text-gray-600">데이터 로딩 중...</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 페이지네이션 -->
+                <div id="cert-pagination" class="admin-pagination"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 자격증 발급 모달 -->
+    <div id="cert-issue-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-black opacity-50" onclick="certManager.closeIssueCertModal()"></div>
+            <div class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold">자격증 발급</h3>
+                        <button onclick="certManager.closeIssueCertModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <form id="cert-issue-form" class="space-y-4">
+                        <div>
+                            <label for="issue-name" class="block text-sm font-medium text-gray-700">수료자명</label>
+                            <input type="text" id="issue-name" name="name" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label for="issue-email" class="block text-sm font-medium text-gray-700">이메일</label>
+                            <input type="email" id="issue-email" name="email" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label for="issue-course" class="block text-sm font-medium text-gray-700">교육 과정</label>
+                            <select id="issue-course" name="course" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="">교육 과정을 선택하세요</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="issue-completion-date"
+                                class="block text-sm font-medium text-gray-700">수료일</label>
+                            <input type="date" id="issue-completion-date" name="completionDate" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label for="issue-expiry-date" class="block text-sm font-medium text-gray-700">만료일</label>
+                            <input type="date" id="issue-expiry-date" name="expiryDate" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div class="flex justify-end space-x-3">
+                            <button type="button" onclick="certManager.closeIssueCertModal()"
+                                class="admin-btn admin-btn-secondary">
+                                취소
+                            </button>
+                            <button type="submit" class="admin-btn admin-btn-primary">
+                                발급
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 일괄 발급 모달 -->
+    <div id="bulk-issue-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-black opacity-50" onclick="certManager.closeBulkIssuanceModal()"></div>
+            <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold">자격증 일괄 발급</h3>
+                        <button onclick="certManager.closeBulkIssuanceModal()"
+                            class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="bulk-file" class="block text-sm font-medium text-gray-700 mb-2">
+                                엑셀 파일 업로드 (이름, 이메일, 교육과정, 수료일)
+                            </label>
+                            <input type="file" id="bulk-file" accept=".xlsx,.xls"
+                                class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                        </div>
+                        <div id="bulk-preview" class="hidden">
+                            <h4 class="text-lg font-medium mb-2">미리보기</h4>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full border border-gray-300">
+                                    <thead id="bulk-preview-header"></thead>
+                                    <tbody id="bulk-preview-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="flex justify-end space-x-3">
+                            <button type="button" onclick="certManager.closeBulkIssuanceModal()"
+                                class="admin-btn admin-btn-secondary">
+                                취소
+                            </button>
+                            <button type="button" onclick="certManager.processBulkIssuance()" id="bulk-issue-btn"
+                                class="admin-btn admin-btn-primary" disabled>
+                                일괄 발급
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 자격증 상세보기 모달 -->
+    <div id="cert-detail-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-black opacity-50" onclick="certManager.closeCertDetailModal()"></div>
+            <div class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold">자격증 상세 정보</h3>
+                        <button onclick="certManager.closeCertDetailModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="cert-detail-content" class="space-y-4">
+                        <!-- 동적으로 내용이 삽입됩니다 -->
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button onclick="certManager.closeCertDetailModal()" class="admin-btn admin-btn-secondary">
+                            닫기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 자격증 수정 모달 -->
+    <div id="cert-edit-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-black opacity-50" onclick="certManager.closeCertEditModal()"></div>
+            <div class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold">자격증 정보 수정</h3>
+                        <button onclick="certManager.closeCertEditModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <form id="cert-edit-form" class="space-y-4">
+                        <input type="hidden" id="edit-cert-id" name="certId">
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">자격증 번호</label>
+                                <input type="text" id="edit-cert-number" readonly
+                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100">
+                                <p class="text-xs text-gray-500 mt-1">자격증 번호는 변경할 수 없습니다.</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">수료자명</label>
+                                <input type="text" id="edit-holder-name" readonly
+                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100">
+                                <p class="text-xs text-gray-500 mt-1">수료자명은 변경할 수 없습니다.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">발급일 <span
+                                        class="text-red-500">*</span></label>
+                                <input type="date" id="edit-issue-date" name="issueDate" required
+                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">만료일 <span
+                                        class="text-red-500">*</span></label>
+                                <input type="date" id="edit-expiry-date" name="expiryDate" required
+                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">상태 <span
+                                    class="text-red-500">*</span></label>
+                            <select id="edit-status" name="status" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="active">유효</option>
+                                <option value="expired">만료</option>
+                                <option value="revoked">취소</option>
+                                <option value="suspended">정지</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">비고</label>
+                            <textarea id="edit-remarks" name="remarks" rows="3"
+                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"></textarea>
+                        </div>
+
+                        <div class="flex justify-end space-x-3">
+                            <button type="button" onclick="certManager.closeCertEditModal()"
+                                class="admin-btn admin-btn-secondary">
+                                취소
+                            </button>
+                            <button type="submit" class="admin-btn admin-btn-primary">
+                                저장
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- 🔧 최적화된 스크립트 로딩 순서 (course-application.html과 동일) -->
+    <script id="firebase-sdk-template" type="text/template">
+    <!-- Firebase SDK (필수 - 가장 먼저) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
+
+    <!-- 🔧 1. 핵심 유틸리티만 먼저 로드 -->
+    <script src="{basePath}assets/js/utils/formatters.js"><\/script>
+    <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
+
+    <!-- 🔧 2. Firebase 설정 및 서비스 -->
+    <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
+    <script src="{basePath}assets/js/services/auth-service.js"><\/script>
+    <script src="{basePath}assets/js/services/db-service.js"><\/script>
+    <script src="{basePath}assets/js/services/storage-service.js"><\/script>
+</script>
+
+    <script id="additional-scripts-template" type="text/template">
+    <!-- 🔧 3. 필요시에만 로드되는 유틸리티 -->
+    <script src="{basePath}assets/js/utils/validators.js"><\/script>
+    <script src="{basePath}assets/js/utils/dom-utils.js"><\/script>
+    <script src="{basePath}assets/js/utils/admin-auth.js"><\/script>
+    
+    <!-- 🔧 4. 공통 컴포넌트 -->
+    <script src="{basePath}assets/js/components/header.js"><\/script>
+    <script src="{basePath}assets/js/components/toast.js"><\/script>
+    
+    <!-- 🔧 5. 관리자 공통 스크립트 -->
+    <script src="{basePath}assets/js/pages/admin.js"><\/script>
+    
+    <!-- 🔧 6. 페이지별 스크립트 -->
+    <script src="{basePath}assets/js/pages/admin/cert-management.js"><\/script>
+    
+    <!-- 🔧 7. 메인 스크립트 (가장 마지막) -->
+    <script src="{basePath}assets/js/main.js"><\/script>
+</script>
+
+    <!-- 🔧 초기화 스크립트 (표준화됨) -->
+    <script>
+        // 페이지 로드 시 실행 - course-application.html과 동일한 패턴
+        window.addEventListener('load', async function () {
+            try {
+                console.log('자격증 관리 페이지 초기화 시작');
+
+                // 스크립트 로드 완료 대기
+                let retryCount = 0;
+                const maxRetries = 50;
+
+                while (!window.adminAuth && retryCount < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    retryCount++;
+                }
+
+                if (!window.adminAuth) {
+                    console.error('관리자 인증 스크립트 로드 실패');
+                    alert('시스템 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+                    return;
+                }
+
+                console.log('관리자 권한 확인 시작');
+
+                // 관리자 권한 확인
+                const hasAccess = await window.adminAuth.checkAdminAccess();
+
+                if (hasAccess) {
+                    console.log('관리자 권한 확인 완료');
+
+                    // 관리자 정보 표시
+                    window.adminAuth.displayAdminInfo();
+
+                    // 자격증 관리자 초기화
+                    console.log('자격증 관리자 초기화 시작');
+
+                    // certManager 로드 완료 대기
+                    let certRetryCount = 0;
+                    while (!window.certManager && certRetryCount < maxRetries) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        certRetryCount++;
+                    }
+
+                    if (window.certManager) {
+                        await window.certManager.init();
+                        console.log('자격증 관리자 초기화 완료');
+                    } else {
+                        console.error('자격증 관리자 스크립트 로드 실패');
+                        window.adminAuth.showNotification('자격증 관리자 초기화에 실패했습니다.', 'error');
+                    }
+
+                    // 추가 페이지별 초기화 함수 실행
+                    if (typeof window.initPage === 'function') {
+                        window.initPage();
+                    }
+                } else {
+                    console.log('관리자 권한 없음');
+                }
+            } catch (error) {
+                console.error('자격증 관리 페이지 초기화 오류:', error);
+
+                if (window.adminAuth && window.adminAuth.showNotification) {
+                    window.adminAuth.showNotification('페이지 로드 중 오류가 발생했습니다.', 'error');
+                } else {
+                    alert('페이지 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+                }
+            }
+
+            // 사이드바 토글 기능 초기화
+            if (typeof adminUtils !== 'undefined' && adminUtils.initAdminSidebar) {
+                adminUtils.initAdminSidebar();
+            }
+
+            // adminUtils가 로드되었는지 확인 후 초기화 호출
+            if (window.adminUtils && window.adminUtils.initAdminPage) {
+                console.log('adminUtils.initAdminPage 호출');
+                window.adminUtils.initAdminPage();
+            } else {
+                console.warn('adminUtils가 로드되지 않았거나 initAdminPage가 없습니다.');
+            }
+        });
+    </script>
+</body>
+
+</html>
