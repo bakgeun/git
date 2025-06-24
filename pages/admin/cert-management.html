@@ -14,10 +14,35 @@
     <!-- 🔧 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
     <script src="../../assets/js/utils/script-loader.js"></script>
 
-    <!-- jsPDF 라이브러리 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- 🎨 PDF 생성 라이브러리 (CORS 해결을 위해 CDN 사용) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" 
+            crossorigin="anonymous" 
+            integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNhusi0b6IhCxOC3Ju0Hm7qNAXLazv0U+/aUlSy53xlS7gNUqp5Y4J6z3Q=="></script>
+    
     <!-- html2canvas 라이브러리 (이미지 삽입 시 필요) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" 
+            crossorigin="anonymous" 
+            integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA=="></script>
+
+    <!-- jsPDF 전역 변수 설정 스크립트 -->
+    <script>
+        // jsPDF가 로드된 후 전역 변수 설정
+        window.addEventListener('load', function() {
+            if (typeof jspdf !== 'undefined') {
+                window.jsPDF = jspdf.jsPDF;
+                console.log('✅ jsPDF 라이브러리 로드 완료');
+            } else {
+                console.error('❌ jsPDF 라이브러리 로드 실패');
+            }
+            
+            if (typeof html2canvas !== 'undefined') {
+                window.html2canvas = html2canvas;
+                console.log('✅ html2canvas 라이브러리 로드 완료');
+            } else {
+                console.error('❌ html2canvas 라이브러리 로드 실패');
+            }
+        });
+    </script>
 </head>
 
 <body class="bg-gray-100">
@@ -298,7 +323,7 @@
     </div>
 
     <!-- 🔧 자격증 발급 모달 - 구조 통일 및 z-index 수정 -->
-    <div id="cert-issue-modal" class="cert-modal cert-modal-primary">
+    <div id="cert-issue-modal" class="cert-modal cert-modal-primary hidden">
         <div class="cert-modal-backdrop" onclick="certManager.closeIssueCertModal()"></div>
         <div class="cert-modal-container">
             <div class="cert-modal-content">
@@ -357,7 +382,7 @@
     </div>
 
     <!-- 🔧 일괄 발급 모달 - 구조 통일 및 z-index 수정 -->
-    <div id="bulk-issue-modal" class="cert-modal cert-modal-secondary">
+    <div id="bulk-issue-modal" class="cert-modal cert-modal-secondary hidden">
         <div class="cert-modal-backdrop" onclick="certManager.closeBulkIssuanceModal()"></div>
         <div class="cert-modal-container cert-modal-large">
             <div class="cert-modal-content">
@@ -405,7 +430,7 @@
     </div>
 
     <!-- 🔧 자격증 상세보기 모달 - 구조 통일 및 z-index 수정 -->
-    <div id="cert-detail-modal" class="cert-modal cert-modal-tertiary">
+    <div id="cert-detail-modal" class="cert-modal cert-modal-tertiary hidden">
         <div class="cert-modal-backdrop" onclick="certManager.closeCertDetailModal()"></div>
         <div class="cert-modal-container">
             <div class="cert-modal-content">
@@ -433,7 +458,7 @@
     </div>
 
     <!-- 🔧 자격증 수정 모달 - 구조 통일 및 z-index 수정 -->
-    <div id="cert-edit-modal" class="cert-modal cert-modal-quaternary">
+    <div id="cert-edit-modal" class="cert-modal cert-modal-quaternary hidden">
         <div class="cert-modal-backdrop" onclick="certManager.closeCertEditModal()"></div>
         <div class="cert-modal-container">
             <div class="cert-modal-content">
