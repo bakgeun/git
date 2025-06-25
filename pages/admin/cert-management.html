@@ -15,26 +15,23 @@
     <script src="../../assets/js/utils/script-loader.js"></script>
 
     <!-- 🎨 PDF 생성 라이브러리 (CORS 해결을 위해 CDN 사용) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" 
-            crossorigin="anonymous" 
-            integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNhusi0b6IhCxOC3Ju0Hm7qNAXLazv0U+/aUlSy53xlS7gNUqp5Y4J6z3Q=="></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
+
     <!-- html2canvas 라이브러리 (이미지 삽입 시 필요) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" 
-            crossorigin="anonymous" 
-            integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA=="></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+        crossorigin="anonymous"></script>
 
     <!-- jsPDF 전역 변수 설정 스크립트 -->
     <script>
         // jsPDF가 로드된 후 전역 변수 설정
-        window.addEventListener('load', function() {
+        window.addEventListener('load', function () {
             if (typeof jspdf !== 'undefined') {
                 window.jsPDF = jspdf.jsPDF;
                 console.log('✅ jsPDF 라이브러리 로드 완료');
             } else {
                 console.error('❌ jsPDF 라이브러리 로드 실패');
             }
-            
+
             if (typeof html2canvas !== 'undefined') {
                 window.html2canvas = html2canvas;
                 console.log('✅ html2canvas 라이브러리 로드 완료');

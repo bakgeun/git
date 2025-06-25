@@ -140,17 +140,20 @@ function showDependencyError() {
  * 🎨 실제 에셋 경로로 이미지 경로 생성 (수정됨)
  */
 function getImagePaths() {
-    const borderImagePath = window.adjustPath('assets/images/logo/border-gold.png');
-    const koreaImagePath = window.adjustPath('assets/images/logo/korea-medal.png');
-    const englishImagePath = window.adjustPath('assets/images/logo/english-medal.png');
+    const basePath = window.adjustPath ? window.adjustPath('') : '';
+    const borderImagePath = `${basePath}assets/images/logo/border-gold.png`;
+    const koreaImagePath = `${basePath}assets/images/logo/korea-medal.png`;
+    const englishImagePath = `${basePath}assets/images/logo/english-medal.png`;
+    const sealImagePath = `${basePath}assets/images/logo/seal.png`;
 
-    console.log('🎨 전문적인 이미지 경로:', {
+    console.log('🎨 정확한 이미지 경로:', {
         border: borderImagePath,
         korea: koreaImagePath,
-        english: englishImagePath
+        english: englishImagePath,
+        seal: sealImagePath
     });
 
-    return { borderImagePath, koreaImagePath, englishImagePath };
+    return { borderImagePath, koreaImagePath, englishImagePath, sealImagePath };
 }
 
 // 🔧 이미지 존재 여부 확인 함수
@@ -2481,32 +2484,16 @@ function initCertManager() {
         },
 
         /**
-         * 🎨 전문적인 한글 자격증 PDF 생성 (기존 함수명 유지)
+         * 🎨 참고 자격증 기반 한글 자격증 PDF 생성 (실제 이미지 적용)
          */
         generateKoreanCertPdf: async function (certId) {
             try {
-                console.log('🎨 전문적인 한글 자격증 PDF 생성 시작, certId:', certId);
+                console.log('🎨 참고 자격증 기반 한글 PDF 생성 시작:', certId);
 
-                // jsPDF 생성자 확인 및 설정
-                let jsPDFConstructor = null;
-
-                if (window.jsPDF) {
-                    jsPDFConstructor = window.jsPDF;
-                } else if (window.jspdf && window.jspdf.jsPDF) {
-                    jsPDFConstructor = window.jspdf.jsPDF;
-                } else if (typeof jsPDF !== 'undefined') {
-                    jsPDFConstructor = jsPDF;
-                }
-
-                console.log('jsPDF 생성자 확인:', {
-                    windowJsPDF: !!window.jsPDF,
-                    windowJspdf: !!window.jspdf,
-                    globalJsPDF: typeof jsPDF !== 'undefined',
-                    constructor: !!jsPDFConstructor
-                });
-
+                // jsPDF 생성자 확인
+                let jsPDFConstructor = window.jsPDF || (window.jspdf && window.jspdf.jsPDF);
                 if (!jsPDFConstructor) {
-                    throw new Error('jsPDF 생성자를 찾을 수 없습니다.');
+                    throw new Error('jsPDF 라이브러리가 로드되지 않았습니다.');
                 }
 
                 // 자격증 정보 조회
@@ -2521,36 +2508,32 @@ function initCertManager() {
                 const today = new Date();
                 const formattedToday = window.formatters.formatDate(today, 'YYYY년 MM월 DD일');
 
-                // html2canvas 확인
-                if (!window.html2canvas) {
-                    throw new Error('html2canvas 라이브러리가 로드되지 않았습니다.');
-                }
+                // 🔧 올바른 이미지 경로 설정 (pages/admin에서 상위로 이동)
+                const borderImagePath = '../../assets/images/logo/border-gold.png';
+                const koreaImagePath = '../../assets/images/logo/korea-medal.png';
+                const sealImagePath = '../../assets/images/logo/seal.png';
 
-                console.log('✅ 모든 라이브러리 확인 완료');
-
-                // 🎨 전문적인 이미지 경로 설정
-                const { borderImagePath, koreaImagePath } = getImagePaths();
-                const borderExists = await checkImageExists(borderImagePath);
-                const medalExists = await checkImageExists(koreaImagePath);
-
-                // 최종 이미지 경로 결정
-                const finalBorderPath = borderExists ? borderImagePath : createFallbackBorderSvg();
-                const finalMedalPath = medalExists ? koreaImagePath : createFallbackSealSvg(false);
-
-                console.log('🖼️ 이미지 경로 설정 완료:', {
-                    border: finalBorderPath.substring(0, 50) + '...',
-                    medal: finalMedalPath.substring(0, 50) + '...'
+                console.log('🖼️ 수정된 이미지 경로:', {
+                    border: borderImagePath,
+                    medal: koreaImagePath,
+                    seal: sealImagePath
                 });
 
-                // 🎨 전문적인 한글 자격증 HTML 템플릿 생성
-                const certTemplate = this.createKoreanCertificateTemplate(certData, finalBorderPath, finalMedalPath, formattedToday);
+                // 🎨 참고 자격증 기반 한글 HTML 템플릿 생성
+                const certTemplate = this.createReferenceKoreanTemplate(
+                    certData,
+                    borderImagePath,
+                    koreaImagePath,
+                    sealImagePath,
+                    formattedToday
+                );
 
                 // DOM에 추가
                 document.body.appendChild(certTemplate);
 
                 try {
                     // 이미지 로딩 대기
-                    console.log('⏳ 이미지 로딩 대기 중...');
+                    console.log('⏳ 실제 이미지 로딩 대기 중...');
                     await this.waitForImagesLoad(certTemplate);
 
                     // HTML to Canvas
@@ -2567,7 +2550,7 @@ function initCertManager() {
 
                     console.log('✅ Canvas 생성 완료, 크기:', canvas.width, 'x', canvas.height);
 
-                    // PDF 생성 (수정된 부분)
+                    // PDF 생성
                     console.log('📄 PDF 생성 중...');
                     const doc = new jsPDFConstructor({
                         orientation: 'portrait',
@@ -2576,17 +2559,17 @@ function initCertManager() {
                         compress: true
                     });
 
-                    const imgData = canvas.toDataURL('image/jpeg', 1.0); // 최고 품질
+                    const imgData = canvas.toDataURL('image/jpeg', 1.0);
                     const pageWidth = doc.internal.pageSize.getWidth();
                     const pageHeight = doc.internal.pageSize.getHeight();
 
                     doc.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
 
-                    const fileName = `${certData.certType}_${certData.holderName}_${certData.certNumber}_한글_전문판.pdf`;
+                    const fileName = `${certData.certType}_${certData.holderName}_${certData.certNumber}_한글.pdf`;
                     doc.save(fileName);
 
-                    console.log('✅ 전문적인 한글 PDF 생성 완료:', fileName);
-                    window.adminAuth?.showNotification('전문적인 한글 자격증 PDF가 생성되었습니다.', 'success');
+                    console.log('✅ 참고 자격증 기반 한글 PDF 생성 완료:', fileName);
+                    window.adminAuth?.showNotification('한글 자격증 PDF가 생성되었습니다.', 'success');
 
                 } catch (error) {
                     console.error('PDF 생성 중 오류:', error);
@@ -2600,38 +2583,22 @@ function initCertManager() {
                 }
 
             } catch (error) {
-                console.error('전문적인 한글 PDF 생성 전체 오류:', error);
+                console.error('한글 PDF 생성 전체 오류:', error);
                 window.adminAuth?.showNotification('PDF 생성 중 오류가 발생했습니다: ' + error.message, 'error');
             }
         },
 
         /**
-         * 🎨 전문적인 영문 자격증 PDF 생성 (기존 함수명 유지)
+         * 🎨 경로 수정된 영문 자격증 PDF 생성
          */
         generateEnglishCertPdf: async function (certId) {
             try {
-                console.log('🎨 전문적인 영문 자격증 PDF 생성 시작, certId:', certId);
+                console.log('🎨 참고 자격증 기반 영문 PDF 생성 시작:', certId);
 
-                // jsPDF 생성자 확인 및 설정
-                let jsPDFConstructor = null;
-
-                if (window.jsPDF) {
-                    jsPDFConstructor = window.jsPDF;
-                } else if (window.jspdf && window.jspdf.jsPDF) {
-                    jsPDFConstructor = window.jspdf.jsPDF;
-                } else if (typeof jsPDF !== 'undefined') {
-                    jsPDFConstructor = jsPDF;
-                }
-
-                console.log('jsPDF 생성자 확인:', {
-                    windowJsPDF: !!window.jsPDF,
-                    windowJspdf: !!window.jspdf,
-                    globalJsPDF: typeof jsPDF !== 'undefined',
-                    constructor: !!jsPDFConstructor
-                });
-
+                // jsPDF 생성자 확인
+                let jsPDFConstructor = window.jsPDF || (window.jspdf && window.jspdf.jsPDF);
                 if (!jsPDFConstructor) {
-                    throw new Error('jsPDF 생성자를 찾을 수 없습니다.');
+                    throw new Error('jsPDF 라이브러리가 로드되지 않았습니다.');
                 }
 
                 // 자격증 정보 조회
@@ -2650,36 +2617,32 @@ function initCertManager() {
                     day: 'numeric'
                 });
 
-                // html2canvas 확인
-                if (!window.html2canvas) {
-                    throw new Error('html2canvas 라이브러리가 로드되지 않았습니다.');
-                }
+                // 🔧 올바른 이미지 경로 설정 (pages/admin에서 상위로 이동)
+                const borderImagePath = '../../assets/images/logo/border-gold.png';
+                const englishImagePath = '../../assets/images/logo/english-medal.png';
+                const sealImagePath = '../../assets/images/logo/seal.png';
 
-                console.log('✅ 모든 라이브러리 확인 완료');
-
-                // 🎨 전문적인 이미지 경로 설정
-                const { borderImagePath, englishImagePath } = getImagePaths();
-                const borderExists = await checkImageExists(borderImagePath);
-                const medalExists = await checkImageExists(englishImagePath);
-
-                // 최종 이미지 경로 결정
-                const finalBorderPath = borderExists ? borderImagePath : createFallbackBorderSvg();
-                const finalMedalPath = medalExists ? englishImagePath : createFallbackSealSvg(true);
-
-                console.log('🖼️ 이미지 경로 설정 완료:', {
-                    border: finalBorderPath.substring(0, 50) + '...',
-                    medal: finalMedalPath.substring(0, 50) + '...'
+                console.log('🖼️ 수정된 이미지 경로:', {
+                    border: borderImagePath,
+                    medal: englishImagePath,
+                    seal: sealImagePath
                 });
 
-                // 🎨 전문적인 영문 자격증 HTML 템플릿 생성
-                const certTemplate = this.createEnglishCertificateTemplate(certData, finalBorderPath, finalMedalPath, formattedToday);
+                // 🎨 참고 자격증 기반 영문 HTML 템플릿 생성
+                const certTemplate = this.createReferenceEnglishTemplate(
+                    certData,
+                    borderImagePath,
+                    englishImagePath,
+                    sealImagePath,
+                    formattedToday
+                );
 
                 // DOM에 추가
                 document.body.appendChild(certTemplate);
 
                 try {
                     // 이미지 로딩 대기
-                    console.log('⏳ 이미지 로딩 대기 중...');
+                    console.log('⏳ 실제 이미지 로딩 대기 중...');
                     await this.waitForImagesLoad(certTemplate);
 
                     // HTML to Canvas
@@ -2696,7 +2659,7 @@ function initCertManager() {
 
                     console.log('✅ Canvas 생성 완료, 크기:', canvas.width, 'x', canvas.height);
 
-                    // PDF 생성 (수정된 부분)
+                    // PDF 생성
                     console.log('📄 PDF 생성 중...');
                     const doc = new jsPDFConstructor({
                         orientation: 'portrait',
@@ -2705,18 +2668,18 @@ function initCertManager() {
                         compress: true
                     });
 
-                    const imgData = canvas.toDataURL('image/jpeg', 1.0); // 최고 품질
+                    const imgData = canvas.toDataURL('image/jpeg', 1.0);
                     const pageWidth = doc.internal.pageSize.getWidth();
                     const pageHeight = doc.internal.pageSize.getHeight();
 
                     doc.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
 
                     const certTypeEn = this.getCertTypeNameEn(certData.certificateType);
-                    const fileName = `${certTypeEn.replace(/\s+/g, '_')}_${certData.holderName.replace(/\s+/g, '_')}_${certData.certNumber}_English_Professional.pdf`;
+                    const fileName = `${certTypeEn.replace(/\s+/g, '_')}_${certData.holderName.replace(/\s+/g, '_')}_${certData.certNumber}_English.pdf`;
                     doc.save(fileName);
 
-                    console.log('✅ 전문적인 영문 PDF 생성 완료:', fileName);
-                    window.adminAuth?.showNotification('전문적인 영문 자격증 PDF가 생성되었습니다.', 'success');
+                    console.log('✅ 참고 자격증 기반 영문 PDF 생성 완료:', fileName);
+                    window.adminAuth?.showNotification('영문 자격증 PDF가 생성되었습니다.', 'success');
 
                 } catch (error) {
                     console.error('PDF 생성 중 오류:', error);
@@ -2730,819 +2693,660 @@ function initCertManager() {
                 }
 
             } catch (error) {
-                console.error('전문적인 영문 PDF 생성 전체 오류:', error);
+                console.error('영문 PDF 생성 전체 오류:', error);
                 window.adminAuth?.showNotification('PDF 생성 중 오류가 발생했습니다: ' + error.message, 'error');
             }
         },
 
         /**
-         * 🎨 한글 자격증 HTML 템플릿 생성
+         * 🔧 이미지 경로 테스트 함수 (디버깅용)
          */
-        createKoreanCertificateTemplate: function (certData, borderPath, medalPath, issuedDate) {
-            const template = document.createElement('div');
-            template.id = 'professional-korean-cert-template';
-            template.style.cssText = `
-                width: 794px;
-                height: 1123px;
-                position: absolute;
-                left: -10000px;
-                top: -10000px;
-                font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
-                background: #ffffff;
-                overflow: hidden;
-                z-index: -1000;
-            `;
+        testImagePaths: function () {
+            console.log('🔧 이미지 경로 테스트...');
 
-            const content = document.createElement('div');
-            content.style.cssText = `
+            const paths = [
+                '../../assets/images/logo/border-gold.png',
+                '../../assets/images/logo/korea-medal.png',
+                '../../assets/images/logo/english-medal.png',
+                '../../assets/images/logo/seal.png'
+            ];
+
+            paths.forEach(path => {
+                const img = new Image();
+                img.onload = () => console.log('✅', path, '로드 성공');
+                img.onerror = () => console.error('❌', path, '로드 실패');
+                img.src = path;
+            });
+        },
+
+        /**
+         * 🎨 참고 자격증 기반 한글 HTML 템플릿 (실제 이미지 적용 + 레이아웃 개선)
+         */
+        createReferenceKoreanTemplate: function (certData, borderPath, medalPath, sealPath, issuedDate) {
+            const template = document.createElement('div');
+            template.id = 'korean-cert-template';
+            template.style.cssText = `
+        width: 794px;
+        height: 1123px;
+        position: absolute;
+        left: -10000px;
+        top: -10000px;
+        font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+        background: #ffffff;
+        overflow: hidden;
+        z-index: -1000;
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    `;
+
+            // 🔧 영문 자격증명 매칭
+            const getEnglishCertName = (koreanCertType) => {
+                const mapping = {
+                    '건강운동처방사': 'Health Exercise Specialist',
+                    '운동재활전문가': 'Exercise Rehabilitation Specialist',
+                    '필라테스 전문가': 'Pilates Specialist',
+                    '레크리에이션지도자': 'Recreation Instructor'
+                };
+                return mapping[koreanCertType] || 'Health Exercise Specialist';
+            };
+
+            const englishCertName = getEnglishCertName(certData.certType);
+
+            template.innerHTML = `
+        <!-- 전체 파란색 배경 -->
+        <div style="
+            position: relative;
+            width: 794px;
+            height: 1123px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            padding: 30px;
+            box-sizing: border-box;
+        ">
+            <!-- 흰색 내부 영역 -->
+            <div style="
                 position: relative;
                 width: 100%;
                 height: 100%;
-                padding: 80px;
-                box-sizing: border-box;
-                background-image: url('${borderPath}');
-                background-size: 100% 100%;
-                background-repeat: no-repeat;
-                background-position: center;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                text-align: center;
-            `;
+                background: #ffffff;
+                overflow: hidden;
+            ">
+                <!-- 🖼️ 황금 테두리 이미지 (배경) -->
+                <img src="${borderPath}" 
+                     style="
+                         position: absolute;
+                         top: 0;
+                         left: 0;
+                         width: 100%;
+                         height: 100%;
+                         object-fit: cover;
+                         z-index: 1;
+                     "
+                     onerror="this.style.display='none';">
 
-            content.innerHTML = `
-                <!-- 🎨 상단: 자격증 제목 영역 -->
-                <div style="margin-bottom: 40px;">
-                    <div style="margin-bottom: 30px;">
+                <!-- 🔧 국문 메달 이미지 ("건"자 왼쪽, 제목과 겹치지 않게) -->
+                <img src="${medalPath}" 
+                     style="
+                         position: absolute;
+                         top: 100px;
+                         left: 100px;
+                         width: 110px;
+                         height: 110px;
+                         z-index: 2;
+                     "
+                     onerror="this.style.display='none';">
+
+                <!-- 🔧 콘텐츠 영역 -->
+                <div style="
+                    position: relative;
+                    z-index: 3;
+                    padding: 90px 100px 80px 100px;
+                    height: 100%;
+                    box-sizing: border-box;
+                    display: flex;
+                    flex-direction: column;
+                ">
+                    <!-- 상단: 자격증 제목 -->
+                    <div style="text-align: center; margin-bottom: 60px;">
                         <h1 style="
-                            font-size: 48px; 
-                            font-weight: 900; 
-                            color: #1E3A8A; 
-                            margin: 0 0 15px 0; 
-                            line-height: 1.1;
-                            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-                            letter-spacing: 2px;
+                            font-size: 48px;
+                            font-weight: 900;
+                            color: #1e3a8a;
+                            margin: 0 0 15px 0;
+                            letter-spacing: 3px;
                         ">
                             ${certData.certType}
                         </h1>
-                        <div style="
-                            width: 200px; 
-                            height: 4px; 
-                            background: linear-gradient(90deg, #FFD700 0%, #FFA500 50%, #FFD700 100%); 
-                            margin: 0 auto 20px auto; 
-                            border-radius: 2px;
-                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                        "></div>
-                        <h2 style="
-                            font-size: 20px; 
-                            color: #64748B; 
-                            margin: 0; 
-                            font-weight: 400; 
-                            letter-spacing: 3px;
-                        ">
-                            CERTIFICATE OF ACHIEVEMENT
-                        </h2>
-                    </div>
-                </div>
-
-                <!-- 🎨 중앙: 메인 정보 카드 -->
-                <div style="
-                    background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%); 
-                    border-radius: 20px; 
-                    padding: 50px 40px; 
-                    margin: 40px 0; 
-                    box-shadow: 
-                        0 20px 40px rgba(30, 58, 138, 0.1),
-                        0 0 0 1px rgba(59, 130, 246, 0.1),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
-                    border: 3px solid rgba(255, 215, 0, 0.3);
-                    position: relative;
-                    overflow: hidden;
-                ">
-                    <!-- 배경 패턴 -->
-                    <div style="
-                        position: absolute;
-                        top: -50%;
-                        right: -50%;
-                        width: 200%;
-                        height: 200%;
-                        background: radial-gradient(circle, rgba(255, 215, 0, 0.03) 0%, transparent 70%);
-                        pointer-events: none;
-                    "></div>
-                    
-                    <div style="position: relative; z-index: 1;">
-                        <!-- 자격증 번호 -->
-                        <div style="margin-bottom: 30px;">
-                            <span style="
-                                display: inline-block;
-                                background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
-                                color: white;
-                                padding: 8px 20px;
-                                border-radius: 20px;
-                                font-size: 14px;
-                                font-weight: 600;
-                                letter-spacing: 1px;
-                                box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
-                            ">
-                                자격증 번호: ${certData.certNumber}
-                            </span>
-                        </div>
-
-                        <!-- 수료자명 -->
-                        <div style="margin: 40px 0;">
-                            <p style="
-                                font-size: 18px; 
-                                color: #475569; 
-                                margin: 0 0 15px 0; 
-                                font-weight: 500;
-                            ">
-                                위 사람은
-                            </p>
-                            <div style="
-                                background: linear-gradient(135deg, #FEF3E2 0%, #FDE68A 20%, #FEF3E2 100%);
-                                padding: 25px 40px;
-                                border-radius: 15px;
-                                border: 2px solid #F59E0B;
-                                margin: 20px 0;
-                                box-shadow: 0 8px 25px rgba(245, 158, 11, 0.15);
-                            ">
-                                <h3 style="
-                                    font-size: 36px; 
-                                    font-weight: 800; 
-                                    color: #1E293B; 
-                                    margin: 0; 
-                                    letter-spacing: 2px;
-                                    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-                                ">
-                                    ${certData.holderName}
-                                </h3>
-                            </div>
-                        </div>
-
-                        <!-- 자격증 등급 -->
-                        <div style="margin: 30px 0;">
-                            <span style="
-                                display: inline-block;
-                                background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-                                color: white;
-                                padding: 12px 30px;
-                                border-radius: 25px;
-                                font-size: 18px;
-                                font-weight: 700;
-                                letter-spacing: 1px;
-                                box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
-                            ">
-                                1급 전문가
-                            </span>
-                        </div>
-
-                        <!-- 교육과정 정보 -->
-                        <div style="margin: 30px 0;">
-                            <p style="
-                                font-size: 16px; 
-                                color: #64748B; 
-                                margin: 0 0 10px 0;
-                                font-weight: 500;
-                            ">
-                                교육과정
-                            </p>
-                            <p style="
-                                font-size: 18px; 
-                                color: #1E293B; 
-                                margin: 0;
-                                font-weight: 600;
-                            ">
-                                ${certData.courseName || '전문 교육과정'}
-                            </p>
-                        </div>
-
-                        <!-- 날짜 정보 -->
-                        <div style="
-                            display: grid; 
-                            grid-template-columns: 1fr 1fr; 
-                            gap: 30px; 
-                            margin: 30px 0;
-                            padding: 20px;
-                            background: rgba(248, 250, 252, 0.5);
-                            border-radius: 12px;
-                            border: 1px solid rgba(226, 232, 240, 0.8);
-                        ">
-                            <div style="text-align: center;">
-                                <p style="
-                                    font-size: 14px; 
-                                    color: #64748B; 
-                                    margin: 0 0 8px 0;
-                                    font-weight: 500;
-                                ">
-                                    취득일자
-                                </p>
-                                <p style="
-                                    font-size: 16px; 
-                                    color: #1E293B; 
-                                    margin: 0;
-                                    font-weight: 600;
-                                ">
-                                    ${certData.issueDate}
-                                </p>
-                            </div>
-                            <div style="text-align: center;">
-                                <p style="
-                                    font-size: 14px; 
-                                    color: #64748B; 
-                                    margin: 0 0 8px 0;
-                                    font-weight: 500;
-                                ">
-                                    유효기간
-                                </p>
-                                <p style="
-                                    font-size: 16px; 
-                                    color: #1E293B; 
-                                    margin: 0;
-                                    font-weight: 600;
-                                ">
-                                    ${certData.expiryDate}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 🎨 인증 문구 -->
-                <div style="
-                    background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 50%, #BFDBFE 100%); 
-                    border-radius: 16px; 
-                    padding: 40px; 
-                    margin: 40px 0; 
-                    border-left: 6px solid #3B82F6; 
-                    position: relative; 
-                    overflow: hidden;
-                    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.1);
-                ">
-                    <div style="
-                        position: absolute; 
-                        top: -50%; 
-                        right: -50%; 
-                        width: 200%; 
-                        height: 200%; 
-                        background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%); 
-                        pointer-events: none;
-                    "></div>
-                    <div style="position: relative; z-index: 1;">
                         <p style="
-                            margin: 0 0 20px 0; 
-                            font-size: 20px; 
-                            line-height: 1.8; 
-                            color: #1E293B; 
+                            font-size: 18px;
+                            color: #3b82f6;
+                            margin: 0;
+                            letter-spacing: 2px;
                             font-weight: 500;
-                            text-align: center;
+                            font-style: italic;
                         ">
-                            위 사람은 <span style="
-                                background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%); 
-                                -webkit-background-clip: text; 
-                                -webkit-text-fill-color: transparent; 
-                                font-weight: 700; 
-                                font-size: 22px;
-                            ">${certData.certType}</span> 교육과정을
-                        </p>
-                        <p style="
-                            margin: 0 0 20px 0; 
-                            font-size: 20px; 
-                            line-height: 1.8; 
-                            color: #1E293B; 
-                            font-weight: 500;
-                            text-align: center;
-                        ">
-                            성공적으로 이수하고 종합 심사에 통과하였으므로
-                        </p>
-                        <p style="
-                            margin: 0; 
-                            font-size: 24px; 
-                            font-weight: 800; 
-                            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%); 
-                            -webkit-background-clip: text; 
-                            -webkit-text-fill-color: transparent; 
-                            line-height: 1.8;
-                            text-align: center;
-                        ">
-                            이 자격증을 수여합니다
+                            ${englishCertName}
                         </p>
                     </div>
-                </div>
 
-                <!-- 🎨 하단: 발급 정보 -->
-                <div style="margin-top: auto; padding-top: 40px;">
-                    <!-- 발급일 -->
-                    <div style="text-align: right; margin-bottom: 40px;">
-                        <p style="
-                            font-size: 18px; 
-                            margin: 0; 
-                            color: #475569; 
-                            font-weight: 600;
-                            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-                        ">${issuedDate}</p>
-                    </div>
-
-                    <!-- 🎨 발급 기관 -->
+                    <!-- 중앙: 정보 영역 -->
                     <div style="
-                        position: relative; 
-                        background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 20%, #6366F1 80%, #8B5CF6 100%); 
-                        border-radius: 20px; 
-                        padding: 30px; 
-                        color: white; 
-                        overflow: hidden;
-                        box-shadow: 0 15px 35px rgba(30, 58, 138, 0.3);
+                        flex: 1;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: flex-start;
+                        margin: 20px 0 20px 0;
                     ">
-                        <!-- 배경 패턴 -->
                         <div style="
-                            position: absolute; 
-                            top: 0; 
-                            left: 0; 
-                            right: 0; 
-                            bottom: 0; 
-                            background: url('data:image/svg+xml;base64,${btoa(`
-                                <svg width="60" height="60" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="30" cy="30" r="1.5" fill="rgba(255,255,255,0.1)"/>
-                                </svg>
-                            `)}') repeat; 
-                            pointer-events: none;
-                        "></div>
-                        
-                        <div style="
-                            position: relative; 
-                            z-index: 1; 
-                            display: flex; 
-                            align-items: center; 
+                            display: flex;
                             justify-content: space-between;
+                            align-items: flex-start;
+                            margin-bottom: 60px;
                         ">
-                            <div style="flex: 1;">
-                                <h4 style="
-                                    font-size: 28px; 
-                                    font-weight: 800; 
-                                    margin: 0 0 10px 0; 
-                                    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-                                    letter-spacing: 1px;
-                                ">
-                                    (사)문경 부설 디지털헬스케어센터
-                                </h4>
-                                <p style="
-                                    font-size: 16px; 
-                                    margin: 0 0 5px 0; 
-                                    opacity: 0.9; 
-                                    font-weight: 500;
-                                ">
-                                    Digital Healthcare Center, Mungyeong Branch
-                                </p>
-                                <p style="
-                                    font-size: 14px; 
-                                    margin: 0; 
-                                    opacity: 0.8; 
-                                    font-style: italic;
-                                ">
-                                    공인 교육 및 자격증 발급 기관
-                                </p>
+                            <!-- 좌측: 자격증 정보 -->
+                            <div style="
+                                flex: 1; 
+                                text-align: left; 
+                                padding-right: 60px;
+                                padding-left: 20px;
+                            ">
+                                <div style="margin-bottom: 25px;">
+                                    <span style="
+                                        font-weight: 600; 
+                                        color: #1e293b;
+                                        font-size: 17px;
+                                    ">인증번호 : </span>
+                                    <span style="
+                                        font-weight: 700; 
+                                        color: #1e3a8a;
+                                        font-size: 17px;
+                                    ">${certData.certNumber}</span>
+                                </div>
+                                
+                                <div style="margin-bottom: 25px;">
+                                    <span style="
+                                        font-weight: 600; 
+                                        color: #1e293b;
+                                        font-size: 17px;
+                                    ">성 명 : </span>
+                                    <span style="
+                                        font-weight: 700; 
+                                        color: #1e3a8a; 
+                                        font-size: 20px;
+                                    ">${certData.holderName}</span>
+                                </div>
+                                
+                                <div style="margin-bottom: 25px;">
+                                    <span style="
+                                        font-weight: 600; 
+                                        color: #1e293b;
+                                        font-size: 17px;
+                                    ">급 수 : </span>
+                                    <span style="
+                                        font-weight: 700; 
+                                        color: #1e3a8a;
+                                        font-size: 17px;
+                                    ">1급</span>
+                                </div>
+                                
+                                <div style="margin-bottom: 25px;">
+                                    <span style="
+                                        font-weight: 600; 
+                                        color: #1e293b;
+                                        font-size: 17px;
+                                    ">취득일자 : </span>
+                                    <span style="
+                                        font-weight: 700; 
+                                        color: #1e3a8a;
+                                        font-size: 17px;
+                                    ">${certData.issueDate}</span>
+                                </div>
                             </div>
                             
-                            <!-- 🎨 메달/직인 -->
-                            <div style="margin-left: 30px;">
-                                <img src="${medalPath}" 
+                            <!-- 우측: 사진 영역 -->
+                            <div style="
+                                width: 120px;
+                                height: 160px;
+                                border: 2px solid #64748b;
+                                background: #f8fafc;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-size: 14px;
+                                color: #64748b;
+                                font-weight: 500;
+                                margin-right: 20px;
+                            ">
+                                사진
+                            </div>
+                        </div>
+
+                        <!-- 🎨 인증 문구 -->
+                        <div style="
+                            text-align: center;
+                            margin: 40px 0 60px 0;
+                            line-height: 2.2;
+                            font-size: 19px;
+                            color: #1e293b;
+                        ">
+                            <p style="margin: 0 0 15px 0; font-weight: 500;">
+                                위 사람은 <strong style="color: #1e3a8a;">${certData.certType}</strong> 1급 교육과정을
+                            </p>
+                            <p style="margin: 0 0 15px 0; font-weight: 500;">
+                                이수하고 이론 및 실기 심사에 통과하였으므로
+                            </p>
+                            <p style="margin: 0; font-weight: 700; color: #1e3a8a; font-size: 21px;">
+                                자격증을 수여합니다.
+                            </p>
+                        </div>
+
+                        <!-- 🔧 하단: 발급 정보 (중앙 정렬 날짜 + 중앙 정렬 센터명 + 우측 직인) -->
+                        <div style="
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            margin-top: 30px;
+                        ">
+                            <!-- 🔧 1단계: 날짜 (중앙 정렬) -->
+                            <div style="
+                                text-align: center;
+                                margin-bottom: 35px;
+                            ">
+                                <p style="
+                                    font-size: 20px;
+                                    margin: 0;
+                                    color: #1e293b;
+                                    font-weight: 600;
+                                ">${issuedDate}</p>
+                            </div>
+
+                            <!-- 🔧 2단계: 센터명 (중앙 정렬, 날짜 바로 아래) -->
+                            <div style="
+                                text-align: center;
+                                margin-bottom: 20px;
+                                position: relative;
+                                display: inline-block;
+                            ">
+                                <h3 style="
+                                    font-size: 26px;
+                                    font-weight: 800;
+                                    margin: 0;
+                                    color: #1e3a8a;
+                                    line-height: 1.3;
+                                    text-align: center;
+                                    display: inline-block;
+                                ">(사)문경 부설 디지털헬스케어센터</h3>
+                                
+                                <!-- 직인 ('터'자 우측에 배치) -->
+                                <img src="${sealPath}" 
                                      style="
-                                        width: 80px; 
-                                        height: 80px; 
-                                        border-radius: 50%; 
-                                        box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-                                        border: 3px solid rgba(255,255,255,0.3);
+                                         width: 85px;
+                                         height: 85px;
+                                         object-fit: contain;
+                                         position: absolute;
+                                         top: 50%;
+                                         transform: translateY(-50%);
+                                         right: -80px;
                                      "
-                                     alt="공식 메달" crossorigin="anonymous">
+                                     onerror="this.outerHTML='<div style=&quot;width: 85px; height: 85px; background: #dc2626; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px; text-align: center; line-height: 1.2; position: absolute; top: 50%; transform: translateY(-50%); right: -110px;&quot;><div>문경<br>부설<br>센터</div></div>';">
                             </div>
                         </div>
                     </div>
-
-                    <!-- 인증 설명 -->
-                    <div style="text-align: center; margin-top: 25px;">
-                        <p style="
-                            font-size: 13px; 
-                            color: #64748B; 
-                            margin: 0; 
-                            font-style: italic;
-                            opacity: 0.8;
-                        ">
-                            본 자격증은 공식 인증 시스템을 통해 검증 가능합니다
-                        </p>
-                    </div>
                 </div>
-            `;
+            </div>
+        </div>
+    `;
 
-            template.appendChild(content);
             return template;
         },
 
         /**
-         * 🎨 영문 자격증 HTML 템플릿 생성
+         * 🎨 참고 자격증 기반 영문 HTML 템플릿 (실제 이미지 적용)
          */
-        createEnglishCertificateTemplate: function (certData, borderPath, medalPath, issuedDate) {
+        createReferenceEnglishTemplate: function (certData, borderPath, medalPath, sealPath, issuedDate) {
             const template = document.createElement('div');
-            template.id = 'professional-english-cert-template';
+            template.id = 'english-cert-template';
             template.style.cssText = `
-                width: 794px;
-                height: 1123px;
-                position: absolute;
-                left: -10000px;
-                top: -10000px;
-                font-family: 'Times New Roman', 'Georgia', serif;
-                background: #ffffff;
-                overflow: hidden;
-                z-index: -1000;
-            `;
-
-            const content = document.createElement('div');
-            content.style.cssText = `
-                position: relative;
-                width: 100%;
-                height: 100%;
-                padding: 80px;
-                box-sizing: border-box;
-                background-image: url('${borderPath}');
-                background-size: 100% 100%;
-                background-repeat: no-repeat;
-                background-position: center;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                text-align: center;
-            `;
+        width: 794px;
+        height: 1123px;
+        position: absolute;
+        left: -10000px;
+        top: -10000px;
+        font-family: 'Times New Roman', 'Georgia', serif;
+        background: #ffffff;
+        overflow: hidden;
+        z-index: -1000;
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    `;
 
             // 영문 자격증 유형명 변환
             const certTypeEn = this.getCertTypeNameEn(certData.certificateType);
-            const courseNameEn = this.translateCourseNameToEnglish(certData.courseName);
 
-            content.innerHTML = `
-                <!-- 🎨 상단: 영문 자격증 제목 -->
-                <div style="margin-bottom: 40px;">
-                    <h1 style="
-                        font-size: 45px; 
-                        font-weight: bold; 
-                        color: #1E3A8A; 
-                        margin: 0 0 20px 0; 
-                        line-height: 1.2; 
-                        letter-spacing: 4px; 
-                        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-                        font-family: 'Times New Roman', serif;
-                    ">
-                        CERTIFICATE
-                    </h1>
-                    <div style="
-                        width: 300px; 
-                        height: 4px; 
-                        background: linear-gradient(90deg, #FFD700 0%, #FFA500 50%, #FFD700 100%); 
-                        margin: 0 auto 25px auto; 
-                        border-radius: 2px;
-                        box-shadow: 0 2px 6px rgba(255, 215, 0, 0.3);
-                    "></div>
-                    <h2 style="
-                        font-size: 26px; 
-                        color: #64748B; 
-                        margin: 0 0 30px 0; 
-                        font-style: italic; 
-                        letter-spacing: 2px;
-                        font-weight: 400;
-                    ">
-                        of Achievement
-                    </h2>
-                    <h3 style="
-                        font-size: 22px; 
-                        color: #1E3A8A; 
-                        margin: 0; 
-                        font-weight: 600;
-                        letter-spacing: 1px;
-                    ">
-                        ${certTypeEn}
-                    </h3>
-                </div>
+            template.innerHTML = `
+        <!-- 전체 파란색 배경 -->
+        <div style="
+            position: relative;
+            width: 794px;
+            height: 1123px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            padding: 30px;
+            box-sizing: border-box;
+        ">
+            <!-- 흰색 내부 영역 -->
+            <div style="
+                position: relative;
+                width: 100%;
+                height: 100%;
+                background: #ffffff;
+                overflow: hidden;
+            ">
+                <!-- 🖼️ 황금 테두리 이미지 (배경) -->
+                <img src="${borderPath}" 
+                     style="
+                         position: absolute;
+                         top: 0;
+                         left: 0;
+                         width: 100%;
+                         height: 100%;
+                         object-fit: cover;
+                         z-index: 1;
+                     "
+                     onerror="this.style.display='none';">
 
-                <!-- 🎨 중앙: 영문 인증 내용 -->
+                <!-- 🖼️ 영문 메달 이미지 (제목과 겹치지 않게 상단으로 이동) -->
+                <img src="${medalPath}" 
+                     style="
+                         position: absolute;
+                         top: 80px;
+                         left: 50%;
+                         transform: translateX(-50%);
+                         width: 90px;
+                         height: 90px;
+                         z-index: 2;
+                     "
+                     onerror="this.style.display='none';">
+
+                <!-- 콘텐츠 영역 (테두리 안쪽) -->
                 <div style="
-                    background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%); 
-                    border-radius: 20px; 
-                    padding: 50px 40px; 
-                    margin: 40px 0; 
-                    box-shadow: 
-                        0 20px 40px rgba(30, 58, 138, 0.1),
-                        0 0 0 2px rgba(255, 215, 0, 0.2);
-                    border: 3px solid rgba(255, 215, 0, 0.3);
                     position: relative;
-                    overflow: hidden;
+                    z-index: 3;
+                    padding: 90px 100px 80px 100px;
+                    height: 100%;
+                    box-sizing: border-box;
+                    display: flex;
+                    flex-direction: column;
+                    text-align: center;
                 ">
-                    <!-- 배경 장식 -->
+                    <!-- 상단: 메달과 제목 -->
+                    <div style="margin-bottom: 50px; margin-top: 80px;">
+                        <!-- 자격증 제목 -->
+                        <h1 style="
+                            font-size: 48px;
+                            font-weight: bold;
+                            color: #1e3a8a;
+                            margin: 0 0 15px 0;
+                            letter-spacing: 6px;
+                            font-family: 'Times New Roman', serif;
+                            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+                        ">CERTIFICATE</h1>
+                        
+                        <h2 style="
+                            font-size: 28px;
+                            color: #3b82f6;
+                            margin: 0 0 25px 0;
+                            font-style: italic;
+                            letter-spacing: 3px;
+                            font-weight: 400;
+                        ">of Achievement</h2>
+                        
+                        <h3 style="
+                            font-size: 24px;
+                            color: #8B4513;
+                            margin: 0 0 20px 0;
+                            font-weight: 600;
+                        ">${certTypeEn}</h3>
+                        
+                        <!-- 자격증 번호 (사각형 완전 중앙 정렬) -->
+                        <div style="
+                            color: #1e3a8a;
+                            padding: 15px 25px;
+                            border: 2px solid #1e3a8a;
+                            border-radius: 5px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 16px;
+                            font-weight: 600;
+                            margin: 0 auto 80px auto;
+                            background: transparent;
+                            width: fit-content;
+                            height: 25px;
+                        ">Certificate No: ${certData.certNumber}</div>
+                    </div>
+
+                    <!-- 중앙: 인증 내용 (폰트 축소, 간격 축소, 공간 확보) -->
                     <div style="
-                        position: absolute;
-                        top: -50%;
-                        right: -50%;
-                        width: 200%;
-                        height: 200%;
-                        background: radial-gradient(circle, rgba(255, 215, 0, 0.03) 0%, transparent 70%);
-                        pointer-events: none;
-                    "></div>
-                    
-                    <div style="position: relative; z-index: 1;">
-                        <!-- 인증 시작 문구 -->
+                        flex: 1;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: flex-start;
+                        margin: 0;
+                        padding: 0 40px;
+                    ">
+                        <!-- This is to certify that (더 위로, 폰트 축소) -->
                         <p style="
-                            margin: 0 0 30px 0; 
-                            font-size: 20px; 
-                            color: #475569;
+                            margin: 0 0 10px 0;
+                            font-size: 20px;
+                            color: #4a5568;
                             font-style: italic;
                             font-weight: 500;
                         ">This is to certify that</p>
                         
-                        <!-- 수료자명 강조 -->
+                        <!-- 🔧 수료자명 강조 (간격 축소) -->
                         <div style="
-                            background: linear-gradient(135deg, #FEF3E2 0%, #FDE68A 20%, #FEF3E2 100%);
-                            padding: 30px 40px;
-                            border-radius: 15px;
-                            border: 3px solid #F59E0B;
-                            margin: 30px 0;
-                            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.2);
+                            margin: 10px 0;
+                            padding: 15px 0;
+                            border-bottom: 3px solid #FFD700;
+                            position: relative;
                         ">
-                            <h3 style="
-                                font-size: 38px; 
-                                font-weight: bold; 
-                                color: #1A202C; 
-                                margin: 0; 
-                                letter-spacing: 2px;
-                                text-transform: uppercase;
-                                text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-                                font-family: 'Times New Roman', serif;
-                            ">
-                                ${certData.holderName}
-                            </h3>
-                        </div>
-                        
-                        <!-- 완료 내용 -->
-                        <p style="
-                            margin: 30px 0 20px 0; 
-                            font-size: 18px;
-                            color: #374151;
-                            line-height: 1.6;
-                            font-weight: 500;
-                        ">has successfully completed the requirements for</p>
-                        
-                        <!-- 교육과정명 -->
-                        <h4 style="
-                            font-size: 24px; 
-                            font-weight: bold; 
-                            color: #1E3A8A; 
-                            margin: 20px 0 30px 0; 
-                            letter-spacing: 1px;
-                            line-height: 1.4;
-                        ">
-                            ${courseNameEn}
-                        </h4>
-
-                        <!-- 자격증 등급 -->
-                        <div style="margin: 30px 0;">
-                            <span style="
-                                display: inline-block;
-                                background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-                                color: white;
-                                padding: 12px 30px;
-                                border-radius: 25px;
-                                font-size: 16px;
+                            <h2 style="
+                                font-size: 32px;
                                 font-weight: bold;
-                                letter-spacing: 1px;
-                                box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
-                                text-transform: uppercase;
+                                color: #1a202c;
+                                margin: 0;
+                                letter-spacing: 2px;
+                                font-family: 'Times New Roman', serif;
+                            ">Test User</h2>
+                        </div>
+                        
+                        <!-- 완료 내용 (폰트 축소, 간격 축소) -->
+                        <p style="
+                            margin: 10px 0 40px 0;
+                            font-size: 16px;
+                            color: #374151;
+                            line-height: 1.5;
+                            font-weight: 500;
+                        ">has successfully completed the ${certTypeEn} training program<br>
+                        and passed all theoretical and practical examinations<br>
+                        with distinction, and is hereby certified.</p>
+                        
+                        <!-- 🔧 하단: 발급 정보 (한 줄로 배치, 폰트 크게) -->
+                        <div style="
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            margin-top: 0;
+                        ">
+                            <!-- 날짜와 발급정보를 한 줄로 배치 -->
+                            <div style="
+                                text-align: center;
+                                margin-bottom: 30px;
                             ">
-                                Level 1 Professional
-                            </span>
-                        </div>
-                        
-                        <!-- 최종 인증 문구 -->
-                        <p style="
-                            margin: 30px 0 0 0; 
-                            font-style: italic; 
-                            font-size: 17px; 
-                            color: #4A5568;
-                            line-height: 1.6;
-                        ">
-                            and is hereby awarded this certificate of professional achievement.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- 🎨 자격증 상세 정보 -->
-                <div style="
-                    background: rgba(248, 250, 252, 0.8); 
-                    padding: 30px; 
-                    border-radius: 15px; 
-                    border: 2px solid rgba(226, 232, 240, 0.8);
-                    margin: 30px 0;
-                    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
-                ">
-                    <div style="
-                        display: grid; 
-                        grid-template-columns: 1fr 1fr; 
-                        gap: 25px; 
-                        font-size: 15px;
-                    ">
-                        <div style="text-align: left; padding: 15px;">
-                            <span style="
-                                font-weight: 600; 
-                                color: #374151; 
-                                display: block; 
-                                margin-bottom: 8px;
-                                text-transform: uppercase;
-                                letter-spacing: 0.5px;
-                            ">Certificate Number:</span>
-                            <span style="
-                                font-weight: 700; 
-                                color: #1A202C; 
-                                font-size: 16px;
-                                font-family: 'Courier New', monospace;
-                            ">${certData.certNumber}</span>
-                        </div>
-                        <div style="text-align: left; padding: 15px;">
-                            <span style="
-                                font-weight: 600; 
-                                color: #374151; 
-                                display: block; 
-                                margin-bottom: 8px;
-                                text-transform: uppercase;
-                                letter-spacing: 0.5px;
-                            ">Certification Level:</span>
-                            <span style="
-                                font-weight: 700; 
-                                color: #1A202C; 
-                                font-size: 16px;
-                            ">Level 1 (Professional)</span>
-                        </div>
-                        <div style="text-align: left; padding: 15px;">
-                            <span style="
-                                font-weight: 600; 
-                                color: #374151; 
-                                display: block; 
-                                margin-bottom: 8px;
-                                text-transform: uppercase;
-                                letter-spacing: 0.5px;
-                            ">Date of Achievement:</span>
-                            <span style="
-                                font-weight: 700; 
-                                color: #1A202C; 
-                                font-size: 16px;
-                            ">${certData.issueDate}</span>
-                        </div>
-                        <div style="text-align: left; padding: 15px;">
-                            <span style="
-                                font-weight: 600; 
-                                color: #374151; 
-                                display: block; 
-                                margin-bottom: 8px;
-                                text-transform: uppercase;
-                                letter-spacing: 0.5px;
-                            ">Valid Until:</span>
-                            <span style="
-                                font-weight: 700; 
-                                color: #1A202C; 
-                                font-size: 16px;
-                            ">${certData.expiryDate}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 🎨 검증 설명 -->
-                <div style="
-                    text-align: center; 
-                    margin: 40px 0; 
-                    padding: 25px; 
-                    background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); 
-                    border-radius: 15px; 
-                    border-left: 5px solid #16A34A;
-                    box-shadow: 0 8px 25px rgba(22, 163, 74, 0.1);
-                ">
-                    <p style="
-                        margin: 0; 
-                        font-size: 16px; 
-                        line-height: 1.7; 
-                        color: #0F172A; 
-                        font-style: italic;
-                        font-weight: 500;
-                    ">
-                        "This certificate validates the holder's successful completion of comprehensive training
-                        and examination in the field of <strong style="color: #1E3A8A;">${certTypeEn}</strong>,
-                        demonstrating professional competency and expertise in accordance with 
-                        international standards."
-                    </p>
-                </div>
-
-                <!-- 🎨 하단: 발급 정보 -->
-                <div style="margin-top: auto; padding-top: 40px;">
-                    <!-- 발급일 -->
-                    <div style="text-align: right; margin-bottom: 40px;">
-                        <p style="
-                            font-size: 17px; 
-                            margin: 0; 
-                            color: #374151; 
-                            font-style: italic;
-                            font-weight: 600;
-                        ">
-                            Issued on <strong style="color: #1E293B;">${issuedDate}</strong>
-                        </p>
-                    </div>
-
-                    <!-- 🎨 발급 기관 -->
-                    <div style="
-                        position: relative; 
-                        background: linear-gradient(135deg, #FEF3E2 0%, #FDE68A 15%, #F59E0B 85%, #D97706 100%); 
-                        border-radius: 20px; 
-                        padding: 35px; 
-                        border: 3px solid #D97706;
-                        box-shadow: 0 15px 40px rgba(245, 158, 11, 0.3);
-                        overflow: hidden;
-                    ">
-                        <!-- 배경 패턴 -->
-                        <div style="
-                            position: absolute;
-                            top: 0;
-                            left: 0;
-                            right: 0;
-                            bottom: 0;
-                            background: url('data:image/svg+xml;base64,${btoa(`
-                                <svg width="50" height="50" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="25" cy="25" r="1" fill="rgba(0,0,0,0.05)"/>
-                                </svg>
-                            `)}') repeat;
-                            pointer-events: none;
-                        "></div>
-                        
-                        <div style="
-                            position: relative; 
-                            z-index: 1; 
-                            display: flex; 
-                            align-items: center; 
-                            justify-content: space-between;
-                        ">
-                            <div style="flex: 1; text-align: left;">
-                                <h4 style="
-                                    font-size: 26px; 
-                                    font-weight: bold; 
-                                    margin: 0 0 12px 0; 
-                                    color: #1A202C; 
-                                    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-                                    letter-spacing: 1px;
-                                    font-family: 'Times New Roman', serif;
-                                ">
-                                    Digital Healthcare Center
-                                </h4>
                                 <p style="
-                                    font-size: 18px; 
-                                    margin: 0 0 8px 0; 
-                                    color: #4A5568; 
-                                    font-style: italic;
+                                    font-size: 18px;
+                                    margin: 0 0 10px 0;
+                                    color: #1e293b;
                                     font-weight: 600;
+                                ">${issuedDate}</p>
+                                
+                                <div style="
+                                    display: flex;
+                                    justify-content: center;
+                                    gap: 30px;
+                                    margin-top: 10px;
                                 ">
-                                    Mungyeong Branch
-                                </p>
-                                <p style="
-                                    font-size: 14px; 
-                                    margin: 0; 
-                                    color: #6B7280;
-                                    font-weight: 500;
-                                    letter-spacing: 0.5px;
-                                ">
-                                    Authorized Training & Certification Institute
-                                </p>
+                                    <span style="font-weight: 600; color: #1e293b; font-size: 16px;">
+                                        Issue Date: <span style="font-weight: 700; color: #1e3a8a;">${certData.issueDate}</span>
+                                    </span>
+                                    <span style="font-weight: 600; color: #1e293b; font-size: 16px;">
+                                        Expiry Date: <span style="font-weight: 700; color: #1e3a8a;">${certData.expiryDate}</span>
+                                    </span>
+                                </div>
                             </div>
-                            
-                            <!-- 🎨 영문 메달 -->
-                            <div style="margin-left: 30px;">
-                                <img src="${medalPath}" 
+
+                            <!-- 센터명과 직인 (크기 확대) -->
+                            <div style="
+                                text-align: center;
+                                position: relative;
+                                display: inline-block;
+                            ">
+                                <h3 style="
+                                    font-size: 22px;
+                                    font-weight: 700;
+                                    margin: 0;
+                                    color: #1e3a8a;
+                                    line-height: 1.2;
+                                    display: inline-block;
+                                ">Digital Healthcare Center</h3>
+                                <p style="
+                                    font-size: 16px;
+                                    margin: 5px 0 0 0;
+                                    color: #64748b;
+                                    font-style: italic;
+                                ">Mungyeong Subsidiary</p>
+                                
+                                <!-- 직인 (크기 확대) -->
+                                <img src="${sealPath}" 
                                      style="
-                                        width: 85px; 
-                                        height: 85px; 
-                                        border-radius: 50%; 
-                                        box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-                                        border: 4px solid rgba(255,255,255,0.4);
+                                         width: 75px;
+                                         height: 75px;
+                                         object-fit: contain;
+                                         position: absolute;
+                                         top: 50%;
+                                         transform: translateY(-50%);
+                                         right: -95px;
                                      "
-                                     alt="Official Seal" crossorigin="anonymous">
+                                     onerror="this.outerHTML='<div style=&quot;width: 75px; height: 75px; background: #dc2626; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 10px; text-align: center; line-height: 1.2; position: absolute; top: 50%; transform: translateY(-50%); right: -95px;&quot;><div>문경<br>부설<br>센터</div></div>';">
                             </div>
                         </div>
                     </div>
 
-                    <!-- 검증 설명 -->
-                    <div style="text-align: center; margin-top: 25px;">
-                        <p style="
-                            font-size: 12px; 
-                            color: #6B7280; 
-                            margin: 0; 
-                            font-style: italic;
-                            opacity: 0.8;
-                        ">
-                            This certificate is valid and can be verified through our official verification system.
-                        </p>
-                    </div>
+                    <!-- 하단 정보를 중앙 콘텐츠 안으로 이동 (위에서 처리됨) -->
                 </div>
-            `;
+            </div>
+        </div>
+    `;
 
-            template.appendChild(content);
             return template;
+        },
+
+        /**
+         * 🎨 영문 교육과정명 변환
+         */
+        translateCourseNameToEnglish: function (courseName) {
+            if (!courseName) return 'Professional Training Course';
+
+            // 자격증 유형별 매핑
+            const typeMapping = {
+                '건강운동처방사': 'Health Exercise Specialist',
+                '운동재활전문가': 'Exercise Rehabilitation Specialist',
+                '필라테스 전문가': 'Pilates Specialist',
+                '레크리에이션지도자': 'Recreation Instructor'
+            };
+
+            // 키워드 매핑
+            const keywordMapping = {
+                '교육과정': 'Training Course',
+                '과정': 'Course',
+                '프로그램': 'Program',
+                '전문가': 'Specialist',
+                '지도자': 'Instructor'
+            };
+
+            let englishName = courseName;
+
+            // 자격증 유형 변환
+            Object.keys(typeMapping).forEach(korean => {
+                if (englishName.includes(korean)) {
+                    englishName = englishName.replace(new RegExp(korean, 'g'), typeMapping[korean]);
+                }
+            });
+
+            // 기수/회차 변환
+            englishName = englishName.replace(/(\d+)기/g, 'Course $1');
+            englishName = englishName.replace(/제(\d+)기/g, 'Course $1');
+
+            // 키워드 변환
+            Object.keys(keywordMapping).forEach(korean => {
+                if (englishName.includes(korean)) {
+                    englishName = englishName.replace(new RegExp(korean, 'g'), keywordMapping[korean]);
+                }
+            });
+
+            // 공백 정리
+            englishName = englishName.replace(/\s+/g, ' ').trim();
+
+            // 유효성 검사
+            if (englishName === courseName || englishName.length < 3) {
+                return 'Professional Training Course';
+            }
+
+            return englishName;
+        },
+
+        /**
+         * 🎨 자격증 유형 영문명 반환
+         */
+        getCertTypeNameEn: function (type) {
+            const typeMap = {
+                'health-exercise': 'Health Exercise Specialist',
+                'rehabilitation': 'Exercise Rehabilitation Specialist',
+                'pilates': 'Pilates Specialist',
+                'recreation': 'Recreation Instructor'
+            };
+            return typeMap[type] || 'Professional Specialist';
+        },
+
+        /**
+         * 🎨 이미지 로딩 대기
+         */
+        waitForImagesLoad: async function (container) {
+            const images = container.querySelectorAll('img');
+
+            if (images.length === 0) {
+                return Promise.resolve();
+            }
+
+            const imagePromises = Array.from(images).map(img => {
+                return new Promise((resolve) => {
+                    if (img.complete && img.naturalWidth > 0) {
+                        resolve();
+                    } else {
+                        img.onload = resolve;
+                        img.onerror = resolve; // 실패해도 진행
+                    }
+                });
+            });
+
+            // 최대 5초 대기
+            const timeoutPromise = new Promise(resolve => setTimeout(resolve, 5000));
+
+            return Promise.race([
+                Promise.all(imagePromises),
+                timeoutPromise
+            ]);
         },
 
         // =================================
