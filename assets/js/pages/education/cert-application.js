@@ -1,5 +1,8 @@
-// cert-application.js - 자격증 신청 페이지 JavaScript (결제 통합 버전)
-console.log('=== cert-application.js 파일 로드됨 (결제 통합) ===');
+// cert-application.js - 자격증 신청 페이지 JavaScript (영문명 처리 + 사진 업로드)
+console.log('=== cert-application.js 파일 로드됨 (영문명 처리 + 사진 업로드 기능 추가) ===');
+
+// 전역 변수 - 업로드된 사진 정보 저장
+let uploadedPhotoData = null;
 
 // DOM이 이미 로드된 경우와 로딩 중인 경우 모두 처리
 function initializeWhenReady() {
@@ -19,33 +22,34 @@ function initializeWhenReady() {
 // 초기화 시작
 initializeWhenReady();
 
-// 페이지 초기화 함수 (결제 통합)
+// 페이지 초기화 함수 (영문명 처리 + 사진 업로드)
 function initCertApplicationPage() {
-    console.log('=== initCertApplicationPage 실행 시작 (결제 통합) ===');
+    console.log('=== initCertApplicationPage 실행 시작 (영문명 처리 + 사진 업로드 추가) ===');
     
     // URL 파라미터 처리 (가장 먼저 실행)
     handleUrlParameters();
     
-    // 가격 계산 기능 초기화
-    initPriceCalculation();
+    // 🔧 MODIFIED: 가격 계산 기능 초기화 (발급옵션 제거)
+    initSimplePriceCalculation();
     
-    // 파일 드래그 앤 드롭 초기화
-    initFileUploads();
+    // 🔧 NEW: 사진 업로드 기능 초기화 (기존 파일 드래그앤드롭 대체)
+    initPhotoUpload();
     
-    // 폼 유효성 검사 초기화
-    initFormValidation();
+    // 🔧 MODIFIED: 폼 유효성 검사 초기화 (영문명 검증 추가)
+    initFormValidationWithEnglishName();
     
     // 약관 동의 처리
     initAgreementHandling();
     
-    // 폼 제출 처리 (결제 통합)
-    initFormSubmission();
+    // 🔧 MODIFIED: 폼 제출 처리 (영문명 + 사진 업로드 포함)
+    initFormSubmissionWithEnglishNameAndPhoto();
     
     // 자격증 조회 폼 처리
     initVerifyForm();
     
-    // 전화번호 자동 포맷팅
+    // 🔧 MODIFIED: 전화번호 자동 포맷팅 + 영문명 실시간 검증
     initPhoneFormatting();
+    initEnglishNameValidation();
     
     // 날짜 제한 설정
     setDateLimits();
@@ -55,8 +59,735 @@ function initCertApplicationPage() {
     initModalHandling();
     initTossPayments();
     
-    console.log('=== initCertApplicationPage 완료 (결제 통합) ===');
+    console.log('=== initCertApplicationPage 완료 (영문명 처리 + 사진 업로드 추가) ===');
 }
+
+// 🔧 NEW: 영문명 실시간 검증 초기화
+function initEnglishNameValidation() {
+    console.log('=== initEnglishNameValidation 시작 ===');
+    
+    const englishNameInput = document.getElementById('name-english');
+    
+    if (!englishNameInput) {
+        console.warn('영문명 입력 필드를 찾을 수 없습니다.');
+        return;
+    }
+    
+    // 실시간 검증 및 포맷팅
+    englishNameInput.addEventListener('input', function() {
+        let value = this.value;
+        
+        // 영문, 공백, 점(.)만 허용하고 나머지 문자 제거
+        value = value.replace(/[^a-zA-Z\s.]/g, '');
+        
+        // 연속된 공백을 하나로 변경
+        value = value.replace(/\s+/g, ' ');
+        
+        // 앞뒤 공백 제거 (입력 중에는 뒤쪽 공백만)
+        value = value.replace(/^\s+/, '');
+        
+        this.value = value;
+        
+        // 실시간 검증
+        if (value.length > 0) {
+            validateEnglishName(value, this);
+        } else {
+            clearFieldError(this);
+        }
+    });
+    
+    // 포커스 아웃 시 최종 검증
+    englishNameInput.addEventListener('blur', function() {
+        const value = this.value.trim();
+        this.value = value; // 앞뒤 공백 완전 제거
+        
+        if (value.length > 0) {
+            validateEnglishName(value, this);
+        }
+    });
+    
+    console.log('=== initEnglishNameValidation 완료 ===');
+}
+
+// 🔧 NEW: 영문명 검증 함수
+function validateEnglishName(name, inputElement) {
+    // 최소 길이 검사 (2자 이상)
+    if (name.length < 2) {
+        showFieldError(inputElement, '영문명은 최소 2자 이상 입력해주세요.');
+        return false;
+    }
+    
+    // 최대 길이 검사 (50자 이하)
+    if (name.length > 50) {
+        showFieldError(inputElement, '영문명은 50자 이하로 입력해주세요.');
+        return false;
+    }
+    
+    // 영문, 공백, 점만 허용
+    const englishNameRegex = /^[a-zA-Z\s.]+$/;
+    if (!englishNameRegex.test(name)) {
+        showFieldError(inputElement, '영문명은 영문자, 공백, 점(.)만 입력 가능합니다.');
+        return false;
+    }
+    
+    // 최소한 하나의 문자 포함
+    const hasLetter = /[a-zA-Z]/.test(name);
+    if (!hasLetter) {
+        showFieldError(inputElement, '영문명에는 최소 하나의 영문자가 포함되어야 합니다.');
+        return false;
+    }
+    
+    // 연속된 공백 검사
+    const hasConsecutiveSpaces = /\s{2,}/.test(name);
+    if (hasConsecutiveSpaces) {
+        showFieldError(inputElement, '연속된 공백은 사용할 수 없습니다.');
+        return false;
+    }
+    
+    // 시작이나 끝이 공백인지 검사
+    if (name.startsWith(' ') || name.endsWith(' ')) {
+        showFieldError(inputElement, '영문명의 앞뒤에 공백을 사용할 수 없습니다.');
+        return false;
+    }
+    
+    // 일반적인 영문명 패턴 검사 (성+이름 구조 권장)
+    const nameParts = name.trim().split(' ').filter(part => part.length > 0);
+    if (nameParts.length < 2) {
+        showFieldError(inputElement, '성과 이름을 모두 입력해주세요 (예: Hong Gil Dong).');
+        return false;
+    }
+    
+    // 각 부분이 최소 1자 이상인지 검사
+    for (let part of nameParts) {
+        if (part.length < 1) {
+            showFieldError(inputElement, '성과 이름은 각각 최소 1자 이상이어야 합니다.');
+            return false;
+        }
+    }
+    
+    clearFieldError(inputElement);
+    return true;
+}
+
+// 🔧 NEW: 사진 업로드 기능 초기화
+function initPhotoUpload() {
+    console.log('=== initPhotoUpload 시작 ===');
+    
+    const photoInput = document.getElementById('photo');
+    const photoDropZone = document.querySelector('[data-input="photo"]');
+    
+    if (!photoInput || !photoDropZone) {
+        console.warn('사진 업로드 요소를 찾을 수 없습니다.');
+        return;
+    }
+    
+    // 드래그 이벤트 처리
+    photoDropZone.addEventListener('dragover', handleDragOver);
+    photoDropZone.addEventListener('dragleave', handleDragLeave);
+    photoDropZone.addEventListener('drop', handlePhotoDrop);
+    
+    // 클릭으로 파일 선택
+    photoDropZone.addEventListener('click', function() {
+        photoInput.click();
+    });
+    
+    // 파일 입력 변경 이벤트
+    photoInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            handlePhotoSelection(this.files[0]);
+        }
+    });
+    
+    console.log('=== initPhotoUpload 완료 ===');
+}
+
+// 드래그 오버 처리
+function handleDragOver(e) {
+    e.preventDefault();
+    e.currentTarget.classList.add('dragover');
+}
+
+// 드래그 리브 처리
+function handleDragLeave(e) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('dragover');
+}
+
+// 파일 드롭 처리
+function handlePhotoDrop(e) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('dragover');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        handlePhotoSelection(files[0]);
+    }
+}
+
+// 🔧 NEW: 사진 선택 및 검증 처리
+function handlePhotoSelection(file) {
+    console.log('선택된 파일:', file);
+    
+    // 파일 유효성 검사
+    const validationResult = validatePhotoFile(file);
+    if (!validationResult.isValid) {
+        showPhotoError(validationResult.message);
+        return;
+    }
+    
+    // 미리보기 표시
+    showPhotoPreview(file);
+    
+    // 파일을 전역 변수에 임시 저장 (실제 업로드는 폼 제출 시)
+    uploadedPhotoData = {
+        file: file,
+        isUploaded: false,
+        url: null
+    };
+    
+    console.log('사진 선택 완료, 임시 저장됨');
+}
+
+// 🔧 NEW: 사진 파일 유효성 검사
+function validatePhotoFile(file) {
+    // 파일 타입 검사
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!allowedTypes.includes(file.type)) {
+        return {
+            isValid: false,
+            message: 'JPG, JPEG, PNG 형식의 이미지 파일만 업로드 가능합니다.'
+        };
+    }
+    
+    // 파일 크기 검사 (5MB 제한)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+        return {
+            isValid: false,
+            message: '파일 크기가 5MB를 초과합니다. 더 작은 파일을 선택해주세요.'
+        };
+    }
+    
+    // 최소 크기 검사 (너무 작은 이미지 방지)
+    const minSize = 10 * 1024; // 10KB
+    if (file.size < minSize) {
+        return {
+            isValid: false,
+            message: '파일이 너무 작습니다. 10KB 이상의 파일을 선택해주세요.'
+        };
+    }
+    
+    return { isValid: true };
+}
+
+// 🔧 NEW: 사진 미리보기 표시
+function showPhotoPreview(file) {
+    const dropZone = document.querySelector('[data-input="photo"]');
+    const content = dropZone.querySelector('.file-drop-content');
+    
+    // FileReader로 이미지 미리보기 생성
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        content.innerHTML = `
+            <div class="photo-preview">
+                <img src="${e.target.result}" alt="증명사진 미리보기" class="preview-image">
+                <div class="photo-info">
+                    <p class="file-name">${file.name}</p>
+                    <p class="file-size">${formatFileSize(file.size)}</p>
+                    <p class="success-message">✅ 업로드 준비 완료</p>
+                </div>
+                <button type="button" class="remove-photo-btn" onclick="removePhoto()">
+                    ❌ 제거
+                </button>
+            </div>
+        `;
+        
+        dropZone.classList.add('file-uploaded');
+        clearPhotoError();
+    };
+    reader.readAsDataURL(file);
+}
+
+// 🔧 NEW: 사진 제거
+function removePhoto() {
+    const dropZone = document.querySelector('[data-input="photo"]');
+    const content = dropZone.querySelector('.file-drop-content');
+    const photoInput = document.getElementById('photo');
+    
+    // UI 원래대로 복원
+    content.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+        </svg>
+        <p>파일을 끌어다 놓거나 클릭하여 업로드</p>
+        <p class="file-info">JPG, PNG (최대 5MB)<br>3.5cm x 4.5cm, 흰 배경</p>
+    `;
+    
+    dropZone.classList.remove('file-uploaded');
+    photoInput.value = '';
+    uploadedPhotoData = null;
+    
+    console.log('사진 제거됨');
+}
+
+// 🔧 NEW: 사진 오류 표시
+function showPhotoError(message) {
+    const dropZone = document.querySelector('[data-input="photo"]');
+    
+    // 기존 오류 제거
+    clearPhotoError();
+    
+    // 오류 메시지 추가
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'photo-error text-red-500 text-sm mt-2';
+    errorDiv.textContent = message;
+    
+    dropZone.parentNode.appendChild(errorDiv);
+    dropZone.classList.add('error');
+    
+    // 3초 후 자동 제거
+    setTimeout(clearPhotoError, 3000);
+}
+
+// 🔧 NEW: 사진 오류 제거
+function clearPhotoError() {
+    const dropZone = document.querySelector('[data-input="photo"]');
+    const errorDiv = dropZone.parentNode.querySelector('.photo-error');
+    
+    if (errorDiv) {
+        errorDiv.remove();
+    }
+    
+    dropZone.classList.remove('error');
+}
+
+// 🔧 NEW: 실제 사진 업로드 (Firebase Storage)
+async function uploadPhotoToStorage(file, applicationId) {
+    console.log('Firebase Storage에 사진 업로드 시작:', file.name);
+    
+    try {
+        // Firebase Storage 사용 가능 여부 확인
+        if (!window.storageService) {
+            console.warn('storageService를 사용할 수 없습니다. 시뮬레이션 모드로 진행');
+            return {
+                success: true,
+                url: URL.createObjectURL(file), // 임시 URL 생성
+                path: `certificate-photos/${applicationId}/${file.name}`
+            };
+        }
+        
+        // 파일 경로 생성 (certificates/photos/신청ID/파일명)
+        const timestamp = new Date().getTime();
+        const fileExt = file.name.split('.').pop();
+        const fileName = `photo_${timestamp}.${fileExt}`;
+        const storagePath = `certificate-photos/${applicationId}/${fileName}`;
+        
+        // 메타데이터 설정
+        const metadata = {
+            customMetadata: {
+                applicationId: applicationId,
+                uploadType: 'certificate_photo',
+                originalName: file.name
+            }
+        };
+        
+        // 파일 업로드 실행
+        const uploadResult = await window.storageService.uploadFile(file, storagePath, metadata);
+        
+        if (uploadResult.success) {
+            console.log('사진 업로드 성공:', uploadResult.url);
+            return {
+                success: true,
+                url: uploadResult.url,
+                path: storagePath
+            };
+        } else {
+            console.error('사진 업로드 실패:', uploadResult.error);
+            return {
+                success: false,
+                error: uploadResult.error.message || '사진 업로드에 실패했습니다.'
+            };
+        }
+        
+    } catch (error) {
+        console.error('사진 업로드 중 오류:', error);
+        return {
+            success: false,
+            error: '사진 업로드 중 오류가 발생했습니다.'
+        };
+    }
+}
+
+// 🔧 MODIFIED: 폼 제출 처리 (영문명 + 사진 업로드 포함)
+function initFormSubmissionWithEnglishNameAndPhoto() {
+    console.log('=== initFormSubmissionWithEnglishNameAndPhoto 시작 ===');
+    const form = document.getElementById('certificate-form');
+    const submitButton = document.getElementById('apply-button');
+
+    if (!form || !submitButton) {
+        console.log('폼 또는 제출 버튼을 찾을 수 없습니다.');
+        return;
+    }
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        console.log('폼 제출 시도 (자격증 신청 + 영문명 + 사진 업로드 + 결제)');
+
+        // 기본 폼 검증 (영문명 포함)
+        if (!validateFormWithEnglishName()) {
+            console.log('폼 검증 실패');
+            return;
+        }
+        
+        // 🔧 NEW: 사진 업로드 검증
+        if (!validatePhotoUpload()) {
+            console.log('사진 업로드 검증 실패');
+            return;
+        }
+
+        console.log('폼 검증 성공, 사진 업로드 및 결제 처리 시작');
+        
+        // 버튼 상태 변경
+        updateSubmitButtonState(submitButton, 'uploading');
+
+        try {
+            // 🔧 NEW: 1단계 - 사진 업로드
+            const applicationId = 'CERT_APP_' + Date.now();
+            let photoUploadResult = null;
+            
+            if (uploadedPhotoData && uploadedPhotoData.file) {
+                console.log('사진 업로드 시작...');
+                photoUploadResult = await uploadPhotoToStorage(uploadedPhotoData.file, applicationId);
+                
+                if (!photoUploadResult.success) {
+                    showPhotoError(photoUploadResult.error);
+                    updateSubmitButtonState(submitButton, 'error');
+                    return;
+                }
+                
+                console.log('사진 업로드 완료:', photoUploadResult.url);
+            }
+            
+            // 2단계 - 폼 데이터 수집 (영문명 + 사진 URL 포함)
+            const formData = collectFormDataWithEnglishNameAndPhoto(photoUploadResult);
+            console.log('수집된 폼 데이터 (영문명 + 사진 포함):', formData);
+
+            // 3단계 - 결제 처리
+            updateSubmitButtonState(submitButton, 'processing');
+            
+            const selectedPaymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+            
+            if (selectedPaymentMethod === 'card') {
+                await processCardPaymentWithEnglishNameAndPhoto(formData);
+            } else if (selectedPaymentMethod === 'bank') {
+                await processBankTransferWithEnglishNameAndPhoto(formData);
+            }
+            
+        } catch (error) {
+            console.error('폼 처리 중 오류:', error);
+            showPhotoError('신청 처리 중 오류가 발생했습니다.');
+            updateSubmitButtonState(submitButton, 'error');
+        }
+    });
+
+    console.log('=== initFormSubmissionWithEnglishNameAndPhoto 완료 ===');
+}
+
+// 🔧 NEW: 사진 업로드 검증
+function validatePhotoUpload() {
+    const photoInput = document.getElementById('photo');
+    
+    // 필수 파일 확인
+    if (photoInput.hasAttribute('required')) {
+        if (!uploadedPhotoData || !uploadedPhotoData.file) {
+            showPhotoError('증명사진을 업로드해주세요.');
+            return false;
+        }
+        
+        // 다시 한번 파일 유효성 검사
+        const validationResult = validatePhotoFile(uploadedPhotoData.file);
+        if (!validationResult.isValid) {
+            showPhotoError(validationResult.message);
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+// 🔧 MODIFIED: 폼 데이터 수집 (영문명 + 사진 URL 포함)
+function collectFormDataWithEnglishNameAndPhoto(photoUploadResult) {
+    const form = document.getElementById('certificate-form');
+    const formData = new FormData(form);
+    const data = {};
+
+    // 기본 폼 데이터 수집
+    for (let [key, value] of formData.entries()) {
+        data[key] = value;
+    }
+
+    // 결제 방법 정보 추가
+    const selectedPaymentMethod = document.querySelector('input[name="payment-method"]:checked');
+    data.paymentMethod = selectedPaymentMethod ? selectedPaymentMethod.value : '';
+    
+    // 🔧 NEW: 영문명 추가 처리
+    data.nameKorean = data.name || ''; // 한글명
+    data.nameEnglish = data['name-english'] || ''; // 영문명
+    
+    // 🔧 NEW: 사진 정보 추가
+    if (photoUploadResult && photoUploadResult.success) {
+        data.photoUrl = photoUploadResult.url;
+        data.photoPath = photoUploadResult.path;
+        data.hasPhoto = true;
+    } else {
+        data.hasPhoto = false;
+    }
+    
+    // 신청 ID 추가
+    data.applicationId = 'CERT_APP_' + Date.now();
+
+    return data;
+}
+
+// 🔧 NEW: 제출 버튼 상태 업데이트
+function updateSubmitButtonState(button, state) {
+    const buttonIcon = button.querySelector('.button-icon');
+    const buttonText = button.querySelector('.button-text');
+    
+    switch (state) {
+        case 'uploading':
+            button.disabled = true;
+            if (buttonIcon) buttonIcon.textContent = '📤';
+            if (buttonText) buttonText.textContent = '사진 업로드 중...';
+            break;
+            
+        case 'processing':
+            button.disabled = true;
+            if (buttonIcon) buttonIcon.textContent = '⏳';
+            if (buttonText) buttonText.textContent = '결제 처리 중...';
+            break;
+            
+        case 'error':
+            button.disabled = false;
+            if (buttonIcon) buttonIcon.textContent = '❌';
+            if (buttonText) buttonText.textContent = '다시 시도';
+            // 3초 후 원래 상태로 복원
+            setTimeout(() => updateSubmitButtonState(button, 'normal'), 3000);
+            break;
+            
+        case 'normal':
+        default:
+            button.disabled = false;
+            const paymentMethod = document.querySelector('input[name="payment-method"]:checked')?.value;
+            if (paymentMethod === 'card') {
+                if (buttonIcon) buttonIcon.textContent = '💳';
+                if (buttonText) buttonText.textContent = '신청 및 카드 결제하기';
+            } else {
+                if (buttonIcon) buttonIcon.textContent = '🏦';
+                if (buttonText) buttonText.textContent = '신청 및 입금 안내받기';
+            }
+            break;
+    }
+}
+
+// 🔧 MODIFIED: 카드 결제 처리 (영문명 + 사진 정보 포함)
+function processCardPaymentWithEnglishNameAndPhoto(formData) {
+    console.log('=== 토스페이먼트 결제 처리 시작 (영문명 + 사진 정보 포함) ===');
+    
+    // 토스페이먼트 연동을 위한 결제 정보 준비
+    const paymentData = {
+        amount: 50000, // 고정 금액
+        orderId: formData.applicationId,
+        orderName: formData['cert-type'] + ' 자격증 발급',
+        customerName: formData.nameKorean, // 한글명 사용
+        customerNameEnglish: formData.nameEnglish, // 영문명 추가
+        customerEmail: formData.email,
+        customerMobilePhone: formData.phone,
+        successUrl: window.location.origin + window.adjustPath('pages/education/payment-success.html'),
+        failUrl: window.location.origin + window.adjustPath('pages/education/payment-fail.html'),
+        // 🔧 NEW: 사진 정보 추가
+        photoUrl: formData.photoUrl || null,
+        hasPhoto: formData.hasPhoto || false
+    };
+    
+    console.log('토스페이먼트 결제 데이터 (영문명 + 사진 포함):', paymentData);
+    
+    // 현재는 시뮬레이션
+    setTimeout(() => {
+        // 성공 시뮬레이션 (90% 확률)
+        if (Math.random() > 0.1) {
+            showPaymentSuccessWithEnglishNameAndPhoto({
+                success: true,
+                orderId: paymentData.orderId,
+                method: 'card',
+                amount: '₩' + paymentData.amount.toLocaleString(),
+                customerName: paymentData.customerName,
+                customerNameEnglish: paymentData.customerNameEnglish,
+                photoUrl: paymentData.photoUrl,
+                hasPhoto: paymentData.hasPhoto
+            });
+        } else {
+            showPaymentError('결제가 취소되거나 실패했습니다.');
+        }
+        
+        // 버튼 복원
+        const submitButton = document.getElementById('apply-button');
+        updateSubmitButtonState(submitButton, 'normal');
+    }, 2000);
+}
+
+// 🔧 MODIFIED: 무통장 입금 처리 (영문명 + 사진 정보 포함)
+function processBankTransferWithEnglishNameAndPhoto(formData) {
+    console.log('=== 무통장 입금 처리 시작 (영문명 + 사진 정보 포함) ===');
+    
+    // 무통장 입금 신청 처리
+    const bankTransferData = {
+        orderId: formData.applicationId,
+        method: 'bank',
+        amount: '₩50,000',
+        customerName: formData.nameKorean, // 한글명
+        customerNameEnglish: formData.nameEnglish, // 영문명 추가
+        depositorName: formData['bank-depositor'] || formData.nameKorean,
+        certType: formData['cert-type'],
+        // 🔧 NEW: 사진 정보 추가
+        photoUrl: formData.photoUrl || null,
+        hasPhoto: formData.hasPhoto || false
+    };
+    
+    console.log('무통장 입금 데이터 (영문명 + 사진 포함):', bankTransferData);
+    
+    // 서버에 무통장 입금 신청 저장 (시뮬레이션)
+    setTimeout(() => {
+        showBankTransferSuccessWithEnglishNameAndPhoto(bankTransferData);
+        
+        // 버튼 복원
+        const submitButton = document.getElementById('apply-button');
+        updateSubmitButtonState(submitButton, 'normal');
+    }, 1500);
+}
+
+// 🔧 MODIFIED: 결제 성공 표시 (영문명 + 사진 정보 포함)
+function showPaymentSuccessWithEnglishNameAndPhoto(result) {
+    console.log('결제 성공 (영문명 + 사진 포함):', result);
+    
+    // 결제 성공 모달 표시
+    const successModal = document.getElementById('payment-success-modal');
+    if (!successModal) {
+        console.error('payment-success-modal을 찾을 수 없습니다!');
+        return;
+    }
+    
+    // 모달 정보 업데이트
+    const orderNumber = document.getElementById('order-number');
+    const paymentMethodDisplay = document.getElementById('payment-method-display');
+    const paidAmount = document.getElementById('paid-amount');
+    
+    if (orderNumber) orderNumber.textContent = result.orderId;
+    if (paymentMethodDisplay) paymentMethodDisplay.textContent = '신용카드';
+    if (paidAmount) paidAmount.textContent = result.amount;
+    
+    // 모달 표시
+    successModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    // 🔧 NEW: 결제 정보 저장 (영문명 + 사진 정보 포함)
+    savePaymentInfoWithEnglishNameAndPhoto(result);
+}
+
+// 🔧 MODIFIED: 무통장 입금 성공 표시 (영문명 + 사진 정보 포함)
+function showBankTransferSuccessWithEnglishNameAndPhoto(result) {
+    console.log('무통장 입금 신청 성공 (영문명 + 사진 포함):', result);
+    
+    // 성공 모달 표시
+    const successModal = document.getElementById('payment-success-modal');
+    if (!successModal) {
+        console.error('payment-success-modal을 찾을 수 없습니다!');
+        return;
+    }
+    
+    // 모달 내용을 무통장 입금용으로 수정
+    const modalTitle = successModal.querySelector('.modal-title');
+    const successMessage = successModal.querySelector('.success-message h4');
+    const successDescription = successModal.querySelector('.success-message p');
+    
+    if (modalTitle) modalTitle.innerHTML = '<span class="success-icon">🏦</span> 입금 안내';
+    if (successMessage) successMessage.textContent = '무통장 입금 신청이 완료되었습니다!';
+    if (successDescription) {
+        successDescription.innerHTML = '입금 계좌 정보를 확인하시고 입금해주세요.<br>입금 확인 후 자격증 발급이 진행됩니다.';
+    }
+    
+    // 결제 정보 업데이트
+    const orderNumber = document.getElementById('order-number');
+    const paymentMethodDisplay = document.getElementById('payment-method-display');
+    const paidAmount = document.getElementById('paid-amount');
+    
+    if (orderNumber) orderNumber.textContent = result.orderId;
+    if (paymentMethodDisplay) paymentMethodDisplay.textContent = '무통장 입금';
+    if (paidAmount) paidAmount.textContent = result.amount;
+    
+    // 모달 표시
+    successModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    // 🔧 NEW: 입금 정보 저장 (영문명 + 사진 정보 포함)
+    savePaymentInfoWithEnglishNameAndPhoto(result);
+}
+
+// 🔧 MODIFIED: 결제 정보 저장 (영문명 + 사진 정보 포함)
+function savePaymentInfoWithEnglishNameAndPhoto(paymentResult) {
+    console.log('결제 정보 저장 (영문명 + 사진 포함):', paymentResult);
+    
+    // 🔧 실제 구현 시 Firebase Firestore에 저장
+    const paymentData = {
+        ...paymentResult,
+        timestamp: new Date().toISOString(),
+        status: paymentResult.method === 'card' ? 'completed' : 'pending',
+        customer: {
+            nameKorean: document.getElementById('name')?.value || '',
+            nameEnglish: document.getElementById('name-english')?.value || '', // 영문명 추가
+            email: document.getElementById('email')?.value || '',
+            phone: document.getElementById('phone')?.value || '',
+            address: document.getElementById('address')?.value || ''
+        },
+        certificate: {
+            type: document.getElementById('cert-type')?.value || '',
+            amount: '50000' // 고정 금액
+        },
+        // 🔧 NEW: 사진 정보 추가
+        photo: {
+            hasPhoto: paymentResult.hasPhoto || false,
+            photoUrl: paymentResult.photoUrl || null,
+            uploadedAt: paymentResult.hasPhoto ? new Date().toISOString() : null
+        }
+    };
+    
+    // 🔧 실제 Firebase 연동 시 dbService 사용
+    if (window.dbService) {
+        // Firebase Firestore에 저장
+        window.dbService.addDocument('certificate_applications', paymentData)
+            .then(result => {
+                if (result.success) {
+                    console.log('Firebase에 자격증 신청 정보 저장 완료 (영문명 포함):', result.id);
+                } else {
+                    console.error('Firebase 저장 실패:', result.error);
+                }
+            })
+            .catch(error => {
+                console.error('Firebase 저장 중 오류:', error);
+            });
+    }
+    
+    // 로컬 스토리지에도 임시 저장 (개발용)
+    const existingPayments = JSON.parse(localStorage.getItem('cert_payments') || '[]');
+    existingPayments.push(paymentData);
+    localStorage.setItem('cert_payments', JSON.stringify(existingPayments));
+    
+    console.log('결제 정보 저장 완료 (영문명 + 사진 포함)');
+}
+
+// =================================
+// 기존 함수들 (URL 파라미터, 가격 계산 등) - 발급옵션 제거됨
+// =================================
 
 // URL 파라미터 처리 함수
 function handleUrlParameters() {
@@ -145,20 +876,17 @@ function showNotification(message) {
     }, 3000);
 }
 
-// 가격 계산 기능
-function initPriceCalculation() {
-    console.log('=== initPriceCalculation 시작 ===');
+// 🔧 MODIFIED: 가격 계산 기능 (발급옵션 제거, 단순화)
+function initSimplePriceCalculation() {
+    console.log('=== initSimplePriceCalculation 시작 (발급옵션 제거) ===');
     
     const certTypeSelect = document.getElementById('cert-type');
-    const certOptionSelect = document.getElementById('cert-option');
     const selectedCertName = document.getElementById('selected-cert-name');
-    const selectedCertOption = document.getElementById('selected-cert-option');
-    const optionPriceSpan = document.getElementById('option-price');
     const totalPriceSpan = document.getElementById('total-price');
     const finalPaymentAmount = document.getElementById('final-payment-amount');
     
-    if (!certOptionSelect || !optionPriceSpan || !totalPriceSpan) {
-        console.warn('가격 계산 요소를 찾을 수 없습니다.');
+    if (!totalPriceSpan) {
+        console.warn('가격 표시 요소를 찾을 수 없습니다.');
         return;
     }
     
@@ -175,56 +903,37 @@ function initPriceCalculation() {
             const selectedName = certNames[this.value] || '자격증을 먼저 선택해주세요';
             if (selectedCertName) selectedCertName.textContent = selectedName;
             
-            updateTotalPrice();
+            updateSimplePrice();
         });
     }
     
-    // 발급 옵션 변경 시
-    certOptionSelect.addEventListener('change', function() {
-        const optionNames = {
-            'standard': '일반 발급 (2주)',
-            'express': '급행 발급 (3일)',
-            'eng': '영문 자격증',
-            'express-eng': '급행 영문 자격증'
-        };
+    function updateSimplePrice() {
+        const fixedPrice = 50000; // 고정 가격
         
-        const selectedOption = optionNames[this.value] || '일반 발급';
-        if (selectedCertOption) selectedCertOption.textContent = selectedOption;
-        
-        updateTotalPrice();
-    });
-    
-    function updateTotalPrice() {
-        let optionPrice = 0;
-        const basePrice = 50000;
-        
-        switch(certOptionSelect.value) {
-            case 'express':
-                optionPrice = 20000;
-                break;
-            case 'eng':
-                optionPrice = 30000;
-                break;
-            case 'express-eng':
-                optionPrice = 50000;
-                break;
-            default:
-                optionPrice = 0;
-        }
-        
-        const totalPrice = basePrice + optionPrice;
-        
-        optionPriceSpan.textContent = formatPrice(optionPrice);
-        totalPriceSpan.textContent = formatPrice(totalPrice);
-        if (finalPaymentAmount) finalPaymentAmount.textContent = '₩' + totalPrice.toLocaleString();
+        if (totalPriceSpan) totalPriceSpan.textContent = formatPrice(fixedPrice);
+        if (finalPaymentAmount) finalPaymentAmount.textContent = '₩' + fixedPrice.toLocaleString();
     }
     
-    console.log('=== initPriceCalculation 완료 ===');
+    // 초기 가격 설정
+    updateSimplePrice();
+    
+    console.log('=== initSimplePriceCalculation 완료 (발급옵션 제거) ===');
 }
 
 // 가격 포맷팅 함수
 function formatPrice(price) {
     return price.toLocaleString('ko-KR') + '원';
+}
+
+// 파일 크기 포맷팅
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
 // 결제 수단 선택 초기화
@@ -274,111 +983,14 @@ function initPaymentMethods() {
 // 결제 버튼 텍스트 업데이트
 function updatePaymentButtonText(paymentMethod) {
     const submitButton = document.getElementById('apply-button');
-    const buttonText = submitButton.querySelector('.button-text');
-    const buttonIcon = submitButton.querySelector('.button-icon');
-    
-    if (buttonText && buttonIcon) {
-        if (paymentMethod === 'card') {
-            buttonIcon.textContent = '💳';
-            buttonText.textContent = '신청 및 카드 결제하기';
-        } else if (paymentMethod === 'bank') {
-            buttonIcon.textContent = '🏦';
-            buttonText.textContent = '신청 및 입금 안내받기';
-        }
+    if (submitButton) {
+        updateSubmitButtonState(submitButton, 'normal');
     }
 }
 
-// 파일 드래그 앤 드롭 기능
-function initFileUploads() {
-    console.log('=== initFileUploads 시작 ===');
-    
-    const fileDropZones = document.querySelectorAll('.file-drop-zone');
-    
-    fileDropZones.forEach(zone => {
-        const inputId = zone.dataset.input;
-        const input = document.getElementById(inputId);
-        
-        if (!input) return;
-        
-        // 드래그 오버 이벤트
-        zone.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            zone.classList.add('dragover');
-        });
-        
-        // 드래그 리브 이벤트
-        zone.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            zone.classList.remove('dragover');
-        });
-        
-        // 드롭 이벤트
-        zone.addEventListener('drop', function(e) {
-            e.preventDefault();
-            zone.classList.remove('dragover');
-            
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                input.files = files;
-                updateFileDisplay(zone, files[0]);
-            }
-        });
-        
-        // 클릭으로 파일 선택
-        zone.addEventListener('click', function() {
-            input.click();
-        });
-        
-        // 파일 선택 시 처리
-        input.addEventListener('change', function() {
-            if (this.files.length > 0) {
-                updateFileDisplay(zone, this.files[0]);
-            }
-        });
-    });
-    
-    console.log('=== initFileUploads 완료 ===');
-}
-
-// 파일 표시 업데이트
-function updateFileDisplay(zone, file) {
-    const content = zone.querySelector('.file-drop-content');
-    
-    // 파일 크기 검사 (5MB 제한)
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-        alert('파일 크기가 5MB를 초과합니다. 더 작은 파일을 선택해주세요.');
-        return;
-    }
-    
-    // 파일 정보 표시
-    content.innerHTML = `
-        <div class="file-info-display">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto mb-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            <p class="font-medium">${file.name}</p>
-            <p class="text-sm text-gray-500">${formatFileSize(file.size)}</p>
-        </div>
-    `;
-    
-    zone.classList.add('file-uploaded');
-}
-
-// 파일 크기 포맷팅
-function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
-// 폼 유효성 검사 초기화
-function initFormValidation() {
-    console.log('=== initFormValidation 시작 ===');
+// 🔧 MODIFIED: 폼 유효성 검사 초기화 (영문명 검증 추가)
+function initFormValidationWithEnglishName() {
+    console.log('=== initFormValidationWithEnglishName 시작 ===');
     const form = document.getElementById('certificate-form');
     if (!form) {
         console.log('certificate-form을 찾을 수 없습니다.');
@@ -390,7 +1002,7 @@ function initFormValidation() {
 
     inputs.forEach(input => {
         input.addEventListener('blur', function () {
-            validateField(this);
+            validateFieldWithEnglishName(this);
         });
 
         input.addEventListener('input', function () {
@@ -398,7 +1010,7 @@ function initFormValidation() {
         });
     });
     
-    console.log('=== initFormValidation 완료 ===');
+    console.log('=== initFormValidationWithEnglishName 완료 ===');
 }
 
 // 약관 동의 처리 초기화
@@ -448,221 +1060,10 @@ function initAgreementHandling() {
     console.log('=== initAgreementHandling 완료 ===');
 }
 
-// 폼 제출 처리 (결제 통합 버전)
-function initFormSubmission() {
-    console.log('=== initFormSubmission 시작 (결제 통합) ===');
-    const form = document.getElementById('certificate-form');
-    const submitButton = document.getElementById('apply-button');
-
-    if (!form || !submitButton) {
-        console.log('폼 또는 제출 버튼을 찾을 수 없습니다.');
-        return;
-    }
-
-    form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        console.log('폼 제출 시도 (자격증 신청 + 결제)');
-
-        if (!validateForm()) {
-            console.log('폼 검증 실패');
-            return;
-        }
-
-        console.log('폼 검증 성공, 결제 처리 시작');
-        
-        // 버튼 상태 변경
-        submitButton.disabled = true;
-        submitButton.innerHTML = '<span class="loading-spinner"></span> 처리 중...';
-
-        // 폼 데이터 수집
-        const formData = collectFormData();
-        console.log('수집된 폼 데이터:', formData);
-
-        // 선택된 결제 방법에 따라 처리
-        const selectedPaymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
-        
-        if (selectedPaymentMethod === 'card') {
-            // 토스페이먼트 연동
-            processCardPayment(formData);
-        } else if (selectedPaymentMethod === 'bank') {
-            // 무통장 입금 처리
-            processBankTransfer(formData);
-        }
-    });
-
-    console.log('=== initFormSubmission 완료 ===');
-}
-
-// 토스페이먼트 결제 처리
-function processCardPayment(formData) {
-    console.log('=== 토스페이먼트 결제 처리 시작 ===');
-    
-    // 토스페이먼트 연동을 위한 결제 정보 준비
-    const paymentData = {
-        amount: parseInt(document.getElementById('total-price').textContent.replace(/[^\d]/g, '')),
-        orderId: 'CERT_' + Date.now(),
-        orderName: formData['cert-type'] + ' 자격증 발급',
-        customerName: formData['name'],
-        customerEmail: formData.email,
-        customerMobilePhone: formData.phone,
-        successUrl: window.location.origin + window.adjustPath('pages/education/payment-success.html'),
-        failUrl: window.location.origin + window.adjustPath('pages/education/payment-fail.html')
-    };
-    
-    console.log('토스페이먼트 결제 데이터:', paymentData);
-    
-    // 실제 토스페이먼트 연동 시 이 부분을 교체
-    // tossPayments.requestPayment('카드', paymentData);
-    
-    // 현재는 시뮬레이션
-    setTimeout(() => {
-        // 성공 시뮬레이션 (90% 확률)
-        if (Math.random() > 0.1) {
-            showPaymentSuccess({
-                success: true,
-                orderId: paymentData.orderId,
-                method: 'card',
-                amount: '₩' + paymentData.amount.toLocaleString(),
-                customerName: paymentData.customerName
-            });
-        } else {
-            showPaymentError('결제가 취소되거나 실패했습니다.');
-        }
-        
-        // 버튼 복원
-        const submitButton = document.getElementById('apply-button');
-        submitButton.disabled = false;
-        submitButton.innerHTML = '<span class="button-icon">💳</span><span class="button-text">신청 및 카드 결제하기</span>';
-    }, 2000);
-}
-
-// 무통장 입금 처리
-function processBankTransfer(formData) {
-    console.log('=== 무통장 입금 처리 시작 ===');
-    
-    // 무통장 입금 신청 처리
-    const bankTransferData = {
-        orderId: 'CERT_BANK_' + Date.now(),
-        method: 'bank',
-        amount: document.getElementById('total-price').textContent,
-        customerName: formData['name'],
-        depositorName: formData['bank-depositor'] || formData['name'],
-        certType: formData['cert-type']
-    };
-    
-    console.log('무통장 입금 데이터:', bankTransferData);
-    
-    // 서버에 무통장 입금 신청 저장 (시뮬레이션)
-    setTimeout(() => {
-        showBankTransferSuccess(bankTransferData);
-        
-        // 버튼 복원
-        const submitButton = document.getElementById('apply-button');
-        submitButton.disabled = false;
-        submitButton.innerHTML = '<span class="button-icon">🏦</span><span class="button-text">신청 및 입금 안내받기</span>';
-    }, 1500);
-}
-
-// 카드 결제 성공 처리
-function showPaymentSuccess(result) {
-    console.log('결제 성공:', result);
-    
-    // 결제 성공 모달 표시
-    const successModal = document.getElementById('payment-success-modal');
-    if (!successModal) {
-        console.error('payment-success-modal을 찾을 수 없습니다!');
-        return;
-    }
-    
-    // 모달 정보 업데이트
-    const orderNumber = document.getElementById('order-number');
-    const paymentMethodDisplay = document.getElementById('payment-method-display');
-    const paidAmount = document.getElementById('paid-amount');
-    
-    if (orderNumber) orderNumber.textContent = result.orderId;
-    if (paymentMethodDisplay) paymentMethodDisplay.textContent = '신용카드';
-    if (paidAmount) paidAmount.textContent = result.amount;
-    
-    // 모달 표시
-    successModal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-    
-    // 결제 정보 저장
-    savePaymentInfo(result);
-}
-
-// 무통장 입금 성공 처리
-function showBankTransferSuccess(result) {
-    console.log('무통장 입금 신청 성공:', result);
-    
-    // 성공 모달 표시
-    const successModal = document.getElementById('payment-success-modal');
-    if (!successModal) {
-        console.error('payment-success-modal을 찾을 수 없습니다!');
-        return;
-    }
-    
-    // 모달 내용을 무통장 입금용으로 수정
-    const modalTitle = successModal.querySelector('.modal-title');
-    const successMessage = successModal.querySelector('.success-message h4');
-    const successDescription = successModal.querySelector('.success-message p');
-    
-    if (modalTitle) modalTitle.innerHTML = '<span class="success-icon">🏦</span> 입금 안내';
-    if (successMessage) successMessage.textContent = '무통장 입금 신청이 완료되었습니다!';
-    if (successDescription) {
-        successDescription.innerHTML = '입금 계좌 정보를 확인하시고 입금해주세요.<br>입금 확인 후 자격증 발급이 진행됩니다.';
-    }
-    
-    // 결제 정보 업데이트
-    const orderNumber = document.getElementById('order-number');
-    const paymentMethodDisplay = document.getElementById('payment-method-display');
-    const paidAmount = document.getElementById('paid-amount');
-    
-    if (orderNumber) orderNumber.textContent = result.orderId;
-    if (paymentMethodDisplay) paymentMethodDisplay.textContent = '무통장 입금';
-    if (paidAmount) paidAmount.textContent = result.amount;
-    
-    // 모달 표시
-    successModal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-    
-    // 입금 정보 저장
-    savePaymentInfo(result);
-}
-
 // 결제 실패 처리
 function showPaymentError(message) {
     alert('결제 실패: ' + message);
     console.error('결제 실패:', message);
-}
-
-// 결제 정보 저장
-function savePaymentInfo(paymentResult) {
-    console.log('결제 정보 저장:', paymentResult);
-    
-    // 실제 구현 시 Firebase Firestore에 저장
-    const paymentData = {
-        ...paymentResult,
-        timestamp: new Date().toISOString(),
-        status: paymentResult.method === 'card' ? 'completed' : 'pending',
-        customer: {
-            name: document.getElementById('name')?.value || '',
-            email: document.getElementById('email')?.value || '',
-            phone: document.getElementById('phone')?.value || ''
-        },
-        certificate: {
-            type: document.getElementById('cert-type')?.value || '',
-            option: document.getElementById('cert-option')?.value || '',
-            amount: document.getElementById('total-price')?.textContent || ''
-        }
-    };
-    
-    // 로컬 스토리지에 임시 저장 (개발용)
-    const existingPayments = JSON.parse(localStorage.getItem('cert_payments') || '[]');
-    existingPayments.push(paymentData);
-    localStorage.setItem('cert_payments', JSON.stringify(existingPayments));
-    
-    console.log('결제 정보 저장 완료');
 }
 
 // 모달 처리 초기화
@@ -728,26 +1129,9 @@ function initTossPayments() {
     console.log('토스페이먼트 연동 준비 완료 (현재는 시뮬레이션 모드)');
 }
 
-// 폼 데이터 수집
-function collectFormData() {
-    const form = document.getElementById('certificate-form');
-    const formData = new FormData(form);
-    const data = {};
-
-    for (let [key, value] of formData.entries()) {
-        data[key] = value;
-    }
-
-    // 결제 방법 정보 추가
-    const selectedPaymentMethod = document.querySelector('input[name="payment-method"]:checked');
-    data.paymentMethod = selectedPaymentMethod ? selectedPaymentMethod.value : '';
-
-    return data;
-}
-
-// 폼 유효성 검사
-function validateForm() {
-    console.log('=== validateForm 시작 (자격증 + 결제) ===');
+// 🔧 MODIFIED: 폼 유효성 검사 (영문명 포함)
+function validateFormWithEnglishName() {
+    console.log('=== validateFormWithEnglishName 시작 (자격증 + 영문명 + 결제 + 사진) ===');
     let isValid = true;
 
     // 필수 입력 필드 확인
@@ -755,7 +1139,7 @@ function validateForm() {
     console.log('필수 필드 개수:', requiredFields.length);
     
     requiredFields.forEach(field => {
-        if (!validateField(field)) {
+        if (!validateFieldWithEnglishName(field)) {
             isValid = false;
         }
     });
@@ -797,12 +1181,12 @@ function validateForm() {
         }
     }
 
-    console.log('폼 검증 결과 (자격증 + 결제):', isValid);
+    console.log('폼 검증 결과 (자격증 + 영문명 + 결제 + 사진):', isValid);
     return isValid;
 }
 
-// 개별 필드 유효성 검사
-function validateField(field) {
+// 🔧 MODIFIED: 개별 필드 유효성 검사 (영문명 포함)
+function validateFieldWithEnglishName(field) {
     if (!field) return false;
     
     const value = field.value.trim();
@@ -813,15 +1197,22 @@ function validateField(field) {
         return false;
     }
 
-    // 이름 검증
+    // 한글 이름 검증
     if (field.id === 'name') {
         if (value.length < 2) {
-            showFieldError(field, '이름은 2자 이상 입력해주세요.');
+            showFieldError(field, '한글 이름은 2자 이상 입력해주세요.');
             return false;
         }
-        if (!/^[가-힣a-zA-Z\s]+$/.test(value)) {
-            showFieldError(field, '이름은 한글 또는 영문만 입력 가능합니다.');
+        if (!/^[가-힣\s]+$/.test(value)) {
+            showFieldError(field, '한글 이름은 한글만 입력 가능합니다.');
             return false;
+        }
+    }
+
+    // 🔧 NEW: 영문명 검증
+    if (field.id === 'name-english') {
+        if (value.length > 0) {
+            return validateEnglishName(value, field);
         }
     }
 
@@ -839,14 +1230,6 @@ function validateField(field) {
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (value && !emailRegex.test(value)) {
             showFieldError(field, '올바른 이메일 형식을 입력해주세요. (예: example@email.com)');
-            return false;
-        }
-    }
-
-    // 파일 검증
-    if (field.type === 'file') {
-        if (field.hasAttribute('required') && !field.files.length) {
-            showFieldError(field, '필수 파일을 업로드해주세요.');
             return false;
         }
     }
@@ -936,6 +1319,7 @@ function initVerifyForm() {
                     number: certNumber,
                     date: certDate,
                     holder: '홍길동',
+                    holderEnglish: 'Hong Gil Dong', // 영문명 추가
                     type: '건강운동처방사',
                     status: '유효'
                 });
@@ -946,7 +1330,7 @@ function initVerifyForm() {
     console.log('=== initVerifyForm 완료 ===');
 }
 
-// 자격증 조회 결과 표시
+// 🔧 MODIFIED: 자격증 조회 결과 표시 (영문명 포함)
 function showVerificationResult(result) {
     const resultDiv = document.createElement('div');
     resultDiv.className = 'verification-result mt-6 p-4 bg-green-50 border border-green-200 rounded-md';
@@ -954,7 +1338,8 @@ function showVerificationResult(result) {
         <h3 class="text-lg font-bold text-green-800 mb-2">조회 결과</h3>
         <div class="space-y-1">
             <p><span class="font-medium">자격증 번호:</span> ${result.number}</p>
-            <p><span class="font-medium">소지자:</span> ${result.holder}</p>
+            <p><span class="font-medium">소지자 (한글):</span> ${result.holder}</p>
+            <p><span class="font-medium">소지자 (영문):</span> ${result.holderEnglish}</p>
             <p><span class="font-medium">자격증 종류:</span> ${result.type}</p>
             <p><span class="font-medium">발급일:</span> ${result.date}</p>
             <p><span class="font-medium">상태:</span> <span class="text-green-600 font-bold">${result.status}</span></p>
@@ -1030,10 +1415,113 @@ function setDateLimits() {
 }
 
 // =================================
-// 디버깅 및 개발자 도구 (Firebase 호스팅 지원)
+// 스타일 및 디버깅 도구 (영문명 추가)
 // =================================
 
-// 개발 모드에서 사용되는 디버깅 함수들 (Firebase 호스팅 포함)
+// 🔧 NEW: 사진 업로드 관련 스타일 추가
+const photoUploadStyle = document.createElement('style');
+photoUploadStyle.textContent = `
+    /* 사진 미리보기 스타일 */
+    .photo-preview {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem;
+        text-align: center;
+    }
+    
+    .preview-image {
+        width: 120px;
+        height: 160px;
+        object-fit: cover;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+    
+    .photo-info .file-name {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.25rem;
+    }
+    
+    .photo-info .file-size {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+    }
+    
+    .photo-info .success-message {
+        font-size: 0.875rem;
+        color: #059669;
+        font-weight: 600;
+    }
+    
+    .remove-photo-btn {
+        background: none;
+        border: none;
+        color: #dc2626;
+        cursor: pointer;
+        font-size: 0.875rem;
+        padding: 0.5rem;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+        margin-top: 0.5rem;
+    }
+    
+    .remove-photo-btn:hover {
+        background-color: rgba(220, 38, 38, 0.1);
+    }
+    
+    /* 사진 업로드 오류 스타일 */
+    .photo-error {
+        background-color: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 6px;
+        padding: 0.75rem;
+        margin-top: 0.5rem;
+    }
+    
+    .file-drop-zone.error {
+        border-color: #dc2626 !important;
+        background-color: rgba(220, 38, 38, 0.05) !important;
+    }
+    
+    /* 업로드 완료 상태 */
+    .file-uploaded {
+        border-color: #10b981 !important;
+        background-color: rgba(16, 185, 129, 0.05) !important;
+    }
+    
+    /* 영문명 입력 필드 스타일 */
+    #name-english {
+        font-family: 'Arial', sans-serif;
+    }
+    
+    #name-english:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    /* 로딩 스피너 */
+    .loading-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 8px;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(photoUploadStyle);
+
+// 🔧 MODIFIED: 개발 모드에서 사용되는 디버깅 함수들 (영문명 + 사진 업로드 포함)
 if (window.location.hostname === 'localhost' || 
     window.location.hostname === '127.0.0.1' || 
     window.location.hostname.includes('.web.app') || 
@@ -1044,7 +1532,7 @@ if (window.location.hostname === 'localhost' ||
     window.debugCertApplication = {
         // 기본 디버깅 함수들
         logFormData: function() {
-            console.log('현재 폼 데이터:', collectFormData());
+            console.log('현재 폼 데이터:', collectFormDataWithEnglishNameAndPhoto(null));
         },
         
         checkValidation: function() {
@@ -1052,13 +1540,17 @@ if (window.location.hostname === 'localhost' ||
             const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
             
             inputs.forEach(input => {
-                console.log(`${input.name || input.id}: ${validateField(input) ? '✓' : '✗'}`);
+                console.log(`${input.name || input.id}: ${validateFieldWithEnglishName(input) ? '✓' : '✗'}`);
             });
+            
+            console.log(`사진 업로드: ${validatePhotoUpload() ? '✓' : '✗'}`);
         },
         
+        // 🔧 MODIFIED: 영문명 포함 테스트 데이터
         fillTestData: function() {
             const certType = document.getElementById('cert-type');
             const name = document.getElementById('name');
+            const nameEnglish = document.getElementById('name-english');
             const birth = document.getElementById('birth');
             const phone = document.getElementById('phone');
             const email = document.getElementById('email');
@@ -1068,6 +1560,7 @@ if (window.location.hostname === 'localhost' ||
             
             if (certType) certType.value = 'health';
             if (name) name.value = '홍길동';
+            if (nameEnglish) nameEnglish.value = 'Hong Gil Dong'; // 영문명 추가
             if (birth) birth.value = '1990-01-01';
             if (phone) phone.value = '010-1234-5678';
             if (email) email.value = 'test@example.com';
@@ -1088,50 +1581,142 @@ if (window.location.hostname === 'localhost' ||
                 certType.dispatchEvent(changeEvent);
             }
             
-            console.log('테스트 데이터 입력 완료');
+            console.log('테스트 데이터 입력 완료 (영문명 포함)');
         },
         
-        // 결제 관련 테스트 함수들
-        testCardPayment: function() {
+        // 🔧 NEW: 영문명 검증 테스트
+        testEnglishNameValidation: function() {
+            const englishNameInput = document.getElementById('name-english');
+            if (!englishNameInput) {
+                console.log('영문명 입력 필드를 찾을 수 없습니다.');
+                return;
+            }
+            
+            const testCases = [
+                { value: 'Hong Gil Dong', expected: true, description: '정상적인 영문명' },
+                { value: 'John Smith', expected: true, description: '일반적인 서구식 이름' },
+                { value: 'Kim Min-Jung', expected: false, description: '하이픈 포함 (허용되지 않음)' },
+                { value: 'Lee123', expected: false, description: '숫자 포함' },
+                { value: 'Park', expected: false, description: '단일 단어 (성만)' },
+                { value: 'A B', expected: true, description: '최소 길이' },
+                { value: '', expected: false, description: '빈 값' },
+                { value: '홍길동', expected: false, description: '한글 입력' },
+                { value: 'Hong  Gil  Dong', expected: false, description: '연속된 공백' },
+                { value: ' Hong Gil Dong ', expected: false, description: '앞뒤 공백' }
+            ];
+            
+            console.log('🧪 영문명 검증 테스트 시작:');
+            testCases.forEach((testCase, index) => {
+                const result = validateEnglishName(testCase.value, englishNameInput);
+                const status = result === testCase.expected ? '✅' : '❌';
+                console.log(`${index + 1}. ${status} "${testCase.value}" - ${testCase.description}`);
+                if (result !== testCase.expected) {
+                    console.log(`   예상: ${testCase.expected}, 실제: ${result}`);
+                }
+            });
+            
+            // 입력 필드 초기화
+            englishNameInput.value = '';
+            clearFieldError(englishNameInput);
+        },
+        
+        // 🔧 NEW: 사진 관련 테스트 함수들
+        testPhotoUpload: function() {
+            console.log('사진 업로드 테스트 - 실제 이미지 파일을 선택해서 테스트하세요.');
+            console.log('업로드된 사진 데이터:', uploadedPhotoData);
+            
+            if (uploadedPhotoData) {
+                console.log('- 파일명:', uploadedPhotoData.file.name);
+                console.log('- 파일 크기:', formatFileSize(uploadedPhotoData.file.size));
+                console.log('- 파일 타입:', uploadedPhotoData.file.type);
+                console.log('- 업로드 상태:', uploadedPhotoData.isUploaded ? '완료' : '대기중');
+            } else {
+                console.log('업로드된 사진이 없습니다.');
+            }
+        },
+        
+        simulatePhotoUpload: function() {
+            // 가상의 사진 파일 생성 (테스트용)
+            const canvas = document.createElement('canvas');
+            canvas.width = 350;
+            canvas.height = 450;
+            const ctx = canvas.getContext('2d');
+            
+            // 간단한 테스트 이미지 그리기
+            ctx.fillStyle = '#f0f0f0';
+            ctx.fillRect(0, 0, 350, 450);
+            ctx.fillStyle = '#333';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('테스트 증명사진', 175, 225);
+            
+            canvas.toBlob(function(blob) {
+                const file = new File([blob], 'test-photo.jpg', { type: 'image/jpeg' });
+                handlePhotoSelection(file);
+                console.log('가상 사진 업로드 시뮬레이션 완료');
+            }, 'image/jpeg');
+        },
+        
+        clearPhoto: function() {
+            removePhoto();
+            console.log('사진 제거 완료');
+        },
+        
+        // 🔧 MODIFIED: 결제 관련 테스트 함수들 (영문명 + 사진 포함)
+        testCardPaymentWithEnglishNameAndPhoto: function() {
             this.fillTestData();
-            const methodCard = document.getElementById('method-card');
-            const cardPaymentMethod = document.querySelector('[data-method="card"]');
+            this.simulatePhotoUpload();
             
-            if (methodCard) methodCard.checked = true;
-            if (cardPaymentMethod) cardPaymentMethod.click();
-            
-            console.log('카드 결제 테스트 준비 완료');
+            setTimeout(() => {
+                const methodCard = document.getElementById('method-card');
+                const cardPaymentMethod = document.querySelector('[data-method="card"]');
+                
+                if (methodCard) methodCard.checked = true;
+                if (cardPaymentMethod) cardPaymentMethod.click();
+                
+                console.log('카드 결제 테스트 준비 완료 (영문명 + 사진 포함)');
+            }, 1000);
         },
         
-        testBankTransfer: function() {
+        testBankTransferWithEnglishNameAndPhoto: function() {
             this.fillTestData();
-            const methodBank = document.getElementById('method-bank');
-            const bankPaymentMethod = document.querySelector('[data-method="bank"]');
-            const bankDepositor = document.getElementById('bank-depositor');
+            this.simulatePhotoUpload();
             
-            if (methodBank) methodBank.checked = true;
-            if (bankPaymentMethod) bankPaymentMethod.click();
-            if (bankDepositor) bankDepositor.value = '김입금';
-            
-            console.log('무통장 입금 테스트 준비 완료');
+            setTimeout(() => {
+                const methodBank = document.getElementById('method-bank');
+                const bankPaymentMethod = document.querySelector('[data-method="bank"]');
+                const bankDepositor = document.getElementById('bank-depositor');
+                
+                if (methodBank) methodBank.checked = true;
+                if (bankPaymentMethod) bankPaymentMethod.click();
+                if (bankDepositor) bankDepositor.value = '김입금';
+                
+                console.log('무통장 입금 테스트 준비 완료 (영문명 + 사진 포함)');
+            }, 1000);
         },
         
-        simulatePaymentSuccess: function() {
-            showPaymentSuccess({
+        simulatePaymentSuccessWithEnglishNameAndPhoto: function() {
+            showPaymentSuccessWithEnglishNameAndPhoto({
                 success: true,
                 orderId: 'TEST_CERT_' + Date.now(),
                 method: 'card',
                 amount: '₩50,000',
-                customerName: '테스트 사용자'
+                customerName: '테스트 사용자',
+                customerNameEnglish: 'Test User',
+                hasPhoto: true,
+                photoUrl: 'test-photo-url'
             });
         },
         
-        simulateBankTransferSuccess: function() {
-            showBankTransferSuccess({
+        simulateBankTransferSuccessWithEnglishNameAndPhoto: function() {
+            showBankTransferSuccessWithEnglishNameAndPhoto({
                 orderId: 'TEST_CERT_BANK_' + Date.now(),
                 method: 'bank',
                 amount: '₩50,000',
-                customerName: '테스트 사용자'
+                customerName: '테스트 사용자',
+                customerNameEnglish: 'Test User',
+                hasPhoto: true,
+                photoUrl: 'test-photo-url'
             });
         },
         
@@ -1154,41 +1739,48 @@ if (window.location.hostname === 'localhost' ||
             }
         },
         
-        // 가격 계산 테스트
-        testPriceCalculation: function() {
-            const certOption = document.getElementById('cert-option');
-            if (certOption) {
-                console.log('가격 계산 테스트:');
-                ['standard', 'express', 'eng', 'express-eng'].forEach(option => {
-                    certOption.value = option;
-                    const changeEvent = new Event('change');
-                    certOption.dispatchEvent(changeEvent);
-                    console.log(`- ${option}: ${document.getElementById('total-price').textContent}`);
-                });
-            }
-        },
-        
-        // 파일 업로드 시뮬레이션
-        simulateFileUpload: function() {
-            console.log('파일 업로드 시뮬레이션 - 실제 파일을 선택해서 테스트하세요.');
-            const fileInputs = document.querySelectorAll('input[type="file"]');
-            fileInputs.forEach(input => {
-                console.log(`- ${input.id}: ${input.required ? '필수' : '선택'}`);
-            });
+        // 🔧 MODIFIED: 전체 플로우 테스트 (영문명 포함)
+        testFullFlowWithEnglishNameAndPhoto: function() {
+            console.log('🚀 전체 플로우 테스트 시작 (영문명 + 사진 포함)');
+            
+            // 1단계: 기본 데이터 입력 (영문명 포함)
+            this.fillTestData();
+            console.log('✅ 1단계: 기본 데이터 입력 완료 (영문명 포함)');
+            
+            // 2단계: 영문명 검증 테스트
+            setTimeout(() => {
+                this.testEnglishNameValidation();
+                console.log('✅ 2단계: 영문명 검증 테스트 완료');
+                
+                // 3단계: 사진 업로드 시뮬레이션
+                setTimeout(() => {
+                    this.simulatePhotoUpload();
+                    console.log('✅ 3단계: 사진 업로드 시뮬레이션 완료');
+                    
+                    // 4단계: 결제 방법 선택
+                    setTimeout(() => {
+                        const cardMethod = document.querySelector('[data-method="card"]');
+                        if (cardMethod) cardMethod.click();
+                        console.log('✅ 4단계: 결제 방법 선택 완료');
+                        
+                        console.log('🎯 모든 준비 완료! "신청 및 결제하기" 버튼을 눌러 테스트하세요.');
+                    }, 500);
+                }, 1000);
+            }, 500);
         }
     };
     
-    console.log('개발 모드 디버깅 도구 활성화됨 (자격증 신청 + 결제 기능)');
+    console.log('개발 모드 디버깅 도구 활성화됨 (자격증 신청 + 영문명 + 결제 + 사진 업로드)');
     console.log('현재 호스트:', window.location.hostname);
     console.log('사용 가능한 함수들:');
-    console.log('- window.debugCertApplication.fillTestData()');
-    console.log('- window.debugCertApplication.testCardPayment()');
-    console.log('- window.debugCertApplication.testBankTransfer()');
-    console.log('- window.debugCertApplication.simulatePaymentSuccess()');
-    console.log('- window.debugCertApplication.simulateBankTransferSuccess()');
-    console.log('- window.debugCertApplication.testPriceCalculation()');
-    console.log('- window.debugCertApplication.showModal()');
-    console.log('- window.debugCertApplication.hideModal()');
+    console.log('📝 기본: fillTestData(), logFormData(), checkValidation()');
+    console.log('🔤 영문명: testEnglishNameValidation()');
+    console.log('📸 사진: testPhotoUpload(), simulatePhotoUpload(), clearPhoto()');
+    console.log('💳 결제: testCardPaymentWithEnglishNameAndPhoto(), testBankTransferWithEnglishNameAndPhoto()');
+    console.log('🎭 모달: showModal(), hideModal()');
+    console.log('🧪 종합: testFullFlowWithEnglishNameAndPhoto()');
+    console.log('');
+    console.log('💡 빠른 시작: window.debugCertApplication.testFullFlowWithEnglishNameAndPhoto()');
 } else {
     console.log('프로덕션 모드 - 디버깅 도구 비활성화됨');
     console.log('현재 호스트:', window.location.hostname);
@@ -1212,9 +1804,9 @@ document.addEventListener('keydown', function(e) {
 // 페이지 이탈 시 확인 (폼이 수정되었을 때만)
 window.addEventListener('beforeunload', function(e) {
     const form = document.getElementById('certificate-form');
-    if (form && form.modified) {
+    if (form && (form.modified || uploadedPhotoData)) {
         e.preventDefault();
-        e.returnValue = '작성 중인 내용이 있습니다. 정말 페이지를 떠나시겠습니까?';
+        e.returnValue = '작성 중인 내용이나 업로드된 사진이 있습니다. 정말 페이지를 떠나시겠습니까?';
     }
 });
 
@@ -1237,73 +1829,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// 로딩 애니메이션 스타일 추가
-const style = document.createElement('style');
-style.textContent = `
-    .loading-spinner {
-        display: inline-block;
-        width: 16px;
-        height: 16px;
-        border: 2px solid #ffffff;
-        border-radius: 50%;
-        border-top-color: transparent;
-        animation: spin 1s ease-in-out infinite;
-        margin-right: 8px;
-    }
-    
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-    
-    .field-error {
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-    }
-    
-    .form-input.error,
-    .form-select.error,
-    .form-textarea.error {
-        border-color: #dc2626;
-        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
-    }
-    
-    .file-drop-zone.error {
-        border-color: #dc2626;
-        background-color: rgba(220, 38, 38, 0.05);
-    }
-    
-    .file-uploaded {
-        border-color: #16a34a;
-        background-color: rgba(22, 163, 74, 0.05);
-    }
-    
-    .file-info-display {
-        text-align: center;
-        padding: 1rem;
-    }
-    
-    .file-drop-zone.dragover {
-        border-color: #3b82f6;
-        background-color: rgba(59, 130, 246, 0.05);
-    }
-    
-    .payment-method-card {
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    
-    .payment-method-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    
-    .payment-method-card.active {
-        border-color: #3b82f6;
-        background-color: rgba(59, 130, 246, 0.05);
-    }
-`;
-document.head.appendChild(style);
-
 // 에러 처리
 window.addEventListener('error', function(e) {
     console.error('cert-application.js error:', e);
@@ -1312,6 +1837,11 @@ window.addEventListener('error', function(e) {
 // 페이지 언로드 시 정리
 window.addEventListener('beforeunload', function() {
     console.log('cert-application.js 정리 중...');
+    
+    // 업로드된 임시 파일 URL 정리
+    if (uploadedPhotoData && uploadedPhotoData.file) {
+        console.log('업로드 데이터 정리');
+    }
 });
 
-console.log('=== cert-application.js 로드 완료 (결제 통합, Firebase 호스팅 지원) ===');
+console.log('=== cert-application.js 로드 완료 (영문명 처리 + 사진 업로드 기능 포함) ===');

@@ -157,13 +157,13 @@
             </div>
         </section>
         
-        <!-- 자격증 신청 폼 (결제 통합 버전) -->
+        <!-- 자격증 신청 폼 (결제 통합 버전 - 발급옵션 제거) -->
         <section class="py-16">
             <div class="container mx-auto px-4">
                 <h2 class="text-3xl font-bold text-center mb-12">자격증 신청 및 결제</h2>
                 <div class="application-form-card">
                     <form id="certificate-form">
-                        <!-- 신청 자격증 정보 -->
+                        <!-- 신청 자격증 정보 (발급옵션 제거) -->
                         <div class="form-section">
                             <h3 class="section-title">신청 자격증 정보</h3>
                             <div class="form-grid">
@@ -178,15 +178,6 @@
                                     </select>
                                 </div>
                                 <div class="form-field">
-                                    <label for="cert-option" class="form-label">발급 옵션 *</label>
-                                    <select id="cert-option" name="cert-option" class="form-select" required>
-                                        <option value="standard">일반 발급 (2주)</option>
-                                        <option value="express">급행 발급 (3일, +20,000원)</option>
-                                        <option value="eng">영문 자격증 (+30,000원)</option>
-                                        <option value="express-eng">급행 영문 자격증 (+50,000원)</option>
-                                    </select>
-                                </div>
-                                <div class="form-field">
                                     <label for="course-completion" class="form-label">교육 수료일 *</label>
                                     <input type="date" id="course-completion" name="course-completion" class="form-input" required>
                                 </div>
@@ -197,13 +188,19 @@
                             </div>
                         </div>
                         
-                        <!-- 신청자 정보 -->
+                        <!-- 신청자 정보 (영문명 추가) -->
                         <div class="form-section">
                             <h3 class="section-title">신청자 정보</h3>
                             <div class="form-grid">
                                 <div class="form-field">
-                                    <label for="name" class="form-label">이름 *</label>
-                                    <input type="text" id="name" name="name" class="form-input" required placeholder="성명을 입력해주세요">
+                                    <label for="name" class="form-label">한글 이름 *</label>
+                                    <input type="text" id="name" name="name" class="form-input" required placeholder="홍길동">
+                                    <p class="text-xs text-gray-500 mt-1">자격증에 표기되는 한글 이름을 입력해주세요.</p>
+                                </div>
+                                <div class="form-field">
+                                    <label for="name-english" class="form-label">영문 이름 *</label>
+                                    <input type="text" id="name-english" name="name-english" class="form-input" required placeholder="Hong Gil Dong">
+                                    <p class="text-xs text-gray-500 mt-1">영문 자격증 발급을 위한 영문 이름을 입력해주세요.</p>
                                 </div>
                                 <div class="form-field">
                                     <label for="birth" class="form-label">생년월일 *</label>
@@ -244,7 +241,7 @@
                             </div>
                         </div>
 
-                        <!-- 결제 정보 확인 -->
+                        <!-- 결제 정보 확인 (가격 단순화) -->
                         <div class="form-section">
                             <h3 class="section-title">결제 정보 확인</h3>
                             <div class="payment-info-card">
@@ -254,16 +251,8 @@
                                         <span class="info-value" id="selected-cert-name">자격증을 먼저 선택해주세요</span>
                                     </div>
                                     <div class="info-item">
-                                        <span class="info-label">발급 옵션:</span>
-                                        <span class="info-value" id="selected-cert-option">일반 발급</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">기본 발급비:</span>
+                                        <span class="info-label">발급비:</span>
                                         <span class="info-value">50,000원</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">추가 옵션비:</span>
-                                        <span class="info-value" id="option-price">0원</span>
                                     </div>
                                     <div class="info-item total-price">
                                         <span class="info-label">총 결제 금액:</span>
@@ -370,12 +359,13 @@
                                     <div class="agreement-content">
                                         <div class="agreement-text">
                                             1. 수집하는 개인정보 항목<br>
-                                            - 필수항목: 이름, 생년월일, 연락처, 이메일, 주소, 사진<br>
-                                            - 선택항목: 영문 이름(영문 자격증 신청 시)<br><br>
+                                            - 필수항목: 한글이름, 영문이름, 생년월일, 연락처, 이메일, 주소, 사진<br>
+                                            - 선택항목: 입금자명(무통장 입금 시)<br><br>
                                             2. 개인정보의 수집 및 이용목적<br>
                                             - 자격증 발급 및 관리<br>
                                             - 발급 관련 안내 및 자격증 배송<br>
-                                            - 자격 갱신 및 보수교육 안내<br><br>
+                                            - 자격 갱신 및 보수교육 안내<br>
+                                            - 한글 및 영문 자격증 제작<br><br>
                                             
                                             3. 개인정보의 보유 및 이용기간<br>
                                             - 자격 유지 기간 및 자격 취소 후 5년<br>
@@ -553,6 +543,10 @@
                         <li class="notice-item">
                             <span class="notice-icon">🚚</span>
                             <span class="notice-text">자격증은 등기우편으로 발송되며, 배송 기간은 2-3일 소요됩니다.</span>
+                        </li>
+                        <li class="notice-item">
+                            <span class="notice-icon">🌐</span>
+                            <span class="notice-text">한글 및 영문 자격증이 모두 발급되며, PDF 파일로도 다운로드 가능합니다.</span>
                         </li>
                     </ul>
                 </div>

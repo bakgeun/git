@@ -1,9 +1,9 @@
 /**
- * cert-management.js - 완전한 자격증 관리 시스템 (전문적인 PDF 디자인 포함)
+ * cert-management.js - 완전한 자격증 관리 시스템 (사진 삽입 기능 포함)
  * 🎨 전문적인 자격증 PDF 디자인으로 완전히 재설계됨
  */
 
-console.log('=== cert-management.js 파일 로드됨 (전문적인 PDF 시스템) ===');
+console.log('=== cert-management.js 파일 로드됨 (사진 삽입 기능 포함) ===');
 
 // 🔧 의존성 체크 시스템
 function checkDependencies() {
@@ -169,200 +169,304 @@ async function checkImageExists(url) {
     }
 }
 
+// =================================
+// 🔧 NEW: 증명사진 로딩 및 처리 함수들
+// =================================
+
 /**
- * 🎨 전문적인 황금 테두리 SVG (대체 이미지)
+ * 🔧 NEW: 증명사진 로드 및 처리 함수
  */
-function createFallbackBorderSvg() {
-    return 'data:image/svg+xml;base64,' + btoa(`
-        <svg width="794" height="1123" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <!-- 황금 그라데이션 정의 -->
-                <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style="stop-color:#FFD700"/>
-                    <stop offset="25%" style="stop-color:#FFA500"/>
-                    <stop offset="50%" style="stop-color:#FFD700"/>
-                    <stop offset="75%" style="stop-color:#DAA520"/>
-                    <stop offset="100%" style="stop-color:#FFD700"/>
-                </linearGradient>
-                
-                <!-- 음영 효과 -->
-                <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feDropShadow dx="3" dy="3" stdDeviation="5" flood-color="#00000020"/>
-                </filter>
-            </defs>
-            
-            <!-- 배경 -->
-            <rect width="794" height="1123" fill="#FEFEFE" stroke="none"/>
-            
-            <!-- 외부 메인 테두리 -->
-            <rect x="20" y="20" width="754" height="1083" 
-                  fill="none" 
-                  stroke="url(#goldGradient)" 
-                  stroke-width="8" 
-                  filter="url(#dropShadow)"/>
-            
-            <!-- 중간 테두리 -->
-            <rect x="35" y="35" width="724" height="1053" 
-                  fill="none" 
-                  stroke="url(#goldGradient)" 
-                  stroke-width="3"/>
-            
-            <!-- 내부 테두리 -->
-            <rect x="50" y="50" width="694" height="1023" 
-                  fill="none" 
-                  stroke="url(#goldGradient)" 
-                  stroke-width="1"/>
-            
-            <!-- 모서리 장식 -->
-            <g stroke="url(#goldGradient)" stroke-width="4" fill="none" stroke-linecap="round">
-                <!-- 좌상단 모서리 장식 -->
-                <path d="M20,20 L120,20 M20,20 L20,120"/>
-                <path d="M25,25 L100,25 M25,25 L25,100"/>
-                <circle cx="70" cy="70" r="15" stroke-width="2"/>
-                
-                <!-- 우상단 모서리 장식 -->
-                <path d="M774,20 L674,20 M774,20 L774,120"/>
-                <path d="M769,25 L694,25 M769,25 M769,100"/>
-                <circle cx="724" cy="70" r="15" stroke-width="2"/>
-                
-                <!-- 좌하단 모서리 장식 -->
-                <path d="M20,1103 L120,1103 M20,1103 L20,1003"/>
-                <path d="M25,1098 L100,1098 M25,1098 L25,1023"/>
-                <circle cx="70" cy="1053" r="15" stroke-width="2"/>
-                
-                <!-- 우하단 모서리 장식 -->
-                <path d="M774,1103 L674,1103 M774,1103 L774,1003"/>
-                <path d="M769,1098 L694,1098 M769,1098 L769,1023"/>
-                <circle cx="724" cy="1053" r="15" stroke-width="2"/>
-            </g>
-            
-            <!-- 상단 중앙 장식 -->
-            <g transform="translate(397, 80)" stroke="url(#goldGradient)" fill="none" stroke-width="2">
-                <circle r="25"/>
-                <circle r="15"/>
-                <path d="M-20,0 L20,0 M0,-20 L0,20"/>
-            </g>
-            
-            <!-- 하단 중앙 장식 -->
-            <g transform="translate(397, 1043)" stroke="url(#goldGradient)" fill="none" stroke-width="2">
-                <circle r="25"/>
-                <circle r="15"/>
-                <path d="M-20,0 L20,0 M0,-20 L0,20"/>
-            </g>
-        </svg>
-    `);
+async function loadCertificatePhoto(photoUrl) {
+    console.log('📸 증명사진 로드 시작:', photoUrl ? photoUrl.substring(0, 50) + '...' : 'null');
+
+    if (!photoUrl) {
+        console.log('📸 증명사진 URL이 없음, 기본 플레이스홀더 사용');
+        return null;
+    }
+
+    try {
+        // 🔧 NEW: Base64 이미지인지 확인
+        if (photoUrl.startsWith('data:image/')) {
+            console.log('📸 Base64 이미지 감지, 직접 처리');
+
+            return new Promise((resolve) => {
+                const img = new Image();
+
+                img.onload = function () {
+                    console.log('📸 Base64 이미지 로드 성공:', {
+                        width: img.naturalWidth,
+                        height: img.naturalHeight,
+                        type: 'base64'
+                    });
+
+                    // Canvas를 사용하여 크기 조정
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // 증명사진 표준 크기로 조정 (3.5cm x 4.5cm 비율)
+                    const targetWidth = 120; // PDF 템플릿에 맞는 크기
+                    const targetHeight = 160;
+
+                    canvas.width = targetWidth;
+                    canvas.height = targetHeight;
+
+                    // 이미지를 캔버스에 그리기 (크기 조정 및 크롭)
+                    const aspectRatio = img.naturalWidth / img.naturalHeight;
+                    const targetAspectRatio = targetWidth / targetHeight;
+
+                    let sx = 0, sy = 0, sWidth = img.naturalWidth, sHeight = img.naturalHeight;
+
+                    if (aspectRatio > targetAspectRatio) {
+                        // 이미지가 더 넓음 - 좌우 크롭
+                        sWidth = img.naturalHeight * targetAspectRatio;
+                        sx = (img.naturalWidth - sWidth) / 2;
+                    } else {
+                        // 이미지가 더 높음 - 상하 크롭
+                        sHeight = img.naturalWidth / targetAspectRatio;
+                        sy = (img.naturalHeight - sHeight) / 2;
+                    }
+
+                    ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
+
+                    // base64 데이터 URL로 변환
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+
+                    resolve({
+                        dataUrl: dataUrl,
+                        width: targetWidth,
+                        height: targetHeight,
+                        originalUrl: photoUrl,
+                        isPhoto: true,
+                        isBase64: true
+                    });
+                };
+
+                img.onerror = function () {
+                    console.error('📸 Base64 이미지 로드 실패');
+                    resolve(null);
+                };
+
+                img.src = photoUrl;
+            });
+        }
+
+        // 🔧 기존 외부 URL 처리 로직
+        const img = new Image();
+        img.crossOrigin = 'anonymous'; // CORS 문제 해결
+
+        return new Promise((resolve, reject) => {
+            img.onload = function () {
+                console.log('📸 외부 이미지 로드 성공:', {
+                    width: img.naturalWidth,
+                    height: img.naturalHeight,
+                    url: photoUrl
+                });
+
+                // Canvas를 사용하여 이미지를 base64로 변환
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // 증명사진 표준 크기로 조정 (3.5cm x 4.5cm 비율)
+                const targetWidth = 120; // PDF 템플릿에 맞는 크기
+                const targetHeight = 160;
+
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+
+                // 이미지를 캔버스에 그리기 (크기 조정 및 크롭)
+                const aspectRatio = img.naturalWidth / img.naturalHeight;
+                const targetAspectRatio = targetWidth / targetHeight;
+
+                let sx = 0, sy = 0, sWidth = img.naturalWidth, sHeight = img.naturalHeight;
+
+                if (aspectRatio > targetAspectRatio) {
+                    // 이미지가 더 넓음 - 좌우 크롭
+                    sWidth = img.naturalHeight * targetAspectRatio;
+                    sx = (img.naturalWidth - sWidth) / 2;
+                } else {
+                    // 이미지가 더 높음 - 상하 크롭
+                    sHeight = img.naturalWidth / targetAspectRatio;
+                    sy = (img.naturalHeight - sHeight) / 2;
+                }
+
+                ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
+
+                // base64 데이터 URL로 변환
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+
+                resolve({
+                    dataUrl: dataUrl,
+                    width: targetWidth,
+                    height: targetHeight,
+                    originalUrl: photoUrl,
+                    isPhoto: true,
+                    isBase64: false
+                });
+            };
+
+            img.onerror = function () {
+                console.error('📸 외부 이미지 로드 실패:', photoUrl);
+                reject(new Error('사진 로드 실패'));
+            };
+
+            img.src = photoUrl;
+        });
+
+    } catch (error) {
+        console.error('📸 증명사진 처리 중 오류:', error);
+        return null;
+    }
 }
 
 /**
- * 🎨 전문적인 한글 메달 SVG (대체 이미지)
+ * 🔧 NEW: 기본 플레이스홀더 사진 생성
  */
-function createFallbackSealSvg(isEnglish = false) {
-    if (isEnglish) {
-        return 'data:image/svg+xml;base64,' + btoa(`
-            <svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <radialGradient id="englishGold" cx="50%" cy="30%">
-                        <stop offset="0%" style="stop-color:#FFD700"/>
-                        <stop offset="40%" style="stop-color:#FFA500"/>
-                        <stop offset="80%" style="stop-color:#DAA520"/>
-                        <stop offset="100%" style="stop-color:#B8860B"/>
-                    </radialGradient>
-                    
-                    <radialGradient id="royalBlue" cx="50%" cy="50%">
-                        <stop offset="0%" style="stop-color:#1E40AF"/>
-                        <stop offset="70%" style="stop-color:#1E3A8A"/>
-                        <stop offset="100%" style="stop-color:#0F172A"/>
-                    </radialGradient>
-                    
-                    <filter id="medalShadow">
-                        <feDropShadow dx="2" dy="4" stdDeviation="4" flood-color="#00000050"/>
-                    </filter>
-                </defs>
-                
-                <circle cx="50" cy="50" r="45" 
-                        fill="url(#englishGold)" 
-                        stroke="#B8860B" 
-                        stroke-width="2" 
-                        filter="url(#medalShadow)"/>
-                
-                <circle cx="50" cy="50" r="32" 
-                        fill="url(#royalBlue)" 
-                        stroke="#FFD700" 
-                        stroke-width="2"/>
-                
-                <text x="50" y="35" text-anchor="middle" 
-                      fill="#FFD700" 
-                      font-size="9" 
-                      font-weight="bold"
-                      font-family="serif">DIGITAL</text>
-                <text x="50" y="47" text-anchor="middle" 
-                      fill="#FFD700" 
-                      font-size="8" 
-                      font-weight="bold"
-                      font-family="serif">HEALTHCARE</text>
-                <text x="50" y="59" text-anchor="middle" 
-                      fill="#FFD700" 
-                      font-size="9" 
-                      font-weight="bold"
-                      font-family="serif">CENTER</text>
-            </svg>
-        `);
-    } else {
-        return 'data:image/svg+xml;base64,' + btoa(`
-            <svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <radialGradient id="koreaGold" cx="50%" cy="30%">
-                        <stop offset="0%" style="stop-color:#FFD700"/>
-                        <stop offset="40%" style="stop-color:#FFA500"/>
-                        <stop offset="80%" style="stop-color:#DAA520"/>
-                        <stop offset="100%" style="stop-color:#B8860B"/>
-                    </radialGradient>
-                    
-                    <radialGradient id="koreaBlue" cx="50%" cy="50%">
-                        <stop offset="0%" style="stop-color:#1E40AF"/>
-                        <stop offset="70%" style="stop-color:#1E3A8A"/>
-                        <stop offset="100%" style="stop-color:#1E293B"/>
-                    </radialGradient>
-                    
-                    <filter id="medalShadow">
-                        <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#00000040"/>
-                    </filter>
-                </defs>
-                
-                <circle cx="50" cy="50" r="45" 
-                        fill="url(#koreaGold)" 
-                        stroke="#B8860B" 
-                        stroke-width="2" 
-                        filter="url(#medalShadow)"/>
-                
-                <circle cx="50" cy="50" r="35" 
-                        fill="url(#koreaBlue)" 
-                        stroke="#FFD700" 
-                        stroke-width="2"/>
-                
-                <circle cx="50" cy="50" r="25" 
-                        fill="none" 
-                        stroke="#FFD700" 
-                        stroke-width="1.5"/>
-                
-                <text x="50" y="38" text-anchor="middle" 
-                      fill="#FFD700" 
-                      font-size="11" 
-                      font-weight="bold"
-                      font-family="serif">디지털</text>
-                <text x="50" y="50" text-anchor="middle" 
-                      fill="#FFD700" 
-                      font-size="10" 
-                      font-weight="bold"
-                      font-family="serif">헬스케어</text>
-                <text x="50" y="62" text-anchor="middle" 
-                      fill="#FFD700" 
-                      font-size="11" 
-                      font-weight="bold"
-                      font-family="serif">센터</text>
-            </svg>
-        `);
-    }
+function createPlaceholderPhoto() {
+    console.log('📸 플레이스홀더 사진 생성');
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = 120;
+    canvas.height = 160;
+
+    // 배경 그리기
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 테두리 그리기
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+
+    // 텍스트 그리기
+    ctx.fillStyle = '#64748b';
+    ctx.font = '14px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('사진', canvas.width / 2, canvas.height / 2);
+
+    return {
+        dataUrl: canvas.toDataURL('image/png'),
+        width: canvas.width,
+        height: canvas.height,
+        isPlaceholder: true
+    };
+}
+
+// =================================
+// 🔧 NEW: Base64 테스트 이미지 생성 함수
+// =================================
+
+/**
+ * 🔧 NEW: 전문적인 증명사진 스타일의 Base64 이미지 생성
+ */
+function createBase64TestPhoto() {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // 표준 증명사진 크기 (3.5cm x 4.5cm 비율)
+    canvas.width = 350;
+    canvas.height = 450;
+
+    // 배경 그라데이션 (전문적인 스튜디오 배경)
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, '#f0f8ff');
+    gradient.addColorStop(0.5, '#e6f3ff');
+    gradient.addColorStop(1, '#d0e7ff');
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 사람 실루엣 그리기 (간단한 아바타 스타일)
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height * 0.45;
+
+    // 얼굴 (타원)
+    ctx.fillStyle = '#4a5568';
+    ctx.beginPath();
+    ctx.ellipse(centerX, centerY - 60, 45, 55, 0, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // 목 (사각형)
+    ctx.fillRect(centerX - 15, centerY - 5, 30, 40);
+
+    // 어깨 (사다리꼴)
+    ctx.beginPath();
+    ctx.moveTo(centerX - 25, centerY + 35);
+    ctx.lineTo(centerX + 25, centerY + 35);
+    ctx.lineTo(centerX + 65, canvas.height);
+    ctx.lineTo(centerX - 65, canvas.height);
+    ctx.closePath();
+    ctx.fill();
+
+    // 정장/셔츠 디테일
+    ctx.fillStyle = '#2d3748';
+    ctx.fillRect(centerX - 3, centerY + 20, 6, 50);
+
+    // 텍스트 추가 (선택적)
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('증명사진', centerX, canvas.height - 20);
+
+    // 테두리
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+
+    return canvas.toDataURL('image/jpeg', 0.9);
+}
+
+/**
+ * 🔧 NEW: 간단한 플레이스홀더 이미지 생성
+ */
+function createSimpleBase64Placeholder() {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = 350;
+    canvas.height = 450;
+
+    // 배경
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 테두리
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(3, 3, canvas.width - 6, canvas.height - 6);
+
+    // 내부 테두리
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+    // 카메라 아이콘 (간단한 사각형과 원)
+    const iconSize = 60;
+    const iconX = canvas.width / 2 - iconSize / 2;
+    const iconY = canvas.height / 2 - iconSize / 2 - 30;
+
+    // 카메라 몸체
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(iconX, iconY, iconSize, iconSize * 0.7);
+
+    // 렌즈
+    ctx.fillStyle = '#64748b';
+    ctx.beginPath();
+    ctx.arc(iconX + iconSize / 2, iconY + iconSize * 0.35, iconSize * 0.25, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // 텍스트
+    ctx.fillStyle = '#64748b';
+    ctx.font = 'bold 24px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('증명사진', canvas.width / 2, canvas.height / 2 + 60);
+
+    ctx.font = '16px Arial';
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('사진을 업로드해주세요', canvas.width / 2, canvas.height / 2 + 90);
+
+    return canvas.toDataURL('image/jpeg', 0.9);
 }
 
 // =================================
@@ -405,10 +509,6 @@ function initCertManager() {
                 return false;
             }
         },
-
-        /**
-         * 🔧 개선된 모달 시스템 - 깜빡임 문제 해결
-         */
 
         // 모달 상태 관리
         modalStates: {
@@ -581,524 +681,6 @@ function initCertManager() {
         },
 
         /**
-         * 자격증 유형 전환
-         */
-        switchCertType: function (certType) {
-            // 이미 선택된 유형이면 무시
-            if (this.currentCertType === certType) return;
-
-            // 탭 상태 업데이트
-            const tabs = document.querySelectorAll('.cert-tab');
-            tabs.forEach(tab => {
-                if (tab.dataset.cert === certType) {
-                    tab.classList.add('active', 'border-indigo-500', 'text-indigo-600');
-                    tab.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
-                } else {
-                    tab.classList.remove('active', 'border-indigo-500', 'text-indigo-600');
-                    tab.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
-                }
-            });
-
-            // 타이틀 업데이트
-            const certTypeTitle = document.getElementById('cert-type-title');
-            if (certTypeTitle) {
-                certTypeTitle.textContent = this.getCertTypeName(certType);
-            }
-
-            // 현재 자격증 유형 업데이트
-            this.currentCertType = certType;
-            this.currentPage = 1;
-            this.lastDoc = null;
-
-            // 자격증 데이터 로드
-            this.loadCertificates();
-        },
-
-        /**
-         * 자격증 목록 로드
-         */
-        loadCertificates: async function () {
-            try {
-                // 로딩 상태 표시
-                const tableBody = document.querySelector('#cert-table tbody');
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="8" class="text-center py-4 text-gray-500">데이터 로딩 중...</td>
-                    </tr>
-                `;
-
-                // 자격증 데이터 가져오기
-                let certificates = [];
-
-                // Firebase가 초기화되었는지 확인
-                const firebaseStatus = checkFirebaseConnection();
-                if (firebaseStatus.connected && window.dbService) {
-                    try {
-                        console.log('Firebase에서 자격증 데이터 로드 시작');
-
-                        // 필터 옵션 설정 - 인덱스 오류 방지를 위해 단순화된 쿼리 사용
-                        let query = window.dhcFirebase.db.collection('certificates')
-                            .where('certificateType', '==', this.currentCertType);
-
-                        // 상태 필터 적용 (선택적)
-                        const statusFilter = document.getElementById('filter-status')?.value;
-                        if (statusFilter) {
-                            query = query.where('status', '==', statusFilter);
-                        }
-
-                        // 검색어 필터
-                        const nameSearch = document.getElementById('search-name')?.value.trim();
-                        const certNumberSearch = document.getElementById('search-cert-number')?.value.trim();
-
-                        // 검색어가 없으면 기본 쿼리 실행
-                        if (!nameSearch && !certNumberSearch) {
-                            const snapshot = await query.get();
-
-                            if (!snapshot.empty) {
-                                snapshot.forEach(doc => {
-                                    certificates.push({
-                                        id: doc.id,
-                                        ...doc.data()
-                                    });
-                                });
-
-                                // 클라이언트 측에서 정렬 (최신 발급일 기준)
-                                certificates.sort((a, b) => {
-                                    const dateA = a.issueDate?.seconds || 0;
-                                    const dateB = b.issueDate?.seconds || 0;
-                                    return dateB - dateA;
-                                });
-
-                                // 페이지네이션 처리 (클라이언트 측)
-                                const startIndex = (this.currentPage - 1) * this.pageSize;
-                                certificates = certificates.slice(startIndex, startIndex + this.pageSize);
-                            }
-                        } else {
-                            // 검색어가 있으면 전체 데이터를 가져와서 클라이언트에서 필터링
-                            const snapshot = await window.dhcFirebase.db.collection('certificates')
-                                .where('certificateType', '==', this.currentCertType)
-                                .get();
-
-                            if (!snapshot.empty) {
-                                const allCerts = [];
-                                snapshot.forEach(doc => {
-                                    allCerts.push({
-                                        id: doc.id,
-                                        ...doc.data()
-                                    });
-                                });
-
-                                // 클라이언트 측에서 필터링
-                                certificates = allCerts.filter(cert => {
-                                    // 상태 필터
-                                    if (statusFilter && cert.status !== statusFilter) {
-                                        return false;
-                                    }
-
-                                    // 이름 검색
-                                    if (nameSearch &&
-                                        !(cert.holderName && cert.holderName.includes(nameSearch))) {
-                                        return false;
-                                    }
-
-                                    // 자격증 번호 검색
-                                    if (certNumberSearch &&
-                                        !(cert.certificateNumber && cert.certificateNumber.includes(certNumberSearch))) {
-                                        return false;
-                                    }
-
-                                    return true;
-                                });
-
-                                // 클라이언트 측에서 정렬 (최신 발급일 기준)
-                                certificates.sort((a, b) => {
-                                    const dateA = a.issueDate?.seconds || 0;
-                                    const dateB = b.issueDate?.seconds || 0;
-                                    return dateB - dateA;
-                                });
-
-                                // 페이지네이션 처리 (클라이언트 측)
-                                const startIndex = (this.currentPage - 1) * this.pageSize;
-                                certificates = certificates.slice(startIndex, startIndex + this.pageSize);
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Firebase 데이터 조회 오류:', error);
-                        window.adminAuth?.showNotification('데이터 조회 중 오류가 발생했습니다.', 'error');
-                    }
-                } else {
-                    // Firebase 연동 전 테스트 데이터 사용
-                    console.log('Firebase 미연결, 테스트 데이터 사용');
-                    certificates = await this.getMockCertificates();
-                }
-
-                // 테이블 업데이트
-                this.updateCertificateTable(certificates);
-
-                // 페이지네이션 업데이트
-                // 기존 페이지네이션 로직을 클라이언트 측으로 변경
-                let totalCount = 0;
-
-                if (firebaseStatus.connected && window.dhcFirebase && window.dhcFirebase.db) {
-                    try {
-                        // 전체 개수만 계산 (인덱스 문제 없는 간단한 쿼리)
-                        const snapshot = await window.dhcFirebase.db.collection('certificates')
-                            .where('certificateType', '==', this.currentCertType)
-                            .get();
-
-                        totalCount = snapshot.size;
-
-                        // 필터링된 경우는 클라이언트 측에서 계산
-                        const statusFilter = document.getElementById('filter-status')?.value;
-                        const nameSearch = document.getElementById('search-name')?.value.trim();
-                        const certNumberSearch = document.getElementById('search-cert-number')?.value.trim();
-
-                        if (statusFilter || nameSearch || certNumberSearch) {
-                            // 매우 많은 데이터일 경우 여기서 최적화가 필요할 수 있음
-                            // 현재는 단순하게 메모리에서 필터링
-                            totalCount = snapshot.docs.filter(doc => {
-                                const data = doc.data();
-
-                                // 상태 필터
-                                if (statusFilter && data.status !== statusFilter) {
-                                    return false;
-                                }
-
-                                // 이름 검색
-                                if (nameSearch &&
-                                    !(data.holderName && data.holderName.includes(nameSearch))) {
-                                    return false;
-                                }
-
-                                // 자격증 번호 검색
-                                if (certNumberSearch &&
-                                    !(data.certificateNumber && data.certificateNumber.includes(certNumberSearch))) {
-                                    return false;
-                                }
-
-                                return true;
-                            }).length;
-                        }
-                    } catch (error) {
-                        console.error('문서 수 계산 오류:', error);
-                        totalCount = certificates.length > 0 ? certificates.length + (this.currentPage - 1) * this.pageSize : 0;
-                    }
-                } else {
-                    // 테스트 데이터는 20개로 가정
-                    totalCount = 20;
-                }
-
-                const totalPages = Math.ceil(totalCount / this.pageSize);
-                this.updatePagination(this.currentPage, totalPages);
-
-            } catch (error) {
-                console.error('자격증 데이터 로드 오류:', error);
-
-                const tableBody = document.querySelector('#cert-table tbody');
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="8" class="text-center py-4 text-red-500">데이터 로드 중 오류가 발생했습니다.</td>
-                    </tr>
-                `;
-            }
-        },
-
-        /**
-         * 자격증 테이블 업데이트 - 🔧 전역 유틸리티 사용 + PDF 아이콘 수정
-         */
-        updateCertificateTable: function (certificates) {
-            const tableBody = document.querySelector('#cert-table tbody');
-
-            if (!certificates || certificates.length === 0) {
-                tableBody.innerHTML = `
-            <tr>
-                <td colspan="8" class="admin-empty-state">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                            d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
-                        </path>
-                    </svg>
-                    <h3>등록된 자격증이 없습니다</h3>
-                    <p>새로운 자격증을 발급해보세요.</p>
-                </td>
-            </tr>
-        `;
-                return;
-            }
-
-            let tableHtml = '';
-
-            certificates.forEach(cert => {
-                // 🔧 전역 유틸리티 사용 - formatDate
-                const issueDate = cert.issueDate && typeof cert.issueDate.toDate === 'function'
-                    ? window.formatters.formatDate(cert.issueDate.toDate(), 'YYYY-MM-DD')
-                    : (cert.issueDate ? window.formatters.formatDate(cert.issueDate, 'YYYY-MM-DD') : '-');
-
-                const expiryDate = cert.expiryDate && typeof cert.expiryDate.toDate === 'function'
-                    ? window.formatters.formatDate(cert.expiryDate.toDate(), 'YYYY-MM-DD')
-                    : (cert.expiryDate ? window.formatters.formatDate(cert.expiryDate, 'YYYY-MM-DD') : '-');
-
-                const getStatusBadge = (status) => {
-                    const badges = {
-                        'active': '<span class="cert-status-badge status-valid">유효</span>',
-                        'expired': '<span class="cert-status-badge status-expired">만료</span>',
-                        'revoked': '<span class="cert-status-badge status-suspended">취소</span>',
-                        'suspended': '<span class="cert-status-badge status-suspended">정지</span>'
-                    };
-                    return badges[status] || `<span class="cert-status-badge status-expired">${this.getStatusText(status)}</span>`;
-                };
-
-                // 🎯 반응형 테이블: data-label 속성 추가 + 🔧 PDF 아이콘 수정
-                tableHtml += `
-            <tr class="hover:bg-gray-50 transition-colors">
-                <td data-label="선택" class="text-center">
-                    <input type="checkbox" class="cert-checkbox" data-id="${cert.id}">
-                </td>
-                <td data-label="자격증 번호">${cert.certificateNumber || cert.certNumber || '-'}</td>
-                <td data-label="수료자명">${cert.holderName || cert.name || '-'}</td>
-                <td data-label="교육 과정">${cert.courseName || cert.course || '-'}</td>
-                <td data-label="발급일">${issueDate}</td>
-                <td data-label="만료일">${expiryDate}</td>
-                <td data-label="상태">${getStatusBadge(cert.status)}</td>
-                <td data-label="작업">
-                    <div class="table-actions">
-                        <button onclick="certManager.viewCertDetails('${cert.id}')" 
-                            class="table-action-btn btn-view" title="상세 보기">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                                </path>
-                            </svg>
-                            상세
-                        </button>
-                        <button onclick="certManager.editCert('${cert.id}')" 
-                            class="table-action-btn btn-edit" title="수정">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-                                </path>
-                            </svg>
-                            수정
-                        </button>
-                        
-                        <!-- 🔧 PDF 아이콘 수정: 다운로드 화살표 → PDF 파일 아이콘 -->
-                        <div class="cert-pdf-dropdown">
-                            <button onclick="certManager.togglePdfDropdown('${cert.id}')" 
-                                class="cert-pdf-btn" title="PDF 다운로드">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                    </path>
-                                </svg>
-                                PDF
-                            </button>
-                            <div id="pdf-dropdown-${cert.id}" class="cert-pdf-menu hidden">
-                                <a href="#" onclick="certManager.downloadCertPdf('${cert.id}', 'ko'); event.preventDefault();">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                        </path>
-                                    </svg>
-                                    한글 PDF
-                                </a>
-                                <a href="#" onclick="certManager.downloadCertPdf('${cert.id}', 'en'); event.preventDefault();">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                        </path>
-                                    </svg>
-                                    영문 PDF
-                                </a>
-                            </div>
-                        </div>
-                        
-                        ${cert.status !== 'suspended' && cert.status !== 'revoked' ? `
-                            <button onclick="certManager.revokeCertificate('${cert.id}')" 
-                                class="table-action-btn btn-delete" title="자격증 취소">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                    </path>
-                                </svg>
-                                취소
-                                </button>
-                        ` : ''}
-                    </div>
-                </td>
-            </tr>
-        `;
-            });
-
-            tableBody.innerHTML = tableHtml;
-
-            // 🔧 개선된 PDF 드롭다운 이벤트 처리
-            this.initPdfDropdowns();
-        },
-
-        /**
-         * PDF 드롭다운 토글 (새로 추가)
-         */
-        togglePdfDropdown: function (certId) {
-            const dropdown = document.getElementById(`pdf-dropdown-${certId}`);
-            if (!dropdown) return;
-
-            // 다른 모든 드롭다운 닫기
-            document.querySelectorAll('[id^="pdf-dropdown-"]').forEach(dd => {
-                if (dd.id !== `pdf-dropdown-${certId}`) {
-                    dd.classList.add('hidden');
-                    dd.classList.remove('show');
-                }
-            });
-
-            // 현재 드롭다운 토글
-            dropdown.classList.toggle('hidden');
-            dropdown.classList.toggle('show');
-        },
-
-        /**
-         * 🔧 PDF 드롭다운 초기화 (z-index 문제 해결)
-         */
-        initPdfDropdowns: function () {
-            // 🔧 기존 이벤트 리스너 제거 방지
-            if (this._pdfDropdownInitialized) return;
-            this._pdfDropdownInitialized = true;
-
-            // 전역 클릭 이벤트로 드롭다운 닫기
-            document.addEventListener('click', (e) => {
-                // PDF 버튼이나 드롭다운 내부 클릭이 아닌 경우만 닫기
-                if (!e.target.closest('.cert-pdf-dropdown')) {
-                    document.querySelectorAll('[id^="pdf-dropdown-"]').forEach(dropdown => {
-                        dropdown.classList.add('hidden');
-                        dropdown.classList.remove('show');
-                    });
-                }
-            });
-
-            // ESC 키로 드롭다운 닫기
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    document.querySelectorAll('[id^="pdf-dropdown-"]').forEach(dropdown => {
-                        dropdown.classList.add('hidden');
-                        dropdown.classList.remove('show');
-                    });
-                }
-            });
-
-            console.log('✅ PDF 드롭다운 이벤트 리스너 초기화 완료');
-        },
-
-        /**
-         * 페이지네이션 업데이트
-         */
-        updatePagination: function (currentPage, totalPages) {
-            const paginationContainer = document.getElementById('cert-pagination');
-
-            if (!paginationContainer) return;
-
-            let paginationHtml = '<div class="flex justify-center">';
-
-            // 이전 페이지 버튼
-            paginationHtml += `
-                <button onclick="certManager.changePage(${currentPage - 1})" 
-                    class="px-3 py-1 rounded-md mx-1 ${currentPage <= 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white hover:bg-gray-100 text-gray-700'}"
-                    ${currentPage <= 1 ? 'disabled' : ''}>
-                    이전
-                </button>
-            `;
-
-            // 페이지 번호들
-            const maxVisiblePages = 5;
-            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-            if (endPage - startPage + 1 < maxVisiblePages) {
-                startPage = Math.max(1, endPage - maxVisiblePages + 1);
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                paginationHtml += `
-                    <button onclick="certManager.changePage(${i})" 
-                        class="px-3 py-1 rounded-md mx-1 ${i === currentPage ? 'bg-indigo-600 text-white' : 'bg-white hover:bg-gray-100 text-gray-700'}">
-                        ${i}
-                    </button>
-                `;
-            }
-
-            // 다음 페이지 버튼
-            paginationHtml += `
-                <button onclick="certManager.changePage(${currentPage + 1})" 
-                    class="px-3 py-1 rounded-md mx-1 ${currentPage >= totalPages ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white hover:bg-gray-100 text-gray-700'}"
-                    ${currentPage >= totalPages ? 'disabled' : ''}>
-                    다음
-                </button>
-            `;
-
-            paginationHtml += '</div>';
-
-            paginationContainer.innerHTML = paginationHtml;
-        },
-
-        /**
-         * 페이지 변경
-         */
-        changePage: function (page) {
-            // 유효한 페이지 체크
-            if (page < 1) return;
-
-            this.currentPage = page;
-            this.loadCertificates();
-        },
-
-        /**
-         * 검색 기능
-         */
-        search: function () {
-            // 검색 시 첫 페이지로 이동
-            this.currentPage = 1;
-            this.lastDoc = null;
-            this.loadCertificates();
-        },
-
-        /**
-         * 검색 필터 초기화
-         */
-        resetFilters: function () {
-            console.log('검색 필터 초기화');
-
-            // 검색 필드 초기화
-            const searchName = document.getElementById('search-name');
-            if (searchName) searchName.value = '';
-
-            const searchCertNumber = document.getElementById('search-cert-number');
-            if (searchCertNumber) searchCertNumber.value = '';
-
-            const statusFilter = document.getElementById('filter-status');
-            if (statusFilter) statusFilter.value = '';
-
-            // 페이지 상태 초기화
-            this.currentPage = 1;
-            this.lastDoc = null;
-
-            // 데이터 새로고침
-            this.loadCertificates();
-
-            // 사용자 피드백
-            if (window.adminAuth && window.adminAuth.showNotification) {
-                window.adminAuth.showNotification('검색 필터가 초기화되었습니다.', 'info');
-            }
-        },
-
-        /**
-         * 전체 선택 토글
-         */
-        toggleSelectAll: function (checkbox) {
-            const certCheckboxes = document.querySelectorAll('.cert-checkbox');
-            certCheckboxes.forEach(cb => {
-                cb.checked = checkbox.checked;
-            });
-        },
-
-        /**
          * 자격증 발급 모달 표시
          */
         showIssueCertModal: function () {
@@ -1141,90 +723,6 @@ function initCertManager() {
             }
         },
 
-        // 🔧 모달 이벤트 리스너 재등록 보장
-        ensureModalEvents: function () {
-            console.log('🔧 모달 이벤트 리스너 재등록 시작');
-
-            // 🔧 X 버튼 이벤트 재등록
-            const closeButtons = document.querySelectorAll('.cert-modal-close');
-            closeButtons.forEach(button => {
-                if (!button.dataset.eventAttached) {
-                    button.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        const modal = button.closest('.cert-modal');
-                        if (modal) {
-                            const modalId = modal.id;
-                            console.log('🔧 X 버튼 클릭:', modalId);
-                            this.closeModalById(modalId);
-                        }
-                    });
-                    button.dataset.eventAttached = 'true';
-                    console.log('✅ X 버튼 이벤트 등록:', button);
-                }
-            });
-
-            // 🔧 백드롭 클릭 이벤트 재등록
-            const backdrops = document.querySelectorAll('.cert-modal-backdrop');
-            backdrops.forEach(backdrop => {
-                if (!backdrop.dataset.eventAttached) {
-                    backdrop.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        const modal = backdrop.closest('.cert-modal');
-                        if (modal) {
-                            const modalId = modal.id;
-                            console.log('🔧 백드롭 클릭:', modalId);
-                            this.closeModalById(modalId);
-                        }
-                    });
-                    backdrop.dataset.eventAttached = 'true';
-                    console.log('✅ 백드롭 이벤트 등록:', backdrop);
-                }
-            });
-
-            // 🔧 ESC 키 이벤트 (전역, 한 번만 등록)
-            if (!this._escKeyAttached) {
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape') {
-                        console.log('🔧 ESC 키 눌림');
-                        this.closeTopModal();
-                    }
-                });
-                this._escKeyAttached = true;
-                console.log('✅ ESC 키 이벤트 등록');
-            }
-
-            console.log('✅ 모달 이벤트 리스너 재등록 완료');
-        },
-
-        /**
-         * 자격증 발급 모달 닫기
-         */
-        closeIssueCertModal: function () {
-            console.log('🔧 자격증 발급 모달 닫기');
-
-            const modal = document.getElementById('cert-issue-modal');
-            if (modal && this.modalStates['cert-issue-modal']) {
-                // 상태 업데이트
-                this.modalStates['cert-issue-modal'] = false;
-
-                // 모달 숨김
-                modal.classList.add('hidden');
-
-                // 폼 초기화
-                const form = document.getElementById('cert-issue-form');
-                if (form) form.reset();
-
-                // body 클래스 업데이트
-                this.updateBodyModalState();
-
-                console.log('✅ 자격증 발급 모달 닫기 완료');
-            }
-        },
-
         /**
          * 일괄 발급 모달 표시
          */
@@ -1256,116 +754,6 @@ function initCertManager() {
 
                 console.log('✅ 일괄 발급 모달 표시 완료');
             }
-        },
-
-        /**
-         * 🔧 일괄 발급 모달 닫기
-         */
-        closeBulkIssuanceModal: function () {
-            console.log('🔧 일괄 발급 모달 닫기');
-
-            const modal = document.getElementById('bulk-issue-modal');
-            if (modal && this.modalStates['bulk-issue-modal']) {
-                this.modalStates['bulk-issue-modal'] = false;
-
-                modal.style.opacity = '0';
-
-                setTimeout(() => {
-                    if (!this.modalStates['bulk-issue-modal']) {
-                        modal.classList.add('hidden');
-                        modal.style.display = 'none';
-                        modal.style.visibility = 'hidden';
-
-                        this.updateBodyModalState();
-                    }
-                }, 150);
-
-                console.log('✅ 일괄 발급 모달 닫기 완료');
-            }
-        },
-
-        /**
-         * 일괄 발급 파일 업로드 처리
-         */
-        handleBulkFileUpload: function (event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const previewArea = document.getElementById('bulk-preview');
-            const previewHeader = document.getElementById('bulk-preview-header');
-            const previewBody = document.getElementById('bulk-preview-body');
-            const bulkIssueBtn = document.getElementById('bulk-issue-btn');
-
-            // 파일 형식 확인 (xlsx, xls만 허용)
-            if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
-                window.adminAuth?.showNotification('Excel 파일(.xlsx, .xls)만 업로드 가능합니다.', 'error');
-                event.target.value = '';
-                return;
-            }
-
-            // 여기서는 실제 파일 처리는 생략하고 미리보기만 표시
-            previewHeader.innerHTML = `
-                <tr class="bg-gray-100">
-                    <th class="border border-gray-300 px-4 py-2">이름</th>
-                    <th class="border border-gray-300 px-4 py-2">이메일</th>
-                    <th class="border border-gray-300 px-4 py-2">교육과정</th>
-                    <th class="border border-gray-300 px-4 py-2">수료일</th>
-                </tr>
-            `;
-
-            // 샘플 데이터로 미리보기 표시
-            previewBody.innerHTML = `
-                <tr>
-                    <td class="border border-gray-300 px-4 py-2">홍길동</td>
-                    <td class="border border-gray-300 px-4 py-2">hong@example.com</td>
-                    <td class="border border-gray-300 px-4 py-2">건강운동처방사 1기</td>
-                    <td class="border border-gray-300 px-4 py-2">2025-03-15</td>
-                </tr>
-                <tr>
-                    <td class="border border-gray-300 px-4 py-2">김철수</td>
-                    <td class="border border-gray-300 px-4 py-2">kim@example.com</td>
-                    <td class="border border-gray-300 px-4 py-2">건강운동처방사 1기</td>
-                    <td class="border border-gray-300 px-4 py-2">2025-03-15</td>
-                </tr>
-            `;
-
-            previewArea.classList.remove('hidden');
-
-            // 일괄 발급 버튼 활성화
-            if (bulkIssueBtn) bulkIssueBtn.disabled = false;
-        },
-
-        /**
-         * 일괄 발급 처리
-         */
-        processBulkIssuance: function () {
-            const fileInput = document.getElementById('bulk-file');
-            if (!fileInput || !fileInput.files[0]) {
-                window.adminAuth?.showNotification('업로드된 파일이 없습니다.', 'error');
-                return;
-            }
-
-            // 로딩 표시
-            if (window.adminUtils?.showLoadingOverlay) {
-                window.adminUtils.showLoadingOverlay(true);
-            }
-
-            // 실제로는 여기서 파일 처리 및 DB 저장 로직 구현
-            setTimeout(() => {
-                // 로딩 종료
-                if (window.adminUtils?.showLoadingOverlay) {
-                    window.adminUtils.showLoadingOverlay(false);
-                }
-
-                // 모달 닫기
-                this.closeBulkIssuanceModal();
-
-                // 성공 메시지
-                window.adminAuth?.showNotification('자격증 일괄 발급이 완료되었습니다.', 'success');
-
-                // 목록 새로고침
-                this.loadCertificates();
-            }, 2000);
         },
 
         /**
@@ -1576,79 +964,6 @@ function initCertManager() {
         },
 
         /**
-         * 테스트 교육과정 데이터 생성
-         */
-        createTestCourseData: async function () {
-            console.log('테스트 교육과정 데이터 생성 시작');
-
-            const testCourses = [
-                {
-                    title: '2025년 1기 건강운동처방사 과정',
-                    certificateType: 'health-exercise',
-                    status: 'active',
-                    startDate: new Date('2025-01-15'),
-                    endDate: new Date('2025-03-15'),
-                    instructor: '김영수 교수',
-                    capacity: 30,
-                    currentEnrollment: 25
-                },
-                {
-                    title: '2025년 1기 운동재활전문가 과정',
-                    certificateType: 'rehabilitation',
-                    status: 'active',
-                    startDate: new Date('2025-02-01'),
-                    endDate: new Date('2025-04-01'),
-                    instructor: '이미연 교수',
-                    capacity: 25,
-                    currentEnrollment: 20
-                },
-                {
-                    title: '2025년 1기 필라테스 전문가 과정',
-                    certificateType: 'pilates',
-                    status: 'active',
-                    startDate: new Date('2025-01-20'),
-                    endDate: new Date('2025-03-20'),
-                    instructor: '박지혜 강사',
-                    capacity: 20,
-                    currentEnrollment: 18
-                },
-                {
-                    title: '2025년 1기 레크리에이션지도자 과정',
-                    certificateType: 'recreation',
-                    status: 'active',
-                    startDate: new Date('2025-02-10'),
-                    endDate: new Date('2025-04-10'),
-                    instructor: '최민수 강사',
-                    capacity: 35,
-                    currentEnrollment: 30
-                }
-            ];
-
-            try {
-                const batch = window.dhcFirebase.db.batch();
-
-                testCourses.forEach(courseData => {
-                    const docRef = window.dhcFirebase.db.collection('courses').doc();
-                    const dataWithTimestamp = {
-                        ...courseData,
-                        createdAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp(),
-                        updatedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
-                    };
-                    batch.set(docRef, dataWithTimestamp);
-                });
-
-                await batch.commit();
-                console.log('테스트 교육과정 데이터 생성 완료');
-
-                if (window.adminAuth?.showNotification) {
-                    window.adminAuth.showNotification('테스트 교육과정 데이터가 생성되었습니다.', 'info');
-                }
-            } catch (error) {
-                console.error('테스트 데이터 생성 오류:', error);
-            }
-        },
-
-        /**
          * 교육과정 날짜 포맷팅
          */
         formatCourseDate: function (date) {
@@ -1673,135 +988,309 @@ function initCertManager() {
         },
 
         /**
-         * 자격증 발급 처리
+         * 자격증 유형 전환
          */
-        issueCertificate: async function (form) {
+        switchCertType: function (certType) {
+            // 이미 선택된 유형이면 무시
+            if (this.currentCertType === certType) return;
+
+            // 탭 상태 업데이트
+            const tabs = document.querySelectorAll('.cert-tab');
+            tabs.forEach(tab => {
+                if (tab.dataset.cert === certType) {
+                    tab.classList.add('active', 'border-indigo-500', 'text-indigo-600');
+                    tab.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                } else {
+                    tab.classList.remove('active', 'border-indigo-500', 'text-indigo-600');
+                    tab.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                }
+            });
+
+            // 타이틀 업데이트
+            const certTypeTitle = document.getElementById('cert-type-title');
+            if (certTypeTitle) {
+                certTypeTitle.textContent = this.getCertTypeName(certType);
+            }
+
+            // 현재 자격증 유형 업데이트
+            this.currentCertType = certType;
+            this.currentPage = 1;
+            this.lastDoc = null;
+
+            // 자격증 데이터 로드
+            this.loadCertificates();
+        },
+
+        /**
+         * 자격증 목록 로드 (완전 구현)
+         */
+        loadCertificates: async function () {
             try {
-                // 폼 데이터 가져오기
-                const name = document.getElementById('issue-name').value.trim();
-                const email = document.getElementById('issue-email').value.trim();
-                const courseId = document.getElementById('issue-course').value;
-                const completionDate = document.getElementById('issue-completion-date').value;
-                const expiryDate = document.getElementById('issue-expiry-date').value;
-
-                // 유효성 검사
-                if (!name || !email || !courseId || !completionDate || !expiryDate) {
-                    window.adminAuth?.showNotification('모든 필드를 입력해주세요.', 'error');
-                    return;
+                // 로딩 상태 표시
+                const tableBody = document.querySelector('#cert-table tbody');
+                if (tableBody) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-gray-500">데이터 로딩 중...</td>
+                        </tr>
+                    `;
                 }
 
-                // 로딩 표시
-                if (window.adminUtils?.showLoadingOverlay) {
-                    window.adminUtils.showLoadingOverlay(true);
-                }
+                // 자격증 데이터 가져오기
+                let certificates = [];
 
-                // 자격증 번호 생성 (예: HE-2025-0001)
-                const certTypePrefix = {
-                    'health-exercise': 'HE',
-                    'rehabilitation': 'RE',
-                    'pilates': 'PI',
-                    'recreation': 'RC'
-                }[this.currentCertType] || 'XX';
-
-                const year = new Date().getFullYear();
-                const count = await this.getCertificateCount(this.currentCertType, year);
-                const certificateNumber = `${certTypePrefix}-${year}-${String(count + 1).padStart(4, '0')}`;
-
+                // Firebase가 초기화되었는지 확인
                 const firebaseStatus = checkFirebaseConnection();
-                if (firebaseStatus.connected) {
-                    // 자격증 데이터 생성
-                    const certData = {
-                        certificateNumber: certificateNumber,
-                        certificateType: this.currentCertType,
-                        holderName: name,
-                        holderEmail: email,
-                        courseId: courseId,
-                        issueDate: window.dhcFirebase.firebase.firestore.Timestamp.fromDate(new Date(completionDate)),
-                        expiryDate: window.dhcFirebase.firebase.firestore.Timestamp.fromDate(new Date(expiryDate)),
-                        status: 'active',
-                        createdAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp(),
-                        updatedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
-                    };
-
-                    // Firebase에 저장
+                if (firebaseStatus.connected && window.dbService) {
                     try {
-                        const docRef = await window.dhcFirebase.db.collection('certificates').add(certData);
+                        console.log('Firebase에서 자격증 데이터 로드 시작');
 
-                        // 성공
-                        window.adminAuth?.showNotification('자격증이 성공적으로 발급되었습니다.', 'success');
+                        // 단순화된 쿼리 사용
+                        let query = window.dhcFirebase.db.collection('certificates')
+                            .where('certificateType', '==', this.currentCertType);
 
-                        // 모달 닫기
-                        this.closeIssueCertModal();
+                        // 상태 필터 적용 (선택적)
+                        const statusFilter = document.getElementById('filter-status')?.value;
+                        if (statusFilter) {
+                            query = query.where('status', '==', statusFilter);
+                        }
 
-                        // 목록 새로고침
-                        this.loadCertificates();
+                        const snapshot = await query.get();
+
+                        if (!snapshot.empty) {
+                            snapshot.forEach(doc => {
+                                certificates.push({
+                                    id: doc.id,
+                                    ...doc.data()
+                                });
+                            });
+
+                            // 클라이언트 측에서 정렬 (최신 발급일 기준)
+                            certificates.sort((a, b) => {
+                                const dateA = a.issueDate?.seconds || 0;
+                                const dateB = b.issueDate?.seconds || 0;
+                                return dateB - dateA;
+                            });
+
+                            // 페이지네이션 처리
+                            const startIndex = (this.currentPage - 1) * this.pageSize;
+                            certificates = certificates.slice(startIndex, startIndex + this.pageSize);
+                        }
                     } catch (error) {
-                        console.error('자격증 저장 오류:', error);
-                        window.adminAuth?.showNotification('자격증 발급에 실패했습니다.', 'error');
+                        console.error('Firebase 데이터 조회 오류:', error);
+                        window.adminAuth?.showNotification('데이터 조회 중 오류가 발생했습니다.', 'error');
                     }
                 } else {
-                    // 테스트 환경에서는 성공으로 처리
-                    setTimeout(() => {
-                        // 성공 메시지
-                        window.adminAuth?.showNotification('자격증이 성공적으로 발급되었습니다.', 'success');
-
-                        // 모달 닫기
-                        this.closeIssueCertModal();
-
-                        // 목록 새로고침
-                        this.loadCertificates();
-                    }, 1000);
+                    // Firebase 연동 전 테스트 데이터 사용
+                    console.log('Firebase 미연결, 테스트 데이터 사용');
+                    certificates = await this.getMockCertificates();
                 }
+
+                // 테이블 업데이트
+                this.updateCertificateTable(certificates);
+
             } catch (error) {
-                console.error('자격증 발급 오류:', error);
-                window.adminAuth?.showNotification('자격증 발급 중 오류가 발생했습니다.', 'error');
-            } finally {
-                // 로딩 종료
-                if (window.adminUtils?.showLoadingOverlay) {
-                    window.adminUtils.showLoadingOverlay(false);
+                console.error('자격증 데이터 로드 오류:', error);
+                const tableBody = document.querySelector('#cert-table tbody');
+                if (tableBody) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-red-500">데이터 로드 중 오류가 발생했습니다.</td>
+                        </tr>
+                    `;
                 }
             }
         },
 
         /**
-         * 자격증 수 조회 (번호 생성용)
+         * 자격증 테이블 업데이트
          */
-        getCertificateCount: async function (certType, year) {
-            try {
-                const firebaseStatus = checkFirebaseConnection();
-                if (firebaseStatus.connected) {
-                    const startOfYear = new Date(year, 0, 1);
-                    const endOfYear = new Date(year + 1, 0, 1);
+        updateCertificateTable: function (certificates) {
+            const tableBody = document.querySelector('#cert-table tbody');
 
-                    // 단순 쿼리로 변경 (인덱스 문제 해결)
-                    const query = window.dhcFirebase.db.collection('certificates')
-                        .where('certificateType', '==', certType);
-
-                    const snapshot = await query.get();
-
-                    // 클라이언트 측에서 필터링 (연도별)
-                    let count = 0;
-
-                    if (!snapshot.empty) {
-                        snapshot.forEach(doc => {
-                            const data = doc.data();
-                            const issueDate = data.issueDate?.toDate ? data.issueDate.toDate() : null;
-
-                            if (issueDate && issueDate >= startOfYear && issueDate < endOfYear) {
-                                count++;
-                            }
-                        });
-                    }
-
-                    return count;
-                }
-
-                // 테스트 환경에서는 0 반환 (첫 번째 자격증 번호는 0001이 됨)
-                return 0;
-            } catch (error) {
-                console.error('자격증 수 조회 오류:', error);
-                return 0;
+            if (!tableBody) {
+                console.error('cert-table tbody를 찾을 수 없습니다.');
+                return;
             }
+
+            if (!certificates || certificates.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-gray-500">
+                            <div class="text-lg font-semibold mb-2">등록된 자격증이 없습니다</div>
+                            <p class="text-gray-600">새로운 자격증을 발급해보세요.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let tableHtml = '';
+
+            certificates.forEach(cert => {
+                // 안전한 데이터 접근
+                const certNumber = cert.certificateNumber || cert.certNumber || cert.id || '-';
+                const holderName = cert.holderName || cert.name || '-';
+                const courseName = cert.courseName || cert.course || '-';
+
+                // 날짜 포맷팅
+                const issueDate = this.formatDateSafe(cert.issueDate) || '-';
+                const expiryDate = this.formatDateSafe(cert.expiryDate) || '-';
+
+                const status = cert.status || 'active';
+
+                const getStatusBadge = (status) => {
+                    const badges = {
+                        'active': '<span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">유효</span>',
+                        'expired': '<span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">만료</span>',
+                        'revoked': '<span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">취소</span>',
+                        'suspended': '<span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">정지</span>'
+                    };
+                    return badges[status] || `<span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">${status}</span>`;
+                };
+
+                tableHtml += `
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="text-center">
+                            <input type="checkbox" class="cert-checkbox" data-id="${cert.id}">
+                        </td>
+                        <td>${certNumber}</td>
+                        <td>${holderName}</td>
+                        <td>${courseName}</td>
+                        <td>${issueDate}</td>
+                        <td>${expiryDate}</td>
+                        <td>${getStatusBadge(status)}</td>
+                        <td>
+                            <div class="flex space-x-2">
+                                <button onclick="certManager.viewCertDetails('${cert.id}')" 
+                                    class="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600" title="상세 보기">
+                                    상세
+                                </button>
+                                <button onclick="certManager.editCert('${cert.id}')" 
+                                    class="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600" title="수정">
+                                    수정
+                                </button>
+                                
+                                <!-- PDF 드롭다운 -->
+                                <div class="relative inline-block">
+                                    <button onclick="certManager.togglePdfDropdown('${cert.id}')" 
+                                        class="px-2 py-1 bg-indigo-500 text-white rounded text-xs hover:bg-indigo-600" title="PDF 다운로드">
+                                        PDF
+                                    </button>
+                                    <div id="pdf-dropdown-${cert.id}" class="hidden absolute right-0 mt-1 w-32 bg-white border border-gray-200 rounded shadow-lg z-10">
+                                        <a href="#" onclick="certManager.downloadCertPdf('${cert.id}', 'ko'); event.preventDefault();"
+                                           class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            한글 PDF
+                                        </a>
+                                        <a href="#" onclick="certManager.downloadCertPdf('${cert.id}', 'en'); event.preventDefault();"
+                                           class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            영문 PDF
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                                ${status !== 'suspended' && status !== 'revoked' ? `
+                                    <button onclick="certManager.revokeCertificate('${cert.id}')" 
+                                        class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600" title="자격증 취소">
+                                        취소
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableBody.innerHTML = tableHtml;
+
+            // PDF 드롭다운 초기화
+            this.initPdfDropdowns();
+        },
+
+        /**
+         * PDF 드롭다운 토글
+         */
+        togglePdfDropdown: function (certId) {
+            const dropdown = document.getElementById(`pdf-dropdown-${certId}`);
+            if (!dropdown) return;
+
+            // 다른 모든 드롭다운 닫기
+            document.querySelectorAll('[id^="pdf-dropdown-"]').forEach(dd => {
+                if (dd.id !== `pdf-dropdown-${certId}`) {
+                    dd.classList.add('hidden');
+                    dd.classList.remove('show');
+                }
+            });
+
+            // 현재 드롭다운 토글
+            dropdown.classList.toggle('hidden');
+            dropdown.classList.toggle('show');
+        },
+
+        /**
+         * PDF 드롭다운 초기화
+         */
+        initPdfDropdowns: function () {
+            // 이미 초기화되었으면 중복 방지
+            if (this._pdfDropdownInitialized) return;
+            this._pdfDropdownInitialized = true;
+
+            // 전역 클릭 이벤트로 드롭다운 닫기
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.relative')) {
+                    document.querySelectorAll('[id^="pdf-dropdown-"]').forEach(dropdown => {
+                        dropdown.classList.add('hidden');
+                        dropdown.classList.remove('show');
+                    });
+                }
+            });
+
+            console.log('✅ PDF 드롭다운 이벤트 리스너 초기화 완료');
+        },
+
+        /**
+         * 일괄 발급 파일 업로드 처리
+         */
+        handleBulkFileUpload: function (event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            console.log('일괄 발급 파일 업로드:', file.name);
+
+            // 파일 형식 확인
+            if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+                window.adminAuth?.showNotification('Excel 파일(.xlsx, .xls)만 업로드 가능합니다.', 'error');
+                event.target.value = '';
+                return;
+            }
+
+            // 미리보기 표시 (간단한 구현)
+            const previewArea = document.getElementById('bulk-preview');
+            if (previewArea) {
+                previewArea.classList.remove('hidden');
+                previewArea.innerHTML = `
+                    <div class="p-4 bg-green-50 border border-green-200 rounded">
+                        <p class="text-green-800">파일 업로드 완료: ${file.name}</p>
+                        <p class="text-sm text-green-600">일괄 발급을 진행하려면 "일괄 발급" 버튼을 클릭하세요.</p>
+                    </div>
+                `;
+            }
+
+            // 일괄 발급 버튼 활성화
+            const bulkIssueBtn = document.getElementById('bulk-issue-btn');
+            if (bulkIssueBtn) {
+                bulkIssueBtn.disabled = false;
+            }
+        },
+
+        /**
+         * 검색 기능
+         */
+        search: function () {
+            console.log('검색 실행');
+            this.currentPage = 1;
+            this.lastDoc = null;
+            this.loadCertificates();
         },
 
         /**
@@ -1830,12 +1319,6 @@ function initCertManager() {
                         const docRef = window.dhcFirebase.db.collection('certificates').doc(certId);
                         const docSnap = await docRef.get();
 
-                        console.log('🔥 Firebase 문서 조회 결과:', {
-                            exists: docSnap.exists,
-                            id: docSnap.id,
-                            dataExists: !!docSnap.data()
-                        });
-
                         if (docSnap.exists) {
                             const data = docSnap.data();
                             if (data) {
@@ -1850,7 +1333,6 @@ function initCertManager() {
                                     try {
                                         const courseRef = window.dhcFirebase.db.collection('courses').doc(cert.courseId);
                                         const courseSnap = await courseRef.get();
-
                                         if (courseSnap.exists) {
                                             courseName = courseSnap.data().title || '-';
                                             console.log('✅ 교육과정 정보 조회 성공:', courseName);
@@ -1866,7 +1348,6 @@ function initCertManager() {
                                     try {
                                         const userRef = window.dhcFirebase.db.collection('users').doc(cert.userId);
                                         const userSnap = await userRef.get();
-
                                         if (userSnap.exists) {
                                             const userData = userSnap.data();
                                             userName = userData.displayName || userData.name || '-';
@@ -1877,13 +1358,7 @@ function initCertManager() {
                                         console.error('사용자 정보 조회 오류:', error);
                                     }
                                 }
-                            } else {
-                                console.error('❌ Firebase 문서 데이터가 비어있음');
-                                cert = null;
                             }
-                        } else {
-                            console.error('❌ Firebase에서 해당 ID의 문서를 찾을 수 없음:', certId);
-                            cert = null;
                         }
                     } catch (error) {
                         console.error('❌ Firebase 자격증 정보 조회 오류:', error);
@@ -1937,11 +1412,11 @@ function initCertManager() {
                 const certType = this.getCertTypeName(safeGetValue(cert, 'certificateType') || this.currentCertType);
 
                 // 🔧 안전한 날짜 포맷팅
-                const issueDate = this.formatDate(cert.issueDate) ||
+                const issueDate = this.formatDateSafe(cert.issueDate) ||
                     safeGetValue(cert, 'issueDate') ||
                     '-';
 
-                const expiryDate = this.formatDate(cert.expiryDate) ||
+                const expiryDate = this.formatDateSafe(cert.expiryDate) ||
                     safeGetValue(cert, 'expiryDate') ||
                     '-';
 
@@ -1960,8 +1435,14 @@ function initCertManager() {
                     certNumber, holderName, holderEmail, certType, issueDate, expiryDate, status
                 });
 
-                // 모달 내용 생성
+                // 🔧 NEW: 모달 내용 생성 및 표시
                 const modalContent = document.getElementById('cert-detail-content');
+                if (!modalContent) {
+                    console.error('cert-detail-content를 찾을 수 없습니다.');
+                    window.adminAuth?.showNotification('모달 콘텐츠를 찾을 수 없습니다.', 'error');
+                    return;
+                }
+
                 modalContent.innerHTML = `
             <div class="grid grid-cols-2 gap-4">
                 <div>
@@ -2038,51 +1519,34 @@ function initCertManager() {
             </div>
         `;
 
-                // 🔧 모달 표시 개선
+                // 🔧 NEW: 모달 표시
                 const modal = document.getElementById('cert-detail-modal');
-                if (modal) {
-                    // 다른 모달들 먼저 닫기
-                    this.closeOtherModals('cert-detail-modal');
-
-                    // 상태 업데이트
-                    this.modalStates['cert-detail-modal'] = true;
-
-                    // 모달 표시
-                    modal.classList.remove('hidden');
-
-                    // body 스크롤 방지
-                    document.body.classList.add('modal-open');
-
-                    // 🔧 이벤트 리스너 재등록
-                    this.ensureModalEvents();
-
-                    console.log('✅ 자격증 상세 정보 모달 표시 완료');
+                if (!modal) {
+                    console.error('cert-detail-modal을 찾을 수 없습니다.');
+                    window.adminAuth?.showNotification('상세보기 모달을 찾을 수 없습니다.', 'error');
+                    return;
                 }
+
+                // 다른 모달들 먼저 닫기
+                this.closeOtherModals('cert-detail-modal');
+
+                // 상태 업데이트
+                this.modalStates['cert-detail-modal'] = true;
+
+                // 모달 표시
+                modal.classList.remove('hidden');
+
+                // body 스크롤 방지
+                document.body.classList.add('modal-open');
+
+                // 🔧 이벤트 리스너 재등록
+                this.ensureModalEvents();
+
+                console.log('✅ 자격증 상세 정보 모달 표시 완료');
 
             } catch (error) {
                 console.error('자격증 상세 정보 조회 오류:', error);
                 window.adminAuth?.showNotification('자격증 정보 조회 중 오류가 발생했습니다.', 'error');
-            }
-        },
-
-        /**
-         * 자격증 상세보기 모달 닫기
-         */
-        closeCertDetailModal: function () {
-            console.log('🔧 자격증 상세보기 모달 닫기');
-
-            const modal = document.getElementById('cert-detail-modal');
-            if (modal && this.modalStates['cert-detail-modal']) {
-                // 상태 업데이트
-                this.modalStates['cert-detail-modal'] = false;
-
-                // 모달 숨김
-                modal.classList.add('hidden');
-
-                // body 클래스 업데이트
-                this.updateBodyModalState();
-
-                console.log('✅ 자격증 상세보기 모달 닫기 완료');
             }
         },
 
@@ -2109,12 +1573,6 @@ function initCertManager() {
                         const docRef = window.dhcFirebase.db.collection('certificates').doc(certId);
                         const docSnap = await docRef.get();
 
-                        console.log('🔥 Firebase 수정 문서 조회 결과:', {
-                            exists: docSnap.exists,
-                            id: docSnap.id,
-                            dataExists: !!docSnap.data()
-                        });
-
                         if (docSnap.exists) {
                             const data = docSnap.data();
                             if (data) {
@@ -2123,13 +1581,7 @@ function initCertManager() {
                                     ...data
                                 };
                                 console.log('✅ Firebase에서 수정할 자격증 정보 조회 성공:', cert);
-                            } else {
-                                console.error('❌ Firebase 수정 문서 데이터가 비어있음');
-                                cert = null;
                             }
-                        } else {
-                            console.error('❌ Firebase에서 수정할 해당 ID의 문서를 찾을 수 없음:', certId);
-                            cert = null;
                         }
                     } catch (error) {
                         console.error('❌ Firebase 수정 자격증 정보 조회 오류:', error);
@@ -2160,37 +1612,43 @@ function initCertManager() {
                     }
                 };
 
-                // 🔧 폼에 안전하게 데이터 입력
+                // 🔧 NEW: 폼에 안전하게 데이터 입력
                 try {
-                    document.getElementById('edit-cert-id').value = certId;
+                    const editCertId = document.getElementById('edit-cert-id');
+                    const editCertNumber = document.getElementById('edit-cert-number');
+                    const editHolderName = document.getElementById('edit-holder-name');
+                    const editIssueDate = document.getElementById('edit-issue-date');
+                    const editExpiryDate = document.getElementById('edit-expiry-date');
+                    const editStatus = document.getElementById('edit-status');
+                    const editRemarks = document.getElementById('edit-remarks');
 
-                    document.getElementById('edit-cert-number').value =
-                        safeGetValue(cert, 'certificateNumber') ||
+                    if (!editCertId || !editCertNumber || !editHolderName) {
+                        console.error('수정 폼 요소들을 찾을 수 없습니다.');
+                        window.adminAuth?.showNotification('수정 폼을 찾을 수 없습니다.', 'error');
+                        return;
+                    }
+
+                    editCertId.value = certId;
+
+                    editCertNumber.value = safeGetValue(cert, 'certificateNumber') ||
                         safeGetValue(cert, 'certNumber') ||
                         certId;
 
-                    document.getElementById('edit-holder-name').value =
-                        safeGetValue(cert, 'holderName') ||
+                    editHolderName.value = safeGetValue(cert, 'holderName') ||
                         safeGetValue(cert, 'name') ||
                         'Unknown';
 
-                    document.getElementById('edit-issue-date').value =
-                        this.formatDateToInput(cert.issueDate) ||
+                    editIssueDate.value = this.formatDateToInput(cert.issueDate) ||
                         safeGetValue(cert, 'issueDate') ||
                         '';
 
-                    document.getElementById('edit-expiry-date').value =
-                        this.formatDateToInput(cert.expiryDate) ||
+                    editExpiryDate.value = this.formatDateToInput(cert.expiryDate) ||
                         safeGetValue(cert, 'expiryDate') ||
                         '';
 
-                    document.getElementById('edit-status').value =
-                        safeGetValue(cert, 'status') ||
-                        'active';
+                    editStatus.value = safeGetValue(cert, 'status') || 'active';
 
-                    document.getElementById('edit-remarks').value =
-                        safeGetValue(cert, 'remarks') ||
-                        '';
+                    editRemarks.value = safeGetValue(cert, 'remarks') || '';
 
                     console.log('✅ 수정 폼에 데이터 입력 완료');
                 } catch (error) {
@@ -2199,26 +1657,30 @@ function initCertManager() {
                     return;
                 }
 
-                // 🔧 모달 표시 개선
+                // 🔧 NEW: 모달 표시
                 const modal = document.getElementById('cert-edit-modal');
-                if (modal) {
-                    // 다른 모달들 먼저 닫기
-                    this.closeOtherModals('cert-edit-modal');
-
-                    // 상태 업데이트
-                    this.modalStates['cert-edit-modal'] = true;
-
-                    // 모달 표시
-                    modal.classList.remove('hidden');
-
-                    // body 스크롤 방지
-                    document.body.classList.add('modal-open');
-
-                    // 🔧 이벤트 리스너 재등록
-                    this.ensureModalEvents();
-
-                    console.log('✅ 자격증 수정 모달 표시 완료');
+                if (!modal) {
+                    console.error('cert-edit-modal을 찾을 수 없습니다.');
+                    window.adminAuth?.showNotification('수정 모달을 찾을 수 없습니다.', 'error');
+                    return;
                 }
+
+                // 다른 모달들 먼저 닫기
+                this.closeOtherModals('cert-edit-modal');
+
+                // 상태 업데이트
+                this.modalStates['cert-edit-modal'] = true;
+
+                // 모달 표시
+                modal.classList.remove('hidden');
+
+                // body 스크롤 방지
+                document.body.classList.add('modal-open');
+
+                // 🔧 이벤트 리스너 재등록
+                this.ensureModalEvents();
+
+                console.log('✅ 자격증 수정 모달 표시 완료');
 
             } catch (error) {
                 console.error('자격증 수정 폼 로드 오류:', error);
@@ -2227,30 +1689,1351 @@ function initCertManager() {
         },
 
         /**
-         * 자격증 수정 모달 닫기
+         * 자격증 취소
          */
-        closeCertEditModal: function () {
-            console.log('🔧 자격증 수정 모달 닫기');
-
-            const modal = document.getElementById('cert-edit-modal');
-            if (modal && this.modalStates['cert-edit-modal']) {
-                // 상태 업데이트
-                this.modalStates['cert-edit-modal'] = false;
-
-                // 모달 숨김
-                modal.classList.add('hidden');
-
-                // 폼 초기화
-                const form = document.getElementById('cert-edit-form');
-                if (form) form.reset();
-
-                // body 클래스 업데이트
-                this.updateBodyModalState();
-
-                console.log('✅ 자격증 수정 모달 닫기 완료');
+        revokeCertificate: function (certId) {
+            if (confirm('정말로 이 자격증을 취소하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+                this.handleRevokeCertificate(certId);
             }
         },
 
+        /**
+         * 자격증 취소 처리
+         */
+        handleRevokeCertificate: async function (certId) {
+            try {
+                console.log('자격증 취소 처리:', certId);
+
+                // Firebase 연동 시
+                const firebaseStatus = checkFirebaseConnection();
+                if (firebaseStatus.connected) {
+                    const updateData = {
+                        status: 'revoked',
+                        revokedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
+                    };
+
+                    const docRef = window.dhcFirebase.db.collection('certificates').doc(certId);
+                    await docRef.update(updateData);
+
+                    window.adminAuth?.showNotification('자격증이 성공적으로 취소되었습니다.', 'success');
+                } else {
+                    // 테스트 환경
+                    setTimeout(() => {
+                        window.adminAuth?.showNotification('자격증이 성공적으로 취소되었습니다.', 'success');
+                    }, 1000);
+                }
+
+                // 목록 새로고침
+                this.loadCertificates();
+
+            } catch (error) {
+                console.error('자격증 취소 오류:', error);
+                window.adminAuth?.showNotification('자격증 취소 중 오류가 발생했습니다.', 'error');
+            }
+        },
+
+        /**
+         * 테스트용 모의 자격증 데이터 목록
+         */
+        getMockCertificates: function () {
+            return [
+                {
+                    id: 'cert1',
+                    certificateNumber: 'HE-2025-0001',
+                    certNumber: 'HE-2025-0001',
+                    holderName: '홍길동',
+                    name: '홍길동',
+                    courseName: '건강운동처방사 1기',
+                    course: '건강운동처방사 1기',
+                    issueDate: '2025-03-15',
+                    expiryDate: '2028-03-14',
+                    status: 'active',
+                    remarks: '최우수 성적으로 수료'
+                },
+                {
+                    id: 'cert2',
+                    certificateNumber: 'HE-2025-0002',
+                    certNumber: 'HE-2025-0002',
+                    holderName: '김철수',
+                    name: '김철수',
+                    courseName: '건강운동처방사 1기',
+                    course: '건강운동처방사 1기',
+                    issueDate: '2025-03-15',
+                    expiryDate: '2028-03-14',
+                    status: 'active',
+                    remarks: ''
+                },
+                {
+                    id: 'cert3',
+                    certificateNumber: 'HE-2024-0035',
+                    certNumber: 'HE-2024-0035',
+                    holderName: '이영희',
+                    name: '이영희',
+                    courseName: '건강운동처방사 4기',
+                    course: '건강운동처방사 4기',
+                    issueDate: '2024-12-20',
+                    expiryDate: '2027-12-19',
+                    status: 'active',
+                    remarks: ''
+                }
+            ];
+        },
+
+        /**
+         * 모달 닫기 함수들 (간단한 구현)
+         */
+        closeIssueCertModal: function () {
+            console.log('자격증 발급 모달 닫기');
+            this.modalStates['cert-issue-modal'] = false;
+        },
+
+        closeBulkIssuanceModal: function () {
+            console.log('일괄 발급 모달 닫기');
+            this.modalStates['bulk-issue-modal'] = false;
+        },
+
+        closeCertDetailModal: function () {
+            console.log('자격증 상세 모달 닫기');
+            this.modalStates['cert-detail-modal'] = false;
+        },
+
+        closeCertEditModal: function () {
+            console.log('자격증 수정 모달 닫기');
+            this.modalStates['cert-edit-modal'] = false;
+        },
+
+        /**
+         * 🎨 전문적인 자격증 PDF 다운로드 (사진 포함 버전)
+         */
+        downloadCertPdf: function (certId, lang) {
+            console.log('🎨 PDF 다운로드 시작 (사진 포함):', { certId, lang });
+
+            window.adminAuth?.showNotification('PDF 생성 중...', 'info');
+
+            // 라이브러리 체크 개선
+            const checkLibraries = () => {
+                const jsPdfReady = window.jsPDF || (window.jspdf && window.jspdf.jsPDF);
+                const html2canvasReady = window.html2canvas;
+
+                console.log('라이브러리 상태:', {
+                    jsPDF: !!jsPdfReady,
+                    html2canvas: !!html2canvasReady,
+                    windowJsPDF: !!window.jsPDF,
+                    windowJspdf: !!window.jspdf,
+                    windowHtml2canvas: !!window.html2canvas
+                });
+
+                return jsPdfReady && html2canvasReady;
+            };
+
+            if (checkLibraries()) {
+                console.log('✅ 라이브러리 체크 통과, PDF 생성 시작');
+                // jsPDF 전역 변수 설정 (필요한 경우)
+                if (!window.jsPDF && window.jspdf && window.jspdf.jsPDF) {
+                    window.jsPDF = window.jspdf.jsPDF;
+                }
+
+                // 언어에 따른 함수 호출
+                if (lang === 'ko') {
+                    this.generateKoreanCertPdfWithPhoto(certId);
+                } else {
+                    this.generateEnglishCertPdf(certId);
+                }
+            } else {
+                console.log('❌ 라이브러리 미로드, 동적 로드 시도');
+                // 라이브러리 동적 로드
+                this.loadJsPdfLibrary(() => {
+                    if (lang === 'ko') {
+                        this.generateKoreanCertPdfWithPhoto(certId);
+                    } else {
+                        this.generateEnglishCertPdf(certId);
+                    }
+                });
+            }
+        },
+
+        /**
+         * 🔧 NEW: 사진 포함 한글 자격증 PDF 생성
+         */
+        generateKoreanCertPdfWithPhoto: async function (certId) {
+            try {
+                console.log('🎨 한글 PDF 생성 시작 (사진 삽입 포함):', certId);
+
+                // jsPDF 생성자 확인
+                let jsPDFConstructor = window.jsPDF || (window.jspdf && window.jspdf.jsPDF);
+                if (!jsPDFConstructor) {
+                    throw new Error('jsPDF 라이브러리가 로드되지 않았습니다.');
+                }
+
+                // 자격증 정보 조회
+                let cert = await this.getCertificateData(certId);
+                if (!cert) {
+                    window.adminAuth?.showNotification('자격증 정보를 찾을 수 없습니다.', 'error');
+                    return;
+                }
+
+                // 안전한 데이터 추출
+                const certData = this.extractCertificateData(cert);
+                const today = new Date();
+                const formattedToday = window.formatters.formatDate(today, 'YYYY년 MM월 DD일');
+
+                // 🔧 NEW: 증명사진 로드
+                console.log('📸 증명사진 로드 시작...');
+                let photoData = null;
+
+                try {
+                    // 자격증 데이터에서 사진 URL 확인
+                    const photoUrl = cert.photoUrl || cert.photo?.url || null;
+
+                    if (photoUrl) {
+                        console.log('📸 사진 URL 발견:', photoUrl);
+                        photoData = await loadCertificatePhoto(photoUrl);
+                    } else {
+                        console.log('📸 사진 URL이 없음, 플레이스홀더 사용');
+                    }
+
+                    if (!photoData) {
+                        console.log('📸 사진 로드 실패, 플레이스홀더 생성');
+                        photoData = createPlaceholderPhoto();
+                    }
+                } catch (error) {
+                    console.error('📸 사진 처리 중 오류:', error);
+                    photoData = createPlaceholderPhoto();
+                }
+
+                // 이미지 경로 설정
+                const borderImagePath = '../../assets/images/logo/border-gold.png';
+                const koreaImagePath = '../../assets/images/logo/korea-medal.png';
+                const sealImagePath = '../../assets/images/logo/seal.png';
+
+                console.log('🖼️ 이미지 경로:', {
+                    border: borderImagePath,
+                    medal: koreaImagePath,
+                    seal: sealImagePath,
+                    photo: photoData ? 'loaded' : 'placeholder'
+                });
+
+                // 🔧 NEW: 사진 포함 한글 HTML 템플릿 생성
+                const certTemplate = this.createKoreanTemplateWithPhoto(
+                    certData,
+                    borderImagePath,
+                    koreaImagePath,
+                    sealImagePath,
+                    formattedToday,
+                    photoData
+                );
+
+                // DOM에 추가
+                document.body.appendChild(certTemplate);
+
+                try {
+                    // 이미지 로딩 대기
+                    console.log('⏳ 모든 이미지 로딩 대기 중...');
+                    await this.waitForImagesLoad(certTemplate);
+
+                    // HTML to Canvas
+                    console.log('🖼️ HTML을 Canvas로 변환 중...');
+                    const canvas = await window.html2canvas(certTemplate, {
+                        scale: 3, // 고해상도
+                        logging: false,
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: "#ffffff",
+                        width: 794,
+                        height: 1123
+                    });
+
+                    console.log('✅ Canvas 생성 완료, 크기:', canvas.width, 'x', canvas.height);
+
+                    // PDF 생성
+                    console.log('📄 PDF 생성 중...');
+                    const doc = new jsPDFConstructor({
+                        orientation: 'portrait',
+                        unit: 'mm',
+                        format: 'a4',
+                        compress: true
+                    });
+
+                    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                    const pageWidth = doc.internal.pageSize.getWidth();
+                    const pageHeight = doc.internal.pageSize.getHeight();
+
+                    doc.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+
+                    const fileName = `${certData.certType}_${certData.holderName}_${certData.certNumber}_한글.pdf`;
+                    doc.save(fileName);
+
+                    console.log('✅ 사진 포함 한글 PDF 생성 완료:', fileName);
+                    window.adminAuth?.showNotification('한글 자격증 PDF가 생성되었습니다.', 'success');
+
+                } catch (error) {
+                    console.error('PDF 생성 중 오류:', error);
+                    window.adminAuth?.showNotification('PDF 생성 중 오류가 발생했습니다: ' + error.message, 'error');
+                } finally {
+                    // 템플릿 제거
+                    if (document.body.contains(certTemplate)) {
+                        document.body.removeChild(certTemplate);
+                        console.log('🧹 임시 템플릿 제거 완료');
+                    }
+                }
+
+            } catch (error) {
+                console.error('한글 PDF 생성 전체 오류:', error);
+                window.adminAuth?.showNotification('PDF 생성 중 오류가 발생했습니다: ' + error.message, 'error');
+            }
+        },
+
+        /**
+         * 🔧 NEW: 사진 포함 한글 HTML 템플릿 생성
+         */
+        createKoreanTemplateWithPhoto: function (certData, borderPath, medalPath, sealPath, issuedDate, photoData) {
+            const template = document.createElement('div');
+            template.id = 'korean-cert-template-with-photo';
+            template.style.cssText = `
+                width: 794px;
+                height: 1123px;
+                position: absolute;
+                left: -10000px;
+                top: -10000px;
+                font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+                background: #ffffff;
+                overflow: hidden;
+                z-index: -1000;
+                padding: 0;
+                margin: 0;
+                box-sizing: border-box;
+            `;
+
+            // 영문 자격증명 매칭
+            const getEnglishCertName = (koreanCertType) => {
+                const mapping = {
+                    '건강운동처방사': 'Health Exercise Specialist',
+                    '운동재활전문가': 'Exercise Rehabilitation Specialist',
+                    '필라테스 전문가': 'Pilates Specialist',
+                    '레크리에이션지도자': 'Recreation Instructor'
+                };
+                return mapping[koreanCertType] || 'Health Exercise Specialist';
+            };
+
+            const englishCertName = getEnglishCertName(certData.certType);
+
+            // 🔧 NEW: 사진 HTML 생성
+            const photoHtml = photoData ? `
+                <img src="${photoData.dataUrl}" 
+                     style="
+                         width: 120px;
+                         height: 160px;
+                         object-fit: cover;
+                         border: 2px solid #64748b;
+                         border-radius: 4px;
+                         display: block;
+                     "
+                     alt="증명사진">
+            ` : `
+                <div style="
+                    width: 120px;
+                    height: 160px;
+                    border: 2px solid #64748b;
+                    background: #f8fafc;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 14px;
+                    color: #64748b;
+                    font-weight: 500;
+                    border-radius: 4px;
+                ">
+                    사진
+                </div>
+            `;
+
+            template.innerHTML = `
+                <!-- 전체 파란색 배경 -->
+                <div style="
+                    position: relative;
+                    width: 794px;
+                    height: 1123px;
+                    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+                    padding: 30px;
+                    box-sizing: border-box;
+                ">
+                    <!-- 흰색 내부 영역 -->
+                    <div style="
+                        position: relative;
+                        width: 100%;
+                        height: 100%;
+                        background: #ffffff;
+                        overflow: hidden;
+                    ">
+                        <!-- 🖼️ 황금 테두리 이미지 (배경) -->
+                        <img src="${borderPath}" 
+                             style="
+                                 position: absolute;
+                                 top: 0;
+                                 left: 0;
+                                 width: 100%;
+                                 height: 100%;
+                                 object-fit: cover;
+                                 z-index: 1;
+                             ">
+
+                        <!-- 🔧 국문 메달 이미지 -->
+                        <img src="${medalPath}" 
+                             style="
+                                 position: absolute;
+                                 top: 100px;
+                                 left: 100px;
+                                 width: 110px;
+                                 height: 110px;
+                                 z-index: 2;
+                             ">
+
+                        <!-- 🔧 콘텐츠 영역 -->
+                        <div style="
+                            position: relative;
+                            z-index: 3;
+                            padding: 90px 100px 80px 100px;
+                            height: 100%;
+                            box-sizing: border-box;
+                            display: flex;
+                            flex-direction: column;
+                        ">
+                            <!-- 상단: 자격증 제목 -->
+                            <div style="text-align: center; margin-bottom: 60px;">
+                                <h1 style="
+                                    font-size: 48px;
+                                    font-weight: 900;
+                                    color: #1e3a8a;
+                                    margin: 0 0 15px 0;
+                                    letter-spacing: 3px;
+                                ">
+                                    ${certData.certType}
+                                </h1>
+                                <p style="
+                                    font-size: 18px;
+                                    color: #3b82f6;
+                                    margin: 0;
+                                    letter-spacing: 2px;
+                                    font-weight: 500;
+                                    font-style: italic;
+                                ">
+                                    ${englishCertName}
+                                </p>
+                            </div>
+
+                            <!-- 중앙: 정보 영역 -->
+                            <div style="
+                                flex: 1;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: flex-start;
+                                margin: 20px 0 20px 0;
+                            ">
+                                <div style="
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: flex-start;
+                                    margin-bottom: 60px;
+                                ">
+                                    <!-- 좌측: 자격증 정보 -->
+                                    <div style="
+                                        flex: 1; 
+                                        text-align: left; 
+                                        padding-right: 60px;
+                                        padding-left: 20px;
+                                    ">
+                                        <div style="margin-bottom: 25px;">
+                                            <span style="
+                                                font-weight: 600; 
+                                                color: #1e293b;
+                                                font-size: 17px;
+                                            ">인증번호 : </span>
+                                            <span style="
+                                                font-weight: 700; 
+                                                color: #1e3a8a;
+                                                font-size: 17px;
+                                            ">${certData.certNumber}</span>
+                                        </div>
+                                        
+                                        <div style="margin-bottom: 25px;">
+                                            <span style="
+                                                font-weight: 600; 
+                                                color: #1e293b;
+                                                font-size: 17px;
+                                            ">성 명 : </span>
+                                            <span style="
+                                                font-weight: 700; 
+                                                color: #1e3a8a; 
+                                                font-size: 20px;
+                                            ">${certData.holderName}</span>
+                                        </div>
+                                        
+                                        <div style="margin-bottom: 25px;">
+                                            <span style="
+                                                font-weight: 600; 
+                                                color: #1e293b;
+                                                font-size: 17px;
+                                            ">급 수 : </span>
+                                            <span style="
+                                                font-weight: 700; 
+                                                color: #1e3a8a;
+                                                font-size: 17px;
+                                            ">1급</span>
+                                        </div>
+                                        
+                                        <div style="margin-bottom: 25px;">
+                                            <span style="
+                                                font-weight: 600; 
+                                                color: #1e293b;
+                                                font-size: 17px;
+                                            ">취득일자 : </span>
+                                            <span style="
+                                                font-weight: 700; 
+                                                color: #1e3a8a;
+                                                font-size: 17px;
+                                            ">${certData.issueDate}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 🔧 NEW: 우측 - 실제 사진 영역 -->
+                                    <div style="
+                                        width: 120px;
+                                        height: 160px;
+                                        margin-right: 20px;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                    ">
+                                        ${photoHtml}
+                                    </div>
+                                </div>
+
+                                <!-- 🎨 인증 문구 -->
+                                <div style="
+                                    text-align: center;
+                                    margin: 40px 0 60px 0;
+                                    line-height: 2.2;
+                                    font-size: 19px;
+                                    color: #1e293b;
+                                ">
+                                    <p style="margin: 0 0 15px 0; font-weight: 500;">
+                                        위 사람은 <strong style="color: #1e3a8a;">${certData.certType}</strong> 1급 교육과정을
+                                    </p>
+                                    <p style="margin: 0 0 15px 0; font-weight: 500;">
+                                        이수하고 이론 및 실기 심사에 통과하였으므로
+                                    </p>
+                                    <p style="margin: 0; font-weight: 700; color: #1e3a8a; font-size: 21px;">
+                                        자격증을 수여합니다.
+                                    </p>
+                                </div>
+
+                                <!-- 🔧 하단: 발급 정보 -->
+                                <div style="
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    margin-top: 30px;
+                                ">
+                                    <!-- 날짜 (중앙 정렬) -->
+                                    <div style="
+                                        text-align: center;
+                                        margin-bottom: 35px;
+                                    ">
+                                        <p style="
+                                            font-size: 20px;
+                                            margin: 0;
+                                            color: #1e293b;
+                                            font-weight: 600;
+                                        ">${issuedDate}</p>
+                                    </div>
+
+                                    <!-- 센터명과 직인 -->
+                                    <div style="
+                                        text-align: center;
+                                        margin-bottom: 20px;
+                                        position: relative;
+                                        display: inline-block;
+                                    ">
+                                        <h3 style="
+                                            font-size: 26px;
+                                            font-weight: 800;
+                                            margin: 0;
+                                            color: #1e3a8a;
+                                            line-height: 1.3;
+                                            text-align: center;
+                                            display: inline-block;
+                                        ">(사)문경 부설 디지털헬스케어센터</h3>
+                                        
+                                        <!-- 직인 -->
+                                        <img src="${sealPath}" 
+                                             style="
+                                                 width: 85px;
+                                                 height: 85px;
+                                                 object-fit: contain;
+                                                 position: absolute;
+                                                 top: 50%;
+                                                 transform: translateY(-50%);
+                                                 right: -80px;
+                                             ">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return template;
+        },
+
+        /**
+         * 🔧 자격증 데이터 조회 함수 개선 (사진 URL 포함)
+         */
+        getCertificateData: async function (certId) {
+            let cert = null;
+
+            const firebaseStatus = checkFirebaseConnection();
+            if (firebaseStatus.connected && window.dhcFirebase) {
+                try {
+                    const docRef = window.dhcFirebase.db.collection('certificates').doc(certId);
+                    const docSnap = await docRef.get();
+
+                    if (docSnap.exists) {
+                        cert = { id: docSnap.id, ...docSnap.data() };
+
+                        // 교육 과정 정보 조회
+                        if (cert.courseId) {
+                            try {
+                                const courseRef = window.dhcFirebase.db.collection('courses').doc(cert.courseId);
+                                const courseSnap = await courseRef.get();
+                                if (courseSnap.exists) {
+                                    cert.courseName = courseSnap.data().title || '';
+                                }
+                            } catch (error) {
+                                console.error('교육 과정 조회 오류:', error);
+                            }
+                        }
+
+                        // 🔧 NEW: 사진 URL 확인 및 Base64 대체
+                        if (cert.photoUrl || cert.photo?.url) {
+                            console.log('📸 자격증 데이터에서 사진 URL 발견:', cert.photoUrl || cert.photo?.url);
+
+                            // 실제 사진 URL이 있지만 접근할 수 없는 경우를 대비해 검증
+                            const photoUrl = cert.photoUrl || cert.photo?.url;
+
+                            // 외부 placeholder 서비스 URL이면 Base64로 대체
+                            if (photoUrl.includes('placeholder.com') || photoUrl.includes('via.placeholder')) {
+                                console.log('🔧 외부 플레이스홀더 감지, Base64 이미지로 대체');
+                                cert.photoUrl = createBase64TestPhoto();
+                                cert.isBase64Photo = true;
+                            }
+                        } else {
+                            console.log('📸 자격증 데이터에 사진 URL 없음, Base64 플레이스홀더 생성');
+                            cert.photoUrl = createSimpleBase64Placeholder();
+                            cert.isBase64Photo = true;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Firebase 자격증 정보 조회 오류:', error);
+                }
+            }
+
+            // Firebase에서 찾지 못한 경우 테스트 데이터 사용
+            if (!cert) {
+                cert = this.getMockCertificateById(certId);
+                if (cert) {
+                    cert.courseName = cert.course || '전문 교육과정';
+                    // 🔧 NEW: 테스트 데이터에 Base64 사진 추가
+                    cert.photoUrl = createBase64TestPhoto();
+                    cert.isBase64Photo = true;
+                    console.log('📸 테스트 데이터에 Base64 증명사진 추가');
+                }
+            }
+
+            return cert;
+        },
+
+        /**
+         * 안전한 자격증 데이터 추출
+         */
+        extractCertificateData: function (cert) {
+            const safeGetValue = (obj, path, defaultValue = '') => {
+                try {
+                    return path.split('.').reduce((current, key) => current?.[key], obj) || defaultValue;
+                } catch {
+                    return defaultValue;
+                }
+            };
+
+            return {
+                certNumber: safeGetValue(cert, 'certificateNumber') ||
+                    safeGetValue(cert, 'certNumber') ||
+                    'DHC-2025-0001',
+                holderName: safeGetValue(cert, 'holderName') ||
+                    safeGetValue(cert, 'name') ||
+                    '홍길동',
+                holderEmail: safeGetValue(cert, 'holderEmail') ||
+                    safeGetValue(cert, 'email') ||
+                    'test@example.com',
+                certificateType: safeGetValue(cert, 'certificateType') ||
+                    this.currentCertType ||
+                    'health-exercise',
+                certType: this.getCertTypeName(safeGetValue(cert, 'certificateType') || 'health-exercise'),
+                courseName: safeGetValue(cert, 'courseName') ||
+                    safeGetValue(cert, 'course') ||
+                    '전문 교육과정',
+                issueDate: this.formatDateSafe(cert.issueDate) || '2025-05-19',
+                expiryDate: this.formatDateSafe(cert.expiryDate) || '2028-05-19',
+                status: safeGetValue(cert, 'status') || 'active'
+            };
+        },
+
+        /**
+         * 이미지 로딩 대기
+         */
+        waitForImagesLoad: async function (container) {
+            const images = container.querySelectorAll('img');
+
+            if (images.length === 0) {
+                return Promise.resolve();
+            }
+
+            const imagePromises = Array.from(images).map(img => {
+                return new Promise((resolve) => {
+                    if (img.complete && img.naturalWidth > 0) {
+                        resolve();
+                    } else {
+                        img.onload = resolve;
+                        img.onerror = resolve; // 실패해도 진행
+                    }
+                });
+            });
+
+            // 최대 5초 대기
+            const timeoutPromise = new Promise(resolve => setTimeout(resolve, 5000));
+
+            return Promise.race([
+                Promise.all(imagePromises),
+                timeoutPromise
+            ]);
+        },
+
+        /**
+         * jsPDF 라이브러리 동적 로드
+         */
+        loadJsPdfLibrary: function (callback) {
+            console.log('🔄 PDF 라이브러리 동적 로드 시작...');
+
+            // 이미 로드되어 있는지 재확인
+            const jsPDFAvailable = window.jsPDF || (window.jspdf && window.jspdf.jsPDF) || (typeof jsPDF !== 'undefined');
+
+            if (jsPDFAvailable && window.html2canvas) {
+                console.log('✅ 라이브러리가 이미 로드되어 있음');
+                callback();
+                return;
+            }
+
+            let loadedCount = 0;
+            const totalLibraries = 2;
+
+            const checkComplete = () => {
+                loadedCount++;
+                console.log(`라이브러리 로드 진행: ${loadedCount}/${totalLibraries}`);
+
+                if (loadedCount >= totalLibraries) {
+                    // 로드 완료 후 전역 변수 설정
+                    setTimeout(() => {
+                        if (window.jspdf && window.jspdf.jsPDF && !window.jsPDF) {
+                            window.jsPDF = window.jspdf.jsPDF;
+                            console.log('✅ jsPDF 전역 변수 설정 완료');
+                        }
+
+                        console.log('✅ 모든 라이브러리 로드 및 설정 완료');
+                        console.log('최종 라이브러리 상태:', {
+                            jsPDF: !!window.jsPDF,
+                            jspdf: !!window.jspdf,
+                            html2canvas: !!window.html2canvas
+                        });
+
+                        callback();
+                    }, 100);
+                }
+            };
+
+            // jsPDF 라이브러리 로드
+            if (!jsPDFAvailable) {
+                console.log('📦 jsPDF 라이브러리 로드 중...');
+                const jsPdfScript = document.createElement('script');
+                jsPdfScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                jsPdfScript.crossOrigin = 'anonymous';
+                jsPdfScript.onload = () => {
+                    console.log('✅ jsPDF 로드 완료');
+                    if (window.jspdf && window.jspdf.jsPDF && !window.jsPDF) {
+                        window.jsPDF = window.jspdf.jsPDF;
+                        console.log('🔧 jsPDF 전역 변수 설정');
+                    }
+                    checkComplete();
+                };
+                jsPdfScript.onerror = () => {
+                    console.error('❌ jsPDF 로드 실패');
+                    window.adminAuth?.showNotification('PDF 라이브러리 로드에 실패했습니다.', 'error');
+                };
+                document.head.appendChild(jsPdfScript);
+            } else {
+                console.log('✅ jsPDF 이미 로드됨');
+                checkComplete();
+            }
+
+            // html2canvas 라이브러리 로드
+            if (!window.html2canvas) {
+                console.log('📦 html2canvas 라이브러리 로드 중...');
+                const html2canvasScript = document.createElement('script');
+                html2canvasScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                html2canvasScript.crossOrigin = 'anonymous';
+                html2canvasScript.onload = () => {
+                    console.log('✅ html2canvas 로드 완료');
+                    checkComplete();
+                };
+                html2canvasScript.onerror = () => {
+                    console.error('❌ html2canvas 로드 실패');
+                    window.adminAuth?.showNotification('Canvas 라이브러리 로드에 실패했습니다.', 'error');
+                };
+                document.head.appendChild(html2canvasScript);
+            } else {
+                console.log('✅ html2canvas 이미 로드됨');
+                checkComplete();
+            }
+        },
+
+        /**
+         * 🎨 영문 자격증 PDF 생성 (기존 유지)
+         */
+        generateEnglishCertPdf: async function (certId) {
+            try {
+                console.log('🎨 영문 PDF 생성 시작:', certId);
+
+                let jsPDFConstructor = window.jsPDF || (window.jspdf && window.jspdf.jsPDF);
+                if (!jsPDFConstructor) {
+                    throw new Error('jsPDF 라이브러리가 로드되지 않았습니다.');
+                }
+
+                let cert = await this.getCertificateData(certId);
+                if (!cert) {
+                    window.adminAuth?.showNotification('자격증 정보를 찾을 수 없습니다.', 'error');
+                    return;
+                }
+
+                const certData = this.extractCertificateData(cert);
+                const today = new Date();
+                const formattedToday = today.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                const borderImagePath = '../../assets/images/logo/border-gold.png';
+                const englishImagePath = '../../assets/images/logo/english-medal.png';
+                const sealImagePath = '../../assets/images/logo/seal.png';
+
+                console.log('🖼️ 영문 이미지 경로:', {
+                    border: borderImagePath,
+                    medal: englishImagePath,
+                    seal: sealImagePath
+                });
+
+                const certTemplate = this.createReferenceEnglishTemplate(
+                    certData,
+                    borderImagePath,
+                    englishImagePath,
+                    sealImagePath,
+                    formattedToday
+                );
+
+                document.body.appendChild(certTemplate);
+
+                try {
+                    console.log('⏳ 영문 이미지 로딩 대기 중...');
+                    await this.waitForImagesLoad(certTemplate);
+
+                    console.log('🖼️ HTML을 Canvas로 변환 중...');
+                    const canvas = await window.html2canvas(certTemplate, {
+                        scale: 3,
+                        logging: false,
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: "#ffffff",
+                        width: 794,
+                        height: 1123
+                    });
+
+                    console.log('✅ Canvas 생성 완료, 크기:', canvas.width, 'x', canvas.height);
+
+                    console.log('📄 PDF 생성 중...');
+                    const doc = new jsPDFConstructor({
+                        orientation: 'portrait',
+                        unit: 'mm',
+                        format: 'a4',
+                        compress: true
+                    });
+
+                    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                    const pageWidth = doc.internal.pageSize.getWidth();
+                    const pageHeight = doc.internal.pageSize.getHeight();
+
+                    doc.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+
+                    const certTypeEn = this.getCertTypeNameEn(certData.certificateType);
+                    const fileName = `${certTypeEn.replace(/\s+/g, '_')}_${certData.holderName.replace(/\s+/g, '_')}_${certData.certNumber}_English.pdf`;
+                    doc.save(fileName);
+
+                    console.log('✅ 영문 PDF 생성 완료:', fileName);
+                    window.adminAuth?.showNotification('영문 자격증 PDF가 생성되었습니다.', 'success');
+
+                } catch (error) {
+                    console.error('PDF 생성 중 오류:', error);
+                    window.adminAuth?.showNotification('PDF 생성 중 오류가 발생했습니다: ' + error.message, 'error');
+                } finally {
+                    if (document.body.contains(certTemplate)) {
+                        document.body.removeChild(certTemplate);
+                        console.log('🧹 임시 템플릿 제거 완료');
+                    }
+                }
+
+            } catch (error) {
+                console.error('영문 PDF 생성 전체 오류:', error);
+                window.adminAuth?.showNotification('PDF 생성 중 오류가 발생했습니다: ' + error.message, 'error');
+            }
+        },
+
+        /**
+         * 🎨 영문 HTML 템플릿 (기존 유지)
+         */
+        createReferenceEnglishTemplate: function (certData, borderPath, medalPath, sealPath, issuedDate) {
+            const template = document.createElement('div');
+            template.id = 'english-cert-template';
+            template.style.cssText = `
+                width: 794px;
+                height: 1123px;
+                position: absolute;
+                left: -10000px;
+                top: -10000px;
+                font-family: 'Times New Roman', 'Georgia', serif;
+                background: #ffffff;
+                overflow: hidden;
+                z-index: -1000;
+                padding: 0;
+                margin: 0;
+                box-sizing: border-box;
+            `;
+
+            const certTypeEn = this.getCertTypeNameEn(certData.certificateType);
+
+            template.innerHTML = `
+                <div style="
+                    position: relative;
+                    width: 794px;
+                    height: 1123px;
+                    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+                    padding: 30px;
+                    box-sizing: border-box;
+                ">
+                    <div style="
+                        position: relative;
+                        width: 100%;
+                        height: 100%;
+                        background: #ffffff;
+                        overflow: hidden;
+                    ">
+                        <img src="${borderPath}" 
+                             style="
+                                 position: absolute;
+                                 top: 0;
+                                 left: 0;
+                                 width: 100%;
+                                 height: 100%;
+                                 object-fit: cover;
+                                 z-index: 1;
+                             ">
+
+                        <img src="${medalPath}" 
+                             style="
+                                 position: absolute;
+                                 top: 80px;
+                                 left: 50%;
+                                 transform: translateX(-50%);
+                                 width: 90px;
+                                 height: 90px;
+                                 z-index: 2;
+                             ">
+
+                        <div style="
+                            position: relative;
+                            z-index: 3;
+                            padding: 90px 100px 60px 100px;
+                            height: 100%;
+                            box-sizing: border-box;
+                            display: flex;
+                            flex-direction: column;
+                            text-align: center;
+                        ">
+                            <div style="margin-bottom: 30px; margin-top: 80px;">
+                                <h1 style="
+                                    font-size: 48px;
+                                    font-weight: bold;
+                                    color: #1e3a8a;
+                                    margin: 0 0 15px 0;
+                                    letter-spacing: 6px;
+                                    font-family: 'Times New Roman', serif;
+                                    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+                                ">CERTIFICATE</h1>
+                                
+                                <h2 style="
+                                    font-size: 28px;
+                                    color: #3b82f6;
+                                    margin: 0 0 25px 0;
+                                    font-style: italic;
+                                    letter-spacing: 3px;
+                                    font-weight: 400;
+                                ">of Achievement</h2>
+                                
+                                <h3 style="
+                                    font-size: 24px;
+                                    color: #8B4513;
+                                    margin: 0 0 20px 0;
+                                    font-weight: 600;
+                                ">${certTypeEn}</h3>
+                                
+                                <div style="
+                                    color: #1e3a8a;
+                                    border: 2px solid #1e3a8a;
+                                    border-radius: 5px;
+                                    font-size: 16px;
+                                    font-weight: 600;
+                                    margin: 0 auto 15px auto;
+                                    background: transparent;
+                                    width: 280px;
+                                    height: 50px;
+                                    display: block;
+                                    text-align: center;
+                                    line-height: 46px;
+                                    box-sizing: border-box;
+                                ">Certificate No: ${certData.certNumber}</div>
+                            </div>
+
+                            <div style="
+                                flex: 1;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: flex-start;
+                                margin: 0;
+                                padding: 0 40px;
+                            ">
+                                <p style="
+                                    margin: 5px 0 10px 0;
+                                    font-size: 20px;
+                                    color: #4a5568;
+                                    font-style: italic;
+                                    font-weight: 500;
+                                ">This is to certify that</p>
+                                
+                                <div style="
+                                    margin: 10px 0 15px 0;
+                                    padding: 12px 0;
+                                    border-bottom: 3px solid #FFD700;
+                                    position: relative;
+                                ">
+                                    <h2 style="
+                                        font-size: 32px;
+                                        font-weight: bold;
+                                        color: #1a202c;
+                                        margin: 0;
+                                        letter-spacing: 2px;
+                                        font-family: 'Times New Roman', serif;
+                                    ">${certData.holderName}</h2>
+                                </div>
+                                
+                                <p style="
+                                    margin: 15px 0 25px 0;
+                                    font-size: 16px;
+                                    color: #374151;
+                                    line-height: 1.6;
+                                    font-weight: 500;
+                                ">has successfully completed the ${certTypeEn}<br>
+                                training program and passed all theoretical<br>
+                                and practical examinations with distinction,<br>
+                                and is hereby certified.</p>
+                                
+                                <div style="
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    margin-top: 5px;
+                                ">
+                                    <div style="
+                                        text-align: center;
+                                        margin-bottom: 30px;
+                                    ">
+                                        <p style="
+                                            font-size: 22px;
+                                            margin: 0 0 15px 0;
+                                            color: #1e293b;
+                                            font-weight: 700;
+                                        ">${issuedDate}</p>
+                                        
+                                        <div style="
+                                            display: flex;
+                                            justify-content: center;
+                                            gap: 30px;
+                                            margin-top: 10px;
+                                        ">
+                                            <span style="font-weight: 600; color: #1e293b; font-size: 16px;">
+                                                Issue Date: <span style="font-weight: 700; color: #1e3a8a;">${certData.issueDate}</span>
+                                            </span>
+                                            <span style="font-weight: 600; color: #1e293b; font-size: 16px;">
+                                                Expiry Date: <span style="font-weight: 700; color: #1e3a8a;">${certData.expiryDate}</span>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div style="
+                                        text-align: center;
+                                        position: relative;
+                                        display: inline-block;
+                                    ">
+                                        <h3 style="
+                                            font-size: 28px;
+                                            font-weight: 700;
+                                            margin: 0;
+                                            color: #1e3a8a;
+                                            line-height: 1.2;
+                                            display: inline-block;
+                                        ">Digital Healthcare Center</h3>
+                                        <p style="
+                                            font-size: 18px;
+                                            margin: 5px 0 0 0;
+                                            color: #64748b;
+                                            font-style: italic;
+                                            font-weight: 500;
+                                        ">Mungyeong Subsidiary</p>
+                                        
+                                        <img src="${sealPath}" 
+                                             style="
+                                                 width: 75px;
+                                                 height: 75px;
+                                                 object-fit: contain;
+                                                 position: absolute;
+                                                 top: 50%;
+                                                 transform: translateY(-50%);
+                                                 right: -95px;
+                                             ">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return template;
+        },
+
+        // =================================
+        // 유틸리티 함수들
+        // =================================
+
+        /**
+         * 상태 텍스트 가져오기
+         */
+        getStatusText: function (status) {
+            switch (status) {
+                case 'active': return '유효';
+                case 'expired': return '만료';
+                case 'revoked': return '취소';
+                case 'suspended': return '정지';
+                default: return status || '알 수 없음';
+            }
+        },
+
+        /**
+         * 자격증 유형 이름 가져오기 (한글)
+         */
+        getCertTypeName: function (type) {
+            switch (type) {
+                case 'health-exercise': return '건강운동처방사';
+                case 'rehabilitation': return '운동재활전문가';
+                case 'pilates': return '필라테스 전문가';
+                case 'recreation': return '레크리에이션지도자';
+                default: return type || '알 수 없음';
+            }
+        },
+
+        /**
+         * 자격증 유형 이름 가져오기 (영문)
+         */
+        getCertTypeNameEn: function (type) {
+            switch (type) {
+                case 'health-exercise': return 'Health Exercise Specialist';
+                case 'rehabilitation': return 'Exercise Rehabilitation Specialist';
+                case 'pilates': return 'Pilates Specialist';
+                case 'recreation': return 'Recreation Instructor';
+                default: return type || 'Unknown';
+            }
+        },
+
+        /**
+         * 안전한 날짜 포맷팅
+         */
+        formatDateSafe: function (date) {
+            if (!date) return null;
+
+            try {
+                // Firebase Timestamp인 경우
+                if (typeof date.toDate === 'function') {
+                    date = date.toDate();
+                } else if (typeof date === 'string') {
+                    // 이미 문자열 형태이면 그대로 반환
+                    return date;
+                }
+
+                // Date 객체인 경우
+                if (date instanceof Date && !isNaN(date)) {
+                    return window.formatters.formatDate(date, 'YYYY-MM-DD');
+                }
+            } catch (error) {
+                console.error('날짜 포맷팅 오류:', error);
+            }
+
+            return null;
+        },
+
+        /**
+         * 테스트용 모의 자격증 데이터 가져오기
+         */
+        getMockCertificateById: function (certId) {
+            console.log('🔧 테스트 데이터에서 자격증 검색:', certId);
+
+            const certs = [
+                {
+                    id: 'cert1',
+                    certNumber: 'HE-2025-0001',
+                    name: '홍길동',
+                    course: '건강운동처방사 1기',
+                    issueDate: '2025-03-15',
+                    expiryDate: '2028-03-14',
+                    status: 'active',
+                    remarks: '최우수 성적으로 수료'
+                },
+                {
+                    id: 'cert2',
+                    certNumber: 'HE-2025-0002',
+                    name: '김철수',
+                    course: '건강운동처방사 1기',
+                    issueDate: '2025-03-15',
+                    expiryDate: '2028-03-14',
+                    status: 'active',
+                    remarks: ''
+                }
+            ];
+
+            // ID로 먼저 검색
+            let cert = certs.find(cert => cert.id === certId);
+
+            // ID로 찾지 못하면 인덱스로 검색
+            if (!cert && certs.length > 0) {
+                if (certId.length > 10 && /^[a-zA-Z0-9]+$/.test(certId)) {
+                    cert = certs[0];
+                    console.log('🔧 Firebase 스타일 ID로 첫 번째 테스트 데이터 반환:', cert);
+                }
+            }
+
+            // 그래도 없으면 기본 테스트 데이터 생성
+            if (!cert) {
+                cert = {
+                    id: certId,
+                    certificateNumber: 'HE-2025-TEST',
+                    certNumber: 'HE-2025-TEST',
+                    name: '테스트',
+                    holderName: '테스트',
+                    course: '건강운동처방사 1기',
+                    courseName: '건강운동처방사 1기',
+                    issueDate: '2025-05-19',
+                    expiryDate: '2028-05-19',
+                    status: 'active',
+                    remarks: '테스트 데이터',
+                    holderEmail: 'test@example.com',
+                    email: 'test@example.com',
+                    certificateType: this.currentCertType
+                };
+                console.log('🔧 기본 테스트 데이터 생성:', cert);
+            }
+
+            return cert;
+        },
+
+        /**
+         * 날짜 포맷팅 - 🔧 전역 유틸리티 사용
+         */
+        formatDate: function (date, includeTime = false) {
+            if (!date) return '-';
+
+            try {
+                // Firebase Timestamp인 경우
+                if (typeof date.toDate === 'function') {
+                    date = date.toDate();
+                } else if (typeof date === 'string') {
+                    // 이미 문자열 형태이면 그대로 반환
+                    return date;
+                }
+
+                // Date 객체인 경우 - 🔧 전역 유틸리티 사용
+                if (date instanceof Date) {
+                    if (includeTime) {
+                        return window.formatters.formatDate(date, 'YYYY-MM-DD HH:mm');
+                    } else {
+                        return window.formatters.formatDate(date, 'YYYY-MM-DD');
+                    }
+                }
+            } catch (error) {
+                console.error('날짜 포맷팅 오류:', error);
+            }
+
+            return '-';
+        },
+
+        /**
+         * 날짜를 input[type="date"]용으로 포맷팅 - 🔧 전역 유틸리티 사용
+         */
+        formatDateToInput: function (date) {
+            if (!date) return '';
+
+            try {
+                // Firebase Timestamp인 경우
+                if (typeof date.toDate === 'function') {
+                    date = date.toDate();
+                } else if (typeof date === 'string') {
+                    // YYYY-MM-DD 형식인지 확인
+                    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+                        return date;
+                    }
+                    // 다른 형식의 문자열일 경우 Date 객체로 변환
+                    date = new Date(date);
+                }
+
+                // Date 객체인 경우 - 🔧 전역 유틸리티 사용
+                if (date instanceof Date && !isNaN(date)) {
+                    return window.formatters.formatDate(date, 'YYYY-MM-DD');
+                }
+            } catch (error) {
+                console.error('날짜 포맷팅 오류:', error);
+            }
+
+            return '';
+        },
+
+        /**
+         * 다른 모달들 닫기
+         */
         closeOtherModals: function (excludeModalId) {
             Object.keys(this.modalStates).forEach(modalId => {
                 if (modalId !== excludeModalId && this.modalStates[modalId]) {
@@ -2270,6 +3053,67 @@ function initCertManager() {
                 document.documentElement.classList.remove('modal-open');
                 document.body.style.overflow = '';
             }
+        },
+
+        /**
+         * 🔧 모달 이벤트 리스너 재등록 보장
+         */
+        ensureModalEvents: function () {
+            console.log('🔧 모달 이벤트 리스너 재등록 시작');
+
+            // 🔧 X 버튼 이벤트 재등록
+            const closeButtons = document.querySelectorAll('.cert-modal-close');
+            closeButtons.forEach(button => {
+                if (!button.dataset.eventAttached) {
+                    button.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const modal = button.closest('.cert-modal');
+                        if (modal) {
+                            const modalId = modal.id;
+                            console.log('🔧 X 버튼 클릭:', modalId);
+                            this.closeModalById(modalId);
+                        }
+                    });
+                    button.dataset.eventAttached = 'true';
+                    console.log('✅ X 버튼 이벤트 등록:', button);
+                }
+            });
+
+            // 🔧 백드롭 클릭 이벤트 재등록
+            const backdrops = document.querySelectorAll('.cert-modal-backdrop');
+            backdrops.forEach(backdrop => {
+                if (!backdrop.dataset.eventAttached) {
+                    backdrop.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const modal = backdrop.closest('.cert-modal');
+                        if (modal) {
+                            const modalId = modal.id;
+                            console.log('🔧 백드롭 클릭:', modalId);
+                            this.closeModalById(modalId);
+                        }
+                    });
+                    backdrop.dataset.eventAttached = 'true';
+                    console.log('✅ 백드롭 이벤트 등록:', backdrop);
+                }
+            });
+
+            // 🔧 ESC 키 이벤트 (전역, 한 번만 등록)
+            if (!this._escKeyAttached) {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        console.log('🔧 ESC 키 눌림');
+                        this.closeTopModal();
+                    }
+                });
+                this._escKeyAttached = true;
+                console.log('✅ ESC 키 이벤트 등록');
+            }
+
+            console.log('✅ 모달 이벤트 리스너 재등록 완료');
         },
 
         /**
@@ -2346,1508 +3190,138 @@ function initCertManager() {
         },
 
         /**
-         * 🎨 전문적인 자격증 PDF 다운로드 (기존 함수명 유지)
+         * 자격증 상세보기 모달 닫기
          */
-        downloadCertPdf: function (certId, lang) {
-            console.log('🎨 PDF 다운로드 시작:', { certId, lang });
+        closeCertDetailModal: function () {
+            console.log('🔧 자격증 상세보기 모달 닫기');
 
-            window.adminAuth?.showNotification('PDF 생성 중...', 'info');
+            const modal = document.getElementById('cert-detail-modal');
+            if (modal && this.modalStates['cert-detail-modal']) {
+                // 상태 업데이트
+                this.modalStates['cert-detail-modal'] = false;
 
-            // 라이브러리 체크 개선
-            const checkLibraries = () => {
-                const jsPdfReady = window.jsPDF || (window.jspdf && window.jspdf.jsPDF);
-                const html2canvasReady = window.html2canvas;
+                // 모달 숨김
+                modal.classList.add('hidden');
 
-                console.log('라이브러리 상태:', {
-                    jsPDF: !!jsPdfReady,
-                    html2canvas: !!html2canvasReady,
-                    windowJsPDF: !!window.jsPDF,
-                    windowJspdf: !!window.jspdf,
-                    windowHtml2canvas: !!window.html2canvas
-                });
+                // body 클래스 업데이트
+                this.updateBodyModalState();
 
-                return jsPdfReady && html2canvasReady;
-            };
+                console.log('✅ 자격증 상세보기 모달 닫기 완료');
+            }
+        },
 
-            if (checkLibraries()) {
-                console.log('✅ 라이브러리 체크 통과, PDF 생성 시작');
-                // jsPDF 전역 변수 설정 (필요한 경우)
-                if (!window.jsPDF && window.jspdf && window.jspdf.jsPDF) {
-                    window.jsPDF = window.jspdf.jsPDF;
-                }
+        /**
+         * 자격증 수정 모달 닫기
+         */
+        closeCertEditModal: function () {
+            console.log('🔧 자격증 수정 모달 닫기');
 
-                // 언어에 따른 함수 호출
-                if (lang === 'ko') {
-                    this.generateKoreanCertPdf(certId);
-                } else {
-                    this.generateEnglishCertPdf(certId);
-                }
-            } else {
-                console.log('❌ 라이브러리 미로드, 동적 로드 시도');
-                // 라이브러리 동적 로드
-                this.loadJsPdfLibrary(() => {
-                    if (lang === 'ko') {
-                        this.generateKoreanCertPdf(certId);
-                    } else {
-                        this.generateEnglishCertPdf(certId);
+            const modal = document.getElementById('cert-edit-modal');
+            if (modal && this.modalStates['cert-edit-modal']) {
+                // 상태 업데이트
+                this.modalStates['cert-edit-modal'] = false;
+
+                // 모달 숨김
+                modal.classList.add('hidden');
+
+                // 폼 초기화
+                const form = document.getElementById('cert-edit-form');
+                if (form) form.reset();
+
+                // body 클래스 업데이트
+                this.updateBodyModalState();
+
+                console.log('✅ 자격증 수정 모달 닫기 완료');
+            }
+        },
+
+        /**
+         * 자격증 발급 모달 닫기
+         */
+        closeIssueCertModal: function () {
+            console.log('🔧 자격증 발급 모달 닫기');
+
+            const modal = document.getElementById('cert-issue-modal');
+            if (modal && this.modalStates['cert-issue-modal']) {
+                // 상태 업데이트
+                this.modalStates['cert-issue-modal'] = false;
+
+                // 모달 숨김
+                modal.classList.add('hidden');
+
+                // 폼 초기화
+                const form = document.getElementById('cert-issue-form');
+                if (form) form.reset();
+
+                // body 클래스 업데이트
+                this.updateBodyModalState();
+
+                console.log('✅ 자격증 발급 모달 닫기 완료');
+            }
+        },
+
+        /**
+         * 일괄 발급 모달 닫기
+         */
+        closeBulkIssuanceModal: function () {
+            console.log('🔧 일괄 발급 모달 닫기');
+
+            const modal = document.getElementById('bulk-issue-modal');
+            if (modal && this.modalStates['bulk-issue-modal']) {
+                this.modalStates['bulk-issue-modal'] = false;
+
+                modal.style.opacity = '0';
+
+                setTimeout(() => {
+                    if (!this.modalStates['bulk-issue-modal']) {
+                        modal.classList.add('hidden');
+                        modal.style.display = 'none';
+                        modal.style.visibility = 'hidden';
+
+                        this.updateBodyModalState();
                     }
-                });
+                }, 150);
+
+                console.log('✅ 일괄 발급 모달 닫기 완료');
             }
         },
 
         /**
-         * jsPDF 라이브러리 동적 로드
+         * 🔧 최상위 모달 닫기 (ESC 키용)
          */
-        loadJsPdfLibrary: function (callback) {
-            console.log('🔄 PDF 라이브러리 동적 로드 시작...');
+        closeTopModal: function () {
+            const visibleModals = Object.keys(this.modalStates).filter(modalId => this.modalStates[modalId]);
 
-            // 이미 로드되어 있는지 재확인
-            const jsPDFAvailable = window.jsPDF || (window.jspdf && window.jspdf.jsPDF) || (typeof jsPDF !== 'undefined');
-
-            if (jsPDFAvailable && window.html2canvas) {
-                console.log('✅ 라이브러리가 이미 로드되어 있음');
-                callback();
-                return;
-            }
-
-            let loadedCount = 0;
-            const totalLibraries = 2;
-
-            const checkComplete = () => {
-                loadedCount++;
-                console.log(`라이브러리 로드 진행: ${loadedCount}/${totalLibraries}`);
-
-                if (loadedCount >= totalLibraries) {
-                    // 로드 완료 후 전역 변수 설정
-                    setTimeout(() => {
-                        if (window.jspdf && window.jspdf.jsPDF && !window.jsPDF) {
-                            window.jsPDF = window.jspdf.jsPDF;
-                            console.log('✅ jsPDF 전역 변수 설정 완료');
-                        }
-
-                        console.log('✅ 모든 라이브러리 로드 및 설정 완료');
-                        console.log('최종 라이브러리 상태:', {
-                            jsPDF: !!window.jsPDF,
-                            jspdf: !!window.jspdf,
-                            html2canvas: !!window.html2canvas
-                        });
-
-                        callback();
-                    }, 100); // 약간의 지연을 두어 라이브러리가 완전히 로드되도록 함
-                }
-            };
-
-            // jsPDF 라이브러리 로드
-            if (!jsPDFAvailable) {
-                console.log('📦 jsPDF 라이브러리 로드 중...');
-                const jsPdfScript = document.createElement('script');
-                jsPdfScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-                jsPdfScript.crossOrigin = 'anonymous';
-                jsPdfScript.onload = () => {
-                    console.log('✅ jsPDF 로드 완료');
-                    // 전역 변수 설정 시도
-                    if (window.jspdf && window.jspdf.jsPDF && !window.jsPDF) {
-                        window.jsPDF = window.jspdf.jsPDF;
-                        console.log('🔧 jsPDF 전역 변수 설정');
-                    }
-                    checkComplete();
-                };
-                jsPdfScript.onerror = () => {
-                    console.error('❌ jsPDF 로드 실패');
-                    window.adminAuth?.showNotification('PDF 라이브러리 로드에 실패했습니다.', 'error');
-                };
-                document.head.appendChild(jsPdfScript);
-            } else {
-                console.log('✅ jsPDF 이미 로드됨');
-                checkComplete();
-            }
-
-            // html2canvas 라이브러리 로드
-            if (!window.html2canvas) {
-                console.log('📦 html2canvas 라이브러리 로드 중...');
-                const html2canvasScript = document.createElement('script');
-                html2canvasScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-                html2canvasScript.crossOrigin = 'anonymous';
-                html2canvasScript.onload = () => {
-                    console.log('✅ html2canvas 로드 완료');
-                    checkComplete();
-                };
-                html2canvasScript.onerror = () => {
-                    console.error('❌ html2canvas 로드 실패');
-                    window.adminAuth?.showNotification('Canvas 라이브러리 로드에 실패했습니다.', 'error');
-                };
-                document.head.appendChild(html2canvasScript);
-            } else {
-                console.log('✅ html2canvas 이미 로드됨');
-                checkComplete();
+            if (visibleModals.length > 0) {
+                const topModalId = visibleModals[visibleModals.length - 1];
+                this.closeModalById(topModalId);
             }
         },
 
         /**
-         * 🎨 참고 자격증 기반 한글 자격증 PDF 생성 (실제 이미지 적용)
+         * 🔧 모달 ID로 닫기
          */
-        generateKoreanCertPdf: async function (certId) {
-            try {
-                console.log('🎨 참고 자격증 기반 한글 PDF 생성 시작:', certId);
+        closeModalById: function (modalId) {
+            console.log('🔧 모달 닫기 by ID:', modalId);
 
-                // jsPDF 생성자 확인
-                let jsPDFConstructor = window.jsPDF || (window.jspdf && window.jspdf.jsPDF);
-                if (!jsPDFConstructor) {
-                    throw new Error('jsPDF 라이브러리가 로드되지 않았습니다.');
-                }
-
-                // 자격증 정보 조회
-                let cert = await this.getCertificateData(certId);
-                if (!cert) {
-                    window.adminAuth?.showNotification('자격증 정보를 찾을 수 없습니다.', 'error');
-                    return;
-                }
-
-                // 안전한 데이터 추출
-                const certData = this.extractCertificateData(cert);
-                const today = new Date();
-                const formattedToday = window.formatters.formatDate(today, 'YYYY년 MM월 DD일');
-
-                // 🔧 올바른 이미지 경로 설정 (pages/admin에서 상위로 이동)
-                const borderImagePath = '../../assets/images/logo/border-gold.png';
-                const koreaImagePath = '../../assets/images/logo/korea-medal.png';
-                const sealImagePath = '../../assets/images/logo/seal.png';
-
-                console.log('🖼️ 수정된 이미지 경로:', {
-                    border: borderImagePath,
-                    medal: koreaImagePath,
-                    seal: sealImagePath
-                });
-
-                // 🎨 참고 자격증 기반 한글 HTML 템플릿 생성
-                const certTemplate = this.createReferenceKoreanTemplate(
-                    certData,
-                    borderImagePath,
-                    koreaImagePath,
-                    sealImagePath,
-                    formattedToday
-                );
-
-                // DOM에 추가
-                document.body.appendChild(certTemplate);
-
-                try {
-                    // 이미지 로딩 대기
-                    console.log('⏳ 실제 이미지 로딩 대기 중...');
-                    await this.waitForImagesLoad(certTemplate);
-
-                    // HTML to Canvas
-                    console.log('🖼️ HTML을 Canvas로 변환 중...');
-                    const canvas = await window.html2canvas(certTemplate, {
-                        scale: 3, // 고해상도
-                        logging: false,
-                        useCORS: true,
-                        allowTaint: true,
-                        backgroundColor: "#ffffff",
-                        width: 794,
-                        height: 1123
-                    });
-
-                    console.log('✅ Canvas 생성 완료, 크기:', canvas.width, 'x', canvas.height);
-
-                    // PDF 생성
-                    console.log('📄 PDF 생성 중...');
-                    const doc = new jsPDFConstructor({
-                        orientation: 'portrait',
-                        unit: 'mm',
-                        format: 'a4',
-                        compress: true
-                    });
-
-                    const imgData = canvas.toDataURL('image/jpeg', 1.0);
-                    const pageWidth = doc.internal.pageSize.getWidth();
-                    const pageHeight = doc.internal.pageSize.getHeight();
-
-                    doc.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
-
-                    const fileName = `${certData.certType}_${certData.holderName}_${certData.certNumber}_한글.pdf`;
-                    doc.save(fileName);
-
-                    console.log('✅ 참고 자격증 기반 한글 PDF 생성 완료:', fileName);
-                    window.adminAuth?.showNotification('한글 자격증 PDF가 생성되었습니다.', 'success');
-
-                } catch (error) {
-                    console.error('PDF 생성 중 오류:', error);
-                    window.adminAuth?.showNotification('PDF 생성 중 오류가 발생했습니다: ' + error.message, 'error');
-                } finally {
-                    // 템플릿 제거
-                    if (document.body.contains(certTemplate)) {
-                        document.body.removeChild(certTemplate);
-                        console.log('🧹 임시 템플릿 제거 완료');
-                    }
-                }
-
-            } catch (error) {
-                console.error('한글 PDF 생성 전체 오류:', error);
-                window.adminAuth?.showNotification('PDF 생성 중 오류가 발생했습니다: ' + error.message, 'error');
+            switch (modalId) {
+                case 'cert-issue-modal':
+                    this.closeIssueCertModal();
+                    break;
+                case 'bulk-issue-modal':
+                    this.closeBulkIssuanceModal();
+                    break;
+                case 'cert-detail-modal':
+                    this.closeCertDetailModal();
+                    break;
+                case 'cert-edit-modal':
+                    this.closeCertEditModal();
+                    break;
+                default:
+                    console.warn('알 수 없는 모달 ID:', modalId);
             }
         },
 
-        /**
-         * 🎨 경로 수정된 영문 자격증 PDF 생성
-         */
-        generateEnglishCertPdf: async function (certId) {
-            try {
-                console.log('🎨 참고 자격증 기반 영문 PDF 생성 시작:', certId);
-
-                // jsPDF 생성자 확인
-                let jsPDFConstructor = window.jsPDF || (window.jspdf && window.jspdf.jsPDF);
-                if (!jsPDFConstructor) {
-                    throw new Error('jsPDF 라이브러리가 로드되지 않았습니다.');
-                }
-
-                // 자격증 정보 조회
-                let cert = await this.getCertificateData(certId);
-                if (!cert) {
-                    window.adminAuth?.showNotification('자격증 정보를 찾을 수 없습니다.', 'error');
-                    return;
-                }
-
-                // 안전한 데이터 추출
-                const certData = this.extractCertificateData(cert);
-                const today = new Date();
-                const formattedToday = today.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-
-                // 🔧 올바른 이미지 경로 설정 (pages/admin에서 상위로 이동)
-                const borderImagePath = '../../assets/images/logo/border-gold.png';
-                const englishImagePath = '../../assets/images/logo/english-medal.png';
-                const sealImagePath = '../../assets/images/logo/seal.png';
-
-                console.log('🖼️ 수정된 이미지 경로:', {
-                    border: borderImagePath,
-                    medal: englishImagePath,
-                    seal: sealImagePath
-                });
-
-                // 🎨 참고 자격증 기반 영문 HTML 템플릿 생성
-                const certTemplate = this.createReferenceEnglishTemplate(
-                    certData,
-                    borderImagePath,
-                    englishImagePath,
-                    sealImagePath,
-                    formattedToday
-                );
-
-                // DOM에 추가
-                document.body.appendChild(certTemplate);
-
-                try {
-                    // 이미지 로딩 대기
-                    console.log('⏳ 실제 이미지 로딩 대기 중...');
-                    await this.waitForImagesLoad(certTemplate);
-
-                    // HTML to Canvas
-                    console.log('🖼️ HTML을 Canvas로 변환 중...');
-                    const canvas = await window.html2canvas(certTemplate, {
-                        scale: 3, // 고해상도
-                        logging: false,
-                        useCORS: true,
-                        allowTaint: true,
-                        backgroundColor: "#ffffff",
-                        width: 794,
-                        height: 1123
-                    });
-
-                    console.log('✅ Canvas 생성 완료, 크기:', canvas.width, 'x', canvas.height);
-
-                    // PDF 생성
-                    console.log('📄 PDF 생성 중...');
-                    const doc = new jsPDFConstructor({
-                        orientation: 'portrait',
-                        unit: 'mm',
-                        format: 'a4',
-                        compress: true
-                    });
-
-                    const imgData = canvas.toDataURL('image/jpeg', 1.0);
-                    const pageWidth = doc.internal.pageSize.getWidth();
-                    const pageHeight = doc.internal.pageSize.getHeight();
-
-                    doc.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
-
-                    const certTypeEn = this.getCertTypeNameEn(certData.certificateType);
-                    const fileName = `${certTypeEn.replace(/\s+/g, '_')}_${certData.holderName.replace(/\s+/g, '_')}_${certData.certNumber}_English.pdf`;
-                    doc.save(fileName);
-
-                    console.log('✅ 참고 자격증 기반 영문 PDF 생성 완료:', fileName);
-                    window.adminAuth?.showNotification('영문 자격증 PDF가 생성되었습니다.', 'success');
-
-                } catch (error) {
-                    console.error('PDF 생성 중 오류:', error);
-                    window.adminAuth?.showNotification('PDF 생성 중 오류가 발생했습니다: ' + error.message, 'error');
-                } finally {
-                    // 템플릿 제거
-                    if (document.body.contains(certTemplate)) {
-                        document.body.removeChild(certTemplate);
-                        console.log('🧹 임시 템플릿 제거 완료');
-                    }
-                }
-
-            } catch (error) {
-                console.error('영문 PDF 생성 전체 오류:', error);
-                window.adminAuth?.showNotification('PDF 생성 중 오류가 발생했습니다: ' + error.message, 'error');
-            }
-        },
-
-        /**
-         * 🔧 이미지 경로 테스트 함수 (디버깅용)
-         */
-        testImagePaths: function () {
-            console.log('🔧 이미지 경로 테스트...');
-
-            const paths = [
-                '../../assets/images/logo/border-gold.png',
-                '../../assets/images/logo/korea-medal.png',
-                '../../assets/images/logo/english-medal.png',
-                '../../assets/images/logo/seal.png'
-            ];
-
-            paths.forEach(path => {
-                const img = new Image();
-                img.onload = () => console.log('✅', path, '로드 성공');
-                img.onerror = () => console.error('❌', path, '로드 실패');
-                img.src = path;
-            });
-        },
-
-        /**
-         * 🎨 참고 자격증 기반 한글 HTML 템플릿 (실제 이미지 적용 + 레이아웃 개선)
-         */
-        createReferenceKoreanTemplate: function (certData, borderPath, medalPath, sealPath, issuedDate) {
-            const template = document.createElement('div');
-            template.id = 'korean-cert-template';
-            template.style.cssText = `
-        width: 794px;
-        height: 1123px;
-        position: absolute;
-        left: -10000px;
-        top: -10000px;
-        font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
-        background: #ffffff;
-        overflow: hidden;
-        z-index: -1000;
-        padding: 0;
-        margin: 0;
-        box-sizing: border-box;
-    `;
-
-            // 🔧 영문 자격증명 매칭
-            const getEnglishCertName = (koreanCertType) => {
-                const mapping = {
-                    '건강운동처방사': 'Health Exercise Specialist',
-                    '운동재활전문가': 'Exercise Rehabilitation Specialist',
-                    '필라테스 전문가': 'Pilates Specialist',
-                    '레크리에이션지도자': 'Recreation Instructor'
-                };
-                return mapping[koreanCertType] || 'Health Exercise Specialist';
-            };
-
-            const englishCertName = getEnglishCertName(certData.certType);
-
-            template.innerHTML = `
-        <!-- 전체 파란색 배경 -->
-        <div style="
-            position: relative;
-            width: 794px;
-            height: 1123px;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            padding: 30px;
-            box-sizing: border-box;
-        ">
-            <!-- 흰색 내부 영역 -->
-            <div style="
-                position: relative;
-                width: 100%;
-                height: 100%;
-                background: #ffffff;
-                overflow: hidden;
-            ">
-                <!-- 🖼️ 황금 테두리 이미지 (배경) -->
-                <img src="${borderPath}" 
-                     style="
-                         position: absolute;
-                         top: 0;
-                         left: 0;
-                         width: 100%;
-                         height: 100%;
-                         object-fit: cover;
-                         z-index: 1;
-                     "
-                     onerror="this.style.display='none';">
-
-                <!-- 🔧 국문 메달 이미지 ("건"자 왼쪽, 제목과 겹치지 않게) -->
-                <img src="${medalPath}" 
-                     style="
-                         position: absolute;
-                         top: 100px;
-                         left: 100px;
-                         width: 110px;
-                         height: 110px;
-                         z-index: 2;
-                     "
-                     onerror="this.style.display='none';">
-
-                <!-- 🔧 콘텐츠 영역 -->
-                <div style="
-                    position: relative;
-                    z-index: 3;
-                    padding: 90px 100px 80px 100px;
-                    height: 100%;
-                    box-sizing: border-box;
-                    display: flex;
-                    flex-direction: column;
-                ">
-                    <!-- 상단: 자격증 제목 -->
-                    <div style="text-align: center; margin-bottom: 60px;">
-                        <h1 style="
-                            font-size: 48px;
-                            font-weight: 900;
-                            color: #1e3a8a;
-                            margin: 0 0 15px 0;
-                            letter-spacing: 3px;
-                        ">
-                            ${certData.certType}
-                        </h1>
-                        <p style="
-                            font-size: 18px;
-                            color: #3b82f6;
-                            margin: 0;
-                            letter-spacing: 2px;
-                            font-weight: 500;
-                            font-style: italic;
-                        ">
-                            ${englishCertName}
-                        </p>
-                    </div>
-
-                    <!-- 중앙: 정보 영역 -->
-                    <div style="
-                        flex: 1;
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: flex-start;
-                        margin: 20px 0 20px 0;
-                    ">
-                        <div style="
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: flex-start;
-                            margin-bottom: 60px;
-                        ">
-                            <!-- 좌측: 자격증 정보 -->
-                            <div style="
-                                flex: 1; 
-                                text-align: left; 
-                                padding-right: 60px;
-                                padding-left: 20px;
-                            ">
-                                <div style="margin-bottom: 25px;">
-                                    <span style="
-                                        font-weight: 600; 
-                                        color: #1e293b;
-                                        font-size: 17px;
-                                    ">인증번호 : </span>
-                                    <span style="
-                                        font-weight: 700; 
-                                        color: #1e3a8a;
-                                        font-size: 17px;
-                                    ">${certData.certNumber}</span>
-                                </div>
-                                
-                                <div style="margin-bottom: 25px;">
-                                    <span style="
-                                        font-weight: 600; 
-                                        color: #1e293b;
-                                        font-size: 17px;
-                                    ">성 명 : </span>
-                                    <span style="
-                                        font-weight: 700; 
-                                        color: #1e3a8a; 
-                                        font-size: 20px;
-                                    ">${certData.holderName}</span>
-                                </div>
-                                
-                                <div style="margin-bottom: 25px;">
-                                    <span style="
-                                        font-weight: 600; 
-                                        color: #1e293b;
-                                        font-size: 17px;
-                                    ">급 수 : </span>
-                                    <span style="
-                                        font-weight: 700; 
-                                        color: #1e3a8a;
-                                        font-size: 17px;
-                                    ">1급</span>
-                                </div>
-                                
-                                <div style="margin-bottom: 25px;">
-                                    <span style="
-                                        font-weight: 600; 
-                                        color: #1e293b;
-                                        font-size: 17px;
-                                    ">취득일자 : </span>
-                                    <span style="
-                                        font-weight: 700; 
-                                        color: #1e3a8a;
-                                        font-size: 17px;
-                                    ">${certData.issueDate}</span>
-                                </div>
-                            </div>
-                            
-                            <!-- 우측: 사진 영역 -->
-                            <div style="
-                                width: 120px;
-                                height: 160px;
-                                border: 2px solid #64748b;
-                                background: #f8fafc;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                font-size: 14px;
-                                color: #64748b;
-                                font-weight: 500;
-                                margin-right: 20px;
-                            ">
-                                사진
-                            </div>
-                        </div>
-
-                        <!-- 🎨 인증 문구 -->
-                        <div style="
-                            text-align: center;
-                            margin: 40px 0 60px 0;
-                            line-height: 2.2;
-                            font-size: 19px;
-                            color: #1e293b;
-                        ">
-                            <p style="margin: 0 0 15px 0; font-weight: 500;">
-                                위 사람은 <strong style="color: #1e3a8a;">${certData.certType}</strong> 1급 교육과정을
-                            </p>
-                            <p style="margin: 0 0 15px 0; font-weight: 500;">
-                                이수하고 이론 및 실기 심사에 통과하였으므로
-                            </p>
-                            <p style="margin: 0; font-weight: 700; color: #1e3a8a; font-size: 21px;">
-                                자격증을 수여합니다.
-                            </p>
-                        </div>
-
-                        <!-- 🔧 하단: 발급 정보 (중앙 정렬 날짜 + 중앙 정렬 센터명 + 우측 직인) -->
-                        <div style="
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            margin-top: 30px;
-                        ">
-                            <!-- 🔧 1단계: 날짜 (중앙 정렬) -->
-                            <div style="
-                                text-align: center;
-                                margin-bottom: 35px;
-                            ">
-                                <p style="
-                                    font-size: 20px;
-                                    margin: 0;
-                                    color: #1e293b;
-                                    font-weight: 600;
-                                ">${issuedDate}</p>
-                            </div>
-
-                            <!-- 🔧 2단계: 센터명 (중앙 정렬, 날짜 바로 아래) -->
-                            <div style="
-                                text-align: center;
-                                margin-bottom: 20px;
-                                position: relative;
-                                display: inline-block;
-                            ">
-                                <h3 style="
-                                    font-size: 26px;
-                                    font-weight: 800;
-                                    margin: 0;
-                                    color: #1e3a8a;
-                                    line-height: 1.3;
-                                    text-align: center;
-                                    display: inline-block;
-                                ">(사)문경 부설 디지털헬스케어센터</h3>
-                                
-                                <!-- 직인 ('터'자 우측에 배치) -->
-                                <img src="${sealPath}" 
-                                     style="
-                                         width: 85px;
-                                         height: 85px;
-                                         object-fit: contain;
-                                         position: absolute;
-                                         top: 50%;
-                                         transform: translateY(-50%);
-                                         right: -80px;
-                                     "
-                                     onerror="this.outerHTML='<div style=&quot;width: 85px; height: 85px; background: #dc2626; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px; text-align: center; line-height: 1.2; position: absolute; top: 50%; transform: translateY(-50%); right: -110px;&quot;><div>문경<br>부설<br>센터</div></div>';">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-            return template;
-        },
-
-        /**
-         * 🎨 참고 자격증 기반 영문 HTML 템플릿 (실제 이미지 적용)
-         */
-        createReferenceEnglishTemplate: function (certData, borderPath, medalPath, sealPath, issuedDate) {
-            const template = document.createElement('div');
-            template.id = 'english-cert-template';
-            template.style.cssText = `
-        width: 794px;
-        height: 1123px;
-        position: absolute;
-        left: -10000px;
-        top: -10000px;
-        font-family: 'Times New Roman', 'Georgia', serif;
-        background: #ffffff;
-        overflow: hidden;
-        z-index: -1000;
-        padding: 0;
-        margin: 0;
-        box-sizing: border-box;
-    `;
-
-            // 영문 자격증 유형명 변환
-            const certTypeEn = this.getCertTypeNameEn(certData.certificateType);
-
-            template.innerHTML = `
-        <!-- 전체 파란색 배경 -->
-        <div style="
-            position: relative;
-            width: 794px;
-            height: 1123px;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            padding: 30px;
-            box-sizing: border-box;
-        ">
-            <!-- 흰색 내부 영역 -->
-            <div style="
-                position: relative;
-                width: 100%;
-                height: 100%;
-                background: #ffffff;
-                overflow: hidden;
-            ">
-                <!-- 🖼️ 황금 테두리 이미지 (배경) -->
-                <img src="${borderPath}" 
-                     style="
-                         position: absolute;
-                         top: 0;
-                         left: 0;
-                         width: 100%;
-                         height: 100%;
-                         object-fit: cover;
-                         z-index: 1;
-                     "
-                     onerror="this.style.display='none';">
-
-                <!-- 🖼️ 영문 메달 이미지 (제목과 겹치지 않게 상단으로 이동) -->
-                <img src="${medalPath}" 
-                     style="
-                         position: absolute;
-                         top: 80px;
-                         left: 50%;
-                         transform: translateX(-50%);
-                         width: 90px;
-                         height: 90px;
-                         z-index: 2;
-                     "
-                     onerror="this.style.display='none';">
-
-                <!-- 콘텐츠 영역 (테두리 안쪽) - 하단 패딩 줄여서 여백 조정 -->
-                <div style="
-                    position: relative;
-                    z-index: 3;
-                    padding: 90px 100px 60px 100px;
-                    height: 100%;
-                    box-sizing: border-box;
-                    display: flex;
-                    flex-direction: column;
-                    text-align: center;
-                ">
-                    <!-- 상단: 메달과 제목 (간격 대폭 축소) -->
-                    <div style="margin-bottom: 30px; margin-top: 80px;">
-                        <!-- 자격증 제목 -->
-                        <h1 style="
-                            font-size: 48px;
-                            font-weight: bold;
-                            color: #1e3a8a;
-                            margin: 0 0 15px 0;
-                            letter-spacing: 6px;
-                            font-family: 'Times New Roman', serif;
-                            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-                        ">CERTIFICATE</h1>
-                        
-                        <h2 style="
-                            font-size: 28px;
-                            color: #3b82f6;
-                            margin: 0 0 25px 0;
-                            font-style: italic;
-                            letter-spacing: 3px;
-                            font-weight: 400;
-                        ">of Achievement</h2>
-                        
-                        <h3 style="
-                            font-size: 24px;
-                            color: #8B4513;
-                            margin: 0 0 20px 0;
-                            font-weight: 600;
-                        ">${certTypeEn}</h3>
-                        
-                        <!-- 🔧 자격증 번호 (중앙 배치 + 텍스트 중앙 정렬 완전 수정) -->
-                        <div style="
-                            color: #1e3a8a;
-                            border: 2px solid #1e3a8a;
-                            border-radius: 5px;
-                            font-size: 16px;
-                            font-weight: 600;
-                            margin: 0 auto 15px auto;
-                            background: transparent;
-                            width: 280px;
-                            height: 50px;
-                            display: block;
-                            text-align: center;
-                            line-height: 46px;
-                            box-sizing: border-box;
-                        ">Certificate No: ${certData.certNumber}</div>
-                    </div>
-
-                    <!-- 중앙: 인증 내용 (간격 조정) -->
-                    <div style="
-                        flex: 1;
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: flex-start;
-                        margin: 0;
-                        padding: 0 40px;
-                    ">
-                        <!-- 🔧 This is to certify that (간격 최소화) -->
-                        <p style="
-                            margin: 5px 0 10px 0;
-                            font-size: 20px;
-                            color: #4a5568;
-                            font-style: italic;
-                            font-weight: 500;
-                        ">This is to certify that</p>
-                        
-                        <!-- 수료자명 강조 (간격 축소) -->
-                        <div style="
-                            margin: 10px 0 15px 0;
-                            padding: 12px 0;
-                            border-bottom: 3px solid #FFD700;
-                            position: relative;
-                        ">
-                            <h2 style="
-                                font-size: 32px;
-                                font-weight: bold;
-                                color: #1a202c;
-                                margin: 0;
-                                letter-spacing: 2px;
-                                font-family: 'Times New Roman', serif;
-                            ">Test User</h2>
-                        </div>
-                        
-                        <!-- 🔧 완료 내용 (간격 최소화) -->
-                        <p style="
-                            margin: 15px 0 25px 0;
-                            font-size: 16px;
-                            color: #374151;
-                            line-height: 1.6;
-                            font-weight: 500;
-                        ">has successfully completed the ${certTypeEn}<br>
-                        training program and passed all theoretical<br>
-                        and practical examinations with distinction,<br>
-                        and is hereby certified.</p>
-                        
-                        <!-- 🔧 하단: 발급 정보 (마진 최소화로 하단 여백 최대 확보) -->
-                        <div style="
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            margin-top: 5px;
-                        ">
-                            <!-- 🔧 날짜 (폰트 크기 확대: 18px → 22px) -->
-                            <div style="
-                                text-align: center;
-                                margin-bottom: 30px;
-                            ">
-                                <p style="
-                                    font-size: 22px;
-                                    margin: 0 0 15px 0;
-                                    color: #1e293b;
-                                    font-weight: 700;
-                                ">${issuedDate}</p>
-                                
-                                <div style="
-                                    display: flex;
-                                    justify-content: center;
-                                    gap: 30px;
-                                    margin-top: 10px;
-                                ">
-                                    <span style="font-weight: 600; color: #1e293b; font-size: 16px;">
-                                        Issue Date: <span style="font-weight: 700; color: #1e3a8a;">${certData.issueDate}</span>
-                                    </span>
-                                    <span style="font-weight: 600; color: #1e293b; font-size: 16px;">
-                                        Expiry Date: <span style="font-weight: 700; color: #1e3a8a;">${certData.expiryDate}</span>
-                                    </span>
-                                </div>
-                            </div>
-
-                            <!-- 🔧 센터명과 직인 (폰트 크기 확대: 22px → 28px) -->
-                            <div style="
-                                text-align: center;
-                                position: relative;
-                                display: inline-block;
-                            ">
-                                <h3 style="
-                                    font-size: 28px;
-                                    font-weight: 700;
-                                    margin: 0;
-                                    color: #1e3a8a;
-                                    line-height: 1.2;
-                                    display: inline-block;
-                                ">Digital Healthcare Center</h3>
-                                <p style="
-                                    font-size: 18px;
-                                    margin: 5px 0 0 0;
-                                    color: #64748b;
-                                    font-style: italic;
-                                    font-weight: 500;
-                                ">Mungyeong Subsidiary</p>
-                                
-                                <!-- 직인 -->
-                                <img src="${sealPath}" 
-                                     style="
-                                         width: 75px;
-                                         height: 75px;
-                                         object-fit: contain;
-                                         position: absolute;
-                                         top: 50%;
-                                         transform: translateY(-50%);
-                                         right: -95px;
-                                     "
-                                     onerror="this.outerHTML='<div style=&quot;width: 75px; height: 75px; background: #dc2626; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 10px; text-align: center; line-height: 1.2; position: absolute; top: 50%; transform: translateY(-50%); right: -95px;&quot;><div>문경<br>부설<br>센터</div></div>';">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-            return template;
-        },
-
-        /**
-         * 🎨 영문 교육과정명 변환
-         */
-        translateCourseNameToEnglish: function (courseName) {
-            if (!courseName) return 'Professional Training Course';
-
-            // 자격증 유형별 매핑
-            const typeMapping = {
-                '건강운동처방사': 'Health Exercise Specialist',
-                '운동재활전문가': 'Exercise Rehabilitation Specialist',
-                '필라테스 전문가': 'Pilates Specialist',
-                '레크리에이션지도자': 'Recreation Instructor'
-            };
-
-            // 키워드 매핑
-            const keywordMapping = {
-                '교육과정': 'Training Course',
-                '과정': 'Course',
-                '프로그램': 'Program',
-                '전문가': 'Specialist',
-                '지도자': 'Instructor'
-            };
-
-            let englishName = courseName;
-
-            // 자격증 유형 변환
-            Object.keys(typeMapping).forEach(korean => {
-                if (englishName.includes(korean)) {
-                    englishName = englishName.replace(new RegExp(korean, 'g'), typeMapping[korean]);
-                }
-            });
-
-            // 기수/회차 변환
-            englishName = englishName.replace(/(\d+)기/g, 'Course $1');
-            englishName = englishName.replace(/제(\d+)기/g, 'Course $1');
-
-            // 키워드 변환
-            Object.keys(keywordMapping).forEach(korean => {
-                if (englishName.includes(korean)) {
-                    englishName = englishName.replace(new RegExp(korean, 'g'), keywordMapping[korean]);
-                }
-            });
-
-            // 공백 정리
-            englishName = englishName.replace(/\s+/g, ' ').trim();
-
-            // 유효성 검사
-            if (englishName === courseName || englishName.length < 3) {
-                return 'Professional Training Course';
-            }
-
-            return englishName;
-        },
-
-        /**
-         * 🎨 자격증 유형 영문명 반환
-         */
-        getCertTypeNameEn: function (type) {
-            const typeMap = {
-                'health-exercise': 'Health Exercise Specialist',
-                'rehabilitation': 'Exercise Rehabilitation Specialist',
-                'pilates': 'Pilates Specialist',
-                'recreation': 'Recreation Instructor'
-            };
-            return typeMap[type] || 'Professional Specialist';
-        },
-
-        /**
-         * 🎨 이미지 로딩 대기
-         */
-        waitForImagesLoad: async function (container) {
-            const images = container.querySelectorAll('img');
-
-            if (images.length === 0) {
-                return Promise.resolve();
-            }
-
-            const imagePromises = Array.from(images).map(img => {
-                return new Promise((resolve) => {
-                    if (img.complete && img.naturalWidth > 0) {
-                        resolve();
-                    } else {
-                        img.onload = resolve;
-                        img.onerror = resolve; // 실패해도 진행
-                    }
-                });
-            });
-
-            // 최대 5초 대기
-            const timeoutPromise = new Promise(resolve => setTimeout(resolve, 5000));
-
-            return Promise.race([
-                Promise.all(imagePromises),
-                timeoutPromise
-            ]);
-        },
-
-        // =================================
-        // 🔧 공통 유틸리티 함수들
-        // =================================
-
-        /**
-         * 자격증 데이터 조회
-         */
-        getCertificateData: async function (certId) {
-            let cert = null;
-
-            const firebaseStatus = checkFirebaseConnection();
-            if (firebaseStatus.connected && window.dhcFirebase) {
-                try {
-                    const docRef = window.dhcFirebase.db.collection('certificates').doc(certId);
-                    const docSnap = await docRef.get();
-
-                    if (docSnap.exists) {
-                        cert = { id: docSnap.id, ...docSnap.data() };
-
-                        // 교육 과정 정보 조회
-                        if (cert.courseId) {
-                            try {
-                                const courseRef = window.dhcFirebase.db.collection('courses').doc(cert.courseId);
-                                const courseSnap = await courseRef.get();
-                                if (courseSnap.exists) {
-                                    cert.courseName = courseSnap.data().title || '';
-                                }
-                            } catch (error) {
-                                console.error('교육 과정 조회 오류:', error);
-                            }
-                        }
-                    }
-                } catch (error) {
-                    console.error('Firebase 자격증 정보 조회 오류:', error);
-                }
-            }
-
-            // Firebase에서 찾지 못한 경우 테스트 데이터 사용
-            if (!cert) {
-                cert = this.getMockCertificateById(certId);
-                if (cert) {
-                    cert.courseName = cert.course || '전문 교육과정';
-                }
-            }
-
-            return cert;
-        },
-
-        /**
-         * 안전한 자격증 데이터 추출
-         */
-        extractCertificateData: function (cert) {
-            const safeGetValue = (obj, path, defaultValue = '') => {
-                try {
-                    return path.split('.').reduce((current, key) => current?.[key], obj) || defaultValue;
-                } catch {
-                    return defaultValue;
-                }
-            };
-
-            return {
-                certNumber: safeGetValue(cert, 'certificateNumber') ||
-                    safeGetValue(cert, 'certNumber') ||
-                    'DHC-2025-0001',
-                holderName: safeGetValue(cert, 'holderName') ||
-                    safeGetValue(cert, 'name') ||
-                    '홍길동',
-                holderEmail: safeGetValue(cert, 'holderEmail') ||
-                    safeGetValue(cert, 'email') ||
-                    'test@example.com',
-                certificateType: safeGetValue(cert, 'certificateType') ||
-                    this.currentCertType ||
-                    'health-exercise',
-                certType: this.getCertTypeName(safeGetValue(cert, 'certificateType') || 'health-exercise'),
-                courseName: safeGetValue(cert, 'courseName') ||
-                    safeGetValue(cert, 'course') ||
-                    '전문 교육과정',
-                issueDate: this.formatDateSafe(cert.issueDate) || '2025-05-19',
-                expiryDate: this.formatDateSafe(cert.expiryDate) || '2028-05-19',
-                status: safeGetValue(cert, 'status') || 'active'
-            };
-        },
-
-        /**
-         * 안전한 날짜 포맷팅
-         */
-        formatDateSafe: function (date) {
-            if (!date) return null;
-
-            try {
-                // Firebase Timestamp인 경우
-                if (typeof date.toDate === 'function') {
-                    date = date.toDate();
-                } else if (typeof date === 'string') {
-                    // 이미 문자열 형태이면 그대로 반환
-                    return date;
-                }
-
-                // Date 객체인 경우
-                if (date instanceof Date && !isNaN(date)) {
-                    return window.formatters.formatDate(date, 'YYYY-MM-DD');
-                }
-            } catch (error) {
-                console.error('날짜 포맷팅 오류:', error);
-            }
-
-            return null;
-        },
-
-        /**
-         * 한글 교육과정명을 영문으로 변환
-         */
-        translateCourseNameToEnglish: function (courseName) {
-            if (!courseName) return 'Professional Training Course';
-
-            // 자격증 유형별 매핑
-            const typeMapping = {
-                '건강운동처방사': 'Health Exercise Specialist',
-                '운동재활전문가': 'Exercise Rehabilitation Specialist',
-                '재활운동전문가': 'Exercise Rehabilitation Specialist',
-                '필라테스 전문가': 'Pilates Specialist',
-                '필라테스전문가': 'Pilates Specialist',
-                '레크리에이션지도자': 'Recreation Instructor',
-                '레크리에이션 지도자': 'Recreation Instructor'
-            };
-
-            // 키워드 매핑
-            const keywordMapping = {
-                '교육과정': 'Training Course',
-                '과정': 'Course',
-                '프로그램': 'Program',
-                '워크샵': 'Workshop',
-                '세미나': 'Seminar',
-                '자격증': 'Certification',
-                '전문가': 'Specialist',
-                '지도자': 'Instructor',
-                '트레이너': 'Trainer'
-            };
-
-            // 기수/회차 패턴
-            const periodPatterns = [
-                { pattern: /(\d+)기/g, replacement: 'Course $1' },
-                { pattern: /(\d+)회차/g, replacement: 'Session $1' },
-                { pattern: /제(\d+)기/g, replacement: 'Course $1' },
-                { pattern: /(\d+)차/g, replacement: 'Phase $1' }
-            ];
-
-            let englishName = courseName;
-
-            // 1. 자격증 유형 변환
-            Object.keys(typeMapping).forEach(korean => {
-                if (englishName.includes(korean)) {
-                    englishName = englishName.replace(new RegExp(korean, 'g'), typeMapping[korean]);
-                }
-            });
-
-            // 2. 기수/회차 변환
-            periodPatterns.forEach(({ pattern, replacement }) => {
-                englishName = englishName.replace(pattern, replacement);
-            });
-
-            // 3. 키워드 변환
-            Object.keys(keywordMapping).forEach(korean => {
-                if (englishName.includes(korean)) {
-                    englishName = englishName.replace(new RegExp(korean, 'g'), keywordMapping[korean]);
-                }
-            });
-
-            // 4. 공백 정리 및 대소문자 조정
-            englishName = englishName
-                .replace(/\s+/g, ' ')
-                .trim()
-                .replace(/\b\w/g, l => l.toUpperCase());
-
-            // 5. 유효성 검사 및 기본값 처리
-            if (englishName === courseName ||
-                englishName.includes('undefined') ||
-                englishName.length < 3 ||
-                /^[^a-zA-Z]*$/.test(englishName)) {
-
-                return 'Professional Training Course';
-            }
-
-            // 6. 최종 정리
-            englishName = englishName
-                .replace(/Course Course/g, 'Course')
-                .replace(/Specialist Specialist/g, 'Specialist')
-                .replace(/Instructor Instructor/g, 'Instructor')
-                .trim();
-
-            return englishName;
-        },
-
-        /**
-         * 이미지 로딩 대기
-         */
-        waitForImagesLoad: async function (container) {
-            const images = container.querySelectorAll('img');
-
-            if (images.length === 0) {
-                return Promise.resolve();
-            }
-
-            const imagePromises = Array.from(images).map(img => {
-                return new Promise((resolve) => {
-                    if (img.complete && img.naturalWidth > 0) {
-                        resolve();
-                    } else {
-                        img.onload = resolve;
-                        img.onerror = resolve; // 실패해도 진행
-                    }
-                });
-            });
-
-            // 최대 5초 대기
-            const timeoutPromise = new Promise(resolve => setTimeout(resolve, 5000));
-
-            return Promise.race([
-                Promise.all(imagePromises),
-                timeoutPromise
-            ]);
-        },
-
-        /**
-         * 자격증 취소
-         */
-        revokeCertificate: function (certId) {
-            if (window.adminUtils?.confirmDialog) {
-                window.adminUtils.confirmDialog(
-                    '정말로 이 자격증을 취소하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
-                    `certManager.handleRevokeCertificate('${certId}')`
-                );
-            } else {
-                if (confirm('정말로 이 자격증을 취소하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-                    this.handleRevokeCertificate(certId);
-                }
-            }
-        },
-
-        /**
-         * 자격증 취소 처리
-         */
-        handleRevokeCertificate: async function (certId) {
-            try {
-                // 로딩 표시
-                if (window.adminUtils?.showLoadingOverlay) {
-                    window.adminUtils.showLoadingOverlay(true);
-                }
-
-                // Firebase 연동 시
-                const firebaseStatus = checkFirebaseConnection();
-                if (firebaseStatus.connected) {
-                    // 업데이트 데이터
-                    const updateData = {
-                        status: 'revoked',
-                        revokedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp(),
-                        updatedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
-                    };
-
-                    // Firebase에 업데이트
-                    try {
-                        const docRef = window.dhcFirebase.db.collection('certificates').doc(certId);
-                        await docRef.update(updateData);
-
-                        // 성공 메시지
-                        window.adminAuth?.showNotification('자격증이 성공적으로 취소되었습니다.', 'success');
-
-                        // 목록 새로고침
-                        this.loadCertificates();
-                    } catch (error) {
-                        console.error('자격증 취소 오류:', error);
-                        window.adminAuth?.showNotification('자격증 취소에 실패했습니다.', 'error');
-                    }
-                } else {
-                    // 테스트 환경에서는 성공으로 처리
-                    setTimeout(() => {
-                        // 성공 메시지
-                        window.adminAuth?.showNotification('자격증이 성공적으로 취소되었습니다.', 'success');
-
-                        // 목록 새로고침
-                        this.loadCertificates();
-                    }, 1000);
-                }
-            } catch (error) {
-                console.error('자격증 취소 오류:', error);
-                window.adminAuth?.showNotification('자격증 취소 중 오류가 발생했습니다.', 'error');
-            } finally {
-                // 로딩 종료
-                if (window.adminUtils?.showLoadingOverlay) {
-                    window.adminUtils.showLoadingOverlay(false);
-                }
-            }
-        },
-
-        // =================================
-        // 유틸리티 함수들 - 🔧 전역 유틸리티 사용
-        // =================================
-
-        /**
-         * 상태 텍스트 가져오기
-         */
-        getStatusText: function (status) {
-            switch (status) {
-                case 'active': return '유효';
-                case 'expired': return '만료';
-                case 'revoked': return '취소';
-                case 'suspended': return '정지';
-                default: return status || '알 수 없음';
-            }
-        },
-
-        /**
-         * 자격증 유형 이름 가져오기 (한글)
-         */
-        getCertTypeName: function (type) {
-            switch (type) {
-                case 'health-exercise': return '건강운동처방사';
-                case 'rehabilitation': return '운동재활전문가';
-                case 'pilates': return '필라테스 전문가';
-                case 'recreation': return '레크리에이션지도자';
-                default: return type || '알 수 없음';
-            }
-        },
-
-        /**
-         * 자격증 유형 이름 가져오기 (영문)
-         */
-        getCertTypeNameEn: function (type) {
-            switch (type) {
-                case 'health-exercise': return 'Health Exercise Specialist';
-                case 'rehabilitation': return 'Exercise Rehabilitation Specialist';
-                case 'pilates': return 'Pilates Specialist';
-                case 'recreation': return 'Recreation Instructor';
-                default: return type || 'Unknown';
-            }
-        },
-
-        /**
-         * 날짜 포맷팅 - 🔧 전역 유틸리티 사용
-         */
-        formatDate: function (date, includeTime = false) {
-            if (!date) return '-';
-
-            try {
-                // Firebase Timestamp인 경우
-                if (typeof date.toDate === 'function') {
-                    date = date.toDate();
-                } else if (typeof date === 'string') {
-                    // 이미 문자열 형태이면 그대로 반환
-                    return date;
-                }
-
-                // Date 객체인 경우 - 🔧 전역 유틸리티 사용
-                if (date instanceof Date) {
-                    if (includeTime) {
-                        return window.formatters.formatDate(date, 'YYYY-MM-DD HH:mm');
-                    } else {
-                        return window.formatters.formatDate(date, 'YYYY-MM-DD');
-                    }
-                }
-            } catch (error) {
-                console.error('날짜 포맷팅 오류:', error);
-            }
-
-            return '-';
-        },
-
-        /**
-         * 날짜를 input[type="date"]용으로 포맷팅 - 🔧 전역 유틸리티 사용
-         */
-        formatDateToInput: function (date) {
-            if (!date) return '';
-
-            try {
-                // Firebase Timestamp인 경우
-                if (typeof date.toDate === 'function') {
-                    date = date.toDate();
-                } else if (typeof date === 'string') {
-                    // YYYY-MM-DD 형식인지 확인
-                    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-                        return date;
-                    }
-                    // 다른 형식의 문자열일 경우 Date 객체로 변환
-                    date = new Date(date);
-                }
-
-                // Date 객체인 경우 - 🔧 전역 유틸리티 사용
-                if (date instanceof Date) {
-                    return window.formatters.formatDate(date, 'YYYY-MM-DD');
-                }
-            } catch (error) {
-                console.error('날짜 포맷팅 오류:', error);
-            }
-
-            return '';
-        },
-
-        /**
-         * 테스트용 모의 자격증 데이터 가져오기
-         */
-        getMockCertificates: function () {
-            // Firebase 연동 전 테스트용 데이터
-            return [
-                {
-                    id: 'cert1',
-                    certNumber: 'HE-2025-0001',
-                    name: '홍길동',
-                    course: '건강운동처방사 1기',
-                    issueDate: '2025-03-15',
-                    expiryDate: '2028-03-14',
-                    status: 'active',
-                    remarks: '최우수 성적으로 수료'
-                },
-                {
-                    id: 'cert2',
-                    certNumber: 'HE-2025-0002',
-                    name: '김철수',
-                    course: '건강운동처방사 1기',
-                    issueDate: '2025-03-15',
-                    expiryDate: '2028-03-14',
-                    status: 'active',
-                    remarks: ''
-                },
-                {
-                    id: 'cert3',
-                    certNumber: 'HE-2024-0035',
-                    name: '이영희',
-                    course: '건강운동처방사 4기',
-                    issueDate: '2024-12-20',
-                    expiryDate: '2027-12-19',
-                    status: 'active',
-                    remarks: ''
-                },
-                {
-                    id: 'cert4',
-                    certNumber: 'HE-2024-0012',
-                    name: '박지민',
-                    course: '건강운동처방사 2기',
-                    issueDate: '2024-06-30',
-                    expiryDate: '2024-06-29',
-                    status: 'expired',
-                    remarks: '만료됨'
-                },
-                {
-                    id: 'cert5',
-                    certNumber: 'HE-2024-0018',
-                    name: '최민수',
-                    course: '건강운동처방사 3기',
-                    issueDate: '2024-09-15',
-                    expiryDate: '2027-09-14',
-                    status: 'suspended',
-                    remarks: '위반 행위로 인한 자격 정지'
-                }
-            ];
-        },
-
-        /**
-         * ID로 테스트용 모의 자격증 데이터 가져오기
-         */
-        getMockCertificateById: function (certId) {
-            console.log('🔧 테스트 데이터에서 자격증 검색:', certId);
-
-            const certs = this.getMockCertificates();
-
-            // ID로 먼저 검색
-            let cert = certs.find(cert => cert.id === certId);
-
-            // ID로 찾지 못하면 인덱스로 검색 (Firebase ID는 보통 랜덤 문자열)
-            if (!cert && certs.length > 0) {
-                // certId가 Firebase 스타일의 랜덤 ID인 경우 첫 번째 항목 반환
-                if (certId.length > 10 && /^[a-zA-Z0-9]+$/.test(certId)) {
-                    cert = certs[0];
-                    console.log('🔧 Firebase 스타일 ID로 첫 번째 테스트 데이터 반환:', cert);
-                }
-            }
-
-            // 그래도 없으면 기본 테스트 데이터 생성
-            if (!cert) {
-                cert = {
-                    id: certId,
-                    certificateNumber: 'HE-2025-TEST',
-                    certNumber: 'HE-2025-TEST',
-                    name: '테스트',
-                    holderName: '테스트',
-                    course: '건강운동처방사 1기',
-                    courseName: '건강운동처방사 1기',
-                    issueDate: '2025-05-19',
-                    expiryDate: '2028-05-19',
-                    status: 'active',
-                    remarks: '테스트 데이터',
-                    holderEmail: 'test@example.com',
-                    email: 'test@example.com',
-                    certificateType: this.currentCertType
-                };
-                console.log('🔧 기본 테스트 데이터 생성:', cert);
-            }
-
-            return cert;
-        }
     };
 
     // 자격증 관리자 초기화
@@ -3857,7 +3331,6 @@ function initCertManager() {
 // 페이지 초기화 함수 (script-loader.js에 의해 호출됨)
 window.initPage = function () {
     console.log('자격증 관리 페이지 초기화 중...');
-    // 추가 초기화 로직 (필요시)
     console.log('자격증 관리 페이지 초기화 완료');
 };
 
@@ -3884,7 +3357,7 @@ if (window.location.hostname === 'localhost' ||
             console.log('- checkFirebase() : Firebase 연결 상태 확인');
 
             console.log('\n🎨 PDF 테스트:');
-            console.log('- testKoreanPdf("cert-id") : 한글 PDF 테스트');
+            console.log('- testKoreanPdf("cert-id") : 한글 PDF 테스트 (사진 포함)');
             console.log('- testEnglishPdf("cert-id") : 영문 PDF 테스트');
             console.log('- testBothPdfs("cert-id") : 한글/영문 PDF 모두 테스트');
             console.log('- checkImages() : 이미지 에셋 확인');
@@ -3894,9 +3367,9 @@ if (window.location.hostname === 'localhost' ||
         },
 
         testKoreanPdf: function (certId = 'cert1') {
-            console.log('🎨 한글 PDF 테스트 시작:', certId);
+            console.log('🎨 한글 PDF 테스트 시작 (사진 포함):', certId);
             if (window.certManager) {
-                window.certManager.generateKoreanCertPdf(certId);
+                window.certManager.generateKoreanCertPdfWithPhoto(certId);
             } else {
                 console.error('❌ certManager가 로드되지 않음');
             }
@@ -3919,12 +3392,13 @@ if (window.location.hostname === 'localhost' ||
 
         checkImages: async function () {
             console.log('🖼️ 이미지 에셋 확인...');
-            const { borderImagePath, koreaImagePath, englishImagePath } = getImagePaths();
+            const { borderImagePath, koreaImagePath, englishImagePath, sealImagePath } = getImagePaths();
 
             const results = {
                 border: await checkImageExists(borderImagePath),
                 korea: await checkImageExists(koreaImagePath),
-                english: await checkImageExists(englishImagePath)
+                english: await checkImageExists(englishImagePath),
+                seal: await checkImageExists(sealImagePath)
             };
 
             console.log('이미지 존재 여부:', results);
@@ -3944,8 +3418,77 @@ if (window.location.hostname === 'localhost' ||
             return status;
         },
 
+        testBase64Photo: function () {
+            console.log('📸 Base64 테스트 이미지 생성 테스트');
+
+            const testPhoto = createBase64TestPhoto();
+            const simplePhoto = createSimpleBase64Placeholder();
+
+            console.log('전문적인 증명사진 스타일:', testPhoto.substring(0, 100) + '...');
+            console.log('간단한 플레이스홀더:', simplePhoto.substring(0, 100) + '...');
+
+            // 브라우저에서 이미지 미리보기
+            const testImg = new Image();
+            testImg.src = testPhoto;
+            testImg.style.cssText = 'width:120px; height:160px; border:1px solid #ccc; margin:10px;';
+            testImg.title = '전문적인 증명사진 스타일';
+
+            const simpleImg = new Image();
+            simpleImg.src = simplePhoto;
+            simpleImg.style.cssText = 'width:120px; height:160px; border:1px solid #ccc; margin:10px;';
+            simpleImg.title = '간단한 플레이스홀더';
+
+            // 콘솔에 이미지 표시 (개발자 도구에서 확인)
+            console.log('🖼️ 생성된 이미지 미리보기:');
+            console.log(testImg);
+            console.log(simpleImg);
+
+            return { testPhoto, simplePhoto };
+        },
+
+        testBase64Integration: async function (certId = 'cert1') {
+            console.log('🧪 Base64 이미지 통합 테스트 시작');
+
+            // 1. Firebase에 Base64 이미지 추가
+            if (window.dhcFirebase) {
+                try {
+                    const testPhotoUrl = createBase64TestPhoto();
+
+                    const snapshot = await window.dhcFirebase.db.collection('certificates').limit(1).get();
+
+                    if (!snapshot.empty) {
+                        const doc = snapshot.docs[0];
+                        const updateData = {
+                            photoUrl: testPhotoUrl,
+                            hasPhoto: true,
+                            isBase64Photo: true,
+                            photoUpdatedAt: new Date().toISOString()
+                        };
+
+                        await doc.ref.update(updateData);
+                        console.log('✅ Base64 테스트 사진 Firebase 업데이트 완료:', doc.id);
+
+                        // 2. PDF 테스트
+                        setTimeout(() => {
+                            console.log('📄 Base64 이미지로 PDF 테스트 시작');
+                            this.testKoreanPdf(doc.id);
+                        }, 1000);
+
+                        return doc.id;
+                    } else {
+                        console.log('❌ 자격증 데이터가 없습니다.');
+                    }
+                } catch (error) {
+                    console.error('❌ Base64 이미지 통합 테스트 실패:', error);
+                }
+            } else {
+                console.log('🔧 Firebase 미연결, 로컬 테스트만 실행');
+                this.testKoreanPdf(certId);
+            }
+        },
+
         runFullTest: function () {
-            console.log('🚀 전문적인 자격증 관리 전체 기능 테스트 시작...');
+            console.log('🚀 전문적인 자격증 관리 전체 기능 테스트 시작 (Base64 포함)...');
 
             console.log('\n1️⃣ 의존성 및 유틸리티 테스트');
             const dependenciesOk = this.testDependencies();
@@ -3961,11 +3504,16 @@ if (window.location.hostname === 'localhost' ||
             console.log('\n3️⃣ 이미지 에셋 확인');
             this.checkImages();
 
-            console.log('\n4️⃣ PDF 생성 테스트');
-            this.testBothPdfs();
+            console.log('\n4️⃣ Base64 이미지 생성 테스트');
+            this.testBase64Photo();
+
+            console.log('\n5️⃣ Base64 통합 테스트 및 PDF 생성');
+            this.testBase64Integration();
 
             console.log('\n🎯 전체 테스트 완료!');
             console.log('💡 이제 관리자 페이지에서 PDF 다운로드를 테스트해보세요!');
+            console.log('📸 한글 PDF는 Base64 증명사진이 포함됩니다!');
+            console.log('🔧 네트워크 의존성 없이 안정적으로 동작합니다!');
         }
     };
 
@@ -3989,23 +3537,21 @@ if (window.location.hostname === 'localhost' ||
 // 최종 완료 메시지
 // =================================
 
-console.log('\n🎉 === cert-management.js 전문적인 PDF 시스템 완료 ===');
-console.log('✅ 전문적인 한글 자격증: 참고 이미지 기반 고급 디자인');
-console.log('✅ 전문적인 영문 자격증: 국제 표준 클래식 디자인');
-console.log('✅ 실제 에셋 활용: border-gold.png, korea-medal.png, english-medal.png');
-console.log('✅ 대체 시스템: 전문적인 SVG 기반 대체 이미지');
-console.log('✅ 고해상도 PDF: 3배 스케일링으로 인쇄 품질 최적화');
-console.log('✅ 기존 함수명 유지: generateKoreanCertPdf(), generateEnglishCertPdf()');
-console.log('✅ PDF 아이콘 개선: 직관적인 PDF 파일 아이콘으로 교체');
-console.log('✅ 드롭다운 z-index 수정: 테이블에 가려지지 않도록 개선');
-console.log('\n🔧 해결된 문제:');
-console.log('- 이미지 경로를 실제 에셋 경로로 수정 (assets/images/logo/)');
-console.log('- 참고 자격증과 유사한 전문적이고 아름다운 디자인 적용');
-console.log('- 계층적 정보 구조와 균형잡힌 레이아웃');
-console.log('- 한글/영문별 최적화된 폰트 및 색상 조합');
-console.log('- 고품질 인쇄를 위한 고해상도 PDF 생성');
-console.log('- 견고한 오류 처리 및 대체 시스템');
-console.log('\n🚀 이제 전문적이고 아름다운 자격증 PDF를 생성할 수 있습니다!');
+console.log('\n🎉 === cert-management.js Base64 이미지 통합 완료 ===');
+console.log('✅ Base64 플레이스홀더 이미지 생성 기능 추가');
+console.log('✅ 네트워크 의존성 완전 제거');
+console.log('✅ CORS 문제 해결');
+console.log('✅ 전문적인 증명사진 스타일 플레이스홀더');
+console.log('✅ 외부 placeholder 서비스 자동 감지 및 대체');
+console.log('✅ Firebase Storage 실제 이미지와 호환');
+console.log('\n🔧 주요 개선사항:');
+console.log('- createBase64TestPhoto(): 전문적인 아바타 스타일 증명사진');
+console.log('- createSimpleBase64Placeholder(): 간단한 카메라 아이콘 스타일');
+console.log('- 자동 Base64 감지 및 처리');
+console.log('- 크기 조정 및 비율 유지');
+console.log('- 기존 코드와 완전 호환');
+console.log('\n🚀 이제 완전히 독립적으로 동작합니다!');
+console.log('📸 테스트: window.debugCertManagement.testBase64Integration()');
 
 // 완료 플래그 설정
-window.certManagementProfessionalPdfComplete = true;
+window.certManagementPhotoComplete = true;

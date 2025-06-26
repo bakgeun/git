@@ -1411,3 +1411,338 @@
         font-size: 0.9rem;
     }
 }
+
+/* 📸 사진 업로드 전용 CSS 스타일 */
+/* cert-application.html의 <head> 섹션에 추가하거나 별도 CSS 파일로 분리 */
+
+/* =================================
+   사진 드래그앤드롭 영역 스타일 개선
+   ================================= */
+
+.file-drop-zone[data-input="photo"] {
+    position: relative;
+    min-height: 200px;
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #f9fafb 0%, #f3f4f6 100%);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.file-drop-zone[data-input="photo"]:hover {
+    border-color: #3b82f6;
+    background: linear-gradient(145deg, #eff6ff 0%, #dbeafe 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.file-drop-zone[data-input="photo"].dragover {
+    border-color: #10b981;
+    background: linear-gradient(145deg, #ecfdf5 0%, #d1fae5 100%);
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.25);
+}
+
+.file-drop-zone[data-input="photo"] .file-drop-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    text-align: center;
+    height: 100%;
+    min-height: 180px;
+}
+
+.file-drop-zone[data-input="photo"] .file-drop-content svg {
+    color: #6b7280;
+    transition: color 0.3s ease;
+}
+
+.file-drop-zone[data-input="photo"]:hover .file-drop-content svg {
+    color: #3b82f6;
+}
+
+.file-drop-zone[data-input="photo"] .file-drop-content p {
+    margin: 0.5rem 0;
+    color: #374151;
+    font-weight: 500;
+}
+
+.file-drop-zone[data-input="photo"] .file-drop-content .file-info {
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.5;
+    margin-top: 0.5rem;
+}
+
+/* =================================
+   사진 미리보기 스타일
+   ================================= */
+
+.photo-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem;
+    text-align: center;
+    background: linear-gradient(145deg, #ffffff 0%, #f9fafb 100%);
+    border-radius: 8px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.preview-image {
+    width: 120px;
+    height: 160px;
+    object-fit: cover;
+    border: 3px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.preview-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.photo-info {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.photo-info .file-name {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+    word-break: break-all;
+}
+
+.photo-info .file-size {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}
+
+.photo-info .success-message {
+    font-size: 0.875rem;
+    color: #059669;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.remove-photo-btn {
+    background: linear-gradient(145deg, #fef2f2 0%, #fee2e2 100%);
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    cursor: pointer;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.remove-photo-btn:hover {
+    background: linear-gradient(145deg, #fee2e2 0%, #fecaca 100%);
+    border-color: #f87171;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+}
+
+.remove-photo-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(220, 38, 38, 0.2);
+}
+
+/* =================================
+   업로드 상태별 스타일
+   ================================= */
+
+/* 업로드 완료 상태 */
+.file-drop-zone.file-uploaded {
+    border-color: #10b981 !important;
+    background: linear-gradient(145deg, #ecfdf5 0%, #d1fae5 100%) !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.file-drop-zone.file-uploaded:hover {
+    transform: none;
+    cursor: default;
+}
+
+/* 에러 상태 */
+.file-drop-zone.error {
+    border-color: #ef4444 !important;
+    background: linear-gradient(145deg, #fef2f2 0%, #fee2e2 100%) !important;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+/* 사진 에러 메시지 */
+.photo-error {
+    background: linear-gradient(145deg, #fef2f2 0%, #fee2e2 100%);
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-top: 0.75rem;
+    color: #dc2626;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.1);
+}
+
+.photo-error::before {
+    content: "⚠️";
+    font-size: 1rem;
+}
+
+/* =================================
+   반응형 디자인
+   ================================= */
+
+@media (max-width: 768px) {
+    .file-drop-zone[data-input="photo"] {
+        min-height: 160px;
+    }
+    
+    .file-drop-zone[data-input="photo"] .file-drop-content {
+        padding: 1.5rem 1rem;
+        min-height: 140px;
+    }
+    
+    .photo-preview {
+        padding: 1rem;
+    }
+    
+    .preview-image {
+        width: 100px;
+        height: 130px;
+    }
+    
+    .photo-info .file-name {
+        font-size: 0.8rem;
+    }
+    
+    .remove-photo-btn {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .file-drop-zone[data-input="photo"] {
+        min-height: 140px;
+    }
+    
+    .file-drop-zone[data-input="photo"] .file-drop-content {
+        padding: 1rem 0.5rem;
+        min-height: 120px;
+    }
+    
+    .preview-image {
+        width: 80px;
+        height: 110px;
+    }
+    
+    .photo-info .file-name {
+        font-size: 0.75rem;
+    }
+}
+
+/* =================================
+   로딩 및 애니메이션 스타일
+   ================================= */
+
+.loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 업로드 진행률 표시 (향후 확장용) */
+.upload-progress {
+    width: 100%;
+    height: 4px;
+    background-color: #f3f4f6;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.upload-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+/* =================================
+   접근성 개선
+   ================================= */
+
+.file-drop-zone[data-input="photo"]:focus-within {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+.remove-photo-btn:focus {
+    outline: 2px solid #dc2626;
+    outline-offset: 2px;
+}
+
+/* 스크린 리더용 숨김 텍스트 */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* =================================
+   인쇄 시 스타일
+   ================================= */
+
+@media print {
+    .file-drop-zone[data-input="photo"],
+    .remove-photo-btn {
+        display: none;
+    }
+    
+    .preview-image {
+        border: 1px solid #000;
+        box-shadow: none;
+    }
+}
