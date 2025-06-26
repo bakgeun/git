@@ -3068,19 +3068,19 @@ function initCertManager() {
                      "
                      onerror="this.style.display='none';">
 
-                <!-- 콘텐츠 영역 (테두리 안쪽) -->
+                <!-- 콘텐츠 영역 (테두리 안쪽) - 하단 패딩 줄여서 여백 조정 -->
                 <div style="
                     position: relative;
                     z-index: 3;
-                    padding: 90px 100px 80px 100px;
+                    padding: 90px 100px 60px 100px;
                     height: 100%;
                     box-sizing: border-box;
                     display: flex;
                     flex-direction: column;
                     text-align: center;
                 ">
-                    <!-- 상단: 메달과 제목 -->
-                    <div style="margin-bottom: 50px; margin-top: 80px;">
+                    <!-- 상단: 메달과 제목 (간격 대폭 축소) -->
+                    <div style="margin-bottom: 30px; margin-top: 80px;">
                         <!-- 자격증 제목 -->
                         <h1 style="
                             font-size: 48px;
@@ -3108,25 +3108,25 @@ function initCertManager() {
                             font-weight: 600;
                         ">${certTypeEn}</h3>
                         
-                        <!-- 자격증 번호 (사각형 완전 중앙 정렬) -->
+                        <!-- 🔧 자격증 번호 (중앙 배치 + 텍스트 중앙 정렬 완전 수정) -->
                         <div style="
                             color: #1e3a8a;
-                            padding: 15px 25px;
                             border: 2px solid #1e3a8a;
                             border-radius: 5px;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
                             font-size: 16px;
                             font-weight: 600;
-                            margin: 0 auto 80px auto;
+                            margin: 0 auto 15px auto;
                             background: transparent;
-                            width: fit-content;
-                            height: 25px;
+                            width: 280px;
+                            height: 50px;
+                            display: block;
+                            text-align: center;
+                            line-height: 46px;
+                            box-sizing: border-box;
                         ">Certificate No: ${certData.certNumber}</div>
                     </div>
 
-                    <!-- 중앙: 인증 내용 (폰트 축소, 간격 축소, 공간 확보) -->
+                    <!-- 중앙: 인증 내용 (간격 조정) -->
                     <div style="
                         flex: 1;
                         display: flex;
@@ -3135,19 +3135,19 @@ function initCertManager() {
                         margin: 0;
                         padding: 0 40px;
                     ">
-                        <!-- This is to certify that (더 위로, 폰트 축소) -->
+                        <!-- 🔧 This is to certify that (간격 최소화) -->
                         <p style="
-                            margin: 0 0 10px 0;
+                            margin: 5px 0 10px 0;
                             font-size: 20px;
                             color: #4a5568;
                             font-style: italic;
                             font-weight: 500;
                         ">This is to certify that</p>
                         
-                        <!-- 🔧 수료자명 강조 (간격 축소) -->
+                        <!-- 수료자명 강조 (간격 축소) -->
                         <div style="
-                            margin: 10px 0;
-                            padding: 15px 0;
+                            margin: 10px 0 15px 0;
+                            padding: 12px 0;
                             border-bottom: 3px solid #FFD700;
                             position: relative;
                         ">
@@ -3161,34 +3161,35 @@ function initCertManager() {
                             ">Test User</h2>
                         </div>
                         
-                        <!-- 완료 내용 (폰트 축소, 간격 축소) -->
+                        <!-- 🔧 완료 내용 (간격 최소화) -->
                         <p style="
-                            margin: 10px 0 40px 0;
+                            margin: 15px 0 25px 0;
                             font-size: 16px;
                             color: #374151;
-                            line-height: 1.5;
+                            line-height: 1.6;
                             font-weight: 500;
-                        ">has successfully completed the ${certTypeEn} training program<br>
-                        and passed all theoretical and practical examinations<br>
-                        with distinction, and is hereby certified.</p>
+                        ">has successfully completed the ${certTypeEn}<br>
+                        training program and passed all theoretical<br>
+                        and practical examinations with distinction,<br>
+                        and is hereby certified.</p>
                         
-                        <!-- 🔧 하단: 발급 정보 (한 줄로 배치, 폰트 크게) -->
+                        <!-- 🔧 하단: 발급 정보 (마진 최소화로 하단 여백 최대 확보) -->
                         <div style="
                             display: flex;
                             flex-direction: column;
                             align-items: center;
-                            margin-top: 0;
+                            margin-top: 5px;
                         ">
-                            <!-- 날짜와 발급정보를 한 줄로 배치 -->
+                            <!-- 🔧 날짜 (폰트 크기 확대: 18px → 22px) -->
                             <div style="
                                 text-align: center;
                                 margin-bottom: 30px;
                             ">
                                 <p style="
-                                    font-size: 18px;
-                                    margin: 0 0 10px 0;
+                                    font-size: 22px;
+                                    margin: 0 0 15px 0;
                                     color: #1e293b;
-                                    font-weight: 600;
+                                    font-weight: 700;
                                 ">${issuedDate}</p>
                                 
                                 <div style="
@@ -3206,14 +3207,14 @@ function initCertManager() {
                                 </div>
                             </div>
 
-                            <!-- 센터명과 직인 (크기 확대) -->
+                            <!-- 🔧 센터명과 직인 (폰트 크기 확대: 22px → 28px) -->
                             <div style="
                                 text-align: center;
                                 position: relative;
                                 display: inline-block;
                             ">
                                 <h3 style="
-                                    font-size: 22px;
+                                    font-size: 28px;
                                     font-weight: 700;
                                     margin: 0;
                                     color: #1e3a8a;
@@ -3221,13 +3222,14 @@ function initCertManager() {
                                     display: inline-block;
                                 ">Digital Healthcare Center</h3>
                                 <p style="
-                                    font-size: 16px;
+                                    font-size: 18px;
                                     margin: 5px 0 0 0;
                                     color: #64748b;
                                     font-style: italic;
+                                    font-weight: 500;
                                 ">Mungyeong Subsidiary</p>
                                 
-                                <!-- 직인 (크기 확대) -->
+                                <!-- 직인 -->
                                 <img src="${sealPath}" 
                                      style="
                                          width: 75px;
@@ -3242,8 +3244,6 @@ function initCertManager() {
                             </div>
                         </div>
                     </div>
-
-                    <!-- 하단 정보를 중앙 콘텐츠 안으로 이동 (위에서 처리됨) -->
                 </div>
             </div>
         </div>
