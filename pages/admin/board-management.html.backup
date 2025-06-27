@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판 관리 - Board Management- 디지털헬스케어센터</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap"
+        rel="stylesheet">
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+
+    <!-- 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
+    <script src="../../assets/js/utils/script-loader.js"></script>
+</head>
+
+<body class="bg-gray-100">
+    <!-- 관리자 헤더 -->
+    <header class="bg-indigo-800 text-white admin-header">
+        <style>
+            /* 인라인 스타일로 깜빡임 방지 */
+            .admin-user-info {
+                display: flex !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+
+            #admin-name,
+            #admin-email,
+            #admin-logout-button {
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+        </style>
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <!-- 토글 버튼 추가 -->
+                <button class="admin-toggle-button" id="admin-sidebar-toggle" aria-label="메뉴 토글">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+
+                <div class="flex items-center">
+                    <a href="javascript:window.location.href=window.adjustPath('index.html')" class="admin-title">
+                        관리자 페이지
+                    </a>
+                </div>
+
+                <!-- 사용자 정보 (모바일에서 숨김) -->
+                <div class="flex items-center space-x-4 admin-user-info">
+                    <span id="admin-name">관리자</span>
+                    <span id="admin-email" class="text-sm text-indigo-200">gostepexercise@gmail.com</span>
+                    <button id="admin-logout-button"
+                        class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md text-sm">
+                        로그아웃
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 사이드바 오버레이 (모바일용) -->
+    <div id="sidebar-overlay" class="admin-sidebar-overlay"></div>
+
+    <div class="flex">
+        <!-- 사이드바 -->
+        <aside class="w-64 bg-indigo-900 min-h-screen text-white admin-sidebar">
+            <style>
+                /* 사이드바 사용자 정보 인라인 스타일 */
+                .sidebar-user-info {
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                    padding: 1rem;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                    margin-bottom: 1rem;
+                    background-color: rgba(0, 0, 0, 0.2);
+                }
+            </style>
+
+            <!-- 사이드바 사용자 정보 (초기에 미리 추가) -->
+            <div class="sidebar-user-info" style="opacity: 1 !important; visibility: visible !important;">
+                <div class="text-white mb-2">
+                    <div class="font-bold" style="opacity: 1 !important;">관리자</div>
+                    <div class="text-indigo-200 text-sm" style="opacity: 1 !important;">gostepexercise@gmail.com</div>
+                </div>
+                <button id="sidebar-logout-button"
+                    class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md text-sm text-white w-full"
+                    style="opacity: 1 !important;">
+                    로그아웃
+                </button>
+            </div>
+
+            <nav class="mt-8 admin-nav">
+                <a href="javascript:window.location.href=window.adjustPath('pages/admin/dashboard.html')"
+                    class="block px-6 py-3 text-indigo-300 hover:bg-indigo-600 hover:text-white transition duration-200">
+                    <svg class="inline-block w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                        </path>
+                    </svg>
+                    대시보드
+                </a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/admin/user-management.html')"
+                    class="block px-6 py-3 text-indigo-300 hover:bg-indigo-600 hover:text-white transition duration-200">
+                    <svg class="inline-block w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                        </path>
+                    </svg>
+                    회원 관리
+                </a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/admin/course-management.html')"
+                    class="block px-6 py-3 text-indigo-300 hover:bg-indigo-600 hover:text-white transition duration-200">
+                    <svg class="inline-block w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                        </path>
+                    </svg>
+                    교육 관리
+                </a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/admin/cert-management.html')"
+                    class="block px-6 py-3 text-indigo-300 hover:bg-indigo-600 hover:text-white transition duration-200">
+                    <svg class="inline-block w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z">
+                        </path>
+                    </svg>
+                    자격증 관리
+                </a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/admin/board-management.html')"
+                    class="block px-6 py-3 bg-indigo-700 text-white">
+                    <svg class="inline-block w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+                        </path>
+                    </svg>
+                    게시판 관리
+                </a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/admin/payment-management.html')"
+                    class="block px-6 py-3 text-indigo-300 hover:bg-indigo-600 hover:text-white transition duration-200">
+                    <svg class="inline-block w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
+                        </path>
+                    </svg>
+                    결제 관리
+                </a>
+            </nav>
+        </aside>
+
+        <!-- 메인 콘텐츠 -->
+        <main class="flex-1 p-4 md:p-8 admin-content">
+            <!-- 알림 영역 -->
+            <div id="admin-notification" style="display: none;"></div>
+
+            <!-- 페이지 헤더 -->
+            <div class="mb-6 md:mb-8">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800">게시판 관리</h1>
+                <p class="text-gray-600 mt-2">게시판별 게시글을 관리합니다.</p>
+            </div>
+
+            <!-- 게시판 선택 탭 -->
+            <div class="border-b border-gray-200 mb-6">
+                <nav class="-mb-px flex" id="board-tabs">
+                    <button onclick="boardManager.switchBoard('notice')"
+                        class="board-tab active border-indigo-500 text-indigo-600 whitespace-nowrap py-3 md:py-4 px-4 border-b-2 font-medium text-sm"
+                        data-board="notice">
+                        공지사항
+                    </button>
+                    <button onclick="boardManager.switchBoard('column')"
+                        class="board-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 md:py-4 px-4 border-b-2 font-medium text-sm"
+                        data-board="column">
+                        칼럼
+                    </button>
+                    <button onclick="boardManager.switchBoard('materials')"
+                        class="board-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 md:py-4 px-4 border-b-2 font-medium text-sm"
+                        data-board="materials">
+                        강의자료
+                    </button>
+                    <button onclick="boardManager.switchBoard('videos')"
+                        class="board-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 md:py-4 px-4 border-b-2 font-medium text-sm"
+                        data-board="videos">
+                        동영상 강의
+                    </button>
+                </nav>
+            </div>
+
+            <!-- 🔧 검색 및 필터 섹션 (다른 관리자 페이지와 통일) -->
+            <div class="admin-filters-container">
+                <div class="admin-filters-grid">
+                    <!-- 검색 유형 선택 -->
+                    <div class="admin-filter-group">
+                        <label for="search-type" class="admin-filter-label">검색 유형</label>
+                        <select id="search-type" class="admin-filter-select">
+                            <option value="title">제목</option>
+                            <option value="content">내용</option>
+                            <option value="author">작성자</option>
+                        </select>
+                    </div>
+
+                    <!-- 검색 키워드 -->
+                    <div class="admin-filter-group md:col-span-2">
+                        <label for="search-keyword" class="admin-filter-label">검색어</label>
+                        <input type="text" id="search-keyword" placeholder="검색어를 입력하세요"
+                            class="admin-filter-input">
+                    </div>
+                </div>
+
+                <!-- 검색 버튼 그룹 -->
+                <div class="admin-filter-actions">
+                    <button onclick="boardManager.resetSearch()" class="admin-btn admin-btn-secondary">
+                        <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                            </path>
+                        </svg>
+                        초기화
+                    </button>
+                    <button onclick="boardManager.search()" class="admin-btn admin-btn-primary">
+                        <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        검색
+                    </button>
+                </div>
+            </div>
+
+            <!-- 🎯 게시글 목록 테이블 (반응형 통일) -->
+            <div class="admin-table-container">
+                <div class="p-4 md:p-6 border-b border-gray-200 flex flex-col md:flex-row justify-between md:items-center gap-4">
+                    <h2 class="text-lg md:text-xl font-semibold text-gray-800">
+                        <span id="board-title">공지사항</span> 목록
+                    </h2>
+                    <button id="add-post-button" class="admin-btn admin-btn-primary whitespace-nowrap">
+                        <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        게시글 추가
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table id="board-table" class="admin-table admin-table-responsive">
+                        <thead>
+                            <tr>
+                                <th>제목</th>
+                                <th>작성자</th>
+                                <th>조회수</th>
+                                <th>작성일</th>
+                                <th>상태</th>
+                                <th>작업</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" class="admin-loading-state">
+                                    <div class="admin-loading-spinner"></div>
+                                    <span class="text-gray-600">데이터를 불러오는 중입니다...</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- 페이지네이션 -->
+                <div id="board-pagination" class="p-4 border-t border-gray-200"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 게시글 추가/수정 모달 -->
+    <div id="post-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-black opacity-50" onclick="boardManager.closePostModal()"></div>
+            <div class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-4 md:p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg md:text-xl font-semibold" id="modal-title">게시글 추가</h3>
+                        <button onclick="boardManager.closePostModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <form id="post-form" class="space-y-4">
+                        <!-- 카테고리 선택 -->
+                        <div class="form-group">
+                            <label for="post-category" class="block text-sm font-medium text-gray-700 mb-1">카테고리</label>
+                            <select id="post-category" name="category" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="">-- 카테고리 선택 --</option>
+                            </select>
+                        </div>
+
+                        <!-- 제목 -->
+                        <div class="form-group">
+                            <label for="post-title" class="block text-sm font-medium text-gray-700 mb-1">제목</label>
+                            <input type="text" id="post-title" name="title" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                placeholder="게시글 제목을 입력하세요">
+                        </div>
+
+                        <!-- 내용 -->
+                        <div class="form-group content-group">
+                            <label for="post-content" class="block text-sm font-medium text-gray-700 mb-1">내용</label>
+                            <textarea id="post-content" name="content" rows="10" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                placeholder="게시글 내용을 입력하세요"></textarea>
+                        </div>
+
+                        <!-- 폼 액션 버튼 -->
+                        <div class="flex justify-end space-x-3 pt-4">
+                            <button type="button" onclick="boardManager.closePostModal()"
+                                class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                취소
+                            </button>
+                            <button type="submit"
+                                class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                저장
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔧 다른 관리자 페이지와 통일된 스크립트 로딩 -->
+    <script id="firebase-sdk-template" type="text/template">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
+
+    <!-- 🔧 1. 핵심 유틸리티만 먼저 로드 -->
+    <script src="{basePath}assets/js/utils/formatters.js"><\/script>
+    <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
+
+    <!-- 🔧 2. Firebase 설정 및 서비스 -->
+    <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
+    <script src="{basePath}assets/js/services/auth-service.js"><\/script>
+    <script src="{basePath}assets/js/services/db-service.js"><\/script>
+    <script src="{basePath}assets/js/services/storage-service.js"><\/script>
+</script>
+
+    <script id="additional-scripts-template" type="text/template">
+    <!-- 🔧 3. 필요시에만 로드되는 유틸리티 -->
+    <script src="{basePath}assets/js/utils/validators.js"><\/script>
+    <script src="{basePath}assets/js/utils/dom-utils.js"><\/script>
+    
+    <!-- 🔧 4. 관리자 전용 유틸리티 -->
+    <script src="{basePath}assets/js/utils/admin-auth.js"><\/script>
+    
+    <!-- 🔧 5. 공통 컴포넌트 -->
+    <script src="{basePath}assets/js/components/modal.js"><\/script>
+    <script src="{basePath}assets/js/components/pagination.js"><\/script>
+    <script src="{basePath}assets/js/components/toast.js"><\/script>
+    
+    <!-- 🔧 6. 관리자 공통 스크립트 -->
+    <script src="{basePath}assets/js/pages/admin.js"><\/script>
+    
+    <!-- 🔧 7. 페이지별 스크립트 (가장 마지막) -->
+    <script src="{basePath}assets/js/pages/admin/board-management.js"><\/script>
+</script>
+
+    <!-- 🔧 다른 관리자 페이지와 완전 통일된 초기화 스크립트 -->
+    <script>
+        console.log('=== 게시판 관리 페이지 HTML 초기화 시작 ===');
+
+        // 🚨 중요: 모든 초기화 로직은 board-management.js에서 처리됩니다.
+        // HTML에서는 단순히 스크립트 로딩만 담당하고, 실제 초기화는 JS 파일에서 수행합니다.
+
+        console.log('📋 게시판 관리 페이지 HTML 로드 완료');
+        console.log('⏳ board-management.js의 초기화를 대기 중...');
+
+        // 다른 관리자 페이지와 동일한 패턴으로 간소화
+        // 실제 초기화는 board-management.js의 window.addEventListener('load', ...) 에서 처리됩니다.
+
+        console.log('=== 게시판 관리 페이지 HTML 스크립트 로딩 완료 ===');
+    </script>
+</body>
+
+</html>

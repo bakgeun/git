@@ -1,9 +1,10 @@
 /**
- * 스크립트 로더 (완전 수정된 버전)
+ * 스크립트 로더 (경로 계산 수정 버전)
  * 페이지의 깊이에 따라 스크립트 경로를 자동으로 조정합니다.
  * - 중복 실행 방지
  * - document.write 제거
  * - 성능 최적화
+ * - 경로 계산 로직 개선
  */
 
 console.log('script-loader.js 파일이 로드되었습니다.');
@@ -23,7 +24,7 @@ console.log('script-loader.js 파일이 로드되었습니다.');
     const pathCache = new Map();
     
     /**
-     * 현재 경로에 따른 기본 경로 계산 (캐시 적용)
+     * 현재 경로에 따른 기본 경로 계산 (수정된 버전)
      */
     function getBasePath() {
         const currentPath = window.location.pathname;
@@ -35,19 +36,22 @@ console.log('script-loader.js 파일이 로드되었습니다.');
         
         console.log('현재 경로:', currentPath);
 
-        // 루트 경로인 경우
-        if (currentPath === '/' || currentPath === '/index.html' || currentPath.endsWith('/index.html')) {
+        // 실제 루트 경로인 경우만 체크 (더 엄격한 조건)
+        if (currentPath === '/' || currentPath === '/index.html') {
             console.log('루트 경로 감지, basePath = ""');
             pathCache.set(currentPath, '');
             return '';
         }
 
-        // 상대 경로 계산
+        // 상대 경로 계산 (파일명 제거 후 디렉토리 깊이 계산)
         const directoryPath = currentPath.substring(0, currentPath.lastIndexOf('/'));
-        const pathSegments = directoryPath.split('/').filter(p => p);
+        const pathSegments = directoryPath.split('/').filter(p => p && p !== '');
         const depth = pathSegments.length;
 
-        console.log('경로 세그먼트:', pathSegments, '깊이:', depth);
+        // 디버깅 로그 추가
+        console.log('디렉토리 경로:', directoryPath);
+        console.log('경로 세그먼트:', pathSegments);
+        console.log('계산된 깊이:', depth);
 
         let basePath = '';
         for (let i = 0; i < depth; i++) {

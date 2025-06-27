@@ -13,6 +13,220 @@
 
     <!-- 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
     <script src="../../assets/js/utils/script-loader.js"></script>
+
+    <!-- WYSIWYG 에디터 전용 스타일 -->
+    <style>
+        /* 🎨 WYSIWYG 에디터 스타일 */
+        .wysiwyg-editor {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            transition: border-color 0.2s ease;
+        }
+
+        .wysiwyg-editor:focus-within {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .wysiwyg-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+            border-radius: 6px 6px 0 0;
+            flex-wrap: wrap;
+        }
+
+        .wysiwyg-toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            padding-right: 8px;
+            margin-right: 8px;
+            border-right: 1px solid #d1d5db;
+        }
+
+        .wysiwyg-toolbar-group:last-child {
+            border-right: none;
+            margin-right: 0;
+            padding-right: 0;
+        }
+
+        .wysiwyg-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 32px;
+            padding: 4px 8px;
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #374151;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .wysiwyg-btn:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+
+        .wysiwyg-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .wysiwyg-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .wysiwyg-content {
+            min-height: 200px;
+            max-height: 400px;
+            padding: 12px;
+            overflow-y: auto;
+            line-height: 1.6;
+            color: #374151;
+            background: white;
+            border-radius: 0 0 6px 6px;
+        }
+
+        .wysiwyg-content:focus {
+            outline: none;
+        }
+
+        .wysiwyg-content p {
+            margin: 0 0 8px 0;
+        }
+
+        .wysiwyg-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .wysiwyg-content h1, .wysiwyg-content h2, .wysiwyg-content h3 {
+            margin: 16px 0 8px 0;
+            font-weight: 600;
+        }
+
+        .wysiwyg-content h1 { font-size: 1.5em; }
+        .wysiwyg-content h2 { font-size: 1.3em; }
+        .wysiwyg-content h3 { font-size: 1.1em; }
+
+        .wysiwyg-content ul, .wysiwyg-content ol {
+            margin: 8px 0;
+            padding-left: 24px;
+        }
+
+        .wysiwyg-content li {
+            margin: 4px 0;
+        }
+
+        .wysiwyg-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 8px 0;
+            border-radius: 4px;
+        }
+
+        .wysiwyg-content a {
+            color: #3b82f6;
+            text-decoration: underline;
+        }
+
+        .wysiwyg-content blockquote {
+            margin: 16px 0;
+            padding: 12px 16px;
+            background: #f9fafb;
+            border-left: 4px solid #3b82f6;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* 파일 업로드 드롭존 스타일 */
+        .file-dropzone {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            background: #f9fafb;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 8px 0;
+        }
+
+        .file-dropzone:hover,
+        .file-dropzone.dragover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .file-dropzone.dragover {
+            transform: scale(1.02);
+        }
+
+        /* 업로드된 파일 미리보기 */
+        .uploaded-files {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .uploaded-file {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #374151;
+        }
+
+        .uploaded-file .remove-file {
+            cursor: pointer;
+            color: #ef4444;
+            font-weight: bold;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .uploaded-file .remove-file:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* 반응형 조정 */
+        @media (max-width: 768px) {
+            .wysiwyg-toolbar {
+                padding: 6px 8px;
+            }
+
+            .wysiwyg-btn {
+                min-width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+
+            .wysiwyg-content {
+                min-height: 150px;
+                padding: 10px;
+            }
+        }
+    </style>
 </head>
 
 <body class="bg-gray-100">
@@ -271,7 +485,7 @@
         </main>
     </div>
 
-    <!-- 게시글 추가/수정 모달 -->
+    <!-- 🎨 개선된 게시글 추가/수정 모달 - WYSIWYG 에디터 -->
     <div id="post-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen px-4">
             <div class="fixed inset-0 bg-black opacity-50" onclick="boardManager.closePostModal()"></div>
@@ -304,12 +518,145 @@
                                 placeholder="게시글 제목을 입력하세요">
                         </div>
 
-                        <!-- 내용 -->
+                        <!-- 🎨 WYSIWYG 에디터 내용 -->
                         <div class="form-group content-group">
-                            <label for="post-content" class="block text-sm font-medium text-gray-700 mb-1">내용</label>
-                            <textarea id="post-content" name="content" rows="10" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                                placeholder="게시글 내용을 입력하세요"></textarea>
+                            <label for="post-content-editor" class="block text-sm font-medium text-gray-700 mb-1">내용</label>
+                            
+                            <!-- WYSIWYG 에디터 영역 -->
+                            <div class="wysiwyg-editor" id="wysiwyg-editor">
+                                                                    <!-- 툴바 -->
+                                <div class="wysiwyg-toolbar">
+                                    <!-- 기본 포맷팅 그룹 -->
+                                    <div class="wysiwyg-toolbar-group">
+                                        <button type="button" class="wysiwyg-btn" data-command="bold" title="굵게 (Ctrl+B)">
+                                            <strong>B</strong>
+                                        </button>
+                                        <button type="button" class="wysiwyg-btn" data-command="italic" title="기울임 (Ctrl+I)">
+                                            <em>I</em>
+                                        </button>
+                                        <button type="button" class="wysiwyg-btn" data-command="underline" title="밑줄 (Ctrl+U)">
+                                            <u>U</u>
+                                        </button>
+                                        <button type="button" class="wysiwyg-btn" data-command="strikethrough" title="취소선">
+                                            <s>S</s>
+                                        </button>
+                                    </div>
+
+                                    <!-- 제목 그룹 -->
+                                    <div class="wysiwyg-toolbar-group">
+                                        <select class="wysiwyg-btn" data-command="formatBlock" title="제목">
+                                            <option value="">제목</option>
+                                            <option value="h1">제목 1</option>
+                                            <option value="h2">제목 2</option>
+                                            <option value="h3">제목 3</option>
+                                            <option value="p">본문</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- 정렬 그룹 -->
+                                    <div class="wysiwyg-toolbar-group">
+                                        <button type="button" class="wysiwyg-btn" data-command="justifyLeft" title="왼쪽 정렬">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M15 15H3v2h12v-2zm0-8H3v2h12V7zM3 13h18v-2H3v2zm0 8h18v-2H3v2zM3 3v2h18V3H3z"/>
+                                            </svg>
+                                        </button>
+                                        <button type="button" class="wysiwyg-btn" data-command="justifyCenter" title="가운데 정렬">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M7 15v2h10v-2H7zm-4 6h18v-2H3v2zm0-8h18v-2H3v2zm4-6v2h10V7H7zM3 3v2h18V3H3z"/>
+                                            </svg>
+                                        </button>
+                                        <button type="button" class="wysiwyg-btn" data-command="justifyRight" title="오른쪽 정렬">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M3 21h18v-2H3v2zm6-4h12v-2H9v2zm-6-4h18v-2H3v2zm6-4h12V7H9v2zM3 3v2h18V3H3z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <!-- 리스트 그룹 -->
+                                    <div class="wysiwyg-toolbar-group">
+                                        <button type="button" class="wysiwyg-btn" data-command="insertUnorderedList" title="글머리 기호">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.67-1.5 1.5S3.17 19.5 4 19.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/>
+                                            </svg>
+                                        </button>
+                                        <button type="button" class="wysiwyg-btn" data-command="insertOrderedList" title="번호 매기기">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M2 17h2v.5H3v1h1v.5H2v1h3v-4H2v1zm1-9h1V4H2v1h1v3zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 10.9V10H2v1zm5-6v2h14V5H7zm0 14h14v-2H7v2zm0-6h14v-2H7v2z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <!-- 미디어 그룹 -->
+                                    <div class="wysiwyg-toolbar-group">
+                                        <button type="button" class="wysiwyg-btn" id="insert-image-btn" title="이미지 삽입">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                                            </svg>
+                                        </button>
+                                        <button type="button" class="wysiwyg-btn" id="insert-link-btn" title="링크 삽입">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
+                                            </svg>
+                                        </button>
+                                        <button type="button" class="wysiwyg-btn" id="insert-file-btn" title="파일 첨부">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <!-- 기타 그룹 -->
+                                    <div class="wysiwyg-toolbar-group">
+                                        <button type="button" class="wysiwyg-btn" data-command="undo" title="실행 취소 (Ctrl+Z)">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/>
+                                            </svg>
+                                        </button>
+                                        <button type="button" class="wysiwyg-btn" data-command="redo" title="다시 실행 (Ctrl+Y)">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z"/>
+                                            </svg>
+                                        </button>
+                                        <button type="button" class="wysiwyg-btn" id="clear-format-btn" title="서식 지우기">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M6 5v.18L8.82 8h2.4l-.72 1.68 2.1 2.1L14.21 8H20V6H9.82L6 2.18V5zm14.79 15.19-3.15-3.15-.71.71-.47-1.11L3.21 3.39 1.79 4.81 6.18 9.2 4.45 13h2.14l1.28-3.02 9.32 9.32 1.42-1.42zM12.56 12.56l-1.54 3.61H9.88l1.41-3.32.27-.29z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- 에디터 컨텐츠 영역 -->
+                                <div class="wysiwyg-content" 
+                                     id="post-content-editor" 
+                                     contenteditable="true" 
+                                     data-placeholder="게시글 내용을 입력하세요...">
+                                </div>
+                            </div>
+
+                            <!-- 숨겨진 textarea (폼 제출용) -->
+                            <textarea id="post-content" name="content" style="display: none;" required></textarea>
+
+                            <!-- 🎨 파일 드롭존 -->
+                            <div class="file-dropzone" id="file-dropzone">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div class="mt-2">
+                                    <p class="text-sm text-gray-600">
+                                        <span class="font-medium text-indigo-600 hover:text-indigo-500 cursor-pointer">클릭하여 파일 선택</span>
+                                        또는 여기로 드래그 앤 드롭
+                                    </p>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        PNG, JPG, GIF, PDF, DOC, XLS 등 (최대 10MB)
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- 업로드된 파일 목록 -->
+                            <div class="uploaded-files" id="uploaded-files"></div>
+
+                            <!-- 숨겨진 파일 입력 -->
+                            <input type="file" id="file-input" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv" style="display: none;">
                         </div>
 
                         <!-- 폼 액션 버튼 -->
@@ -364,22 +711,560 @@
     <!-- 🔧 6. 관리자 공통 스크립트 -->
     <script src="{basePath}assets/js/pages/admin.js"><\/script>
     
-    <!-- 🔧 7. 페이지별 스크립트 (가장 마지막) -->
+    <!-- 🔧 7. 개선된 게시판 관리 스크립트 -->
     <script src="{basePath}assets/js/pages/admin/board-management.js"><\/script>
 </script>
+
+    <!-- 🎨 WYSIWYG 에디터 스크립트 -->
+    <script>
+        // WYSIWYG 에디터 초기화 및 관리
+        window.WysiwygEditor = {
+            // 에디터 상태
+            editor: null,
+            toolbar: null,
+            isInitialized: false,
+            uploadedFiles: [],
+
+            // 초기화
+            init: function() {
+                if (this.isInitialized) return;
+
+                console.log('🎨 WYSIWYG 에디터 초기화 시작');
+
+                this.editor = document.getElementById('post-content-editor');
+                this.toolbar = document.querySelector('.wysiwyg-toolbar');
+
+                if (!this.editor || !this.toolbar) {
+                    console.error('WYSIWYG 에디터 요소를 찾을 수 없습니다.');
+                    return;
+                }
+
+                this.setupToolbar();
+                this.setupEditor();
+                this.setupFileUpload();
+                this.setupKeyboardShortcuts();
+
+                this.isInitialized = true;
+                console.log('✅ WYSIWYG 에디터 초기화 완료');
+            },
+
+            // 툴바 설정
+            setupToolbar: function() {
+                const self = this;
+
+                // 일반 버튼 이벤트
+                this.toolbar.querySelectorAll('.wysiwyg-btn[data-command]').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const command = this.getAttribute('data-command');
+                        self.execCommand(command);
+                    });
+                });
+
+                // 제목 셀렉트 박스
+                const formatSelect = this.toolbar.querySelector('select[data-command="formatBlock"]');
+                if (formatSelect) {
+                    formatSelect.addEventListener('change', function() {
+                        if (this.value) {
+                            self.execCommand('formatBlock', this.value);
+                            this.selectedIndex = 0; // 리셋
+                        }
+                    });
+                }
+
+                // 특별 버튼들
+                const insertImageBtn = document.getElementById('insert-image-btn');
+                const insertLinkBtn = document.getElementById('insert-link-btn');
+                const insertFileBtn = document.getElementById('insert-file-btn');
+                const clearFormatBtn = document.getElementById('clear-format-btn');
+
+                if (insertImageBtn) {
+                    insertImageBtn.addEventListener('click', () => this.insertImage());
+                }
+                if (insertLinkBtn) {
+                    insertLinkBtn.addEventListener('click', () => this.insertLink());
+                }
+                if (insertFileBtn) {
+                    insertFileBtn.addEventListener('click', () => this.openFileDialog());
+                }
+                if (clearFormatBtn) {
+                    clearFormatBtn.addEventListener('click', () => this.clearFormat());
+                }
+            },
+
+            // 에디터 설정
+            setupEditor: function() {
+                const self = this;
+
+                // 플레이스홀더 처리
+                this.updatePlaceholder();
+                
+                this.editor.addEventListener('input', function() {
+                    self.updatePlaceholder();
+                    self.syncContent();
+                });
+
+                this.editor.addEventListener('keydown', function(e) {
+                    // Enter 키 처리 (p 태그 생성)
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        if (!window.getSelection().rangeCount) return;
+                        
+                        const range = window.getSelection().getRangeAt(0);
+                        const currentElement = range.commonAncestorContainer.nodeType === Node.TEXT_NODE
+                            ? range.commonAncestorContainer.parentElement
+                            : range.commonAncestorContainer;
+
+                        if (!currentElement.closest('p, h1, h2, h3, li')) {
+                            e.preventDefault();
+                            self.execCommand('formatBlock', 'p');
+                        }
+                    }
+                });
+
+                this.editor.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const text = e.clipboardData.getData('text/plain');
+                    self.insertText(text);
+                });
+
+                // 드래그 앤 드롭 처리
+                this.editor.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                });
+
+                this.editor.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    const files = Array.from(e.dataTransfer.files);
+                    if (files.length > 0) {
+                        self.handleFileUpload(files);
+                    }
+                });
+            },
+
+            // 파일 업로드 설정
+            setupFileUpload: function() {
+                const self = this;
+                const dropzone = document.getElementById('file-dropzone');
+                const fileInput = document.getElementById('file-input');
+
+                // 드롭존 클릭 이벤트
+                dropzone.addEventListener('click', () => {
+                    fileInput.click();
+                });
+
+                // 파일 선택 이벤트
+                fileInput.addEventListener('change', function() {
+                    if (this.files.length > 0) {
+                        self.handleFileUpload(Array.from(this.files));
+                    }
+                });
+
+                // 드래그 앤 드롭 이벤트
+                dropzone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('dragover');
+                });
+
+                dropzone.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+                });
+
+                dropzone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+                    const files = Array.from(e.dataTransfer.files);
+                    if (files.length > 0) {
+                        self.handleFileUpload(files);
+                    }
+                });
+            },
+
+            // 키보드 단축키 설정
+            setupKeyboardShortcuts: function() {
+                const self = this;
+
+                this.editor.addEventListener('keydown', function(e) {
+                    if (e.ctrlKey || e.metaKey) {
+                        switch(e.key.toLowerCase()) {
+                            case 'b':
+                                e.preventDefault();
+                                self.execCommand('bold');
+                                break;
+                            case 'i':
+                                e.preventDefault();
+                                self.execCommand('italic');
+                                break;
+                            case 'u':
+                                e.preventDefault();
+                                self.execCommand('underline');
+                                break;
+                            case 'z':
+                                e.preventDefault();
+                                self.execCommand('undo');
+                                break;
+                            case 'y':
+                                e.preventDefault();
+                                self.execCommand('redo');
+                                break;
+                        }
+                    }
+                });
+            },
+
+            // 명령 실행
+            execCommand: function(command, value = null) {
+                this.editor.focus();
+                document.execCommand(command, false, value);
+                this.updateToolbarState();
+                this.syncContent();
+            },
+
+            // 텍스트 삽입
+            insertText: function(text) {
+                this.editor.focus();
+                document.execCommand('insertText', false, text);
+                this.syncContent();
+            },
+
+            // HTML 삽입
+            insertHTML: function(html) {
+                this.editor.focus();
+                document.execCommand('insertHTML', false, html);
+                this.syncContent();
+            },
+
+            // 이미지 삽입
+            insertImage: function() {
+                const url = prompt('이미지 URL을 입력하세요:', 'https://');
+                if (url && url.trim() !== '' && url !== 'https://') {
+                    const html = `<img src="${url}" alt="이미지" style="max-width: 100%; height: auto; margin: 8px 0;">`;
+                    this.insertHTML(html);
+                }
+            },
+
+            // 링크 삽입
+            insertLink: function() {
+                const selection = window.getSelection();
+                const selectedText = selection.toString();
+                
+                const url = prompt('링크 URL을 입력하세요:', 'https://');
+                if (url && url.trim() !== '' && url !== 'https://') {
+                    if (selectedText) {
+                        const html = `<a href="${url}" target="_blank">${selectedText}</a>`;
+                        this.insertHTML(html);
+                    } else {
+                        const linkText = prompt('링크 텍스트를 입력하세요:', url);
+                        if (linkText) {
+                            const html = `<a href="${url}" target="_blank">${linkText}</a>`;
+                            this.insertHTML(html);
+                        }
+                    }
+                }
+            },
+
+            // 파일 다이얼로그 열기
+            openFileDialog: function() {
+                document.getElementById('file-input').click();
+            },
+
+            // 서식 지우기
+            clearFormat: function() {
+                this.execCommand('removeFormat');
+                this.execCommand('unlink');
+            },
+
+            // 파일 업로드 처리
+            handleFileUpload: async function(files) {
+                console.log('📎 파일 업로드 시작:', files.length, '개');
+
+                for (const file of files) {
+                    try {
+                        // 파일 검증
+                        if (!this.validateFile(file)) {
+                            continue;
+                        }
+
+                        // 업로드 진행 표시
+                        const fileId = this.addFileToList(file, 'uploading');
+
+                        if (window.storageService && window.storageService.uploadFile) {
+                            // Firebase Storage 업로드
+                            const path = `board-files/${Date.now()}_${file.name}`;
+                            const result = await window.storageService.uploadFile(file, path);
+
+                            if (result.success) {
+                                // 성공 시 파일 정보 업데이트
+                                this.updateFileInList(fileId, 'success', result.url);
+                                this.uploadedFiles.push({
+                                    id: fileId,
+                                    name: file.name,
+                                    url: result.url,
+                                    path: path,
+                                    type: file.type
+                                });
+
+                                // 이미지인 경우 에디터에 삽입
+                                if (file.type.startsWith('image/')) {
+                                    const html = `<img src="${result.url}" alt="${file.name}" style="max-width: 100%; height: auto; margin: 8px 0;">`;
+                                    this.insertHTML(html);
+                                }
+                            } else {
+                                // 실패 시
+                                this.updateFileInList(fileId, 'error', null, result.error?.message || '업로드 실패');
+                            }
+                        } else {
+                            // storageService가 없는 경우 로컬 테스트
+                            console.log('🧪 로컬 테스트 모드 - 파일 업로드 시뮬레이션');
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                            
+                            const fakeUrl = URL.createObjectURL(file);
+                            this.updateFileInList(fileId, 'success', fakeUrl);
+                            
+                            if (file.type.startsWith('image/')) {
+                                const html = `<img src="${fakeUrl}" alt="${file.name}" style="max-width: 100%; height: auto; margin: 8px 0;">`;
+                                this.insertHTML(html);
+                            }
+                        }
+
+                    } catch (error) {
+                        console.error('파일 업로드 오류:', error);
+                        if (typeof showToast === 'function') {
+                            showToast(`파일 업로드 중 오류가 발생했습니다: ${error.message}`, 'error');
+                        }
+                    }
+                }
+            },
+
+            // 파일 검증
+            validateFile: function(file) {
+                const allowedTypes = [
+                    'image/jpeg', 'image/jpg', 'image/png', 'image/gif',
+                    'application/pdf',
+                    'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                    'text/plain', 'text/csv'
+                ];
+
+                const maxSize = 10 * 1024 * 1024; // 10MB
+
+                if (!allowedTypes.includes(file.type)) {
+                    if (typeof showToast === 'function') {
+                        showToast(`지원되지 않는 파일 형식입니다: ${file.name}`, 'error');
+                    } else {
+                        alert(`지원되지 않는 파일 형식입니다: ${file.name}`);
+                    }
+                    return false;
+                }
+
+                if (file.size > maxSize) {
+                    if (typeof showToast === 'function') {
+                        showToast(`파일 크기가 너무 큽니다 (최대 10MB): ${file.name}`, 'error');
+                    } else {
+                        alert(`파일 크기가 너무 큽니다 (최대 10MB): ${file.name}`);
+                    }
+                    return false;
+                }
+
+                return true;
+            },
+
+            // 파일 목록에 추가
+            addFileToList: function(file, status = 'uploading') {
+                const fileId = 'file-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                const uploadedFilesContainer = document.getElementById('uploaded-files');
+                
+                const fileElement = document.createElement('div');
+                fileElement.className = 'uploaded-file';
+                fileElement.id = fileId;
+                
+                const statusIcon = status === 'uploading' ? '⏳' : 
+                                 status === 'success' ? '📎' : 
+                                 status === 'error' ? '❌' : '📎';
+                
+                fileElement.innerHTML = `
+                    <span class="file-icon">${statusIcon}</span>
+                    <span class="file-name">${file.name}</span>
+                    <span class="file-size">(${this.formatFileSize(file.size)})</span>
+                    <span class="remove-file" onclick="WysiwygEditor.removeFileFromList('${fileId}')" title="제거">×</span>
+                `;
+                
+                uploadedFilesContainer.appendChild(fileElement);
+                return fileId;
+            },
+
+            // 파일 목록 업데이트
+            updateFileInList: function(fileId, status, url = null, errorMessage = null) {
+                const fileElement = document.getElementById(fileId);
+                if (!fileElement) return;
+
+                const iconElement = fileElement.querySelector('.file-icon');
+                if (iconElement) {
+                    if (status === 'success') {
+                        iconElement.textContent = '📎';
+                        fileElement.classList.add('upload-success');
+                    } else if (status === 'error') {
+                        iconElement.textContent = '❌';
+                        fileElement.classList.add('upload-error');
+                        if (errorMessage) {
+                            fileElement.title = errorMessage;
+                        }
+                    }
+                }
+
+                if (url) {
+                    fileElement.dataset.url = url;
+                }
+            },
+
+            // 파일 목록에서 제거
+            removeFileFromList: function(fileId) {
+                const fileElement = document.getElementById(fileId);
+                if (fileElement) {
+                    fileElement.remove();
+                }
+
+                // uploadedFiles 배열에서도 제거
+                this.uploadedFiles = this.uploadedFiles.filter(file => file.id !== fileId);
+            },
+
+            // 파일 크기 포맷팅
+            formatFileSize: function(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            },
+
+            // 플레이스홀더 업데이트
+            updatePlaceholder: function() {
+                const isEmpty = this.editor.textContent.trim() === '';
+                if (isEmpty && !this.editor.querySelector('img, video, audio')) {
+                    this.editor.classList.add('empty');
+                    if (!this.editor.getAttribute('data-placeholder-added')) {
+                        this.editor.setAttribute('data-placeholder-added', 'true');
+                        const placeholder = this.editor.getAttribute('data-placeholder');
+                        if (placeholder) {
+                            this.editor.style.setProperty('--placeholder', `"${placeholder}"`);
+                        }
+                    }
+                } else {
+                    this.editor.classList.remove('empty');
+                }
+            },
+
+            // 툴바 상태 업데이트
+            updateToolbarState: function() {
+                const commands = ['bold', 'italic', 'underline', 'strikethrough'];
+                
+                commands.forEach(command => {
+                    const btn = this.toolbar.querySelector(`[data-command="${command}"]`);
+                    if (btn) {
+                        const isActive = document.queryCommandState(command);
+                        btn.classList.toggle('active', isActive);
+                    }
+                });
+            },
+
+            // 내용 동기화 (hidden textarea에)
+            syncContent: function() {
+                const hiddenTextarea = document.getElementById('post-content');
+                if (hiddenTextarea) {
+                    hiddenTextarea.value = this.editor.innerHTML;
+                }
+            },
+
+            // 에디터 내용 가져오기
+            getContent: function() {
+                return this.editor.innerHTML;
+            },
+
+            // 에디터 내용 설정
+            setContent: function(html) {
+                this.editor.innerHTML = html;
+                this.updatePlaceholder();
+                this.syncContent();
+            },
+
+            // 에디터 초기화 (내용 지우기)
+            clear: function() {
+                this.editor.innerHTML = '';
+                this.uploadedFiles = [];
+                const uploadedFilesContainer = document.getElementById('uploaded-files');
+                if (uploadedFilesContainer) {
+                    uploadedFilesContainer.innerHTML = '';
+                }
+                this.updatePlaceholder();
+                this.syncContent();
+            },
+
+            // 포커스
+            focus: function() {
+                this.editor.focus();
+            }
+        };
+
+        // CSS 추가 (플레이스홀더용)
+        const style = document.createElement('style');
+        style.textContent = `
+            .wysiwyg-content.empty:before {
+                content: var(--placeholder, "내용을 입력하세요...");
+                color: #9ca3af;
+                pointer-events: none;
+                position: absolute;
+            }
+            
+            .wysiwyg-content.empty {
+                position: relative;
+            }
+
+            .upload-success {
+                background-color: #dcfce7 !important;
+                border-color: #16a34a !important;
+            }
+
+            .upload-error {
+                background-color: #fee2e2 !important;
+                border-color: #ef4444 !important;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 페이지 로드 시 에디터 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            // 모달이 열릴 때 에디터 초기화
+            const addPostButton = document.getElementById('add-post-button');
+            if (addPostButton) {
+                const originalShowModal = window.boardManager?.showAddPostModal;
+                if (originalShowModal) {
+                    window.boardManager.showAddPostModal = function() {
+                        originalShowModal.call(this);
+                        // 모달이 열린 후 에디터 초기화
+                        setTimeout(() => {
+                            WysiwygEditor.init();
+                        }, 100);
+                    };
+                }
+            }
+        });
+
+        console.log('✅ WYSIWYG 에디터 스크립트 로드 완료');
+    </script>
 
     <!-- 🔧 다른 관리자 페이지와 완전 통일된 초기화 스크립트 -->
     <script>
         console.log('=== 게시판 관리 페이지 HTML 초기화 시작 ===');
 
-        // 🚨 중요: 모든 초기화 로직은 board-management.js에서 처리됩니다.
+        // 🚨 중요: 모든 초기화 로직은 board-management-enhanced.js에서 처리됩니다.
         // HTML에서는 단순히 스크립트 로딩만 담당하고, 실제 초기화는 JS 파일에서 수행합니다.
 
         console.log('📋 게시판 관리 페이지 HTML 로드 완료');
-        console.log('⏳ board-management.js의 초기화를 대기 중...');
+        console.log('⏳ board-management-enhanced.js의 초기화를 대기 중...');
 
         // 다른 관리자 페이지와 동일한 패턴으로 간소화
-        // 실제 초기화는 board-management.js의 window.addEventListener('load', ...) 에서 처리됩니다.
+        // 실제 초기화는 board-management-enhanced.js의 window.addEventListener('load', ...) 에서 처리됩니다.
 
         console.log('=== 게시판 관리 페이지 HTML 스크립트 로딩 완료 ===');
     </script>

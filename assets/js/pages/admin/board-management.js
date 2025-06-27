@@ -1,82 +1,56 @@
 /**
- * board-management.js - 다른 관리자 페이지와 완전 통일된 버전
- * Toast 시스템 제거, 반응형 테이블 통일, 스크립트 로딩 표준화
+ * board-management-enhanced.js - WYSIWYG 에디터 및 파일 업로드 지원
+ * 기존 board-management.js 기반으로 WYSIWYG 에디터 기능 추가
  */
 
-console.log('=== board-management.js 통일된 버전 로드 시작 ===');
+console.log('=== board-management-enhanced.js WYSIWYG 버전 로드 시작 ===');
 
-// 🔧 의존성 체크 함수 (다른 관리자 페이지와 동일)
+// 🔧 의존성 체크 함수 (기존과 동일)
 function checkBoardDependencies() {
     const requiredUtils = [
         { name: 'window.formatters', path: 'formatters.js' },
         { name: 'window.dateUtils', path: 'date-utils.js' },
         { name: 'window.adminAuth', path: 'admin-auth.js' }
     ];
-    
+
     const missing = [];
-    
+
     requiredUtils.forEach(util => {
         if (!eval(util.name)) {
             missing.push(util);
         }
     });
-    
+
     if (missing.length > 0) {
         console.error('⚠️ 게시판 관리 필수 유틸리티가 로드되지 않음:', missing.map(m => m.path));
-        console.log('📝 HTML에서 다음 스크립트들이 먼저 로드되어야 합니다:');
-        missing.forEach(m => {
-            console.log(`   <script src="{basePath}assets/js/utils/${m.path}"></script>`);
-        });
         return false;
     }
-    
+
     console.log('✅ 게시판 관리 모든 필수 유틸리티 로드 확인됨');
-    
-    // 🔧 추가: formatters 함수들이 실제로 작동하는지 테스트
+
+    // formatters 함수들이 실제로 작동하는지 테스트
     try {
         const testDate = new Date();
         const testFormatDate = window.formatters.formatDate(testDate, 'YYYY.MM.DD');
         const testFormatCurrency = window.formatters.formatCurrency(10000);
-        
+
         console.log('✅ formatters.formatDate 테스트 성공:', testFormatDate);
         console.log('✅ formatters.formatCurrency 테스트 성공:', testFormatCurrency);
-        
+
         if (!testFormatDate || !testFormatCurrency) {
             throw new Error('포맷터 함수 결과가 유효하지 않습니다.');
         }
-        
+
     } catch (error) {
         console.error('❌ 유틸리티 함수 테스트 실패:', error);
         return false;
     }
-    
+
     return true;
 }
 
-// 🔧 전역 checkDependencies 함수 노출 (표준화)
+// 전역 checkDependencies 함수 노출
 window.checkDependencies = checkBoardDependencies;
-
-// 🔧 의존성 오류 표시 함수
-function showBoardDependencyError() {
-    const tableBody = document.querySelector('#board-table tbody');
-    
-    if (tableBody) {
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="6" class="admin-empty-state">
-                    <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <h3>⚠️ 시스템 오류</h3>
-                    <p>게시판 관리에 필요한 유틸리티 파일이 로드되지 않았습니다.<br>페이지를 새로고침하거나 관리자에게 문의하세요.</p>
-                    <button onclick="location.reload()" class="admin-btn admin-btn-primary mt-4">
-                        새로고침
-                    </button>
-                </td>
-            </tr>
-        `;
-    }
-}
 
 // Firebase 연결 확인
 function checkFirebaseConnection() {
@@ -84,160 +58,138 @@ function checkFirebaseConnection() {
         console.warn('⚠️ Firebase 연결되지 않음 - 로컬 테스트 모드로 실행');
         return false;
     }
-    
+
     console.log('✅ Firebase 연결 확인됨');
     return true;
 }
 
 // =================================
-// 게시판 관리 메인 객체 (통일된 버전)
+// 🎨 개선된 게시판 관리 메인 객체 - WYSIWYG 에디터 지원
 // =================================
 
 window.boardManager = {
     // 초기화 상태 관리
     initialized: false,
-    
+
     // 페이지네이션 및 검색 상태
     currentPage: 1,
     pageSize: 10,
     currentBoardType: 'notice',
     lastDoc: null,
-    
+
     // Firebase 연결 상태
     isFirebaseConnected: false,
 
+    // 🎨 WYSIWYG 에디터 관련 속성
+    wysiwygEditor: null,
+
     /**
-     * 초기화 - 다른 관리자 페이지와 동일한 패턴
+     * 초기화 - WYSIWYG 에디터 지원 추가
      */
     init: async function () {
-        // 초기화 플래그 설정
         this.initialized = false;
 
         try {
-            console.log('📋 게시판 관리자 초기화 시작 - 통일된 버전');
+            console.log('📋 게시판 관리자 초기화 시작 - WYSIWYG 에디터 지원');
 
-            // 🔧 의존성 체크 먼저 실행
+            // 의존성 체크
             if (!checkBoardDependencies()) {
                 console.error('❌ 필수 유틸리티 누락으로 초기화 중단');
-                showBoardDependencyError();
+                this.showBoardDependencyError();
                 return false;
             }
 
             // Firebase 초기화 대기
-            if (!window.dhcFirebase || !window.dhcFirebase.db) {
-                console.log('⏳ Firebase 초기화 대기 중...');
-
-                // Firebase 초기화를 최대 10초간 대기
-                let attempts = 0;
-                const maxAttempts = 50; // 10초 (200ms * 50)
-
-                while ((!window.dhcFirebase || !window.dhcFirebase.db) && attempts < maxAttempts) {
-                    await new Promise(resolve => setTimeout(resolve, 200));
-                    attempts++;
-                }
-
-                if (!window.dhcFirebase || !window.dhcFirebase.db) {
-                    console.warn('⚠️ Firebase 초기화 시간 초과, 테스트 데이터로 진행');
-                    this.isFirebaseConnected = false;
-                } else {
-                    console.log('✅ Firebase 초기화 완료');
-                    this.isFirebaseConnected = true;
-                }
-            } else {
-                this.isFirebaseConnected = true;
-            }
+            await this.waitForFirebase();
 
             // 이벤트 리스너 등록
-            console.log('🎯 이벤트 리스너 등록 시작');
             this.registerEventListeners();
-            console.log('✅ 이벤트 리스너 등록 완료');
 
             // 게시판 탭 초기화
-            console.log('📑 게시판 탭 초기화 시작');
             this.initBoardTabs();
-            console.log('✅ 게시판 탭 초기화 완료');
 
-            // 게시판 데이터 로드 (재시도 로직 포함)
-            console.log('📋 게시판 데이터 로드 시작');
+            // 🎨 WYSIWYG 에디터 초기화
+            this.initWysiwygEditor();
+
+            // 게시판 데이터 로드
             await this.loadBoardDataWithRetry();
-            console.log('✅게시판 데이터 로드 완료');
 
-            // 초기화 완료 플래그 설정
             this.initialized = true;
-            console.log('✅ 게시판 관리자 초기화 완료');
+            console.log('✅ 게시판 관리자 초기화 완료 - WYSIWYG 에디터 포함');
             return true;
 
         } catch (error) {
             console.error('❌ 게시판 관리자 초기화 오류:', error);
-
-            // 초기화 실패 시 테스트 데이터로라도 표시
-            try {
-                console.log('🔄 초기화 실패, 테스트 데이터로 폴백');
-                const testPosts = this.getTestData();
-                this.updateBoardList(testPosts);
-                console.log('✅ 테스트 데이터 폴백 완료');
-            } catch (fallbackError) {
-                console.error('❌ 폴백 데이터 로드도 실패:', fallbackError);
-                this.showErrorMessage('초기화에 실패했습니다. 페이지를 새로고침해주세요.');
-            }
-
-            this.initialized = false;
+            this.handleInitializationError(error);
             return false;
         }
     },
 
     /**
-     * 재시도 로직이 포함된 게시판 데이터 로드 함수
+     * 🎨 WYSIWYG 에디터 초기화
      */
-    loadBoardDataWithRetry: async function (maxRetries = 3) {
-        let lastError = null;
+    initWysiwygEditor: function () {
+        console.log('🎨 WYSIWYG 에디터 초기화 준비');
 
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            try {
-                console.log(`📋 게시판 데이터 로드 시도 ${attempt}/${maxRetries}`);
-                await this.loadBoardData();
-                console.log('✅ 게시판 데이터 로드 성공');
-                return; // 성공하면 함수 종료
-            } catch (error) {
-                lastError = error;
-                console.warn(`⚠️ 게시판 데이터 로드 시도 ${attempt} 실패:`, error);
-
-                if (attempt < maxRetries) {
-                    const delay = attempt * 1000; // 1초, 2초, 3초 간격으로 재시도
-                    console.log(`⏳ ${delay}ms 후 재시도...`);
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                }
-            }
-        }
-
-        // 모든 재시도 실패 시
-        console.error(`❌ ${maxRetries}번 시도 후 게시판 데이터 로드 실패:`, lastError);
-
-        // 테스트 데이터로 폴백
-        console.log('🔄 테스트 데이터로 폴백');
-        try {
-            const testPosts = this.getTestData();
-            this.updateBoardList(testPosts);
-
-            // 🔧 통일된 알림 시스템 사용 (adminAuth 또는 showToast)
-            if (window.adminAuth && window.adminAuth.showNotification) {
-                window.adminAuth.showNotification('서버 연결에 문제가 있어 테스트 데이터를 표시합니다.', 'warning');
-            } else if (typeof showToast === 'function') {
-                showToast('서버 연결에 문제가 있어 테스트 데이터를 표시합니다.', 'warning');
-            }
-
-            console.log('✅ 테스트 데이터 폴백 완료');
-        } catch (fallbackError) {
-            console.error('❌ 테스트 데이터 폴백도 실패:', fallbackError);
-            this.showErrorMessage('데이터 로드에 실패했습니다. 페이지를 새로고침해주세요.');
+        // WysiwygEditor 객체가 로드되었는지 확인
+        if (typeof window.WysiwygEditor !== 'undefined') {
+            this.wysiwygEditor = window.WysiwygEditor;
+            console.log('✅ WYSIWYG 에디터 객체 확인됨');
+        } else {
+            console.warn('⚠️ WYSIWYG 에디터 객체를 찾을 수 없습니다. 모달 열기 시 초기화 예정');
         }
     },
 
     /**
-     * 에러 메시지 표시 (통일된 방식)
+     * Firebase 초기화 대기
      */
-    showErrorMessage: function (message) {
+    waitForFirebase: async function () {
+        if (!window.dhcFirebase || !window.dhcFirebase.db) {
+            console.log('⏳ Firebase 초기화 대기 중...');
+
+            let attempts = 0;
+            const maxAttempts = 50; // 10초 (200ms * 50)
+
+            while ((!window.dhcFirebase || !window.dhcFirebase.db) && attempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 200));
+                attempts++;
+            }
+
+            if (!window.dhcFirebase || !window.dhcFirebase.db) {
+                console.warn('⚠️ Firebase 초기화 시간 초과, 테스트 데이터로 진행');
+                this.isFirebaseConnected = false;
+            } else {
+                console.log('✅ Firebase 초기화 완료');
+                this.isFirebaseConnected = true;
+            }
+        } else {
+            this.isFirebaseConnected = true;
+        }
+    },
+
+    /**
+     * 초기화 오류 처리
+     */
+    handleInitializationError: function (error) {
+        try {
+            console.log('🔄 초기화 실패, 테스트 데이터로 폴백');
+            const testPosts = this.getTestData();
+            this.updateBoardList(testPosts);
+            console.log('✅ 테스트 데이터 폴백 완료');
+        } catch (fallbackError) {
+            console.error('❌ 폴백 데이터 로드도 실패:', fallbackError);
+            this.showErrorMessage('초기화에 실패했습니다. 페이지를 새로고침해주세요.');
+        }
+
+        this.initialized = false;
+    },
+
+    /**
+     * 의존성 오류 표시
+     */
+    showBoardDependencyError: function () {
         const tableBody = document.querySelector('#board-table tbody');
+
         if (tableBody) {
             tableBody.innerHTML = `
                 <tr>
@@ -245,23 +197,397 @@ window.boardManager = {
                         <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <h3>오류 발생</h3>
-                        <p>${message}</p>
-                        <button onclick="boardManager.loadBoardDataWithRetry()" class="admin-btn admin-btn-primary mt-4">
-                            다시 시도
+                        <h3>⚠️ 시스템 오류</h3>
+                        <p>게시판 관리에 필요한 유틸리티 파일이 로드되지 않았습니다.<br>페이지를 새로고침하거나 관리자에게 문의하세요.</p>
+                        <button onclick="location.reload()" class="admin-btn admin-btn-primary mt-4">
+                            새로고침
                         </button>
                     </td>
                 </tr>
             `;
         }
+    },
 
-        // 🔧 통일된 알림 시스템 사용
-        if (window.adminAuth && window.adminAuth.showNotification) {
-            window.adminAuth.showNotification(message, 'error');
-        } else if (typeof showToast === 'function') {
-            showToast(message, 'error');
+    /**
+     * 이벤트 리스너 등록 (WYSIWYG 에디터 지원 추가)
+     */
+    registerEventListeners: function () {
+        console.log('📋 이벤트 리스너 등록 시작 - WYSIWYG 지원');
+
+        // 기존 이벤트 리스너들
+        this.registerTabEvents();
+        this.registerAddPostButton();
+        this.registerModalEvents();
+        this.registerFormEvents();
+        this.registerSearchEvents();
+
+        console.log('✅ 이벤트 리스너 등록 완료 - WYSIWYG 지원');
+    },
+
+    /**
+     * 게시글 추가 버튼 이벤트 등록 (WYSIWYG 지원)
+     */
+    registerAddPostButton: function () {
+        const addPostButton = document.getElementById('add-post-button');
+        if (addPostButton) {
+            const self = this;
+            addPostButton.removeEventListener('click', addPostButton._clickHandler);
+            addPostButton._clickHandler = function (e) {
+                e.preventDefault();
+                self.showAddPostModal();
+            };
+            addPostButton.addEventListener('click', addPostButton._clickHandler);
         }
     },
+
+    /**
+     * 🎨 WYSIWYG 에디터를 포함한 게시글 작성 모달 표시
+     */
+    showAddPostModal: function () {
+        console.log('📝 게시글 작성 모달 표시 - WYSIWYG 에디터 포함');
+
+        // 의존성 체크
+        if (!checkBoardDependencies()) {
+            console.error('❌ 필수 유틸리티 누락으로 모달 표시 중단');
+            this.showNotification('시스템 오류가 발생했습니다. 페이지를 새로고침해주세요.', 'error');
+            return;
+        }
+
+        // 모달 요소 확인
+        const modal = document.getElementById('post-modal');
+        const form = document.getElementById('post-form');
+        const modalTitle = document.getElementById('modal-title');
+
+        if (!modal || !form) {
+            console.error('모달 요소를 찾을 수 없습니다.');
+            this.showNotification('모달 요소를 찾을 수 없습니다. 페이지를 다시 로드해주세요.', 'error');
+            return;
+        }
+
+        // 모달 초기화
+        form.reset();
+        form.removeAttribute('data-post-id');
+
+        // 카테고리 옵션 설정
+        const categorySelect = document.getElementById('post-category');
+        if (categorySelect) {
+            this.setupCategoryOptions(categorySelect);
+        }
+
+        // 모달 타이틀 설정
+        if (modalTitle) {
+            modalTitle.textContent = '게시글 작성';
+        }
+
+        // 🎨 WYSIWYG 에디터 초기화
+        setTimeout(() => {
+            this.initializeWysiwygEditor();
+        }, 100);
+
+        // 모달 표시
+        modal.classList.remove('hidden');
+
+        // 포커스 설정
+        const titleInput = document.getElementById('post-title');
+        if (titleInput) {
+            setTimeout(() => titleInput.focus(), 200);
+        }
+    },
+
+    /**
+     * 🎨 WYSIWYG 에디터 초기화 (모달 열기 시)
+     */
+    initializeWysiwygEditor: function () {
+        console.log('🎨 WYSIWYG 에디터 모달 초기화');
+
+        if (typeof window.WysiwygEditor !== 'undefined') {
+            // 에디터 초기화
+            window.WysiwygEditor.init();
+
+            // 에디터 내용 클리어
+            window.WysiwygEditor.clear();
+
+            this.wysiwygEditor = window.WysiwygEditor;
+            console.log('✅ WYSIWYG 에디터 모달 초기화 완료');
+        } else {
+            console.error('❌ WysiwygEditor 객체를 찾을 수 없습니다.');
+
+            // 폴백: 기본 textarea 표시
+            this.showBasicTextareaFallback();
+        }
+    },
+
+    /**
+     * 기본 textarea 폴백 표시
+     */
+    showBasicTextareaFallback: function () {
+        console.log('🔄 기본 textarea 폴백 모드');
+
+        const wysiwygEditor = document.getElementById('wysiwyg-editor');
+        const hiddenTextarea = document.getElementById('post-content');
+
+        if (wysiwygEditor && hiddenTextarea) {
+            // WYSIWYG 에디터 숨기기
+            wysiwygEditor.style.display = 'none';
+
+            // hidden textarea를 보이는 textarea로 변경
+            hiddenTextarea.style.display = 'block';
+            hiddenTextarea.className = 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500';
+            hiddenTextarea.rows = 10;
+            hiddenTextarea.placeholder = '게시글 내용을 입력하세요...';
+
+            console.log('✅ 기본 textarea 폴백 완료');
+        }
+    },
+
+    /**
+     * 🎨 게시글 작성 처리 (WYSIWYG 에디터 지원)
+     */
+    handleCreatePost: async function (event) {
+        event.preventDefault();
+
+        const submitButton = event.target.querySelector('button[type="submit"]');
+        if (submitButton) {
+            if (submitButton.disabled) {
+                console.log('이미 처리 중인 요청입니다.');
+                return;
+            }
+            submitButton.disabled = true;
+            submitButton.textContent = '저장 중...';
+        }
+
+        try {
+            console.log('📝 게시글 작성 처리 시작 - WYSIWYG 지원');
+
+            // 폼 데이터 가져오기
+            const form = event.target;
+            const title = document.getElementById('post-title').value;
+            const category = document.getElementById('post-category')?.value || 'notice';
+
+            // 🎨 WYSIWYG 에디터에서 내용 가져오기
+            let content = '';
+
+            if (this.wysiwygEditor && typeof this.wysiwygEditor.getContent === 'function') {
+                content = this.wysiwygEditor.getContent();
+                console.log('✅ WYSIWYG 에디터에서 내용 가져옴');
+            } else {
+                // 폴백: hidden textarea에서 가져오기
+                const hiddenTextarea = document.getElementById('post-content');
+                content = hiddenTextarea ? hiddenTextarea.value : '';
+                console.log('🔄 hidden textarea에서 내용 가져옴');
+            }
+
+            // 유효성 검사
+            if (!title.trim()) {
+                this.showNotification('제목을 입력해주세요.', 'error');
+                return;
+            }
+
+            if (!content.trim()) {
+                this.showNotification('내용을 입력해주세요.', 'error');
+                return;
+            }
+
+            if (!category) {
+                this.showNotification('카테고리를 선택해주세요.', 'error');
+                return;
+            }
+
+            // 🎨 첨부파일 정보 수집
+            const attachedFiles = this.getAttachedFiles();
+
+            // 게시글 데이터
+            const postData = {
+                title: title.trim(),
+                content: content,
+                category: category,
+                authorId: 'admin',
+                authorName: '관리자',
+                author: '관리자',
+                views: 0,
+                status: 'published',
+                attachments: attachedFiles, // 🎨 첨부파일 정보 추가
+                createdAt: this.isFirebaseConnected ?
+                    window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp() :
+                    new Date(),
+                updatedAt: this.isFirebaseConnected ?
+                    window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp() :
+                    new Date()
+            };
+
+            console.log('게시글 데이터:', postData);
+
+            // 저장 처리
+            let savedPostId = null;
+            if (this.isFirebaseConnected) {
+                savedPostId = await this.saveToFirebase(postData);
+            } else {
+                console.log('🧪 로컬 테스트 모드 - 게시글 저장 시뮬레이션');
+                savedPostId = 'test-' + Date.now();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // 🛠️ 로컬 테스트용: 새 게시글을 테스트 데이터에 추가
+                this.addTestPostToMemory(postData, savedPostId);
+            }
+
+            console.log('✅ 게시글 등록 성공, ID:', savedPostId);
+            this.showNotification('게시글이 등록되었습니다.', 'success');
+
+            // 모달 닫기
+            this.closePostModal();
+
+            // 🛠️ 즉시 테이블 업데이트
+            console.log('🔄 게시글 목록 즉시 업데이트');
+
+            // 첫 페이지로 이동하고 데이터 새로고침
+            this.currentPage = 1;
+            await this.forceReloadBoardData();
+
+        } catch (error) {
+            console.error('❌ 게시글 작성 처리 오류:', error);
+            this.showNotification('게시글 작성 처리 중 오류가 발생했습니다: ' + error.message, 'error');
+        } finally {
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.textContent = '저장';
+            }
+        }
+    },
+
+    /**
+     * 🛠️ 강제 데이터 새로고침 함수 (새로 추가)
+     */
+    forceReloadBoardData: async function () {
+        try {
+            console.log('🔄 강제 데이터 새로고침 시작');
+
+            // 로딩 상태 표시
+            this.showLoadingState();
+
+            // 캐시 무효화를 위해 약간의 지연
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // 데이터 다시 로드
+            await this.loadBoardData();
+
+            console.log('✅ 강제 데이터 새로고침 완료');
+        } catch (error) {
+            console.error('❌ 강제 데이터 새로고침 실패:', error);
+
+            // 실패 시 폴백으로 테스트 데이터 로드
+            try {
+                const testPosts = this.getTestData();
+                this.updateBoardList(testPosts);
+                console.log('🔄 폴백 데이터로 테이블 업데이트');
+            } catch (fallbackError) {
+                console.error('❌ 폴백 데이터 로드도 실패:', fallbackError);
+            }
+        }
+    },
+
+    /**
+     * 🛠️ 로컬 테스트용: 메모리에 새 게시글 추가 (새로 추가)
+     */
+    addTestPostToMemory: function (postData, postId) {
+        if (!window.testBoardPosts) {
+            window.testBoardPosts = {};
+        }
+
+        if (!window.testBoardPosts[this.currentBoardType]) {
+            window.testBoardPosts[this.currentBoardType] = [];
+        }
+
+        // 새 게시글을 맨 앞에 추가
+        const newPost = {
+            id: postId,
+            ...postData,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+
+        window.testBoardPosts[this.currentBoardType].unshift(newPost);
+        console.log('🧪 테스트 게시글이 메모리에 추가됨:', newPost.title);
+    },
+
+    /**
+     * 🎨 첨부파일 정보 수집
+     */
+    getAttachedFiles: function () {
+        const attachedFiles = [];
+
+        if (this.wysiwygEditor && this.wysiwygEditor.uploadedFiles) {
+            this.wysiwygEditor.uploadedFiles.forEach(file => {
+                attachedFiles.push({
+                    name: file.name,
+                    url: file.url,
+                    type: file.type,
+                    path: file.path
+                });
+            });
+        }
+
+        console.log('📎 수집된 첨부파일:', attachedFiles.length, '개');
+        return attachedFiles;
+    },
+
+    /**
+     * 게시글 모달 닫기 (WYSIWYG 에디터 정리 포함)
+     */
+    closePostModal: function () {
+        const modal = document.getElementById('post-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+
+            // 🎨 WYSIWYG 에디터 정리
+            if (this.wysiwygEditor && typeof this.wysiwygEditor.clear === 'function') {
+                this.wysiwygEditor.clear();
+                console.log('✅ WYSIWYG 에디터 내용 정리됨');
+            }
+
+            // 폼 리셋
+            const form = document.getElementById('post-form');
+            if (form) {
+                form.reset();
+                form.removeAttribute('data-post-id');
+
+                // 제출 버튼 상태 복구
+                const submitButton = form.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = '저장';
+                }
+            }
+
+            // 기본 textarea 폴백 모드였다면 원상복구
+            const wysiwygEditor = document.getElementById('wysiwyg-editor');
+            const hiddenTextarea = document.getElementById('post-content');
+
+            if (wysiwygEditor && hiddenTextarea) {
+                wysiwygEditor.style.display = '';
+                hiddenTextarea.style.display = 'none';
+                hiddenTextarea.className = '';
+                hiddenTextarea.removeAttribute('rows');
+                hiddenTextarea.removeAttribute('placeholder');
+            }
+        }
+    },
+
+    /**
+     * 통일된 알림 시스템 사용
+     */
+    showNotification: function (message, type = 'info') {
+        if (window.adminAuth && window.adminAuth.showNotification) {
+            window.adminAuth.showNotification(message, type);
+        } else if (typeof showToast === 'function') {
+            showToast(message, type);
+        } else {
+            alert(message);
+        }
+    },
+
+    // =================================
+    // 기존 함수들 (변경사항 없음)
+    // =================================
 
     /**
      * 게시판 탭 초기화
@@ -271,7 +597,6 @@ window.boardManager = {
 
         const boardTabs = document.querySelectorAll('.board-tab');
         if (boardTabs.length > 0) {
-            // 첫 번째 탭 활성화
             const firstTab = boardTabs[0];
             const boardType = firstTab.getAttribute('data-board') || 'notice';
             this.updateTabUI(boardType);
@@ -279,12 +604,11 @@ window.boardManager = {
     },
 
     /**
-     * 탭 UI 업데이트 (개선된 버전)
+     * 탭 UI 업데이트
      */
     updateTabUI: function (boardType) {
         console.log('📋 탭 UI 업데이트:', boardType);
 
-        // 탭 상태 업데이트
         const tabs = document.querySelectorAll('.board-tab');
         tabs.forEach(tab => {
             const tabType = tab.getAttribute('data-board');
@@ -297,49 +621,10 @@ window.boardManager = {
             }
         });
 
-        // 타이틀 업데이트
         const boardTypeTitle = document.getElementById('board-title');
         if (boardTypeTitle) {
             boardTypeTitle.textContent = this.getBoardTypeName(boardType);
         }
-    },
-
-    /**
-     * 이벤트 리스너 등록 (중복 방지 개선)
-     */
-    registerEventListeners: function () {
-        console.log('📋 이벤트 리스너 등록 시작');
-
-        // 전역 변수로 핸들러 함수 저장 (중복 등록 방지용)
-        if (!window.boardFormSubmitHandler) {
-            window.boardFormSubmitHandler = (e) => {
-                e.preventDefault();
-                const form = e.target;
-                const postId = form.dataset.postId;
-                if (postId) {
-                    this.handleUpdatePost(e, postId);
-                } else {
-                    this.handleCreatePost(e);
-                }
-            };
-        }
-
-        // 게시판 탭 클릭 이벤트
-        this.registerTabEvents();
-
-        // 게시글 작성 버튼
-        this.registerAddPostButton();
-
-        // 모달 관련 이벤트 리스너
-        this.registerModalEvents();
-
-        // 폼 제출 이벤트
-        this.registerFormEvents();
-
-        // 검색 이벤트
-        this.registerSearchEvents();
-
-        console.log('✅ 이벤트 리스너 등록 완료');
     },
 
     /**
@@ -348,9 +633,8 @@ window.boardManager = {
     registerTabEvents: function () {
         const boardTabs = document.querySelectorAll('.board-tab');
         const self = this;
-        
+
         boardTabs.forEach(tab => {
-            // 기존 이벤트 제거 후 새로 등록
             tab.removeEventListener('click', tab._clickHandler);
             tab._clickHandler = function (e) {
                 e.preventDefault();
@@ -364,29 +648,11 @@ window.boardManager = {
     },
 
     /**
-     * 게시글 추가 버튼 이벤트 등록
-     */
-    registerAddPostButton: function () {
-        const addPostButton = document.getElementById('add-post-button');
-        if (addPostButton) {
-            const self = this;
-            // 기존 이벤트 제거 후 새로 등록
-            addPostButton.removeEventListener('click', addPostButton._clickHandler);
-            addPostButton._clickHandler = function (e) {
-                e.preventDefault();
-                self.showAddPostModal();
-            };
-            addPostButton.addEventListener('click', addPostButton._clickHandler);
-        }
-    },
-
-    /**
      * 모달 이벤트 등록
      */
     registerModalEvents: function () {
         const self = this;
-        
-        // 모달 닫기 버튼들
+
         document.querySelectorAll('button[onclick="boardManager.closePostModal()"]').forEach(btn => {
             btn.removeAttribute('onclick');
             btn.removeEventListener('click', btn._clickHandler);
@@ -404,7 +670,19 @@ window.boardManager = {
     registerFormEvents: function () {
         const postForm = document.getElementById('post-form');
         if (postForm) {
-            // 기존 이벤트 제거 후 새로 등록
+            if (!window.boardFormSubmitHandler) {
+                window.boardFormSubmitHandler = (e) => {
+                    e.preventDefault();
+                    const form = e.target;
+                    const postId = form.dataset.postId;
+                    if (postId) {
+                        this.handleUpdatePost(e, postId);
+                    } else {
+                        this.handleCreatePost(e);
+                    }
+                };
+            }
+
             postForm.removeEventListener('submit', window.boardFormSubmitHandler);
             postForm.addEventListener('submit', window.boardFormSubmitHandler);
         }
@@ -415,8 +693,7 @@ window.boardManager = {
      */
     registerSearchEvents: function () {
         const self = this;
-        
-        // 검색 키워드 엔터키 이벤트
+
         const searchKeyword = document.getElementById('search-keyword');
         if (searchKeyword) {
             searchKeyword.removeEventListener('keypress', searchKeyword._keypressHandler);
@@ -434,31 +711,62 @@ window.boardManager = {
      * 게시판 유형 전환
      */
     switchBoard: function (boardType) {
-        // 이미 선택된 유형이면 무시
         if (this.currentBoardType === boardType) return;
 
         console.log('📋 게시판 유형 전환:', boardType);
 
-        // UI 업데이트
         this.updateTabUI(boardType);
-
-        // 현재 게시판 유형 업데이트
         this.currentBoardType = boardType;
         this.currentPage = 1;
         this.lastDoc = null;
 
-        // 게시판 데이터 로드
         this.loadBoardData();
     },
 
     /**
-     * 게시판 데이터 로드 (통일된 버전)
+     * 재시도 로직이 포함된 게시판 데이터 로드
+     */
+    loadBoardDataWithRetry: async function (maxRetries = 3) {
+        let lastError = null;
+
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                console.log(`📋 게시판 데이터 로드 시도 ${attempt}/${maxRetries}`);
+                await this.loadBoardData();
+                console.log('✅ 게시판 데이터 로드 성공');
+                return;
+            } catch (error) {
+                lastError = error;
+                console.warn(`⚠️ 게시판 데이터 로드 시도 ${attempt} 실패:`, error);
+
+                if (attempt < maxRetries) {
+                    const delay = attempt * 1000;
+                    console.log(`⏳ ${delay}ms 후 재시도...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+
+        console.error(`❌ ${maxRetries}번 시도 후 게시판 데이터 로드 실패:`, lastError);
+
+        try {
+            const testPosts = this.getTestData();
+            this.updateBoardList(testPosts);
+            this.showNotification('서버 연결에 문제가 있어 테스트 데이터를 표시합니다.', 'warning');
+            console.log('✅ 테스트 데이터 폴백 완료');
+        } catch (fallbackError) {
+            console.error('❌ 테스트 데이터 폴백도 실패:', fallbackError);
+            this.showErrorMessage('데이터 로드에 실패했습니다. 페이지를 새로고침해주세요.');
+        }
+    },
+
+    /**
+     * 게시판 데이터 로드
      */
     loadBoardData: async function () {
         console.log('📋 게시판 데이터 로드 시작:', this.currentBoardType);
 
         try {
-            // 로딩 상태 표시
             this.showLoadingState();
 
             let posts = [];
@@ -474,27 +782,22 @@ window.boardManager = {
             // 검색 필터링 적용
             const searchType = document.getElementById('search-type')?.value || 'title';
             const searchKeyword = document.getElementById('search-keyword')?.value || '';
-            
+
             if (searchKeyword) {
                 posts = this.filterPosts(posts, searchType, searchKeyword);
                 console.log(`🔍 검색 결과: ${posts.length}개 항목`);
             }
 
-            // 전체 문서 수 계산 (페이지네이션용)
+            // 페이지네이션 처리
             const totalCount = posts.length;
             const totalPages = Math.ceil(totalCount / this.pageSize);
-
-            // 페이지네이션 적용
             const startIndex = (this.currentPage - 1) * this.pageSize;
             const endIndex = startIndex + this.pageSize;
             const paginatedPosts = posts.slice(startIndex, endIndex);
 
             console.log(`📊 조회 결과: 전체 ${totalCount}개, 현재 페이지 ${paginatedPosts.length}개`);
 
-            // 페이지네이션 업데이트
             this.updatePagination(totalPages);
-
-            // 게시글 목록 업데이트
             this.updateBoardList(paginatedPosts);
 
             console.log('✅ 게시판 데이터 로드 완료');
@@ -510,7 +813,6 @@ window.boardManager = {
      * Firebase에서 데이터 로드
      */
     loadFromFirebase: async function () {
-        // 컬렉션 이름 결정
         const collectionMap = {
             'notice': 'notices',
             'column': 'columns',
@@ -525,10 +827,9 @@ window.boardManager = {
             throw new Error('Firebase가 초기화되지 않았습니다.');
         }
 
-        // Firestore 쿼리 실행
         const query = window.dhcFirebase.db.collection(collectionName)
             .orderBy('createdAt', 'desc')
-            .limit(100); // 최대 100개 로드
+            .limit(100);
 
         const snapshot = await query.get();
         console.log(`🔥 Firebase 쿼리 결과: ${snapshot.size}개`);
@@ -548,11 +849,35 @@ window.boardManager = {
     },
 
     /**
+     * Firebase에 게시글 저장
+     */
+    saveToFirebase: async function (postData) {
+        const collectionMap = {
+            'notice': 'notices',
+            'column': 'columns',
+            'materials': 'materials',
+            'videos': 'videos'
+        };
+
+        const collectionName = collectionMap[this.currentBoardType] || 'notices';
+        console.log('💾 저장 대상 컬렉션:', collectionName);
+
+        if (!window.dhcFirebase || !window.dhcFirebase.db) {
+            throw new Error('Firebase가 초기화되지 않았습니다.');
+        }
+
+        const docRef = await window.dhcFirebase.db.collection(collectionName).add(postData);
+        console.log('✅ Firebase 저장 성공:', docRef.id);
+
+        return docRef.id;
+    },
+
+    /**
      * 게시글 필터링
      */
     filterPosts: function (posts, searchType, searchKeyword) {
         const searchLower = searchKeyword.toLowerCase();
-        
+
         return posts.filter(post => {
             switch (searchType) {
                 case 'title':
@@ -586,7 +911,32 @@ window.boardManager = {
     },
 
     /**
-     * 🎯 게시글 목록 업데이트 (반응형 테이블 통일)
+     * 에러 메시지 표시
+     */
+    showErrorMessage: function (message) {
+        const tableBody = document.querySelector('#board-table tbody');
+        if (tableBody) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="admin-empty-state">
+                        <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h3>오류 발생</h3>
+                        <p>${message}</p>
+                        <button onclick="boardManager.loadBoardDataWithRetry()" class="admin-btn admin-btn-primary mt-4">
+                            다시 시도
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        this.showNotification(message, 'error');
+    },
+
+    /**
+     * 게시글 목록 업데이트
      */
     updateBoardList: function (posts) {
         const tableBody = document.querySelector('#board-table tbody');
@@ -616,7 +966,6 @@ window.boardManager = {
 
         posts.forEach((post, index) => {
             try {
-                // 🔧 전역 유틸리티 사용하여 날짜 포맷팅
                 let createdAt = '-';
 
                 if (post.createdAt) {
@@ -632,7 +981,6 @@ window.boardManager = {
                             dateObj = new Date(post.createdAt);
                         }
 
-                        // 🔧 전역 유틸리티 사용
                         createdAt = window.formatters.formatDate(dateObj, 'YYYY.MM.DD');
                     } catch (e) {
                         console.error('날짜 변환 오류:', e, post.createdAt);
@@ -645,11 +993,9 @@ window.boardManager = {
                 const title = post.title || '(제목 없음)';
                 const author = post.authorName || post.author || '관리자';
 
-                // 상태 결정
                 const status = post.status || 'published';
                 const statusInfo = this.getStatusInfo(status);
 
-                // 🎯 반응형 테이블: data-label 속성 추가 (다른 관리자 페이지와 통일)
                 html += `
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td data-label="제목" class="py-3 px-4">
@@ -667,10 +1013,17 @@ window.boardManager = {
                         </td>
                         <td data-label="작업" class="py-3 px-4 text-center">
                             <div class="table-actions">
+                                <button class="table-action-btn btn-view view-post" data-id="${postId}" title="보기">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                    보기
+                                </button>
                                 <button class="table-action-btn btn-edit edit-post" data-id="${postId}" title="수정">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828 L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                        </svg>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
                                     수정
                                 </button>
                                 <button class="table-action-btn btn-delete delete-post" data-id="${postId}" title="삭제">
@@ -692,12 +1045,11 @@ window.boardManager = {
         tableBody.innerHTML = html;
         console.log('✅ 게시글 목록 HTML 업데이트 완료');
 
-        // 이벤트 리스너 추가 (새로 생성된 요소들에 대해)
         this.registerTableEvents();
     },
 
     /**
-     * 테이블 이벤트 등록 (새로 생성된 요소들)
+     * 테이블 이벤트 등록
      */
     registerTableEvents: function () {
         const self = this;
@@ -745,7 +1097,7 @@ window.boardManager = {
     },
 
     /**
-     * 페이지네이션 업데이트 (통일된 버전)
+     * 페이지네이션 업데이트
      */
     updatePagination: function (totalPages) {
         const paginationContainer = document.getElementById('board-pagination');
@@ -844,209 +1196,98 @@ window.boardManager = {
     },
 
     /**
-     * 게시글 작성 모달 표시 (통일된 버전)
+     * 게시글 보기 (향후 구현)
      */
-    showAddPostModal: function () {
-        console.log('📝 게시글 작성 모달 표시 - 통일된 버전');
+    viewPost: function (postId) {
+        console.log('👁️ 게시글 보기:', postId);
+        this.showNotification('게시글 상세보기 기능은 곧 구현될 예정입니다.', 'info');
+    },
 
-        // 🔧 의존성 체크
-        if (!checkBoardDependencies()) {
-            console.error('❌ 필수 유틸리티 누락으로 모달 표시 중단');
-            
-            // 🔧 통일된 알림 시스템 사용
-            if (window.adminAuth && window.adminAuth.showNotification) {
-                window.adminAuth.showNotification('시스템 오류가 발생했습니다. 페이지를 새로고침해주세요.', 'error');
-            } else if (typeof showToast === 'function') {
-                showToast('시스템 오류가 발생했습니다. 페이지를 새로고침해주세요.', 'error');
-            } else {
-                alert('시스템 오류가 발생했습니다. 페이지를 새로고침해주세요.');
-            }
-            return;
-        }
+    /**
+     * 게시글 수정 (향후 구현)
+     */
+    editPost: function (postId) {
+        console.log('✏️ 게시글 수정:', postId);
+        this.showNotification('게시글 수정 기능은 곧 구현될 예정입니다.', 'info');
+    },
 
-        // 모달 및 폼 가져오기
-        const modal = document.getElementById('post-modal');
-        const form = document.getElementById('post-form');
-        const modalTitle = document.getElementById('modal-title');
-        const contentEditor = document.getElementById('post-content');
+    /**
+     * 게시글 삭제
+     */
+    deletePost: function (postId) {
+        console.log('🗑️ 게시글 삭제:', postId);
 
-        // 모달 요소 확인
-        if (!modal) {
-            console.error('post-modal 요소를 찾을 수 없습니다.');
-            
-            // 🔧 통일된 알림 시스템 사용
-            if (window.adminAuth && window.adminAuth.showNotification) {
-                window.adminAuth.showNotification('모달 요소를 찾을 수 없습니다. 페이지를 다시 로드해주세요.', 'error');
-            } else if (typeof showToast === 'function') {
-                showToast('모달 요소를 찾을 수 없습니다. 페이지를 다시 로드해주세요.', 'error');
-            } else {
-                alert('모달 요소를 찾을 수 없습니다. 페이지를 다시 로드해주세요.');
-            }
-            return;
-        }
-
-        if (!form) {
-            console.error('post-form 요소를 찾을 수 없습니다.');
-            
-            // 🔧 통일된 알림 시스템 사용
-            if (window.adminAuth && window.adminAuth.showNotification) {
-                window.adminAuth.showNotification('폼 요소를 찾을 수 없습니다. 페이지를 다시 로드해주세요.', 'error');
-            } else if (typeof showToast === 'function') {
-                showToast('폼 요소를 찾을 수 없습니다. 페이지를 다시 로드해주세요.', 'error');
-            } else {
-                alert('폼 요소를 찾을 수 없습니다. 페이지를 다시 로드해주세요.');
-            }
-            return;
-        }
-
-        // 모달 초기화
-        form.reset();
-        form.removeAttribute('data-post-id');
-
-        // 카테고리 옵션 설정
-        const categorySelect = document.getElementById('post-category');
-        if (categorySelect) {
-            this.setupCategoryOptions(categorySelect);
-        }
-
-        // 모달 타이틀 설정
-        if (modalTitle) {
-            modalTitle.textContent = '게시글 작성';
-        }
-
-        // 에디터 영역 초기화
-        if (contentEditor) {
-            contentEditor.value = '';
-        }
-
-        // 에디터 도구 초기화
-        this.initializeEditorTools();
-
-        // 모달 표시
-        modal.classList.remove('hidden');
-        
-        // 포커스 설정
-        const titleInput = document.getElementById('post-title');
-        if (titleInput) {
-            setTimeout(() => titleInput.focus(), 100);
+        if (confirm('정말로 이 게시글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+            this.handleDeletePost(postId);
         }
     },
 
     /**
-     * 에디터 도구 초기화 (간소화 버전)
+     * 게시글 삭제 처리
      */
-    initializeEditorTools: function () {
-        console.log('🛠️ 에디터 도구 초기화');
+    handleDeletePost: async function (postId) {
+        try {
+            console.log('🗑️ 게시글 삭제 처리 시작:', postId);
 
-        const editorTools = document.querySelector('.editor-tools');
-        if (!editorTools) {
-            console.log('에디터 도구 영역을 찾을 수 없습니다. 생성합니다.');
-
-            // 에디터 도구 영역 생성
-            const contentGroup = document.querySelector('.content-group');
-            if (contentGroup) {
-                const toolsDiv = document.createElement('div');
-                toolsDiv.className = 'editor-tools flex space-x-2 mb-2';
-                toolsDiv.innerHTML = `
-                    <button type="button" class="tool-button px-2 py-1 bg-gray-200 rounded text-sm hover:bg-gray-300" data-tool="bold" title="굵게">
-                        <strong>B</strong>
-                    </button>
-                    <button type="button" class="tool-button px-2 py-1 bg-gray-200 rounded text-sm hover:bg-gray-300" data-tool="image" title="이미지 삽입">
-                        🖼️
-                    </button>
-                    <button type="button" class="tool-button px-2 py-1 bg-gray-200 rounded text-sm hover:bg-gray-300" data-tool="link" title="링크 삽입">
-                        🔗
-                    </button>
-                `;
-
-                // 에디터 내용 입력 필드 앞에 삽입
-                const contentTextarea = contentGroup.querySelector('textarea');
-                if (contentTextarea) {
-                    contentGroup.insertBefore(toolsDiv, contentTextarea);
-                }
+            if (!postId) {
+                throw new Error('게시글 ID가 없습니다.');
             }
-        }
 
-        // 도구 버튼 이벤트 리스너
-        const self = this;
-        document.querySelectorAll('.tool-button').forEach(button => {
-            // 기존 이벤트 제거 후 새로 등록
-            button.removeEventListener('click', button._clickHandler);
-            button._clickHandler = function (e) {
-                e.preventDefault();
-                const tool = this.getAttribute('data-tool');
-                self.useEditorTool(tool);
-            };
-            button.addEventListener('click', button._clickHandler);
-        });
+            if (this.isFirebaseConnected) {
+                const collectionMap = {
+                    'notice': 'notices',
+                    'column': 'columns',
+                    'materials': 'materials',
+                    'videos': 'videos'
+                };
+
+                const collectionName = collectionMap[this.currentBoardType] || 'notices';
+
+                if (!window.dhcFirebase || !window.dhcFirebase.db) {
+                    throw new Error('Firebase가 초기화되지 않았습니다.');
+                }
+
+                await window.dhcFirebase.db.collection(collectionName).doc(postId).delete();
+                console.log('✅ Firebase 삭제 성공');
+            } else {
+                console.log('🧪 로컬 테스트 모드 - 게시글 삭제 시뮬레이션');
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            this.showNotification('게시글이 삭제되었습니다.', 'success');
+
+            // 게시글 목록 새로고침
+            this.loadBoardData();
+
+        } catch (error) {
+            console.error('❌ 게시글 삭제 처리 오류:', error);
+            this.showNotification('게시글 삭제 처리 중 오류가 발생했습니다: ' + error.message, 'error');
+        }
     },
 
     /**
-     * 에디터 도구 사용 (간소화 버전)
+     * 게시글 수정 처리 (향후 구현)
      */
-    useEditorTool: function (tool) {
-        console.log(`🛠️ 에디터 도구 사용: ${tool}`);
-
-        const contentEditor = document.getElementById('post-content');
-        if (!contentEditor) return;
-
-        const selStart = contentEditor.selectionStart;
-        const selEnd = contentEditor.selectionEnd;
-        const value = contentEditor.value;
-
-        switch (tool) {
-            case 'bold':
-                // 선택한 텍스트를 굵게 처리
-                const boldText = `<strong>${value.substring(selStart, selEnd) || '굵은 텍스트'}</strong>`;
-                contentEditor.value = value.substring(0, selStart) + boldText + value.substring(selEnd);
-                contentEditor.setSelectionRange(selStart + 8, selStart + 8 + (value.substring(selStart, selEnd) || '굵은 텍스트').length);
-                break;
-
-            case 'image':
-                // 이미지 URL 입력
-                const imageUrl = prompt('이미지 URL을 입력하세요:', 'https://');
-                if (imageUrl && imageUrl.trim() !== '') {
-                    const imgTag = `<img src="${imageUrl}" alt="이미지" style="max-width:100%;" />`;
-                    contentEditor.value = value.substring(0, selStart) + imgTag + value.substring(selEnd);
-                }
-                break;
-
-            case 'link':
-                // 링크 삽입
-                const selectedText = value.substring(selStart, selEnd);
-                const linkUrl = prompt('링크 URL을 입력하세요:', 'https://');
-
-                if (linkUrl && linkUrl.trim() !== '') {
-                    const linkText = selectedText || '링크 텍스트';
-                    const linkTag = `<a href="${linkUrl}" target="_blank">${linkText}</a>`;
-                    contentEditor.value = value.substring(0, selStart) + linkTag + value.substring(selEnd);
-                }
-                break;
-        }
-
-        // 에디터에 포커스
-        contentEditor.focus();
+    handleUpdatePost: async function (event, postId) {
+        console.log('✏️ 게시글 수정 처리:', postId);
+        this.showNotification('게시글 수정 기능은 곧 구현될 예정입니다.', 'info');
     },
 
     /**
-     * 게시판 유형에 맞는 카테고리 옵션 설정
+     * 카테고리 옵션 설정
      */
     setupCategoryOptions: function (selectElement) {
         if (!selectElement) return;
 
-        // 기존 옵션 제거
         selectElement.innerHTML = '';
 
-        // 게시판 유형에 맞는 카테고리 옵션 추가
         const categories = this.getCategoriesByBoardType(this.currentBoardType);
 
-        // 기본 옵션 추가
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
         defaultOption.textContent = '-- 카테고리 선택 --';
         selectElement.appendChild(defaultOption);
 
-        // 카테고리 옵션 추가
         for (const key in categories) {
             const option = document.createElement('option');
             option.value = key;
@@ -1056,7 +1297,7 @@ window.boardManager = {
     },
 
     /**
-     * 게시판 유형에 맞는 카테고리 가져오기
+     * 게시판 유형별 카테고리 가져오기
      */
     getCategoriesByBoardType: function (boardType) {
         switch (boardType) {
@@ -1094,316 +1335,6 @@ window.boardManager = {
     },
 
     /**
-     * 게시글 모달 닫기
-     */
-    closePostModal: function () {
-        const modal = document.getElementById('post-modal');
-        if (modal) {
-            modal.classList.add('hidden');
-
-            // 폼 리셋
-            const form = document.getElementById('post-form');
-            if (form) {
-                form.reset();
-                form.removeAttribute('data-post-id');
-
-                // 제출 버튼 상태 복구
-                const submitButton = form.querySelector('button[type="submit"]');
-                if (submitButton) {
-                    submitButton.disabled = false;
-                    submitButton.textContent = '저장';
-                }
-            }
-        }
-    },
-
-    /**
-     * 게시글 작성 처리 (통일된 버전)
-     */
-    handleCreatePost: async function (event) {
-        event.preventDefault();
-
-        // 중복 제출 방지
-        const submitButton = event.target.querySelector('button[type="submit"]');
-        if (submitButton) {
-            if (submitButton.disabled) {
-                console.log('이미 처리 중인 요청입니다.');
-                return;
-            }
-            submitButton.disabled = true;
-            submitButton.textContent = '저장 중...';
-        }
-
-        try {
-            console.log('📝 게시글 작성 처리 시작');
-
-            // 🔧 의존성 체크
-            if (!checkBoardDependencies()) {
-                throw new Error('필수 유틸리티가 로드되지 않았습니다.');
-            }
-
-            // 폼 데이터 가져오기
-            const form = event.target;
-            const title = document.getElementById('post-title').value;
-            const content = document.getElementById('post-content').value;
-            const category = document.getElementById('post-category')?.value || 'notice';
-
-            // 유효성 검사
-            if (!title) {
-                // 🔧 통일된 알림 시스템 사용
-                if (window.adminAuth && window.adminAuth.showNotification) {
-                    window.adminAuth.showNotification('제목을 입력해주세요.', 'error');
-                } else if (typeof showToast === 'function') {
-                    showToast('제목을 입력해주세요.', 'error');
-                } else {
-                    alert('제목을 입력해주세요.');
-                }
-                return;
-            }
-
-            if (!content) {
-                // 🔧 통일된 알림 시스템 사용
-                if (window.adminAuth && window.adminAuth.showNotification) {
-                    window.adminAuth.showNotification('내용을 입력해주세요.', 'error');
-                } else if (typeof showToast === 'function') {
-                    showToast('내용을 입력해주세요.', 'error');
-                } else {
-                    alert('내용을 입력해주세요.');
-                }
-                return;
-            }
-
-            if (!category) {
-                // 🔧 통일된 알림 시스템 사용
-                if (window.adminAuth && window.adminAuth.showNotification) {
-                    window.adminAuth.showNotification('카테고리를 선택해주세요.', 'error');
-                } else if (typeof showToast === 'function') {
-                    showToast('카테고리를 선택해주세요.', 'error');
-                } else {
-                    alert('카테고리를 선택해주세요.');
-                }
-                return;
-            }
-
-            // 게시글 데이터
-            const postData = {
-                title: title,
-                content: content,
-                category: category,
-                authorId: 'admin',
-                authorName: '관리자',
-                author: '관리자',
-                views: 0,
-                status: 'published',
-                // 🔧 전역 유틸리티 사용
-                createdAt: this.isFirebaseConnected ? 
-                    window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp() : 
-                    new Date(),
-                updatedAt: this.isFirebaseConnected ? 
-                    window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp() : 
-                    new Date()
-            };
-
-            console.log('게시글 데이터:', postData);
-
-            if (this.isFirebaseConnected) {
-                // Firebase에 저장
-                await this.saveToFirebase(postData);
-            } else {
-                // 로컬 테스트 모드
-                console.log('🧪 로컬 테스트 모드 - 게시글 저장 시뮬레이션');
-                await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
-            }
-
-            console.log('✅ 게시글 등록 성공');
-            
-            // 🔧 통일된 알림 시스템 사용
-            if (window.adminAuth && window.adminAuth.showNotification) {
-                window.adminAuth.showNotification('게시글이 등록되었습니다.', 'success');
-            } else if (typeof showToast === 'function') {
-                showToast('게시글이 등록되었습니다.', 'success');
-            } else {
-                alert('게시글이 등록되었습니다.');
-            }
-
-            // 모달 닫기
-            this.closePostModal();
-
-            // 게시글 목록 새로고침
-            setTimeout(() => {
-                this.loadBoardData();
-            }, 500);
-
-        } catch (error) {
-            console.error('❌ 게시글 작성 처리 오류:', error);
-            
-            // 🔧 통일된 알림 시스템 사용
-            if (window.adminAuth && window.adminAuth.showNotification) {
-                window.adminAuth.showNotification('게시글 작성 처리 중 오류가 발생했습니다: ' + error.message, 'error');
-            } else if (typeof showToast === 'function') {
-                showToast('게시글 작성 처리 중 오류가 발생했습니다: ' + error.message, 'error');
-            } else {
-                alert('게시글 작성 처리 중 오류가 발생했습니다: ' + error.message);
-            }
-        } finally {
-            // 버튼 상태 복원
-            if (submitButton) {
-                submitButton.disabled = false;
-                submitButton.textContent = '저장';
-            }
-        }
-    },
-
-    /**
-     * Firebase에 게시글 저장
-     */
-    saveToFirebase: async function (postData) {
-        // 컬렉션 이름 매핑
-        const collectionMap = {
-            'notice': 'notices',
-            'column': 'columns',
-            'materials': 'materials',
-            'videos': 'videos'
-        };
-
-        const collectionName = collectionMap[this.currentBoardType] || 'notices';
-        console.log('💾 저장 대상 컬렉션:', collectionName);
-
-        if (!window.dhcFirebase || !window.dhcFirebase.db) {
-            throw new Error('Firebase가 초기화되지 않았습니다.');
-        }
-
-        // Firestore에 데이터 저장
-        const docRef = await window.dhcFirebase.db.collection(collectionName).add(postData);
-        console.log('✅ Firebase 저장 성공:', docRef.id);
-
-        return docRef.id;
-    },
-
-    /**
-     * 게시글 수정 처리 (placeholder)
-     */
-    handleUpdatePost: async function (event, postId) {
-        console.log('✏️ 게시글 수정 처리:', postId);
-        // TODO: 게시글 수정 로직 구현
-        
-        // 🔧 통일된 알림 시스템 사용
-        if (window.adminAuth && window.adminAuth.showNotification) {
-            window.adminAuth.showNotification('게시글 수정 기능은 곧 구현될 예정입니다.', 'info');
-        } else if (typeof showToast === 'function') {
-            showToast('게시글 수정 기능은 곧 구현될 예정입니다.', 'info');
-        } else {
-            alert('게시글 수정 기능은 곧 구현될 예정입니다.');
-        }
-    },
-
-    /**
-     * 게시글 보기 (placeholder)
-     */
-    viewPost: function (postId) {
-        console.log('👁️ 게시글 보기:', postId);
-        // TODO: 게시글 상세보기 구현
-        
-        // 🔧 통일된 알림 시스템 사용
-        if (window.adminAuth && window.adminAuth.showNotification) {
-            window.adminAuth.showNotification('게시글 상세보기 기능은 곧 구현될 예정입니다.', 'info');
-        } else if (typeof showToast === 'function') {
-            showToast('게시글 상세보기 기능은 곧 구현될 예정입니다.', 'info');
-        } else {
-            alert('게시글 상세보기 기능은 곧 구현될 예정입니다.');
-        }
-    },
-
-    /**
-     * 게시글 수정 (placeholder)
-     */
-    editPost: function (postId) {
-        console.log('✏️ 게시글 수정:', postId);
-        // TODO: 게시글 수정 모달 구현
-        
-        // 🔧 통일된 알림 시스템 사용
-        if (window.adminAuth && window.adminAuth.showNotification) {
-            window.adminAuth.showNotification('게시글 수정 기능은 곧 구현될 예정입니다.', 'info');
-        } else if (typeof showToast === 'function') {
-            showToast('게시글 수정 기능은 곧 구현될 예정입니다.', 'info');
-        } else {
-            alert('게시글 수정 기능은 곧 구현될 예정입니다.');
-        }
-    },
-
-    /**
-     * 게시글 삭제
-     */
-    deletePost: function (postId) {
-        console.log('🗑️ 게시글 삭제:', postId);
-
-        if (confirm('정말로 이 게시글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-            this.handleDeletePost(postId);
-        }
-    },
-
-    /**
-     * 게시글 삭제 처리
-     */
-    handleDeletePost: async function (postId) {
-        try {
-            console.log('🗑️ 게시글 삭제 처리 시작:', postId);
-
-            if (!postId) {
-                throw new Error('게시글 ID가 없습니다.');
-            }
-
-            if (this.isFirebaseConnected) {
-                // Firebase에서 삭제
-                const collectionMap = {
-                    'notice': 'notices',
-                    'column': 'columns',
-                    'materials': 'materials',
-                    'videos': 'videos'
-                };
-
-                const collectionName = collectionMap[this.currentBoardType] || 'notices';
-
-                if (!window.dhcFirebase || !window.dhcFirebase.db) {
-                    throw new Error('Firebase가 초기화되지 않았습니다.');
-                }
-
-                // Firestore 문서 삭제
-                await window.dhcFirebase.db.collection(collectionName).doc(postId).delete();
-                console.log('✅ Firebase 삭제 성공');
-            } else {
-                // 로컬 테스트 모드
-                console.log('🧪 로컬 테스트 모드 - 게시글 삭제 시뮬레이션');
-                await new Promise(resolve => setTimeout(resolve, 500));
-            }
-
-            // 🔧 통일된 알림 시스템 사용
-            if (window.adminAuth && window.adminAuth.showNotification) {
-                window.adminAuth.showNotification('게시글이 삭제되었습니다.', 'success');
-            } else if (typeof showToast === 'function') {
-                showToast('게시글이 삭제되었습니다.', 'success');
-            } else {
-                alert('게시글이 삭제되었습니다.');
-            }
-
-            // 게시글 목록 새로고침
-            this.loadBoardData();
-
-        } catch (error) {
-            console.error('❌ 게시글 삭제 처리 오류:', error);
-            
-            // 🔧 통일된 알림 시스템 사용
-            if (window.adminAuth && window.adminAuth.showNotification) {
-                window.adminAuth.showNotification('게시글 삭제 처리 중 오류가 발생했습니다: ' + error.message, 'error');
-            } else if (typeof showToast === 'function') {
-                showToast('게시글 삭제 처리 중 오류가 발생했습니다: ' + error.message, 'error');
-            } else {
-                alert('게시글 삭제 처리 중 오류가 발생했습니다: ' + error.message);
-            }
-        }
-    },
-
-    /**
      * 게시판 유형 이름 가져오기
      */
     getBoardTypeName: function (boardType) {
@@ -1417,33 +1348,63 @@ window.boardManager = {
     },
 
     /**
-     * 테스트용 모의 데이터 (🔧 전역 유틸리티 사용)
+     * 테스트용 모의 데이터
      */
     getTestData: function () {
         console.log('🧪 테스트 데이터 생성 중...');
-        
+
+        // 메모리에 저장된 게시글이 있는지 확인
+        if (window.testBoardPosts && window.testBoardPosts[this.currentBoardType]) {
+            const memoryPosts = window.testBoardPosts[this.currentBoardType];
+            console.log(`🧪 메모리에서 ${memoryPosts.length}개 게시글 로드`);
+
+            // 메모리 데이터와 기본 테스트 데이터 합치기
+            const defaultTestPosts = this.generateDefaultTestData();
+            const allPosts = [...memoryPosts, ...defaultTestPosts];
+
+            // 날짜순 정렬 (최신순)
+            allPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            return allPosts;
+        }
+
+        // 메모리 데이터가 없으면 기본 테스트 데이터 반환
+        return this.generateDefaultTestData();
+    },
+
+    /**
+     * 🛠️ 기본 테스트 데이터 생성 (기존 getTestData에서 분리)
+     */
+    generateDefaultTestData: function () {
         const testPosts = [];
         const currentDate = new Date();
-        
+
         for (let i = 1; i <= 15; i++) {
             const postDate = new Date(currentDate);
             postDate.setDate(postDate.getDate() - i);
-            
+
             testPosts.push({
                 id: `test-${this.currentBoardType}-${i}`,
                 title: `${this.getBoardTypeName(this.currentBoardType)} 테스트 게시글 ${i}`,
-                content: `테스트 게시글 ${i}의 내용입니다. 이것은 개발 및 테스트 목적으로 생성된 데이터입니다.`,
+                content: `<p>테스트 게시글 ${i}의 내용입니다.</p><p>이것은 개발 및 테스트 목적으로 생성된 <strong>HTML 형식</strong>의 데이터입니다.</p>`,
                 category: this.getTestCategory(),
                 author: '관리자',
                 authorName: '관리자',
                 views: Math.floor(Math.random() * 100),
                 status: i % 4 === 0 ? 'draft' : 'published',
                 createdAt: postDate,
-                updatedAt: postDate
+                updatedAt: postDate,
+                attachments: i % 3 === 0 ? [
+                    {
+                        name: `첨부파일_${i}.pdf`,
+                        url: 'https://example.com/file.pdf',
+                        type: 'application/pdf'
+                    }
+                ] : []
             });
         }
-        
-        console.log(`🧪 테스트 데이터 ${testPosts.length}개 생성 완료`);
+
+        console.log(`🧪 기본 테스트 데이터 ${testPosts.length}개 생성 완료`);
         return testPosts;
     },
 
@@ -1458,24 +1419,24 @@ window.boardManager = {
 };
 
 // =================================
-// 초기화 함수 (다른 관리자 페이지와 완전 통일)
+// 초기화 함수
 // =================================
 
 /**
- * 게시판 관리 페이지 초기화 함수 - 다른 관리자 페이지와 완전 통일
+ * 게시판 관리 페이지 초기화 함수 - WYSIWYG 에디터 지원
  */
 window.initBoardManagement = async function () {
     try {
-        console.log('📋 게시판 관리 페이지 초기화 시작 - 완전 통일 버전');
+        console.log('📋 게시판 관리 페이지 초기화 시작 - WYSIWYG 에디터 지원');
 
-        // 🔧 의존성 체크 먼저 실행
+        // 의존성 체크
         if (!checkBoardDependencies()) {
             console.error('❌ 필수 유틸리티 누락으로 초기화 중단');
-            showBoardDependencyError();
+            window.boardManager.showBoardDependencyError();
             return false;
         }
 
-        // 관리자 권한 확인 (다른 관리자 페이지와 동일한 패턴)
+        // 관리자 권한 확인
         let hasAccess = true;
         if (window.adminAuth && typeof window.adminAuth.checkAdminAccess === 'function') {
             console.log('🔐 관리자 권한 확인 시작');
@@ -1484,25 +1445,24 @@ window.initBoardManagement = async function () {
 
         if (hasAccess) {
             console.log('✅ 관리자 권한 확인 완료');
-            
+
             // 관리자 정보 표시
             if (window.adminAuth && window.adminAuth.displayAdminInfo) {
                 window.adminAuth.displayAdminInfo();
             }
-            
-            // 사이드바 토글 기능 초기화 (다른 관리자 페이지와 동일)
+
+            // 사이드바 토글 기능 초기화
             if (window.adminUtils && window.adminUtils.initAdminSidebar) {
                 window.adminUtils.initAdminSidebar();
             }
 
             // 게시판 관리자 초기화
             console.log('📋 게시판 관리자 초기화 시작');
-            
+
             const success = await window.boardManager.init();
             if (success) {
-                console.log('✅ 게시판 관리자 초기화 완료');
-                
-                // 추가 초기화 작업들 - 다른 관리자 페이지와 통일된 알림
+                console.log('✅ 게시판 관리자 초기화 완료 - WYSIWYG 에디터 포함');
+
                 if (window.adminAuth && window.adminAuth.showNotification) {
                     window.adminAuth.showNotification('게시판 관리 시스템이 준비되었습니다.', 'success');
                 } else if (typeof showToast === 'function') {
@@ -1517,8 +1477,7 @@ window.initBoardManagement = async function () {
 
     } catch (error) {
         console.error('❌ 게시판 관리 페이지 초기화 오류:', error);
-        
-        // 🔧 통일된 알림 시스템 사용
+
         if (window.adminAuth && window.adminAuth.showNotification) {
             window.adminAuth.showNotification('게시판 관리 페이지 초기화 중 오류가 발생했습니다: ' + error.message, 'error');
         } else if (typeof showToast === 'function') {
@@ -1531,33 +1490,31 @@ window.initBoardManagement = async function () {
 };
 
 // =================================
-// DOM 로드 및 이벤트 처리 (다른 관리자 페이지와 완전 호환)
+// DOM 로드 및 이벤트 처리
 // =================================
 
-// 페이지 로드 완료 후 실행 - 다른 관리자 페이지와 동일한 패턴
+// 페이지 로드 완료 후 실행
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('🌐 게시판 관리 페이지 DOMContentLoaded');
+    console.log('🌐 게시판 관리 페이지 DOMContentLoaded - WYSIWYG 지원');
 
-    // 전역 스코프에 boardManager 객체 확인
     if (!window.boardManager) {
         console.error('❌ window.boardManager가 정의되지 않았습니다.');
         return;
     }
 
-    console.log('✅ window.boardManager 확인됨');
+    console.log('✅ window.boardManager 확인됨 - WYSIWYG 지원');
 });
 
-// 페이지 완전 로드 후 초기화 - 다른 관리자 페이지와 동일한 패턴
+// 페이지 완전 로드 후 초기화
 window.addEventListener('load', function () {
-    console.log('🌐 게시판 관리 페이지 load 이벤트');
+    console.log('🌐 게시판 관리 페이지 load 이벤트 - WYSIWYG 지원');
 
-    // 약간의 지연 후 초기화 (모든 스크립트 로딩 완료 대기)
     setTimeout(() => {
         if (window.initBoardManagement && typeof window.initBoardManagement === 'function') {
-            console.log('🚀 initBoardManagement 초기화 시작');
+            console.log('🚀 initBoardManagement 초기화 시작 - WYSIWYG 지원');
             window.initBoardManagement().then((success) => {
                 if (success) {
-                    console.log('✅ initBoardManagement 초기화 완료');
+                    console.log('✅ initBoardManagement 초기화 완료 - WYSIWYG 지원');
                 } else {
                     console.log('⚠️ initBoardManagement 초기화 실패 또는 권한 없음');
                 }
@@ -1567,11 +1524,11 @@ window.addEventListener('load', function () {
         } else {
             console.error('❌ window.initBoardManagement 함수를 찾을 수 없습니다.');
         }
-    }, 1000); // 1초 지연으로 안정성 확보
+    }, 1000);
 });
 
 // =================================
-// 디버깅 및 개발자 도구 (다른 관리자 페이지와 동일한 패턴)
+// 디버깅 및 개발자 도구
 // =================================
 
 // 개발 모드에서 사용되는 디버깅 함수들
@@ -1583,9 +1540,8 @@ if (window.location.hostname === 'localhost' ||
     window.FORCE_DEBUG === true) {
 
     window.debugBoardManagement = {
-        // 기본 정보 확인
         help: function () {
-            console.log('📋 게시판 관리 디버깅 도구 사용법 - 통일된 버전');
+            console.log('📋 게시판 관리 디버깅 도구 사용법 - WYSIWYG 지원');
             console.log('\n🔧 의존성 관리:');
             console.log('- testDependencies() : 유틸리티 의존성 확인');
             console.log('\n📊 데이터 관련:');
@@ -1595,20 +1551,22 @@ if (window.location.hostname === 'localhost' ||
             console.log('- switchToBoard("notice") : 특정 게시판으로 전환');
             console.log('- testSearch("키워드") : 검색 기능 테스트');
             console.log('- showTestModal() : 게시글 작성 모달 테스트');
+            console.log('\n🎨 WYSIWYG 에디터:');
+            console.log('- testEditor() : WYSIWYG 에디터 테스트');
+            console.log('- fillEditorContent() : 에디터에 테스트 내용 입력');
+            console.log('- getEditorContent() : 에디터 내용 확인');
             console.log('\n🔧 시스템 관련:');
             console.log('- checkFirebaseStatus() : Firebase 연결 상태 확인');
             console.log('- runFullTest() : 전체 기능 테스트');
             console.log('- forceInit() : 강제 초기화');
         },
 
-        // 🔧 의존성 테스트 (다른 관리자 페이지와 동일)
         testDependencies: function () {
             console.log('🔧 게시판 관리 유틸리티 의존성 테스트...');
             const result = checkBoardDependencies();
             if (result) {
                 console.log('✅ 모든 유틸리티 정상 로드됨');
-                
-                // 기능 테스트
+
                 try {
                     const testDate = new Date();
                     console.log('📅 formatters.formatDate 테스트:', window.formatters.formatDate(testDate, 'YYYY.MM.DD'));
@@ -1628,7 +1586,6 @@ if (window.location.hostname === 'localhost' ||
             return result;
         },
 
-        // 데이터 관련
         showCurrentData: function () {
             console.log('현재 게시판 관리 상태:');
             console.log('- 현재 게시판:', window.boardManager.currentBoardType);
@@ -1636,16 +1593,91 @@ if (window.location.hostname === 'localhost' ||
             console.log('- Firebase 연결:', window.boardManager.isFirebaseConnected);
             console.log('- 페이지 크기:', window.boardManager.pageSize);
             console.log('- 초기화 상태:', window.boardManager.initialized);
+            console.log('- WYSIWYG 에디터:', window.boardManager.wysiwygEditor ? '✅ 로드됨' : '❌ 없음');
         },
 
-        reloadData: function () {
-            console.log('데이터 다시 로드');
-            if (window.boardManager) {
-                window.boardManager.loadBoardDataWithRetry();
+        testEditor: function () {
+            console.log('🎨 WYSIWYG 에디터 테스트');
+
+            if (typeof window.WysiwygEditor !== 'undefined') {
+                console.log('✅ WysiwygEditor 객체 확인됨');
+                console.log('- 초기화 상태:', window.WysiwygEditor.isInitialized);
+                console.log('- 업로드된 파일:', window.WysiwygEditor.uploadedFiles?.length || 0, '개');
+
+                // 에디터가 초기화되지 않았다면 초기화
+                if (!window.WysiwygEditor.isInitialized) {
+                    console.log('🔧 에디터 초기화 시도...');
+                    window.WysiwygEditor.init();
+                }
+            } else {
+                console.error('❌ WysiwygEditor 객체를 찾을 수 없습니다.');
             }
         },
 
-        // 게시판 관련
+        fillEditorContent: function () {
+            console.log('🎨 에디터에 테스트 내용 입력');
+
+            if (typeof window.WysiwygEditor !== 'undefined' && window.WysiwygEditor.isInitialized) {
+                const testContent = `
+                    <h2>테스트 제목</h2>
+                    <p>이것은 <strong>WYSIWYG 에디터</strong>의 테스트 내용입니다.</p>
+                    <p>다음과 같은 기능들을 테스트할 수 있습니다:</p>
+                    <ul>
+                        <li><em>기울임</em> 텍스트</li>
+                        <li><u>밑줄</u> 텍스트</li>
+                        <li><s>취소선</s> 텍스트</li>
+                    </ul>
+                    <p><a href="https://example.com" target="_blank">링크 테스트</a></p>
+                `;
+
+                window.WysiwygEditor.setContent(testContent);
+                console.log('✅ 테스트 내용이 에디터에 입력되었습니다.');
+            } else {
+                console.error('❌ WYSIWYG 에디터가 초기화되지 않았습니다.');
+                this.testEditor();
+            }
+        },
+
+        getEditorContent: function () {
+            console.log('🎨 에디터 내용 확인');
+
+            if (typeof window.WysiwygEditor !== 'undefined' && window.WysiwygEditor.isInitialized) {
+                const content = window.WysiwygEditor.getContent();
+                console.log('📄 에디터 내용:', content);
+                return content;
+            } else {
+                console.error('❌ WYSIWYG 에디터가 초기화되지 않았습니다.');
+                return null;
+            }
+        },
+
+        showTestModal: function () {
+            console.log('게시글 작성 모달 테스트 - WYSIWYG 포함');
+            if (window.boardManager) {
+                window.boardManager.showAddPostModal();
+            }
+        },
+
+        fillTestData: function () {
+            console.log('테스트 데이터로 모달 채우기 - WYSIWYG 포함');
+            this.showTestModal();
+
+            setTimeout(() => {
+                const titleInput = document.getElementById('post-title');
+                const categorySelect = document.getElementById('post-category');
+
+                if (titleInput) titleInput.value = '테스트 게시글 제목';
+                if (categorySelect && categorySelect.options.length > 1) {
+                    categorySelect.selectedIndex = 1;
+                }
+
+                // WYSIWYG 에디터에 내용 입력
+                this.fillEditorContent();
+
+                console.log('✅ 테스트 데이터 입력 완료 - WYSIWYG 포함');
+            }, 1000);
+        },
+
         switchToBoard: function (boardType) {
             if (!boardType) {
                 console.log('사용법: switchToBoard("board-type")');
@@ -1670,42 +1702,40 @@ if (window.location.hostname === 'localhost' ||
             }
 
             console.log('검색 테스트:', keyword);
-            
-            // 검색어 입력
+
             const searchKeyword = document.getElementById('search-keyword');
             if (searchKeyword) {
                 searchKeyword.value = keyword;
             }
 
-            // 검색 실행
             if (window.boardManager) {
                 window.boardManager.search();
             }
         },
 
-        showTestModal: function () {
-            console.log('게시글 작성 모달 테스트');
+        reloadData: function () {
+            console.log('데이터 다시 로드');
             if (window.boardManager) {
-                window.boardManager.showAddPostModal();
+                window.boardManager.loadBoardDataWithRetry();
             }
         },
 
-        // 시스템 관련
         checkFirebaseStatus: function () {
             console.log('Firebase 연결 상태 확인');
             const connected = checkFirebaseConnection();
             console.log('Firebase 연결됨:', connected);
-            
+
             if (connected) {
                 console.log('Firebase 객체:', window.dhcFirebase);
                 console.log('DB 객체:', window.dhcFirebase.db);
+                console.log('Storage 객체:', window.dhcFirebase.storage);
             }
-            
+
             return connected;
         },
 
         forceInit: function () {
-            console.log('🔧 게시판 관리 강제 초기화');
+            console.log('🔧 게시판 관리 강제 초기화 - WYSIWYG 포함');
             if (window.initBoardManagement) {
                 window.initBoardManagement();
             } else {
@@ -1714,11 +1744,11 @@ if (window.location.hostname === 'localhost' ||
         },
 
         runFullTest: function () {
-            console.log('🚀 전체 기능 테스트 시작...');
+            console.log('🚀 전체 기능 테스트 시작 - WYSIWYG 포함...');
 
             console.log('\n1️⃣ 의존성 테스트');
             const dependenciesOk = this.testDependencies();
-            
+
             if (!dependenciesOk) {
                 console.error('❌ 의존성 테스트 실패 - 테스트 중단');
                 return;
@@ -1730,67 +1760,74 @@ if (window.location.hostname === 'localhost' ||
             console.log('\n3️⃣ 현재 상태 확인');
             this.showCurrentData();
 
-            console.log('\n4️⃣ 게시판 전환 테스트');
+            console.log('\n4️⃣ WYSIWYG 에디터 테스트');
+            this.testEditor();
+
+            console.log('\n5️⃣ 게시판 전환 테스트');
             this.switchToBoard('column');
-            
+
             setTimeout(() => {
-                console.log('\n5️⃣ 검색 기능 테스트');
+                console.log('\n6️⃣ 검색 기능 테스트');
                 this.testSearch('테스트');
-                
+
                 setTimeout(() => {
-                    console.log('\n6️⃣ 모달 테스트');
-                    this.showTestModal();
-                    
-                    console.log('\n🎯 전체 테스트 완료!');
+                    console.log('\n7️⃣ 모달 및 에디터 테스트');
+                    this.fillTestData();
+
+                    console.log('\n🎯 전체 테스트 완료! - WYSIWYG 포함');
                     console.log('💡 이제 다음 명령어들을 시도해보세요:');
-                    console.log('- switchToBoard("notice") : 공지사항으로 전환');
-                    console.log('- testSearch("키워드") : 특정 키워드 검색');
-                    console.log('- forceInit() : 강제 초기화');
+                    console.log('- fillTestData() : 테스트 데이터로 모달 채우기');
+                    console.log('- getEditorContent() : 에디터 내용 확인');
+                    console.log('- testEditor() : 에디터 기능 테스트');
                 }, 2000);
             }, 2000);
-        },
-
-        // 추가 도구들
-        fillTestData: function () {
-            console.log('테스트 데이터로 모달 채우기');
-            this.showTestModal();
-            
-            setTimeout(() => {
-                const titleInput = document.getElementById('post-title');
-                const contentInput = document.getElementById('post-content');
-                const categorySelect = document.getElementById('post-category');
-                
-                if (titleInput) titleInput.value = '테스트 게시글 제목';
-                if (contentInput) contentInput.value = '테스트 게시글 내용입니다.\n\n이것은 디버깅용 테스트 데이터입니다.';
-                if (categorySelect && categorySelect.options.length > 1) {
-                    categorySelect.selectedIndex = 1;
-                }
-                
-                console.log('✅ 테스트 데이터 입력 완료');
-            }, 500);
         },
 
         clearSearch: function () {
             console.log('검색 조건 초기화');
             const searchKeyword = document.getElementById('search-keyword');
             const searchType = document.getElementById('search-type');
-            
+
             if (searchKeyword) searchKeyword.value = '';
             if (searchType) searchType.value = 'title';
-            
+
             if (window.boardManager) {
                 window.boardManager.resetSearch();
             }
+        },
+
+        forceReload: function () {
+            console.log('🔄 강제 데이터 새로고침 테스트');
+            if (window.boardManager) {
+                window.boardManager.forceReloadBoardData();
+            }
+        },
+
+        testPostCreation: function () {
+            console.log('📝 게시글 작성 및 업데이트 테스트');
+
+            // 모달 열기
+            this.showTestModal();
+
+            setTimeout(() => {
+                // 테스트 데이터 입력
+                this.fillTestData();
+
+                console.log('💡 이제 "저장" 버튼을 클릭해서 게시글이 테이블에 추가되는지 확인하세요!');
+                console.log('또는 다음 명령어로 강제 새로고침을 테스트할 수 있습니다:');
+                console.log('window.debugBoardManagement.forceReload()');
+            }, 1000);
         }
     };
 
     // 디버깅 도구 안내
-    console.log('📋 개발 모드 게시판 관리 디버깅 도구 활성화됨 - 통일된 버전');
+    console.log('📋 개발 모드 게시판 관리 디버깅 도구 활성화됨 - WYSIWYG 지원');
     console.log('현재 호스트:', window.location.hostname);
     console.log('\n🔥 주요 디버깅 함수들:');
     console.log('🔧 의존성: testDependencies()');
     console.log('📊 데이터: showCurrentData(), reloadData()');
     console.log('📋 게시판: switchToBoard(type), testSearch(keyword), showTestModal()');
+    console.log('🎨 에디터: testEditor(), fillEditorContent(), getEditorContent()');
     console.log('🔧 시스템: checkFirebaseStatus(), forceInit(), runFullTest()');
     console.log('🧪 테스트: fillTestData(), clearSearch()');
     console.log('\n💡 도움말: window.debugBoardManagement.help()');
@@ -1805,27 +1842,24 @@ if (window.location.hostname === 'localhost' ||
 // 최종 완료 메시지
 // =================================
 
-console.log('\n🎉 === board-management.js 다른 관리자 페이지와 완전 통일 완료 ===');
-console.log('✅ Toast 시스템 제거 및 통일된 알림 시스템 적용');
-console.log('✅ 반응형 테이블 시스템 통일 (data-label 속성 추가)');
-console.log('✅ 전역 유틸리티 시스템 통합 (formatters.js, date-utils.js, admin-auth.js)');
-console.log('✅ 의존성 체크 시스템 구축 (checkBoardDependencies)');
-console.log('✅ 재시도 로직이 포함된 데이터 로드 시스템');
-console.log('✅ Firebase 연결 상태 확인 시스템');
-console.log('✅ 표준화된 이벤트 처리 및 중복 방지');
-console.log('✅ 게시판 CRUD 기능 (생성, 읽기, 삭제)');
-console.log('✅ 페이지네이션 및 검색 기능');
-console.log('✅ 에디터 도구 및 모달 시스템');
-console.log('✅ 다른 관리자 페이지와 완전 동일한 초기화 패턴');
-console.log('✅ 포괄적인 디버깅 도구 (통일된 버전)');
-console.log('\n🔧 해결된 문제점:');
-console.log('- 기존 Toast 시스템 제거 및 adminAuth/showToast 통일');
-console.log('- 반응형 테이블 data-label 속성 추가');
-console.log('- 다른 관리자 페이지와 완전 동일한 패턴 적용');
-console.log('- 의존성 관리 시스템 표준화');
-console.log('- 에러 처리 및 폴백 시스템 강화');
-console.log('\n🚀 board-management가 다른 관리자 페이지들과 완전히 통일되었습니다!');
-console.log('🔧 이제 board-management 페이지가 다른 관리자 페이지들과 완전히 동일한 방식으로 작동합니다.');
+console.log('\n🎉 === board-management-enhanced.js WYSIWYG 에디터 지원 완료 ===');
+console.log('✅ WYSIWYG 에디터 통합 및 파일 업로드 지원');
+console.log('✅ Firebase Storage 연동 준비');
+console.log('✅ 드래그 앤 드롭 파일 업로드');
+console.log('✅ 실시간 에디터 툴바 및 키보드 단축키');
+console.log('✅ 이미지 미리보기 및 자동 삽입');
+console.log('✅ 첨부파일 관리 시스템');
+console.log('✅ 기존 게시판 관리 기능 완전 유지');
+console.log('✅ 향상된 디버깅 도구 (WYSIWYG 지원)');
+console.log('\n🔧 새로운 기능들:');
+console.log('- 실제 WYSIWYG 에디터 (HTML 포맷팅)');
+console.log('- 파일 업로드 및 첨부 기능');
+console.log('- 이미지 자동 삽입 및 미리보기');
+console.log('- 드래그 앤 드롭 지원');
+console.log('- 키보드 단축키 (Ctrl+B, I, U, Z, Y)');
+console.log('- 서식 지우기 및 되돌리기/다시실행');
+console.log('\n🚀 board-management가 완전한 WYSIWYG 에디터로 업그레이드되었습니다!');
+console.log('🎨 이제 관리자가 실제 워드프로세서처럼 게시글을 작성할 수 있습니다.');
 
 // 완료 플래그 설정
-window.boardManagementReady = true;
+window.boardManagementEnhancedReady = true;
