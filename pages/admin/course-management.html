@@ -131,7 +131,7 @@
             <!-- 페이지 헤더 -->
             <div class="mb-8">
                 <h1 class="text-3xl font-bold text-gray-800">교육 관리</h1>
-                <p class="text-gray-600 mt-2">모든 자격증 과정을 통합 관리합니다.</p>
+                <p class="text-gray-600 mt-2">모든 자격증 과정을 통합 관리합니다. (통합 가격 설정 포함)</p>
             </div>
 
             <!-- 검색 필터 -->
@@ -205,7 +205,9 @@
                                 <th>강사</th>
                                 <th>교육기간</th>
                                 <th>신청기간</th>
-                                <th>수강료</th>
+                                <th>교육비</th>
+                                <th>자격증비</th>
+                                <th>교재비</th>
                                 <th>정원/신청자</th>
                                 <th>상태</th>
                                 <th>작업</th>
@@ -213,7 +215,7 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td colspan="9" class="admin-loading-state">
+                                <td colspan="11" class="admin-loading-state">
                                     <div class="admin-loading-spinner"></div>
                                     <span class="text-gray-600">데이터 로딩 중...</span>
                                 </td>
@@ -228,7 +230,7 @@
         </main>
     </div>
 
-    <!-- 교육 과정 추가/수정 모달 -->
+    <!-- 🔧 개선된 교육 과정 추가/수정 모달 -->
     <div id="course-modal" class="course-modal hidden">
         <div class="course-modal-backdrop" onclick="courseManager.closeCourseModal()"></div>
         <div class="course-modal-content">
@@ -241,120 +243,267 @@
                     </svg>
                 </button>
             </div>
+            
             <form id="course-form" class="course-form">
-                <!-- 기본 정보 -->
-                <div class="form-row">
-                    <div class="form-field">
-                        <label for="course-certificate-type" class="form-label">자격증 종류 <span
-                                class="required">*</span></label>
-                        <select id="course-certificate-type" name="certificateType" required class="form-select">
-                            <option value="">선택하세요</option>
-                            <option value="health-exercise">건강운동처방사</option>
-                            <option value="rehabilitation">운동재활전문가</option>
-                            <option value="pilates">필라테스 전문가</option>
-                            <option value="recreation">레크리에이션지도자</option>
-                        </select>
+                <!-- 🔧 기본 정보 섹션 -->
+                <div class="form-section basic-info-section">
+                    <h4 class="section-title">
+                        <svg class="inline-block w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        기본 정보
+                    </h4>
+                    
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="course-certificate-type" class="form-label">자격증 종류 <span class="required">*</span></label>
+                            <select id="course-certificate-type" name="certificateType" required class="form-select">
+                                <option value="">선택하세요</option>
+                                <option value="health-exercise">건강운동처방사</option>
+                                <option value="rehabilitation">운동재활전문가</option>
+                                <option value="pilates">필라테스 전문가</option>
+                                <option value="recreation">레크리에이션지도자</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label for="course-instructor" class="form-label">강사 선택 <span class="required">*</span></label>
+                            <select id="course-instructor" name="instructor" required class="form-select">
+                                <option value="">강사를 선택하세요</option>
+                                <!-- 강사 목록은 동적으로 로드됩니다 -->
+                            </select>
+                        </div>
                     </div>
-                    <div class="form-field">
-                        <label for="course-instructor" class="form-label">강사 선택 <span class="required">*</span></label>
-                        <select id="course-instructor" name="instructor" required class="form-select">
-                            <option value="">강사를 선택하세요</option>
-                            <!-- 강사 목록은 동적으로 로드됩니다 -->
-                        </select>
+
+                    <!-- 교육 기간 -->
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="course-start-date" class="form-label">교육 시작일 <span class="required">*</span></label>
+                            <input type="date" id="course-start-date" name="startDate" required class="form-input">
+                        </div>
+                        <div class="form-field">
+                            <label for="course-end-date" class="form-label">교육 종료일 <span class="required">*</span></label>
+                            <input type="date" id="course-end-date" name="endDate" required class="form-input">
+                        </div>
+                    </div>
+
+                    <!-- 신청 기간 -->
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="course-apply-start-date" class="form-label">신청 시작일 <span class="required">*</span></label>
+                            <input type="date" id="course-apply-start-date" name="applyStartDate" required class="form-input">
+                        </div>
+                        <div class="form-field">
+                            <label for="course-apply-end-date" class="form-label">신청 종료일 <span class="required">*</span></label>
+                            <input type="date" id="course-apply-end-date" name="applyEndDate" required class="form-input">
+                        </div>
                     </div>
                 </div>
 
-                <!-- 교육 기간 -->
-                <div class="form-row">
-                    <div class="form-field">
-                        <label for="course-start-date" class="form-label">교육 시작일 <span class="required">*</span></label>
-                        <input type="date" id="course-start-date" name="startDate" required class="form-input">
-                    </div>
-                    <div class="form-field">
-                        <label for="course-end-date" class="form-label">교육 종료일 <span class="required">*</span></label>
-                        <input type="date" id="course-end-date" name="endDate" required class="form-input">
+                <!-- 🔧 결제 내역 섹션 (개선된 구조) -->
+                <div class="form-section pricing-section">
+                    <h4 class="section-title">
+                        <svg class="inline-block w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                        </svg>
+                        결제 내역
+                    </h4>
+                    
+                    <div class="pricing-info-card">
+                        <p class="pricing-info-text">
+                            💡 여기서 설정한 가격이 사용자 결제 페이지에 자동으로 반영됩니다.
+                        </p>
+
+                        <!-- 🔧 기본 가격 설정 서브섹션 -->
+                        <div class="pricing-subsection">
+                            <h5 class="subsection-title">💰 기본 가격 설정</h5>
+                            <div class="form-row-triple">
+                                <div class="form-field">
+                                    <label for="course-price" class="form-label">교육비 (원) <span class="required">*</span></label>
+                                    <input type="number" id="course-price" name="price" required min="0" step="1000" class="form-input" placeholder="350000">
+                                    <p class="field-helper">교육 과정 수강료</p>
+                                </div>
+                                <div class="form-field">
+                                    <label for="certificate-price" class="form-label">자격증 발급비 (원) <span class="required">*</span></label>
+                                    <input type="number" id="certificate-price" name="certificatePrice" required min="0" step="1000" class="form-input" value="50000">
+                                    <p class="field-helper">자격증 발급 및 배송비</p>
+                                </div>
+                                <div class="form-field">
+                                    <label for="material-price" class="form-label">교재비 (원)</label>
+                                    <input type="number" id="material-price" name="materialPrice" min="0" step="1000" class="form-input" value="30000">
+                                    <p class="field-helper">교재 구매비 (선택사항)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 🔧 교재 설정 서브섹션 -->
+                        <div class="pricing-subsection">
+                            <h5 class="subsection-title">📚 교재 설정</h5>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label for="material-name" class="form-label">교재명</label>
+                                    <input type="text" id="material-name" name="materialName" class="form-input" placeholder="예: 건강운동처방사 전문교재">
+                                    <p class="field-helper">교재 이름을 입력하세요</p>
+                                </div>
+                                <div class="form-field">
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" id="material-required" name="materialRequired">
+                                            <span class="checkbox-text">교재 구매 필수</span>
+                                        </label>
+                                        <p class="field-helper">체크 시 자격증 신청 시 교재를 반드시 구매해야 합니다</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 🔧 패키지 할인 설정 서브섹션 -->
+                        <div class="pricing-subsection">
+                            <h5 class="subsection-title">🎯 패키지 할인 설정</h5>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label for="package-discount" class="form-label">전체 패키지 할인율 (%)</label>
+                                    <input type="number" id="package-discount" name="packageDiscount" min="0" max="50" step="1" class="form-input" value="0">
+                                    <p class="field-helper">교육+자격증+교재 전체 구매 시 할인율 (0% = 할인 없음)</p>
+                                </div>
+                                <div class="form-field">
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" id="enable-installment" name="enableInstallment">
+                                            <span class="checkbox-text">분할 결제 허용</span>
+                                        </label>
+                                        <p class="field-helper">토스페이먼츠 무이자 할부 옵션 제공</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 🔧 가격 미리보기 서브섹션 -->
+                        <div class="pricing-subsection">
+                            <h5 class="subsection-title">💡 가격 미리보기</h5>
+                            <div class="price-preview-card">
+                                <div class="price-preview-grid">
+                                    <div class="price-item">
+                                        <span class="price-label">교육비:</span>
+                                        <span class="price-value" id="preview-education">₩0</span>
+                                    </div>
+                                    <div class="price-item">
+                                        <span class="price-label">자격증비:</span>
+                                        <span class="price-value" id="preview-certificate">₩50,000</span>
+                                    </div>
+                                    <div class="price-item">
+                                        <span class="price-label">교재비 (선택):</span>
+                                        <span class="price-value" id="preview-material">₩30,000</span>
+                                    </div>
+                                    <div class="price-item total">
+                                        <span class="price-label">개별 총합:</span>
+                                        <span class="price-value" id="preview-individual-total">₩80,000</span>
+                                    </div>
+                                    <div class="price-item package">
+                                        <span class="price-label">
+                                            <span id="package-label">패키지 가격:</span>
+                                        </span>
+                                        <span class="price-value discount" id="preview-package-total">₩80,000</span>
+                                    </div>
+                                    <div class="price-item savings" id="savings-row">
+                                        <span class="price-label">패키지 절약:</span>
+                                        <span class="price-value savings" id="preview-savings">₩0</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- 가격 정책 안내 -->
+                                <div class="pricing-policy-info">
+                                    <p class="policy-title"><strong>💡 가격 정책:</strong></p>
+                                    <ul class="policy-list">
+                                        <li>• <strong>교재 필수</strong>: 전체 패키지 할인 적용</li>
+                                        <li>• <strong>교재 선택</strong>: 교육비+자격증비만 할인, 교재비는 별도</li>
+                                        <li>• <strong>할인율 0%</strong>: 패키지 할인 없음</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- 신청 기간 -->
-                <div class="form-row">
-                    <div class="form-field">
-                        <label for="course-apply-start-date" class="form-label">신청 시작일 <span
-                                class="required">*</span></label>
-                        <input type="date" id="course-apply-start-date" name="applyStartDate" required
-                            class="form-input">
+                <!-- 🔧 과정 설정 섹션 -->
+                <div class="form-section course-settings-section">
+                    <h4 class="section-title">
+                        <svg class="inline-block w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        과정 설정
+                    </h4>
+                    
+                    <div class="form-row-triple">
+                        <div class="form-field">
+                            <label for="course-capacity" class="form-label">정원 <span class="required">*</span></label>
+                            <input type="number" id="course-capacity" name="capacity" required min="1" max="100" class="form-input">
+                            <p class="field-helper">최대 수강 인원</p>
+                        </div>
+                        <div class="form-field">
+                            <label for="course-status" class="form-label">상태 <span class="required">*</span></label>
+                            <select id="course-status" name="status" required class="form-select">
+                                <option value="preparing">준비중</option>
+                                <option value="active">모집중</option>
+                                <option value="closed">마감</option>
+                                <option value="completed">종료</option>
+                            </select>
+                            <p class="field-helper">현재 과정 상태</p>
+                        </div>
+                        <div class="form-field">
+                            <label for="course-method" class="form-label">교육 방식</label>
+                            <select id="course-method" name="method" class="form-select">
+                                <option value="온라인 + 오프라인 병행">온라인 + 오프라인 병행</option>
+                                <option value="오프라인 집중과정">오프라인 집중과정</option>
+                                <option value="온라인 과정">온라인 과정</option>
+                            </select>
+                            <p class="field-helper">수업 진행 방식</p>
+                        </div>
                     </div>
-                    <div class="form-field">
-                        <label for="course-apply-end-date" class="form-label">신청 종료일 <span
-                                class="required">*</span></label>
-                        <input type="date" id="course-apply-end-date" name="applyEndDate" required class="form-input">
+
+                    <!-- 교육 장소 -->
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="course-location" class="form-label">교육 장소</label>
+                            <input type="text" id="course-location" name="location" placeholder="서울 강남구 센터" class="form-input">
+                            <p class="field-helper">교육이 진행될 장소</p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- 과정 정보 -->
-                <div class="form-row-triple">
-                    <div class="form-field">
-                        <label for="course-price" class="form-label">수강료 (원) <span class="required">*</span></label>
-                        <input type="number" id="course-price" name="price" required min="0" step="1000"
-                            class="form-input">
+                <!-- 🔧 자동 생성 정보 섹션 -->
+                <div class="form-section auto-info-section">
+                    <h4 class="section-title">
+                        <svg class="inline-block w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                        자동 생성되는 정보
+                    </h4>
+                    
+                    <div class="auto-generation-info">
+                        <ul class="auto-generation-list">
+                            <li><strong>교육명:</strong> "자격증명 + 년도 + 상반기/하반기 과정" (예: 건강운동처방사 25년 상반기 과정)</li>
+                            <li><strong>기수:</strong> 교육 시작일 기준으로 자동 계산</li>
+                            <li><strong>교육 설명:</strong> 자격증별 기본 설명 템플릿 적용</li>
+                            <li><strong>토스페이먼츠:</strong> 설정된 가격이 자동으로 결제 시스템에 연동됩니다</li>
+                        </ul>
                     </div>
-                    <div class="form-field">
-                        <label for="course-capacity" class="form-label">정원 <span class="required">*</span></label>
-                        <input type="number" id="course-capacity" name="capacity" required min="1" max="100"
-                            class="form-input">
-                    </div>
-                    <div class="form-field">
-                        <label for="course-status" class="form-label">상태 <span class="required">*</span></label>
-                        <select id="course-status" name="status" required class="form-select">
-                            <option value="preparing">준비중</option>
-                            <option value="active">모집중</option>
-                            <option value="closed">마감</option>
-                            <option value="completed">종료</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- 교육 방식 및 장소 -->
-                <div class="form-row">
-                    <div class="form-field">
-                        <label for="course-method" class="form-label">교육 방식</label>
-                        <select id="course-method" name="method" class="form-select">
-                            <option value="온라인 + 오프라인 병행">온라인 + 오프라인 병행</option>
-                            <option value="오프라인 집중과정">오프라인 집중과정</option>
-                            <option value="온라인 과정">온라인 과정</option>
-                        </select>
-                    </div>
-                    <div class="form-field">
-                        <label for="course-location" class="form-label">교육 장소</label>
-                        <input type="text" id="course-location" name="location" placeholder="서울 강남구 센터"
-                            class="form-input">
-                    </div>
-                </div>
-
-                <!-- 자동 생성 정보 안내 -->
-                <div class="auto-generation-info">
-                    <h4 class="auto-generation-title">자동 생성되는 정보</h4>
-                    <ul class="auto-generation-list">
-                        <li><strong>교육명:</strong> "자격증명 + 년도 + 상반기/하반기 과정" (예: 건강운동처방사 25년 상반기 과정)</li>
-                        <li><strong>기수:</strong> 교육 시작일 기준으로 자동 계산</li>
-                        <li><strong>교육 설명:</strong> 자격증별 기본 설명 템플릿 적용</li>
-                    </ul>
-                </div>
-
-                <div class="form-actions">
-                    <button type="button" onclick="courseManager.closeCourseModal()"
-                        class="admin-btn admin-btn-secondary">
-                        취소
-                    </button>
-                    <button type="submit" class="admin-btn admin-btn-primary">
-                        저장
-                    </button>
                 </div>
             </form>
+
+            <!-- 🔧 폼 액션 버튼 (하단 고정) -->
+            <div class="form-actions">
+                <button type="button" onclick="courseManager.closeCourseModal()" class="admin-btn admin-btn-secondary">
+                    취소
+                </button>
+                <button type="submit" form="course-form" class="admin-btn admin-btn-primary">
+                    저장
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- 🔧 수정된 스크립트 로딩 순서 - 유틸리티 먼저 로드 -->
+    <!-- 🔧 스크립트 로딩 순서 -->
     <script id="firebase-sdk-template" type="text/template">
         <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
@@ -362,13 +511,13 @@
         <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
         <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
 
-        <!-- 🔧 1단계: 필수 유틸리티 먼저 로드 -->
+        <!-- 1단계: 필수 유틸리티 먼저 로드 -->
         <script src="{basePath}assets/js/utils/formatters.js"><\/script>
         <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
         <script src="{basePath}assets/js/utils/validators.js"><\/script>
         <script src="{basePath}assets/js/utils/dom-utils.js"><\/script>
 
-        <!-- 🔧 2단계: Firebase 설정 및 서비스 -->
+        <!-- 2단계: Firebase 설정 및 서비스 -->
         <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
         <script src="{basePath}assets/js/services/auth-service.js"><\/script>
         <script src="{basePath}assets/js/services/db-service.js"><\/script>
@@ -376,41 +525,86 @@
     </script>
 
     <script id="additional-scripts-template" type="text/template">
-        <!-- 🔧 3단계: 관리자 유틸리티 -->
+        <!-- 3단계: 관리자 유틸리티 -->
     <script src="{basePath}assets/js/utils/admin-auth.js"><\/script>
         
-        <!-- 🔧 4단계: 공통 스크립트 -->
+        <!-- 4단계: 공통 스크립트 -->
         <script src="{basePath}assets/js/pages/admin.js"><\/script>
         <script src="{basePath}assets/js/components/toast.js"><\/script>
         
-        <!-- 🔧 5단계: 페이지별 스크립트 (의존성 보장됨) -->
+        <!-- 5단계: 개선된 페이지 스크립트 -->
         <script src="{basePath}assets/js/pages/admin/course-management.js"><\/script>
     </script>
 
-    <!-- 🔧 스크립트 로딩 완료 체크 -->
+    <!-- 초기화 스크립트 -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // 유틸리티 로딩 체크
-            setTimeout(function () {
-                if (!window.formatters || !window.dateUtils) {
-                    console.error('⚠️ 필수 유틸리티가 로드되지 않았습니다!');
+        // 페이지 로드 시 실행
+        window.addEventListener('load', async function () {
+            try {
+                console.log('교육 관리 페이지 초기화 시작 (개선된 레이아웃)');
 
-                    // 사용자에게 알림
-                    const errorMsg = document.createElement('div');
-                    errorMsg.innerHTML = `
-                    <div style="position: fixed; top: 0; left: 0; right: 0; background: #dc2626; color: white; padding: 16px; text-align: center; z-index: 10000;">
-                        <strong>⚠️ 시스템 오류</strong><br>
-                        페이지를 새로고침해주세요. 문제가 지속되면 관리자에게 문의하세요.
-                        <button onclick="location.reload()" style="margin-left: 16px; background: white; color: #dc2626; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
-                            새로고침
-                        </button>
-                    </div>
-                `;
-                    document.body.appendChild(errorMsg);
-                } else {
-                    console.log('✅ 관리자 페이지 유틸리티 정상 로드됨');
+                // 스크립트 로드 완료 대기
+                let retryCount = 0;
+                const maxRetries = 50;
+
+                while (!window.adminAuth && retryCount < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    retryCount++;
                 }
-            }, 2000);
+
+                if (!window.adminAuth) {
+                    console.error('관리자 인증 스크립트 로드 실패');
+                    alert('시스템 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+                    return;
+                }
+
+                console.log('관리자 권한 확인 시작');
+
+                // 관리자 권한 확인
+                const hasAccess = await window.adminAuth.checkAdminAccess();
+
+                if (hasAccess) {
+                    console.log('관리자 권한 확인 완료');
+
+                    // 관리자 정보 표시
+                    window.adminAuth.displayAdminInfo();
+
+                    // 개선된 교육 관리자 초기화
+                    console.log('개선된 교육 관리자 초기화 시작');
+
+                    // courseManager 로드 완료 대기
+                    let courseRetryCount = 0;
+                    while (!window.courseManager && courseRetryCount < maxRetries) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        courseRetryCount++;
+                    }
+
+                    if (window.courseManager) {
+                        await window.courseManager.init();
+                        console.log('개선된 교육 관리자 초기화 완료');
+                    } else {
+                        console.error('교육 관리자 스크립트 로드 실패');
+                        window.adminAuth.showNotification('교육 관리자 초기화에 실패했습니다.', 'error');
+                    }
+
+                } else {
+                    console.log('관리자 권한 없음');
+                }
+            } catch (error) {
+                console.error('교육 관리 페이지 초기화 오류:', error);
+                if (window.adminAuth && window.adminAuth.showNotification) {
+                    window.adminAuth.showNotification('페이지 로드 중 오류가 발생했습니다.', 'error');
+                }
+            }
+
+            // 사이드바 토글 기능 초기화
+            if (typeof adminUtils !== 'undefined' && adminUtils.initAdminSidebar) {
+                adminUtils.initAdminSidebar();
+            }
+
+            if (window.adminUtils && window.adminUtils.initAdminPage) {
+                window.adminUtils.initAdminPage();
+            }
         });
     </script>
 </body>
