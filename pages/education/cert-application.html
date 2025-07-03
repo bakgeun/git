@@ -100,17 +100,46 @@
         </div>
     </header>
 
-    <!-- Hero 섹션 (index.html과 일관성 맞춤) -->
+    <!-- Hero 섹션 -->
     <section class="hero-section bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-16">
         <div class="container mx-auto px-4">
             <div class="max-w-3xl">
                 <h1 class="text-4xl md:text-5xl font-bold mb-4">자격증 신청</h1>
-                <p class="text-xl mb-8">디지털헬스케어센터의 자격증을 취득하세요.<br>교육 과정 수료 후 자격증 발급 신청이 가능합니다.</p>
-                <div class="flex flex-wrap gap-4">
-                    <a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
-                        class="bg-white text-blue-600 hover:bg-gray-100 px-6 py-3 rounded-md font-medium">교육 과정 신청</a>
-                    <a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
-                        class="bg-transparent hover:bg-white hover:text-blue-600 text-white border border-white px-6 py-3 rounded-md font-medium">자격증 정보 보기</a>
+                <p class="text-xl mb-8">디지털헬스케어센터의 자격증을 취득하세요.<br>전문적인 자격증으로 여러분의 역량을 인증받으세요.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 🔧 NEW: 통합 플로우 진행 상황 표시 -->
+    <section class="py-8 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="flow-progress">
+                    <div class="progress-steps">
+                        <div class="step completed">
+                            <div class="step-number">1</div>
+                            <div class="step-title">교육 신청</div>
+                            <div class="step-desc">과정 선택 및 신청자 정보</div>
+                        </div>
+                        <div class="step-arrow">→</div>
+                        <div class="step active">
+                            <div class="step-number">2</div>
+                            <div class="step-title">자격증 신청</div>
+                            <div class="step-desc">자격증 발급 정보 입력</div>
+                        </div>
+                        <div class="step-arrow">→</div>
+                        <div class="step pending">
+                            <div class="step-number">3</div>
+                            <div class="step-title">교재 선택</div>
+                            <div class="step-desc">학습 교재 선택</div>
+                        </div>
+                        <div class="step-arrow">→</div>
+                        <div class="step pending">
+                            <div class="step-number">4</div>
+                            <div class="step-title">결제</div>
+                            <div class="step-desc">통합 결제 진행</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -131,6 +160,39 @@
     </div>
 
     <main>
+        <!-- 🔧 NEW: 이전 단계 정보 표시 섹션 -->
+        <section class="py-8 bg-blue-50">
+            <div class="container mx-auto px-4">
+                <div class="max-w-4xl mx-auto">
+                    <div class="previous-step-info-card">
+                        <h3 class="info-title">📋 이전 단계 정보</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">선택한 교육과정:</span>
+                                <span class="info-value" id="prev-course-name">로딩 중...</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">신청자명:</span>
+                                <span class="info-value" id="prev-applicant-name">로딩 중...</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">연락처:</span>
+                                <span class="info-value" id="prev-phone">로딩 중...</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">이메일:</span>
+                                <span class="info-value" id="prev-email">로딩 중...</span>
+                            </div>
+                        </div>
+                        <div class="info-notice">
+                            <span class="notice-icon">💡</span>
+                            <span class="notice-text">이전 단계에서 입력한 정보가 자동으로 기입됩니다. 필요시 수정 가능합니다.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- 자격증 신청 안내 -->
         <section class="py-16 bg-gray-50">
             <div class="container mx-auto px-4">
@@ -157,13 +219,13 @@
             </div>
         </section>
         
-        <!-- 자격증 신청 폼 (결제 통합 버전 - 발급옵션 제거) -->
+        <!-- 🔧 MODIFIED: 자격증 신청 폼 (결제 기능 제거, 다음 단계 버튼으로 변경) -->
         <section class="py-16">
             <div class="container mx-auto px-4">
-                <h2 class="text-3xl font-bold text-center mb-12">자격증 신청 및 결제</h2>
+                <h2 class="text-3xl font-bold text-center mb-12">자격증 발급 정보 입력</h2>
                 <div class="application-form-card">
                     <form id="certificate-form">
-                        <!-- 신청 자격증 정보 (발급옵션 제거) -->
+                        <!-- 신청 자격증 정보 -->
                         <div class="form-section">
                             <h3 class="section-title">신청 자격증 정보</h3>
                             <div class="form-grid">
@@ -241,116 +303,55 @@
                             </div>
                         </div>
 
-                        <!-- 결제 정보 확인 (가격 단순화) -->
+                        <!-- 🔧 NEW: 자격증 발급 정보 요약 (결제 정보 대신) -->
                         <div class="form-section">
-                            <h3 class="section-title">결제 정보 확인</h3>
-                            <div class="payment-info-card">
+                            <h3 class="section-title">발급 정보 확인</h3>
+                            <div class="certificate-info-card">
                                 <div class="info-item-group">
                                     <div class="info-item">
                                         <span class="info-label">선택한 자격증:</span>
                                         <span class="info-value" id="selected-cert-name">자격증을 먼저 선택해주세요</span>
                                     </div>
                                     <div class="info-item">
-                                        <span class="info-label">발급비:</span>
-                                        <span class="info-value">50,000원</span>
+                                        <span class="info-label">발급 형태:</span>
+                                        <span class="info-value">한글 + 영문 자격증 (각 1부씩)</span>
                                     </div>
-                                    <div class="info-item total-price">
-                                        <span class="info-label">총 결제 금액:</span>
-                                        <span class="info-value price" id="total-price">50,000원</span>
+                                    <div class="info-item">
+                                        <span class="info-label">배송 방법:</span>
+                                        <span class="info-value">등기우편 배송</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">발급 소요시간:</span>
+                                        <span class="info-value">서류 검토 후 3-5일</span>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <!-- 결제 방법 선택 -->
-                        <div class="form-section">
-                            <h3 class="section-title">결제 방법</h3>
-
-                            <!-- 결제 수단 선택 -->
-                            <div class="payment-method-grid">
-                                <!-- 신용카드 결제 (토스페이먼트) -->
-                                <div class="payment-method-card active" data-method="card">
-                                    <input type="radio" name="payment-method" id="method-card" value="card" checked class="hidden">
-                                    <label for="method-card" class="method-label">
-                                        <div class="method-icon">💳</div>
-                                        <div class="method-info">
-                                            <div class="method-name">신용카드</div>
-                                            <div class="method-desc">토스페이먼트로 안전한 결제</div>
+                                <!-- 🔧 NEW: 다음 단계 안내 -->
+                                <div class="next-steps-info">
+                                    <h4 class="next-steps-title">📋 다음 단계 안내</h4>
+                                    <div class="next-steps-list">
+                                        <div class="next-step-item">
+                                            <span class="step-number">3</span>
+                                            <span class="step-text">교재 선택 (필요한 경우)</span>
                                         </div>
-                                    </label>
-                                </div>
-
-                                <!-- 무통장 입금 -->
-                                <div class="payment-method-card" data-method="bank">
-                                    <input type="radio" name="payment-method" id="method-bank" value="bank" class="hidden">
-                                    <label for="method-bank" class="method-label">
-                                        <div class="method-icon">🏦</div>
-                                        <div class="method-info">
-                                            <div class="method-name">무통장 입금</div>
-                                            <div class="method-desc">입금 확인 후 발급 진행</div>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- 무통장 입금 정보 (조건부 표시) -->
-                            <div class="payment-details hidden" id="bank-details">
-                                <div class="bank-info-card">
-                                    <h4 class="bank-info-title">입금 계좌 정보</h4>
-                                    <div class="bank-details-grid">
-                                        <div class="bank-detail">
-                                            <span class="bank-label">은행명:</span>
-                                            <span class="bank-value">우리은행</span>
-                                        </div>
-                                        <div class="bank-detail">
-                                            <span class="bank-label">계좌번호:</span>
-                                            <span class="bank-value">1005-123-456789</span>
-                                        </div>
-                                        <div class="bank-detail">
-                                            <span class="bank-label">예금주:</span>
-                                            <span class="bank-value">사)문경 부설 디지털헬스케어센터</span>
+                                        <div class="next-step-item">
+                                            <span class="step-number">4</span>
+                                            <span class="step-text">통합 결제 (자격증비 + 교재비)</span>
                                         </div>
                                     </div>
-                                    <div class="form-field">
-                                        <label for="bank-depositor" class="form-label">입금자명</label>
-                                        <input type="text" id="bank-depositor" name="bank-depositor" class="form-input"
-                                            placeholder="신청자명과 다른 경우에만 입력">
-                                    </div>
-                                    <div class="bank-notice">
-                                        <p class="notice-text">
-                                            <span class="notice-icon">💡</span>
-                                            입금자명이 신청자명과 다를 경우 반드시 입력해주세요.
+                                    <div class="next-steps-note">
+                                        <p class="note-text">
+                                            💡 교재는 선택사항입니다. 다음 단계에서 필요 여부를 선택할 수 있습니다.
                                         </p>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- 현금영수증 발행 -->
-                            <div class="radio-group">
-                                <div class="radio-group-label">현금영수증 발행 (무통장 입금 시)</div>
-                                <div class="radio-options">
-                                    <label class="radio-option">
-                                        <input type="radio" name="receipt" value="yes">
-                                        <span class="radio-label">발행</span>
-                                    </label>
-                                    <label class="radio-option">
-                                        <input type="radio" name="receipt" value="no" checked>
-                                        <span class="radio-label">미발행</span>
-                                    </label>
-                                </div>
-                            </div>
                         </div>
-                       
+
                         <!-- 개인정보 수집 및 이용 동의 -->
                         <div class="form-section">
                             <h3 class="section-title">약관 동의</h3>
                             <div class="agreement-section">
-                                <div class="agreement-item main-agreement">
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" id="agree-all" name="agree-all">
-                                        <span class="checkbox-text font-bold">전체 동의</span>
-                                    </label>
-                                </div>
                                 <div class="agreement-item">
                                     <label class="checkbox-label">
                                         <input type="checkbox" id="agree-terms" name="agree-terms" required>
@@ -359,8 +360,7 @@
                                     <div class="agreement-content">
                                         <div class="agreement-text">
                                             1. 수집하는 개인정보 항목<br>
-                                            - 필수항목: 한글이름, 영문이름, 생년월일, 연락처, 이메일, 주소, 사진<br>
-                                            - 선택항목: 입금자명(무통장 입금 시)<br><br>
+                                            - 필수항목: 한글이름, 영문이름, 생년월일, 연락처, 이메일, 주소, 사진<br><br>
                                             2. 개인정보의 수집 및 이용목적<br>
                                             - 자격증 발급 및 관리<br>
                                             - 발급 관련 안내 및 자격증 배송<br>
@@ -403,77 +403,40 @@
                             </div>
                         </div>
                        
-                        <!-- 신청 및 결제 버튼 -->
+                        <!-- 🔧 NEW: 다음 단계 버튼 (결제 버튼 대신) -->
                         <div class="form-section text-center">
-                            <!-- 총 결제 금액 -->
-                            <div class="payment-summary">
-                                <div class="summary-item">
-                                    <span class="summary-label">총 결제 금액</span>
-                                    <span class="summary-value" id="final-payment-amount">₩50,000</span>
-                                </div>
+                            <div class="next-step-buttons">
+                                <button id="apply-button" type="submit" class="btn-primary btn-large next-step-btn">
+                                    <span class="button-icon">➡️</span>
+                                    <span class="button-text">다음 단계: 교재 선택</span>
+                                </button>
+                                
+                                <!-- 임시 저장 버튼 -->
+                                <button id="save-draft-button" type="button" class="btn-outline save-draft-btn">
+                                    <span class="button-icon">💾</span>
+                                    <span class="button-text">임시 저장</span>
+                                </button>
                             </div>
 
-                            <!-- 결제 버튼 -->
-                            <button id="apply-button" type="submit" class="btn-primary btn-large payment-button">
-                                <span class="button-icon">💳</span>
-                                <span class="button-text">신청 및 결제하기</span>
-                            </button>
-
                             <!-- 안내 문구 -->
-                            <p class="payment-notice">
-                                신용카드 결제 시 토스페이먼트로 안전하게 처리됩니다.<br>
-                                무통장 입금 시 입금 확인 후 자격증 발급이 진행됩니다.
-                            </p>
+                            <div class="step-info-notice">
+                                <p class="notice-text">
+                                    <span class="notice-icon">📋</span>
+                                    자격증 발급 정보를 입력하신 후 교재 선택 단계로 진행됩니다.
+                                </p>
+                                <p class="notice-text">
+                                    <span class="notice-icon">💳</span>
+                                    결제는 모든 선택이 완료된 마지막 단계에서 한 번에 진행됩니다.
+                                </p>
+                            </div>
                         </div>
                     </form>
                 </div>
             </div>
         </section>
 
-        <!-- 결제 완료 모달 -->
-        <div id="payment-success-modal"
-            class="modal hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-            <div class="modal-dialog bg-white rounded-lg max-w-md w-full mx-4">
-                <div class="modal-content">
-                    <div class="modal-header flex justify-between items-center p-6 border-b">
-                        <h3 class="modal-title text-xl font-bold text-green-600">
-                            <span class="success-icon">✅</span>
-                            신청 완료
-                        </h3>
-                        <button type="button" class="close text-2xl font-semibold hover:text-gray-600"
-                            data-dismiss="modal">&times;</button>
-                    </div>
-                    <div class="modal-body p-6 text-center">
-                        <div class="success-message mb-6">
-                            <h4 class="text-lg font-bold mb-2">자격증 신청이 완료되었습니다!</h4>
-                            <p class="text-gray-600">결제 정보가 등록되었습니다.<br>마이페이지에서 신청 내역을 확인할 수 있습니다.</p>
-                        </div>
+        <!-- 🔧 REMOVED: 결제 완료 모달 제거 (더 이상 필요없음) -->
 
-                        <div class="payment-result bg-gray-50 rounded-lg p-4 mb-4">
-                            <div class="result-item">
-                                <span class="result-label">주문번호:</span>
-                                <span class="result-value font-mono" id="order-number">CERT123456789</span>
-                            </div>
-                            <div class="result-item">
-                                <span class="result-label">결제 수단:</span>
-                                <span class="result-value" id="payment-method-display">신용카드</span>
-                            </div>
-                            <div class="result-item">
-                                <span class="result-label">결제 금액:</span>
-                                <span class="result-value price" id="paid-amount">₩50,000</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer p-6 border-t flex flex-col sm:flex-row gap-3">
-                        <a href="javascript:window.location.href=window.adjustPath('pages/mypage/cert-management.html')"
-                            class="btn-primary flex-1 text-center">자격증 관리</a>
-                        <a href="javascript:window.location.href=window.adjustPath('index.html')"
-                            class="btn-outline flex-1 text-center">홈으로 이동</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-       
         <!-- 자격증 조회 -->
         <section class="py-16 bg-gray-50">
             <div class="container mx-auto px-4">
@@ -517,20 +480,15 @@
                     <ul class="notice-list">
                         <li class="notice-item">
                             <span class="notice-icon">📋</span>
-                            <span class="notice-text">자격증 신청 후 담당자가 서류를 검토하여 3-5일 내로 승인 결과를 안내드립니다.</span>
+                            <span class="notice-text">자격증 신청 정보는 임시 저장되며, 언제든지 이어서 진행할 수 있습니다.</span>
                         </li>
                         <li class="notice-item">
-                            <span class="notice-icon">💳</span>
-                            <span class="notice-text">결제 완료 후 서류 검토가 진행되며, 승인 시 자격증 제작에 들어갑니다.</span>
+                            <span class="notice-icon">💰</span>
+                            <span class="notice-text">자격증 발급비와 교재비를 함께 신청하면 할인 혜택을 받을 수 있습니다.</span>
                         </li>
                         <li class="notice-item">
-                            <span class="notice-icon">📅</span>
-                            <span class="notice-text">자격증 발급 취소 및 환불 규정</span>
-                            <ul class="sub-notice-list">
-                                <li>신청 후 7일 이내: 전액 환불</li>
-                                <li>서류 검토 진행 중: 수수료 30% 차감 후 환불</li>
-                                <li>자격증 발급 완료 후: 환불 불가</li>
-                            </ul>
+                            <span class="notice-icon">🔄</span>
+                            <span class="notice-text">교재 선택은 선택사항으로, 필요하지 않은 경우 건너뛸 수 있습니다.</span>
                         </li>
                         <li class="notice-item">
                             <span class="notice-icon">📧</span>
@@ -613,9 +571,240 @@
     <script id="additional-scripts-template" type="text/template">
         <script src="{basePath}assets/js/components/header.js"><\/script>
         <script src="{basePath}assets/js/components/scroll-top.js"><\/script>
+        <!-- 🔧 MODIFIED: 통합 플로우 버전 스크립트 로드 -->
         <script src="{basePath}assets/js/pages/education/cert-application.js"><\/script>
         <script src="{basePath}assets/js/main.js"><\/script>
     </script>
+
+    <!-- 🔧 NEW: 추가 CSS 스타일 (통합 플로우용) -->
+    <style>
+        /* 이전 단계 정보 카드 */
+        .previous-step-info-card {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.15);
+        }
+
+        .info-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-item {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .info-notice {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid #f3f4f6;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .notice-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .notice-text {
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* 자격증 정보 카드 */
+        .certificate-info-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .next-steps-info {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .next-steps-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .next-step-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .next-step-item .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #f3f4f6;
+            color: #6b7280;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .next-step-item .step-text {
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        .next-steps-note {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: #fef3c7;
+            border-radius: 6px;
+            border: 1px solid #fbbf24;
+        }
+
+        .next-steps-note .note-text {
+            color: #92400e;
+            font-size: 0.875rem;
+            margin: 0;
+        }
+
+        /* 다음 단계 버튼 */
+        .next-step-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .next-step-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            border: none;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1.125rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 280px;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .next-step-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .save-draft-btn {
+            background: white;
+            border: 2px solid #d1d5db;
+            color: #374151;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .save-draft-btn:hover {
+            border-color: #9ca3af;
+            background: #f9fafb;
+            transform: translateY(-1px);
+        }
+
+        .step-info-notice {
+            margin-top: 1.5rem;
+        }
+
+        .step-info-notice .notice-text {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .step-info-notice .notice-icon {
+            margin-right: 0.5rem;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .next-step-btn {
+                min-width: auto;
+                width: 100%;
+            }
+
+            .next-step-buttons {
+                width: 100%;
+            }
+
+            .save-draft-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .previous-step-info-card {
+                padding: 1.5rem;
+            }
+
+            .certificate-info-card {
+                padding: 1rem;
+            }
+        }
+    </style>
 </body>
 
 </html>

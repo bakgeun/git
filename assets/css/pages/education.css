@@ -1746,3 +1746,604 @@
         box-shadow: none;
     }
 }
+
+/* 추가 가격 정보 스타일 */
+.additional-pricing-info {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.pricing-breakdown {
+    text-align: left;
+}
+
+.pricing-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.pricing-description {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.pricing-item {
+    background: white;
+    border-radius: 6px;
+    padding: 0.75rem;
+    border: 1px solid #f3f4f6;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.pricing-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+.pricing-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.pricing-note {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin-top: 0.25rem;
+}
+
+.package-pricing {
+    background: white;
+    border-radius: 6px;
+    padding: 0.75rem;
+    border: 2px solid #3b82f6;
+    margin-bottom: 1rem;
+}
+
+.package-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.package-label {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.package-value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #3b82f6;
+}
+
+.package-savings {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.5rem;
+    border-top: 1px solid #f3f4f6;
+}
+
+.savings-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #059669;
+}
+
+.savings-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #059669;
+}
+
+.pricing-notice {
+    background: #fef3c7;
+    border: 1px solid #fbbf24;
+    border-radius: 6px;
+    padding: 0.75rem;
+}
+
+.pricing-notice .notice-text {
+    color: #92400e;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.pricing-notice .notice-icon {
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+}
+
+/* 현재 결제 정보 강조 */
+.current-payment-info {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-radius: 8px;
+    border: 2px solid #3b82f6;
+}
+
+.current-payment-info .total-price .info-label {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1e40af;
+}
+
+.current-payment-info .total-price .info-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1e40af;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .pricing-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .package-item,
+    .package-savings {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .pricing-title {
+        font-size: 1rem;
+    }
+}
+
+/* 진행 상황 표시 */
+        .flow-progress {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-number {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .step.pending .step-number {
+            background: #e5e7eb;
+            color: #9ca3af;
+        }
+
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #1f2937;
+        }
+
+        .step.active .step-title {
+            color: #3b82f6;
+        }
+
+        .step-desc {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .step-arrow {
+            font-size: 1.25rem;
+            color: #9ca3af;
+            margin: 0 0.5rem;
+        }
+
+        /* 신청 요약 카드 */
+        .application-summary-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .summary-value {
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .summary-value.price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        /* 다음 단계 안내 */
+        .next-steps-info {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .next-steps-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .next-step-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .next-step-item .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #f3f4f6;
+            color: #6b7280;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .next-step-item .step-text {
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        .next-steps-note {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: #fef3c7;
+            border-radius: 6px;
+            border: 1px solid #fbbf24;
+        }
+
+        .next-steps-note .note-text {
+            color: #92400e;
+            font-size: 0.875rem;
+            margin: 0;
+        }
+
+        /* 다음 단계 버튼 */
+        .next-step-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .next-step-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            border: none;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1.125rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 280px;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .next-step-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .save-draft-btn {
+            background: white;
+            border: 2px solid #d1d5db;
+            color: #374151;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .save-draft-btn:hover {
+            border-color: #9ca3af;
+            background: #f9fafb;
+            transform: translateY(-1px);
+        }
+
+        .step-info-notice {
+            margin-top: 1.5rem;
+        }
+
+        .step-info-notice .notice-text {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .step-info-notice .notice-icon {
+            margin-right: 0.5rem;
+        }
+
+        /* 프로세스 설명 카드 */
+        .process-explanation-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .benefits-title, .flow-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .benefit-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .benefit-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .benefit-desc {
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .flow-steps {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .flow-step {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            min-width: 180px;
+            text-align: center;
+        }
+
+        .flow-step.current {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        }
+
+        .flow-step.next {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        }
+
+        .flow-step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f3f4f6;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin: 0 auto 0.75rem;
+        }
+
+        .flow-step.current .flow-step-number {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .flow-step.next .flow-step-number {
+            background: #10b981;
+            color: white;
+        }
+
+        .flow-step-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+
+        .flow-step-details {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+        }
+
+        .flow-step-details li {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: #9ca3af;
+            margin: 0 0.5rem;
+            align-self: center;
+        }
+
+        .process-notes {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .note-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .note-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .note-icon {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .note-text {
+            color: #374151;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* 간소화된 약관 동의 */
+        .agreement-section.simplified {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .agreement-section.simplified .agreement-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .agreement-section.simplified .agreement-item:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .progress-steps {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .step-arrow {
+                transform: rotate(90deg);
+                margin: 0.5rem 0;
+            }
+
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .flow-steps {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+                margin: 0.5rem 0;
+            }
+
+            .next-step-btn {
+                min-width: auto;
+                width: 100%;
+            }
+
+            .next-step-buttons {
+                width: 100%;
+            }
+
+            .save-draft-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }

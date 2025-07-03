@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>교재 선택 - 디지털헬스케어센터</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+
+    <!-- 스크립트 로더 -->
+    <script src="../../assets/js/utils/script-loader.js"></script>
+</head>
+
+<body class="bg-gray-50">
+    <!-- 헤더 -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <a href="javascript:window.location.href=window.adjustPath('index.html')" 
+                   class="text-xl font-bold text-blue-600">
+                    디지털헬스케어센터
+                </a>
+                
+                <!-- 로그인 정보 -->
+                <div class="flex items-center space-x-4">
+                    <span id="user-info" class="text-gray-600 text-sm"></span>
+                    <button id="logout-btn" class="text-gray-500 hover:text-gray-700 text-sm hidden">
+                        로그아웃
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 플로우 진행 표시 -->
+    <div class="bg-white border-b">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-center space-x-4 md:space-x-8">
+                <!-- 1단계: 교육신청 -->
+                <div class="step step-education" id="step-1">
+                    <div class="step-icon">1</div>
+                    <span class="step-text">교육신청</span>
+                </div>
+                
+                <!-- 연결선 -->
+                <div class="step-connector" id="connector-1-2"></div>
+                
+                <!-- 2단계: 자격증신청 -->
+                <div class="step step-certificate" id="step-2">
+                    <div class="step-icon">2</div>
+                    <span class="step-text">자격증신청</span>
+                </div>
+                
+                <!-- 연결선 -->
+                <div class="step-connector" id="connector-2-3"></div>
+                
+                <!-- 3단계: 교재선택 (현재) -->
+                <div class="step step-material active" id="step-3">
+                    <div class="step-icon">3</div>
+                    <span class="step-text">교재선택</span>
+                </div>
+                
+                <!-- 연결선 -->
+                <div class="step-connector" id="connector-3-4"></div>
+                
+                <!-- 4단계: 결제 -->
+                <div class="step step-payment pending" id="step-4">
+                    <div class="step-icon">4</div>
+                    <span class="step-text">결제</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- 페이지 제목 -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">교재 선택</h1>
+            <p class="text-gray-600" id="page-subtitle">학습에 필요한 교재를 선택해주세요</p>
+        </div>
+
+        <div class="max-w-4xl mx-auto">
+            <!-- 이전 단계 정보 (조건부 표시) -->
+            <div id="previous-step-info" class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6 hidden">
+                <h3 class="text-lg font-semibold text-blue-800 mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    이전 단계 신청 정보
+                </h3>
+                
+                <!-- 교육 신청 정보 -->
+                <div id="education-info" class="mb-4 hidden">
+                    <h4 class="font-medium text-gray-700 mb-2">📚 교육 과정</h4>
+                    <div class="bg-white rounded-md p-3 text-sm">
+                        <p><span class="font-medium">과정명:</span> <span id="prev-education-name" class="loading">로딩중...</span></p>
+                        <p><span class="font-medium">신청자:</span> <span id="prev-education-applicant" class="loading">로딩중...</span></p>
+                        <p><span class="font-medium">교육비:</span> <span id="prev-education-price" class="loading">로딩중...</span></p>
+                    </div>
+                </div>
+                
+                <!-- 자격증 신청 정보 -->
+                <div id="certificate-info" class="mb-4 hidden">
+                    <h4 class="font-medium text-gray-700 mb-2">🏆 자격증 신청</h4>
+                    <div class="bg-white rounded-md p-3 text-sm">
+                        <p><span class="font-medium">자격증:</span> <span id="prev-certificate-name" class="loading">로딩중...</span></p>
+                        <p><span class="font-medium">신청자:</span> <span id="prev-certificate-applicant" class="loading">로딩중...</span></p>
+                        <p><span class="font-medium">발급비:</span> <span id="prev-certificate-price" class="loading">로딩중...</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 교재 선택 폼 -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                        </path>
+                    </svg>
+                    교재 선택
+                </h2>
+
+                <form id="material-form">
+                    <!-- 교재 필수/선택 안내 -->
+                    <div id="material-requirement-notice" class="mb-6 p-4 rounded-lg hidden">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div>
+                                <p class="font-medium" id="requirement-title">교재 구매 안내</p>
+                                <p class="text-sm mt-1" id="requirement-description">교재 구매 정보를 확인해주세요.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 교재 목록 -->
+                    <div id="material-list" class="space-y-4">
+                        <!-- 교재 항목들이 동적으로 추가됩니다 -->
+                    </div>
+
+                    <!-- 교재 없음 안내 -->
+                    <div id="no-materials-notice" class="text-center py-8 text-gray-500 hidden">
+                        <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+            </path>
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-600 mb-2">구매 가능한 교재가 없습니다</h3>
+                        <p class="text-sm text-gray-500">현재 선택하신 과정에 대한 교재가 준비되지 않았습니다.</p>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 가격 요약 -->
+            <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                        </path>
+                    </svg>
+                    결제 금액 요약
+                </h3>
+
+                <div class="space-y-3">
+                    <!-- 교육비 (있는 경우) -->
+                    <div id="education-cost-row" class="flex justify-between items-center hidden">
+                        <span class="text-gray-600">교육비</span>
+                        <span class="font-medium" id="education-cost">₩0</span>
+                    </div>
+
+                    <!-- 자격증비 (있는 경우) -->
+                    <div id="certificate-cost-row" class="flex justify-between items-center hidden">
+                        <span class="text-gray-600">자격증 발급비</span>
+                        <span class="font-medium" id="certificate-cost">₩0</span>
+                    </div>
+
+                    <!-- 교재비 -->
+                    <div id="material-cost-row" class="flex justify-between items-center">
+                        <span class="text-gray-600">교재비</span>
+                        <span class="font-medium" id="material-cost">₩0</span>
+                    </div>
+
+                    <!-- 구분선 -->
+                    <hr class="border-gray-200">
+
+                    <!-- 소계 -->
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">소계</span>
+                        <span class="font-medium" id="subtotal">₩0</span>
+                    </div>
+
+                    <!-- 할인 (있는 경우) -->
+                    <div id="discount-row" class="flex justify-between items-center text-red-600 hidden">
+                        <span>패키지 할인 (<span id="discount-rate">0</span>%)</span>
+                        <span class="font-medium" id="discount-amount">-₩0</span>
+                    </div>
+
+                    <!-- 구분선 (할인이 있는 경우) -->
+                    <hr id="discount-separator" class="border-gray-200 hidden">
+
+                    <!-- 최종 금액 -->
+                    <div class="flex justify-between items-center text-lg font-bold text-gray-900 pt-2">
+                        <span>총 결제 금액</span>
+                        <span id="total-amount" class="text-blue-600">₩0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 액션 버튼 -->
+            <div class="flex flex-col sm:flex-row gap-4 mt-8">
+                <!-- 이전 단계 버튼 -->
+                <button type="button" id="prev-step-btn" 
+                    class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-medium py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    <span id="prev-step-text">이전 단계</span>
+                </button>
+
+                <!-- 교재 없이 진행 버튼 (조건부 표시) -->
+                <button type="button" id="skip-material-btn" 
+                    class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center hidden">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3-3 3m-6-3h12"></path>
+                    </svg>
+                    교재 없이 진행
+                </button>
+
+                <!-- 다음 단계: 결제 버튼 -->
+                <button type="submit" id="next-step-btn" 
+                    class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center">
+                    <span id="next-step-text">다음 단계: 결제</span>
+                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- 교재만 구매하는 경우 안내 -->
+            <div id="material-only-notice" class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg hidden">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 mr-2 mt-0.5 text-yellow-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.864-.833-2.634 0L3.178 16.5c-.77.833.192 2.5 1.732 2.5z">
+                        </path>
+                    </svg>
+                    <div>
+                        <p class="font-medium text-yellow-800">교재만 구매하시는 경우</p>
+                        <p class="text-sm text-yellow-700 mt-1">별도 과정 신청 없이 교재만 구매하실 수 있습니다. 배송비가 별도로 부과될 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 로딩 모달 -->
+    <div id="loading-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 max-w-sm mx-4">
+            <div class="text-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p class="text-gray-600" id="loading-message">처리 중입니다...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스크립트 로드 -->
+    <script id="firebase-sdk-template" type="text/template">
+        <!-- Firebase SDK -->
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
+
+        <!-- 프로젝트 Firebase 설정 및 서비스 -->
+        <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
+        <script src="{basePath}assets/js/services/auth-service.js"><\/script>
+        <script src="{basePath}assets/js/services/db-service.js"><\/script>
+        <script src="{basePath}assets/js/services/storage-service.js"><\/script>
+
+        <!-- 로컬 테스트용 인증 오버라이드 (개발 완료 후 제거) -->
+        <script src="{basePath}assets/js/services/local-auth-override.js"><\/script>
+
+        <!-- 유틸리티 -->
+        <script src="{basePath}assets/js/utils/formatters.js"><\/script>
+        <script src="{basePath}assets/js/utils/validators.js"><\/script>
+        <script src="{basePath}assets/js/utils/date-utils.js"><\/script>
+        <script src="{basePath}assets/js/utils/dom-utils.js"><\/script>
+
+        <!-- 컴포넌트 -->
+        <script src="{basePath}assets/js/components/header.js"><\/script>
+    </script>
+
+    <script id="additional-scripts-template" type="text/template">
+        <!-- 교재 선택 페이지 스크립트 -->
+        <script src="{basePath}assets/js/pages/education/material-selection.js"><\/script>
+    </script>
+</body>
+
+</html>
