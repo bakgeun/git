@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>자격증 신청 - 문경 부설 디지털헬스케어센터</title>
-    <meta name="description" content="사&rpar;문경 부설 디지털헬스케어센터 자격증 신청 - 운동과학 기반 전문직업인력 양성 플랫폼">
+    <title>자격증 발급 신청 - 문경 부설 디지털헬스케어센터</title>
+    <meta name="description" content="사)문경 부설 디지털헬스케어센터 자격증 발급 신청 - 교육 수료 및 시험 합격자 전용">
     <link rel="icon" href="../../assets/images/logo/logo.jpeg">
     <link rel="manifest" href="../../manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -17,7 +17,7 @@
 </head>
 
 <body>
-    <!-- 헤더 영역 -->
+    <!-- 헤더 영역 (기존과 동일) -->
     <header id="main-header">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="logo flex items-center">
@@ -101,44 +101,40 @@
     </header>
 
     <!-- Hero 섹션 -->
-    <section class="hero-section bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-16">
+    <section class="hero-section bg-gradient-to-r from-green-500 to-emerald-600 text-white py-16">
         <div class="container mx-auto px-4">
             <div class="max-w-3xl">
-                <h1 class="text-4xl md:text-5xl font-bold mb-4">자격증 신청</h1>
-                <p class="text-xl mb-8">디지털헬스케어센터의 자격증을 취득하세요.<br>전문적인 자격증으로 여러분의 역량을 인증받으세요.</p>
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">자격증 발급 신청</h1>
+                <p class="text-xl mb-8">🎉 교육 수료 및 시험 합격을 축하드립니다!<br>자격증 발급을 위한 간단한 정보만 입력해주세요.</p>
             </div>
         </div>
     </section>
 
-    <!-- 🔧 NEW: 통합 플로우 진행 상황 표시 -->
-    <section class="py-8 bg-gray-50">
+    <!-- 🔧 SIMPLIFIED: 간단한 자격 확인 -->
+    <section class="py-8 bg-green-50">
         <div class="container mx-auto px-4">
             <div class="max-w-4xl mx-auto">
-                <div class="flow-progress">
-                    <div class="progress-steps">
-                        <div class="step completed">
-                            <div class="step-number">1</div>
-                            <div class="step-title">교육 신청</div>
-                            <div class="step-desc">과정 선택 및 신청자 정보</div>
+                <div class="qualification-check">
+                    <div class="check-header">
+                        <h2 class="check-title">📋 자격증 발급 대상자 확인</h2>
+                        <p class="check-desc">아래 조건을 모두 만족하신 분만 신청하실 수 있습니다.</p>
+                    </div>
+                    <div class="check-items">
+                        <div class="check-item">
+                            <span class="check-icon">✅</span>
+                            <span class="check-text">교육 과정 정상 수료 (출석률 80% 이상)</span>
                         </div>
-                        <div class="step-arrow">→</div>
-                        <div class="step active">
-                            <div class="step-number">2</div>
-                            <div class="step-title">자격증 신청</div>
-                            <div class="step-desc">자격증 발급 정보 입력</div>
+                        <div class="check-item">
+                            <span class="check-icon">✅</span>
+                            <span class="check-text">자격 시험(이론 및 실기) 합격</span>
                         </div>
-                        <div class="step-arrow">→</div>
-                        <div class="step pending">
-                            <div class="step-number">3</div>
-                            <div class="step-title">교재 선택</div>
-                            <div class="step-desc">학습 교재 선택</div>
+                        <div class="check-item">
+                            <span class="check-icon">✅</span>
+                            <span class="check-text">자격증 발급비 결제 완료 (교육 신청 시)</span>
                         </div>
-                        <div class="step-arrow">→</div>
-                        <div class="step pending">
-                            <div class="step-number">4</div>
-                            <div class="step-title">결제</div>
-                            <div class="step-desc">통합 결제 진행</div>
-                        </div>
+                    </div>
+                    <div class="check-notice">
+                        <p>💡 위 조건을 모두 충족하신 분은 바로 아래에서 발급 신청을 진행해주세요!</p>
                     </div>
                 </div>
             </div>
@@ -160,113 +156,84 @@
     </div>
 
     <main>
-        <!-- 🔧 NEW: 이전 단계 정보 표시 섹션 -->
-        <section class="py-8 bg-blue-50">
-            <div class="container mx-auto px-4">
-                <div class="max-w-4xl mx-auto">
-                    <div class="previous-step-info-card">
-                        <h3 class="info-title">📋 이전 단계 정보</h3>
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <span class="info-label">선택한 교육과정:</span>
-                                <span class="info-value" id="prev-course-name">로딩 중...</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">신청자명:</span>
-                                <span class="info-value" id="prev-applicant-name">로딩 중...</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">연락처:</span>
-                                <span class="info-value" id="prev-phone">로딩 중...</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">이메일:</span>
-                                <span class="info-value" id="prev-email">로딩 중...</span>
-                            </div>
-                        </div>
-                        <div class="info-notice">
-                            <span class="notice-icon">💡</span>
-                            <span class="notice-text">이전 단계에서 입력한 정보가 자동으로 기입됩니다. 필요시 수정 가능합니다.</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 자격증 신청 안내 -->
-        <section class="py-16 bg-gray-50">
-            <div class="container mx-auto px-4">
-                <h2 class="text-3xl font-bold text-center mb-12">자격증 신청 안내</h2>
-                <div class="info-cards-grid">
-                    <div class="info-card">
-                        <h3 class="info-card-title">신청 자격</h3>
-                        <ul class="info-list">
-                            <li>해당 교육 과정을 정상적으로 수료한 자 (출석률 80% 이상)</li>
-                            <li>자격 시험(이론 및 실기)에 모두 합격한 자</li>
-                            <li>교육비 및 자격증 발급 수수료를 납부한 자</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="info-card">
-                        <h3 class="info-card-title">신청 서류</h3>
-                        <ul class="info-list">
-                            <li>자격증 신청서 (온라인 작성)</li>
-                            <li>증명사진 파일 (3.5cm x 4.5cm, 흰 배경, 최근 6개월 이내 촬영)</li>
-                        </ul>
-                        <p class="info-note">※ 모든 서류는 스캔하여 JPG 또는 PDF 파일로 첨부해 주세요.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- 🔧 MODIFIED: 자격증 신청 폼 (결제 기능 제거, 다음 단계 버튼으로 변경) -->
+        <!-- 🔧 SIMPLIFIED: 간소화된 자격증 발급 신청 폼 -->
         <section class="py-16">
             <div class="container mx-auto px-4">
-                <h2 class="text-3xl font-bold text-center mb-12">자격증 발급 정보 입력</h2>
-                <div class="application-form-card">
-                    <form id="certificate-form">
-                        <!-- 신청 자격증 정보 -->
+                <h2 class="text-3xl font-bold text-center mb-12">자격증 발급 신청</h2>
+                <div class="certificate-form-card">
+                    <form id="certificate-issuance-form">
+                        <!-- 자격증 종류 및 교육 정보 -->
                         <div class="form-section">
-                            <h3 class="section-title">신청 자격증 정보</h3>
+                            <h3 class="section-title">🎓 자격증 정보</h3>
                             <div class="form-grid">
                                 <div class="form-field">
                                     <label for="cert-type" class="form-label">자격증 종류 *</label>
                                     <select id="cert-type" name="cert-type" class="form-select" required>
                                         <option value="">선택하세요</option>
-                                        <option value="health">건강운동처방사</option>
-                                        <option value="rehab">운동재활지도자</option>
+                                        <option value="health-exercise">건강운동처방사</option>
+                                        <option value="rehabilitation">운동재활전문가</option>
                                         <option value="pilates">필라테스 전문가</option>
                                         <option value="recreation">레크리에이션지도자</option>
                                     </select>
                                 </div>
                                 <div class="form-field">
-                                    <label for="course-completion" class="form-label">교육 수료일 *</label>
-                                    <input type="date" id="course-completion" name="course-completion" class="form-input" required>
+                                    <label for="course-completion-date" class="form-label">교육 수료일 *</label>
+                                    <input type="date" id="course-completion-date" name="course-completion-date" class="form-input" required>
                                 </div>
                                 <div class="form-field">
-                                    <label for="exam-pass" class="form-label">시험 합격일 *</label>
-                                    <input type="date" id="exam-pass" name="exam-pass" class="form-input" required>
+                                    <label for="exam-pass-date" class="form-label">시험 합격일 *</label>
+                                    <input type="date" id="exam-pass-date" name="exam-pass-date" class="form-input" required>
+                                </div>
+                            </div>
+
+                            <!-- 🔧 선택된 자격증 정보 표시 -->
+                            <div class="certificate-info-display" id="certificate-info-display" style="display: none;">
+                                <div class="info-header">
+                                    <h4 class="info-title">선택된 자격증 정보</h4>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-item">
+                                        <span class="info-label">자격증명:</span>
+                                        <span class="info-value" id="selected-cert-name">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">발급 형태:</span>
+                                        <span class="info-value">한글 + 영문 자격증 (각 1부씩)</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">유효기간:</span>
+                                        <span class="info-value">발급일로부터 3년</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">배송방법:</span>
+                                        <span class="info-value">등기우편 (2-3일 소요)</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <!-- 신청자 정보 (영문명 추가) -->
+                        <!-- 신청자 정보 (자동 기입 + 영문명) -->
                         <div class="form-section">
-                            <h3 class="section-title">신청자 정보</h3>
+                            <h3 class="section-title">👤 신청자 정보</h3>
+                            <div class="auto-fill-notice">
+                                <span class="notice-icon">💡</span>
+                                <span class="notice-text">로그인 회원의 경우 기본 정보가 자동으로 입력됩니다.</span>
+                                <button type="button" id="auto-fill-btn" class="auto-fill-button">정보 자동 입력</button>
+                            </div>
                             <div class="form-grid">
                                 <div class="form-field">
-                                    <label for="name" class="form-label">한글 이름 *</label>
-                                    <input type="text" id="name" name="name" class="form-input" required placeholder="홍길동">
-                                    <p class="text-xs text-gray-500 mt-1">자격증에 표기되는 한글 이름을 입력해주세요.</p>
+                                    <label for="name-korean" class="form-label">한글 이름 *</label>
+                                    <input type="text" id="name-korean" name="name-korean" class="form-input" required placeholder="홍길동">
+                                    <p class="field-hint">자격증에 표기되는 한글 이름을 정확히 입력해주세요.</p>
                                 </div>
                                 <div class="form-field">
                                     <label for="name-english" class="form-label">영문 이름 *</label>
                                     <input type="text" id="name-english" name="name-english" class="form-input" required placeholder="Hong Gil Dong">
-                                    <p class="text-xs text-gray-500 mt-1">영문 자격증 발급을 위한 영문 이름을 입력해주세요.</p>
+                                    <p class="field-hint">영문 자격증에 표기될 이름을 입력해주세요. (예: Hong Gil Dong)</p>
                                 </div>
                                 <div class="form-field">
-                                    <label for="birth" class="form-label">생년월일 *</label>
-                                    <input type="date" id="birth" name="birth" class="form-input" required>
+                                    <label for="birth-date" class="form-label">생년월일 *</label>
+                                    <input type="date" id="birth-date" name="birth-date" class="form-input" required>
                                 </div>
                                 <div class="form-field">
                                     <label for="phone" class="form-label">연락처 *</label>
@@ -277,156 +244,103 @@
                                     <input type="email" id="email" name="email" class="form-input" required placeholder="example@email.com">
                                 </div>
                                 <div class="form-field form-field-full">
-                                    <label for="address" class="form-label">자격증 수령 주소 *</label>
-                                    <input type="text" id="address" name="address" class="form-input" required placeholder="자격증을 받을 주소를 입력해주세요">
+                                    <label for="delivery-address" class="form-label">자격증 배송 주소 *</label>
+                                    <div class="address-input-group">
+                                        <input type="text" id="postal-code" name="postal-code" class="form-input address-postal" placeholder="우편번호" readonly>
+                                        <button type="button" id="address-search-btn" class="address-search-button">주소 검색</button>
+                                    </div>
+                                    <input type="text" id="address-basic" name="address-basic" class="form-input address-basic" placeholder="기본 주소" readonly>
+                                    <input type="text" id="address-detail" name="address-detail" class="form-input address-detail" placeholder="상세 주소 (동, 호수 등)">
+                                    <input type="hidden" id="delivery-address" name="delivery-address">
                                 </div>
                             </div>
                         </div>
                         
-                        <!-- 첨부 서류 -->
+                        <!-- 🔧 IMPROVED: 간소화된 증명사진 업로드 -->
                         <div class="form-section">
-                            <h3 class="section-title">첨부 서류</h3>
-                            <div class="file-upload-grid">
-                                <div class="file-upload-field">
-                                    <label for="photo" class="form-label">증명사진 *</label>
-                                    <div class="file-drop-zone" data-input="photo">
-                                        <input type="file" id="photo" name="photo" class="file-input" accept=".jpg,.jpeg,.png" required>
-                                        <div class="file-drop-content">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                            </svg>
-                                            <p>파일을 끌어다 놓거나 클릭하여 업로드</p>
-                                            <p class="file-info">JPG, PNG (최대 5MB)<br>3.5cm x 4.5cm, 흰 배경</p>
-                                        </div>
-                                    </div>
+                            <h3 class="section-title">📸 증명사진 업로드</h3>
+                            <div class="photo-upload-area">
+                                <div class="upload-instructions">
+                                    <h4 class="upload-title">📷 증명사진 업로드 안내</h4>
+                                    <ul class="upload-requirements">
+                                        <li>• 크기: 3.5cm x 4.5cm 비율</li>
+                                        <li>• 배경: 흰색 (단색)</li>
+                                        <li>• 파일 형식: JPG, PNG</li>
+                                        <li>• 최대 크기: 5MB</li>
+                                        <li>• 최근 6개월 이내 촬영</li>
+                                    </ul>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- 🔧 NEW: 자격증 발급 정보 요약 (결제 정보 대신) -->
-                        <div class="form-section">
-                            <h3 class="section-title">발급 정보 확인</h3>
-                            <div class="certificate-info-card">
-                                <div class="info-item-group">
-                                    <div class="info-item">
-                                        <span class="info-label">선택한 자격증:</span>
-                                        <span class="info-value" id="selected-cert-name">자격증을 먼저 선택해주세요</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">발급 형태:</span>
-                                        <span class="info-value">한글 + 영문 자격증 (각 1부씩)</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">배송 방법:</span>
-                                        <span class="info-value">등기우편 배송</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">발급 소요시간:</span>
-                                        <span class="info-value">서류 검토 후 3-5일</span>
-                                    </div>
-                                </div>
-
-                                <!-- 🔧 NEW: 다음 단계 안내 -->
-                                <div class="next-steps-info">
-                                    <h4 class="next-steps-title">📋 다음 단계 안내</h4>
-                                    <div class="next-steps-list">
-                                        <div class="next-step-item">
-                                            <span class="step-number">3</span>
-                                            <span class="step-text">교재 선택 (필요한 경우)</span>
-                                        </div>
-                                        <div class="next-step-item">
-                                            <span class="step-number">4</span>
-                                            <span class="step-text">통합 결제 (자격증비 + 교재비)</span>
-                                        </div>
-                                    </div>
-                                    <div class="next-steps-note">
-                                        <p class="note-text">
-                                            💡 교재는 선택사항입니다. 다음 단계에서 필요 여부를 선택할 수 있습니다.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 개인정보 수집 및 이용 동의 -->
-                        <div class="form-section">
-                            <h3 class="section-title">약관 동의</h3>
-                            <div class="agreement-section">
-                                <div class="agreement-item">
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" id="agree-terms" name="agree-terms" required>
-                                        <span class="checkbox-text font-bold">개인정보 수집 및 이용 동의 (필수)</span>
-                                    </label>
-                                    <div class="agreement-content">
-                                        <div class="agreement-text">
-                                            1. 수집하는 개인정보 항목<br>
-                                            - 필수항목: 한글이름, 영문이름, 생년월일, 연락처, 이메일, 주소, 사진<br><br>
-                                            2. 개인정보의 수집 및 이용목적<br>
-                                            - 자격증 발급 및 관리<br>
-                                            - 발급 관련 안내 및 자격증 배송<br>
-                                            - 자격 갱신 및 보수교육 안내<br>
-                                            - 한글 및 영문 자격증 제작<br><br>
-                                            
-                                            3. 개인정보의 보유 및 이용기간<br>
-                                            - 자격 유지 기간 및 자격 취소 후 5년<br>
-                                            - 관계 법령에 의한 정보보유 사유가 있는 경우 해당 기간 동안 보관
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="agreement-item">
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" id="agree-refund" name="agree-refund" required>
-                                        <span class="checkbox-text font-bold">환불 규정 동의 (필수)</span>
-                                    </label>
-                                    <div class="agreement-content">
-                                        <div class="agreement-text">
-                                            환불 규정<br>
-                                            - 자격증 신청 후 7일 이내: 전액 환불<br>
-                                            - 서류 검토 진행 중: 수수료 30% 차감 후 환불<br>
-                                            - 자격증 발급 완료 후: 환불 불가<br><br>
-
-                                            환불 처리는 결제 수단에 따라 3~7영업일이 소요될 수 있습니다.
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="agreement-item">
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" id="agree-marketing" name="agree-marketing">
-                                        <span class="checkbox-text">마케팅 정보 수신 동의 (선택)</span>
-                                    </label>
-                                    <div class="agreement-content">
-                                        <div class="agreement-description">
-                                            자격증 갱신, 보수교육, 세미나 등의 정보를 SMS, 이메일로 받아보실 수 있습니다.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                       
-                        <!-- 🔧 NEW: 다음 단계 버튼 (결제 버튼 대신) -->
-                        <div class="form-section text-center">
-                            <div class="next-step-buttons">
-                                <button id="apply-button" type="submit" class="btn-primary btn-large next-step-btn">
-                                    <span class="button-icon">➡️</span>
-                                    <span class="button-text">다음 단계: 교재 선택</span>
-                                </button>
                                 
-                                <!-- 임시 저장 버튼 -->
-                                <button id="save-draft-button" type="button" class="btn-outline save-draft-btn">
-                                    <span class="button-icon">💾</span>
-                                    <span class="button-text">임시 저장</span>
+                                <div class="photo-upload-zone" id="photo-upload-zone">
+                                    <input type="file" id="photo-file" name="photo-file" accept=".jpg,.jpeg,.png" required>
+                                    <div class="upload-content" id="upload-content">
+                                        <div class="upload-icon">📷</div>
+                                        <div class="upload-text">
+                                            <p class="upload-main">증명사진을 업로드하세요</p>
+                                            <p class="upload-sub">파일을 드래그하거나 클릭하여 선택</p>
+                                        </div>
+                                    </div>
+                                    <div class="upload-preview" id="upload-preview" style="display: none;">
+                                        <img id="preview-image" class="preview-image" alt="증명사진 미리보기">
+                                        <div class="preview-info">
+                                            <p class="preview-filename" id="preview-filename"></p>
+                                            <p class="preview-filesize" id="preview-filesize"></p>
+                                            <button type="button" class="preview-remove" id="preview-remove">✕ 제거</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 🔧 간단한 발급 요약 -->
+                        <div class="form-section">
+                            <h3 class="section-title">📋 발급 신청 요약</h3>
+                            <div class="issuance-summary">
+                                <div class="summary-card">
+                                    <h4 class="summary-title">🎓 발급 정보</h4>
+                                    <div class="summary-content">
+                                        <div class="summary-item">
+                                            <span class="summary-label">신청 자격증:</span>
+                                            <span class="summary-value" id="summary-cert-name">자격증을 선택해주세요</span>
+                                        </div>
+                                        <div class="summary-item">
+                                            <span class="summary-label">신청자:</span>
+                                            <span class="summary-value" id="summary-applicant-name">이름을 입력해주세요</span>
+                                        </div>
+                                        <div class="summary-item">
+                                            <span class="summary-label">발급 형태:</span>
+                                            <span class="summary-value">한글 + 영문 자격증</span>
+                                        </div>
+                                        <div class="summary-item">
+                                            <span class="summary-label">처리 기간:</span>
+                                            <span class="summary-value">신청 후 3-5일</span>
+                                        </div>
+                                        <div class="summary-item">
+                                            <span class="summary-label">발급비 상태:</span>
+                                            <span class="summary-value">✅ 결제 완료</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 🔧 발급 신청 버튼 -->
+                        <div class="form-section text-center">
+                            <div class="issuance-buttons">
+                                <button id="submit-issuance-btn" type="submit" class="issuance-submit-btn">
+                                    <span class="button-icon">🎓</span>
+                                    <span class="button-text">자격증 발급 신청</span>
                                 </button>
                             </div>
 
-                            <!-- 안내 문구 -->
-                            <div class="step-info-notice">
+                            <div class="issuance-notice">
                                 <p class="notice-text">
-                                    <span class="notice-icon">📋</span>
-                                    자격증 발급 정보를 입력하신 후 교재 선택 단계로 진행됩니다.
+                                    <span class="notice-icon">💡</span>
+                                    신청 완료 후 3-5일 이내에 자격증이 발급되어 등기우편으로 배송됩니다.
                                 </p>
                                 <p class="notice-text">
-                                    <span class="notice-icon">💳</span>
-                                    결제는 모든 선택이 완료된 마지막 단계에서 한 번에 진행됩니다.
+                                    <span class="notice-icon">📞</span>
+                                    발급 관련 문의: 02-1234-5678 | certificate@dhcenter.kr
                                 </p>
                             </div>
                         </div>
@@ -435,9 +349,7 @@
             </div>
         </section>
 
-        <!-- 🔧 REMOVED: 결제 완료 모달 제거 (더 이상 필요없음) -->
-
-        <!-- 자격증 조회 -->
+        <!-- 자격증 조회 섹션 (개선됨) -->
         <section class="py-16 bg-gray-50">
             <div class="container mx-auto px-4">
                 <h2 class="text-3xl font-bold text-center mb-12">자격증 조회</h2>
@@ -447,15 +359,15 @@
                     <form id="verify-form" class="verify-form">
                         <div class="verify-inputs">
                             <div class="form-field">
-                                <label for="cert-number" class="form-label">자격증 번호 *</label>
-                                <input type="text" id="cert-number" name="cert-number" placeholder="DHC-00000-000" class="form-input" required>
+                                <label for="verify-cert-number" class="form-label">자격증 번호 *</label>
+                                <input type="text" id="verify-cert-number" name="verify-cert-number" placeholder="DHC-00000-000" class="form-input" required>
                             </div>
                             <div class="form-field">
-                                <label for="cert-date" class="form-label">발급일자 *</label>
-                                <input type="date" id="cert-date" name="cert-date" class="form-input" required>
+                                <label for="verify-cert-date" class="form-label">발급일자 *</label>
+                                <input type="date" id="verify-cert-date" name="verify-cert-date" class="form-input" required>
                             </div>
                             <div class="verify-button-wrapper">
-                                <button type="submit" class="btn-primary">조회하기</button>
+                                <button type="submit" class="verify-btn">조회하기</button>
                             </div>
                         </div>
                     </form>
@@ -464,66 +376,64 @@
                         <h3 class="contact-title">자격증 문의</h3>
                         <p class="contact-description">자격증 발급, 갱신, 조회 등에 관한 문의사항은 아래 연락처로 문의해 주세요.</p>
                         <div class="contact-info">
-                            <p>📞 전화: 02-1234-5678 (평일 09:00-18:00)</p>
-                            <p>📧 이메일: certificate@dhcenter.kr</p>
+                            <p><strong>전화:</strong> 02-1234-5678 (평일 09:00-18:00)</p>
+                            <p><strong>이메일:</strong> certificate@dhcenter.kr</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 안내사항 -->
+        <!-- 🔧 SIMPLIFIED: 핵심 안내사항만 -->
         <section class="py-16">
             <div class="container mx-auto px-4">
-                <h2 class="text-3xl font-bold text-center mb-12">신청 안내사항</h2>
-                <div class="info-notice-card">
-                    <ul class="notice-list">
-                        <li class="notice-item">
-                            <span class="notice-icon">📋</span>
-                            <span class="notice-text">자격증 신청 정보는 임시 저장되며, 언제든지 이어서 진행할 수 있습니다.</span>
-                        </li>
-                        <li class="notice-item">
-                            <span class="notice-icon">💰</span>
-                            <span class="notice-text">자격증 발급비와 교재비를 함께 신청하면 할인 혜택을 받을 수 있습니다.</span>
-                        </li>
-                        <li class="notice-item">
-                            <span class="notice-icon">🔄</span>
-                            <span class="notice-text">교재 선택은 선택사항으로, 필요하지 않은 경우 건너뛸 수 있습니다.</span>
-                        </li>
-                        <li class="notice-item">
-                            <span class="notice-icon">📧</span>
-                            <span class="notice-text">자격증 발급 관련 문의사항은 02-1234-5678 또는 certificate@dhcenter.kr로 연락 주시기 바랍니다.</span>
-                        </li>
-                        <li class="notice-item">
-                            <span class="notice-icon">⚠️</span>
-                            <span class="notice-text">제출한 서류에 오류가 있거나 부족할 경우 발급이 지연될 수 있습니다.</span>
-                        </li>
-                        <li class="notice-item">
-                            <span class="notice-icon">🚚</span>
-                            <span class="notice-text">자격증은 등기우편으로 발송되며, 배송 기간은 2-3일 소요됩니다.</span>
-                        </li>
-                        <li class="notice-item">
-                            <span class="notice-icon">🌐</span>
-                            <span class="notice-text">한글 및 영문 자격증이 모두 발급되며, PDF 파일로도 다운로드 가능합니다.</span>
-                        </li>
-                    </ul>
+                <h2 class="text-3xl font-bold text-center mb-12">발급 안내</h2>
+                <div class="simple-info-grid">
+                    <div class="info-card">
+                        <div class="info-icon">⏰</div>
+                        <div class="info-content">
+                            <h3 class="info-title">처리 기간</h3>
+                            <p class="info-text">신청 완료 후 서류 검토를 거쳐 3-5일 이내에 자격증이 발급됩니다.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="info-icon">🚚</div>
+                        <div class="info-content">
+                            <h3 class="info-title">배송 방법</h3>
+                            <p class="info-text">등기우편으로 안전하게 배송되며, 배송 기간은 2-3일 정도 소요됩니다.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="info-icon">📜</div>
+                        <div class="info-content">
+                            <h3 class="info-title">발급 형태</h3>
+                            <p class="info-text">한글 자격증과 영문 자격증을 각각 1부씩 발급하며, PDF 파일로도 다운로드 가능합니다.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="info-icon">📅</div>
+                        <div class="info-content">
+                            <h3 class="info-title">유효기간</h3>
+                            <p class="info-text">자격증 유효기간은 발급일로부터 3년이며, 만료 3개월 전부터 갱신 신청이 가능합니다.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- 푸터 영역 -->
+    <!-- 푸터 영역 (기존과 동일) -->
     <footer class="bg-gray-800 text-white">
         <div class="container mx-auto px-4 py-6">
-            <!-- 기관 정보 및 소셜 링크 -->
             <div class="mb-6">
                 <h3 class="text-lg font-bold mb-3 text-white">사단법인 문경</h3>
                 <p class="text-gray-400 mb-4 text-sm leading-relaxed max-w-2xl">
                     운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼
                 </p>
             </div>
-
-            <!-- 사업자 정보 섹션 -->
             <div class="border-t border-gray-700 pt-5 mb-5">
                 <div class="flex flex-wrap gap-y-2 gap-x-8">
                     <div class="min-w-[200px]">
@@ -539,8 +449,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- 저작권 정보 -->
             <div class="border-t border-gray-700 pt-4">
                 <p class="text-sm text-gray-400">&copy; 2025 사단법인 문경. All rights reserved.</p>
             </div>
@@ -569,242 +477,18 @@
 
     <!-- 추가 스크립트 템플릿 -->
     <script id="additional-scripts-template" type="text/template">
+        <script src="{basePath}assets/js/utils/validators.js"><\/script>
+        <script src="{basePath}assets/js/utils/formatters.js"><\/script>
+        <script src="{basePath}assets/js/utils/dom-utils.js"><\/script>
         <script src="{basePath}assets/js/components/header.js"><\/script>
         <script src="{basePath}assets/js/components/scroll-top.js"><\/script>
-        <!-- 🔧 MODIFIED: 통합 플로우 버전 스크립트 로드 -->
+        <!-- 🔧 간소화된 자격증 신청 스크립트 -->
         <script src="{basePath}assets/js/pages/education/cert-application.js"><\/script>
         <script src="{basePath}assets/js/main.js"><\/script>
     </script>
 
-    <!-- 🔧 NEW: 추가 CSS 스타일 (통합 플로우용) -->
-    <style>
-        /* 이전 단계 정보 카드 */
-        .previous-step-info-card {
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            border: 2px solid #3b82f6;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.15);
-        }
-
-        .info-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #1e40af;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .info-item {
-            background: white;
-            border-radius: 8px;
-            padding: 1rem;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .info-label {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 0.5rem;
-        }
-
-        .info-value {
-            font-size: 1rem;
-            font-weight: 500;
-            color: #1f2937;
-        }
-
-        .info-notice {
-            background: white;
-            border-radius: 8px;
-            padding: 1rem;
-            border: 1px solid #f3f4f6;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .notice-icon {
-            font-size: 1.25rem;
-            flex-shrink: 0;
-        }
-
-        .notice-text {
-            color: #6b7280;
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-
-        /* 자격증 정보 카드 */
-        .certificate-info-card {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 1.5rem;
-        }
-
-        .next-steps-info {
-            margin-top: 1.5rem;
-            padding: 1.5rem;
-            background: white;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-        }
-
-        .next-steps-title {
-            font-size: 1.125rem;
-            font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 1rem;
-        }
-
-        .next-step-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 0.75rem;
-        }
-
-        .next-step-item .step-number {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: #f3f4f6;
-            color: #6b7280;
-            font-size: 0.875rem;
-            font-weight: 600;
-            margin-right: 0.75rem;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .next-step-item .step-text {
-            color: #374151;
-            font-size: 0.9rem;
-        }
-
-        .next-steps-note {
-            margin-top: 1rem;
-            padding: 0.75rem;
-            background: #fef3c7;
-            border-radius: 6px;
-            border: 1px solid #fbbf24;
-        }
-
-        .next-steps-note .note-text {
-            color: #92400e;
-            font-size: 0.875rem;
-            margin: 0;
-        }
-
-        /* 다음 단계 버튼 */
-        .next-step-buttons {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .next-step-btn {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            border: none;
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            font-size: 1.125rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            min-width: 280px;
-            justify-content: center;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-        }
-
-        .next-step-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
-        }
-
-        .save-draft-btn {
-            background: white;
-            border: 2px solid #d1d5db;
-            color: #374151;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .save-draft-btn:hover {
-            border-color: #9ca3af;
-            background: #f9fafb;
-            transform: translateY(-1px);
-        }
-
-        .step-info-notice {
-            margin-top: 1.5rem;
-        }
-
-        .step-info-notice .notice-text {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 0.5rem;
-            color: #6b7280;
-            font-size: 0.875rem;
-        }
-
-        .step-info-notice .notice-icon {
-            margin-right: 0.5rem;
-        }
-
-        /* 반응형 디자인 */
-        @media (max-width: 768px) {
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .next-step-btn {
-                min-width: auto;
-                width: 100%;
-            }
-
-            .next-step-buttons {
-                width: 100%;
-            }
-
-            .save-draft-btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .previous-step-info-card {
-                padding: 1.5rem;
-            }
-
-            .certificate-info-card {
-                padding: 1rem;
-            }
-        }
-    </style>
+    <!-- Daum 우편번호 API -->
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </body>
 
 </html>
