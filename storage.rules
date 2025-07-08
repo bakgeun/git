@@ -38,6 +38,24 @@ service firebase.storage {
     }
     
     // =================================
+    // 🔧 자격증 사진 업로드 규칙 (새로 추가) - 가장 중요!
+    // =================================
+    
+    // 자격증 사진 폴더 - certificate-photos (cert-application.js에서 사용)
+    match /certificate-photos/{allPaths=**} {
+      // 읽기: 인증된 사용자
+      allow read: if isAuthenticated();
+      
+      // 쓰기: 인증된 사용자 (이미지 파일만 허용)
+      allow write: if isAuthenticated() && 
+                      request.resource.contentType.matches('image/.*') &&
+                      request.resource.size < 5 * 1024 * 1024; // 5MB 제한
+      
+      // 삭제: 관리자만 가능
+      allow delete: if isAdmin();
+    }
+    
+    // =================================
     // 🔧 관리자 대시보드 Storage 모니터링을 위한 규칙 추가
     // =================================
     

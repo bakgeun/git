@@ -322,3 +322,53 @@
       position: static;
     }
   }
+
+  /* 🔧 자격증 종류 선택 드롭다운 화살표 중복 문제 해결 */
+
+/* 기본 select 화살표 제거 */
+#cert-type {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23666' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+    padding-right: 40px !important;
+}
+
+/* 모든 select 요소에 동일하게 적용 */
+.form-select, 
+select.form-input,
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23666' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+    padding-right: 40px !important;
+}
+
+/* 포커스 상태에서도 동일하게 적용 */
+#cert-type:focus,
+.form-select:focus,
+select.form-input:focus,
+select:focus {
+    background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%233b82f6' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+}
+
+/* IE에서의 추가 처리 */
+select::-ms-expand {
+    display: none;
+}
+
+/* 날짜 입력 필드는 제외 */
+input[type="date"] {
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+    appearance: textfield;
+    background-image: none !important;
+    padding-right: 12px !important;
+}
