@@ -1,0 +1,242 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 헬퍼 함수: 사용자가 로그인되어 있는지 확인
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // 헬퍼 함수: 관리자 권한 확인
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.email == 'gostepexercise@gmail.com' ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'admin');
+    }
+    
+    // 헬퍼 함수: 문서 소유자 확인
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // 헬퍼 함수: 사용자 검증된 상태 확인
+    function isVerified() {
+      return request.auth.token.email_verified == true;
+    }
+    
+    // 사용자 컬렉션 규칙
+    match /users/{userId} {
+      // 읽기: 본인의 문서 또는 관리자
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // 생성: 인증된 사용자가 본인의 문서 생성
+      allow create: if isAuthenticated() && 
+        request.auth.uid == userId &&
+        request.auth.token.email_verified == true;
+      
+      // 업데이트: 본인의 문서 또는 관리자
+      allow update: if (isOwner(userId) || isAdmin()) &&
+        // 사용자는 자신의 userType을 변경할 수 없음 (관리자만 가능)
+        (!request.auth.uid == userId || 
+         !('userType' in request.resource.data) || 
+         request.resource.data.userType == resource.data.userType);
+      
+      // 삭제: 관리자만 가능
+      allow delete: if isAdmin();
+    }
+    
+    // 게시판 공지사항 컬렉션 규칙
+    match /board_notice/{noticeId} {
+      // 읽기: 모든 인증된 사용자
+      allow read: if isAuthenticated();
+      
+      // 생성, 업데이트, 삭제: 관리자만
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // 게시판 칼럼 컬렉션 규칙
+    match /board_column/{columnId} {
+      // 읽기: 모든 인증된 사용자
+      allow read: if isAuthenticated();
+      
+      // 생성, 업데이트, 삭제: 관리자만
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // 게시판 강의자료 컬렉션 규칙
+    match /board_materials/{materialId} {
+      // 읽기: 인증된 사용자 (교육과정 수강생 확인 로직 추가 가능)
+      allow read: if isAuthenticated();
+      
+      // 생성, 업데이트, 삭제: 관리자만
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // 게시판 동영상 강의 컬렉션 규칙
+    match /board_videos/{videoId} {
+      // 읽기: 인증된 사용자 (교육과정 수강생 확인 로직 추가 가능)
+      allow read: if isAuthenticated();
+      
+      // 생성, 업데이트, 삭제: 관리자만
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // 공지사항 컬렉션 규칙
+    match /notices/{noticeId} {
+      // 읽기: 모든 인증된 사용자
+      allow read: if isAuthenticated();
+      
+      // 생성, 업데이트, 삭제: 관리자만
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // 칼럼 컬렉션 규칙
+    match /columns/{columnId} {
+      // 읽기: 모든 인증된 사용자
+      allow read: if isAuthenticated();
+      
+      // 생성, 업데이트, 삭제: 관리자만
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // 강의자료 컬렉션 규칙
+    match /materials/{materialId} {
+      // 읽기: 인증된 사용자 (교육과정 수강생 확인 로직 추가 가능)
+      allow read: if isAuthenticated();
+      
+      // 생성, 업데이트, 삭제: 관리자만
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // 동영상 강의 컬렉션 규칙
+    match /videos/{videoId} {
+      // 읽기: 인증된 사용자 (교육과정 수강생 확인 로직 추가 가능)
+      allow read: if isAuthenticated();
+      
+      // 생성, 업데이트, 삭제: 관리자만
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // 교육과정 컬렉션 규칙
+    match /courses/{courseId} {
+      // 읽기: 모든 인증된 사용자
+      allow read: if isAuthenticated();
+      
+      // 생성, 업데이트, 삭제: 관리자만
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // 자격증 컬렉션 규칙
+    match /certificates/{certId} {
+      // 읽기: 본인의 자격증 또는 관리자
+      allow read: if isAuthenticated() && 
+        (resource.data.userId == request.auth.uid || isAdmin());
+      
+      // 생성, 업데이트, 삭제: 관리자만
+      allow create, update, delete: if isAdmin();
+    }
+
+    // 자격증 신청/갱신 컬렉션 규칙 (새로 추가)
+    match /applications/{applicationId} {
+      // 읽기: 본인의 신청서 또는 관리자
+      allow read: if isAuthenticated() && 
+        (resource.data.userId == request.auth.uid || isAdmin());
+      
+      // 생성: 인증된 사용자가 본인의 신청서 생성
+      allow create: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid &&
+        isVerified() &&
+        // 필수 필드 검증
+        request.resource.data.keys().hasAll(['type', 'certType', 'certName', 'status', 'createdAt']) &&
+        // 타입 검증
+        request.resource.data.type is string &&
+        request.resource.data.certType is string &&
+        request.resource.data.certName is string &&
+        request.resource.data.status in ['payment_pending', 'under_review'] &&
+        // 금액 필드 검증
+        (request.resource.data.totalAmount is number && request.resource.data.totalAmount > 0);
+      
+      // 업데이트: 본인의 신청서 (상태 변경 제한) 또는 관리자가 모든 것
+      allow update: if isAuthenticated() && 
+        ((resource.data.userId == request.auth.uid && 
+          // 사용자는 status, progress, 결제 관련 필드를 변경할 수 없음
+          request.resource.data.status == resource.data.status &&
+          request.resource.data.progress == resource.data.progress &&
+          request.resource.data.totalAmount == resource.data.totalAmount) || 
+         isAdmin());
+      
+      // 삭제: 관리자만
+      allow delete: if isAdmin();
+    }
+    
+    // 수강신청 컬렉션 규칙
+    match /enrollments/{enrollmentId} {
+      // 읽기: 본인의 수강신청 또는 관리자
+      allow read: if isAuthenticated() && 
+        (resource.data.userId == request.auth.uid || isAdmin());
+      
+      // 생성: 인증된 사용자가 본인의 수강신청
+      allow create: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid &&
+        isVerified();
+      
+      // 업데이트: 본인의 수강신청 (상태 변경 제한) 또는 관리자
+      allow update: if isAuthenticated() && 
+        ((resource.data.userId == request.auth.uid && 
+          request.resource.data.status == resource.data.status) || 
+         isAdmin());
+      
+      // 삭제: 관리자만
+      allow delete: if isAdmin();
+    }
+    
+    // 시험결과 컬렉션 규칙
+    match /examResults/{resultId} {
+      // 읽기: 본인의 시험결과 또는 관리자
+      allow read: if isAuthenticated() && 
+        (resource.data.userId == request.auth.uid || isAdmin());
+      
+      // 생성, 업데이트, 삭제: 관리자만
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // 결제 컬렉션 규칙
+    match /payments/{paymentId} {
+      // 읽기: 본인의 결제정보 또는 관리자
+      allow read: if isAuthenticated() && 
+        (resource.data.userId == request.auth.uid || isAdmin());
+      
+      // 생성: 인증된 사용자가 본인의 결제정보
+      allow create: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid;
+      
+      // 업데이트: 관리자만 (결제 상태 변경)
+      allow update: if isAdmin();
+      
+      // 삭제: 관리자만
+      allow delete: if isAdmin();
+    }
+    
+    // 강사 정보 컬렉션 규칙
+    match /instructors/{instructorId} {
+      // 읽기: 모든 인증된 사용자
+      allow read: if isAuthenticated();
+      
+      // 생성, 업데이트, 삭제: 관리자만
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // 설정 컬렉션 규칙
+    match /settings/{settingId} {
+      // 읽기: 모든 인증된 사용자
+      allow read: if isAuthenticated();
+      
+      // 생성, 업데이트, 삭제: 관리자만
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // 기본 거부 규칙 (위에 매칭되지 않는 모든 문서는 접근 불가)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

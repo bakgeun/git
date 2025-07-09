@@ -2640,4 +2640,3 @@ window.unifiedCourseApplicationReady = true;
 window.courseApplicationFullyLoaded = true;
 
 console.log('🚀 course-application.js 완전 로딩 완료!');
-

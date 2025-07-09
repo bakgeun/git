@@ -10,8 +10,6 @@
     <link rel="manifest" href="../../manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
         rel="stylesheet">
-    <!-- Tailwind CSS Play CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <!-- 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
     <script src="../../assets/js/utils/script-loader.js"></script>
@@ -20,9 +18,14 @@
 <body class="bg-gray-50">
     <header id="main-header" class="bg-white shadow-md">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="logo">
+            <div class="logo flex items-center">
                 <a href="javascript:window.location.href=window.adjustPath('index.html')">
-                    <img src="../../assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" class="logo-image">
+                    <div class="flex items-center">
+                        <img src="../../assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" class="logo-image">
+                        <div class="ml-3">
+                            <span class="organization-name">문경 부설 디지털헬스케어센터</span>
+                        </div>
+                    </div>
                 </a>
             </div>
             <nav class="main-nav hidden md:flex">
@@ -89,23 +92,162 @@
             </nav>
             <div class="auth-buttons flex items-center">
                 <a href="javascript:window.location.href=window.adjustPath('pages/auth/login.html')"
-                    class="login-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">로그인</a>
+                    class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
                 <a href="javascript:window.location.href=window.adjustPath('pages/auth/signup.html')"
-                    class="signup-btn text-sm text-gray-600 hover:text-blue-600 ml-4">회원가입</a>
-                <button id="mobile-menu-button" class="md:hidden ml-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
+                    class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
             </div>
+            <button id="mobile-menu-button" class="md:hidden ml-4 hamburger-menu" aria-expanded="false"
+                aria-controls="mobile-menu-overlay">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
         </div>
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg py-4">
-            <div class="container mx-auto px-4">
-                <!-- Mobile navigation menu -->
-                <!-- 내용은 JavaScript에서 동적으로 생성 예정 -->
+
+        <!-- Mobile Menu Overlay (about.html과 동일한 구조) -->
+        <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden md:hidden">
+            <div class="bg-white h-full w-full flex flex-col">
+                <!-- 모바일 메뉴 헤더 -->
+                <div class="flex justify-between items-center p-4 bg-blue-600 text-white mobile-menu-header">
+                    <span class="text-lg font-semibold">메뉴</span>
+                    <button id="mobile-menu-close" class="text-2xl font-bold hover:text-gray-200">&times;</button>
+                </div>
+
+                <!-- 모바일 메뉴 컨텐츠 -->
+                <div class="flex-1 overflow-y-auto bg-gray-50 mobile-menu-container">
+                    <div class="p-4">
+                        <!-- 회원 정보 영역 -->
+                        <div class="mb-6 p-4 bg-white rounded-lg shadow-sm mobile-menu-user-info">
+                            <span class="text-blue-600 font-semibold">로그인 해주세요 ></span>
+                        </div>
+
+                        <!-- 메인 메뉴 -->
+                        <div class="space-y-2 mobile-menu-nav">
+                            <!-- 홈 링크 -->
+                            <div class="mobile-menu-item">
+                                <a href="javascript:window.location.href=window.adjustPath('index.html')"
+                                    class="p-3 bg-white rounded-lg shadow-sm flex items-center">
+                                    <div class="menu-icon">🏠</div>
+                                    <div class="menu-text">홈</div>
+                                </a>
+                            </div>
+
+                            <!-- 기관 소개 -->
+                            <div class="mobile-menu-item">
+                                <a href="javascript:window.location.href=window.adjustPath('pages/about.html')"
+                                    class="p-3 bg-white rounded-lg shadow-sm flex items-center">
+                                    <div class="menu-icon">🏢</div>
+                                    <div class="menu-text">기관 소개</div>
+                                </a>
+                            </div>
+
+                            <!-- 자격증 소개 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">🎓</div>
+                                    <div class="menu-text">자격증 소개</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')">건강운동처방사</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')">운동재활지도자</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')">필라테스
+                                        전문가</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')">레크리에이션지도자</a>
+                                </div>
+                            </div>
+
+                            <!-- 교육 과정 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">📚</div>
+                                    <div class="menu-text">교육 과정</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/instructors.html')">강사
+                                        소개</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')">교육
+                                        과정 안내</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')">자격증
+                                        신청</a>
+                                </div>
+                            </div>
+
+                            <!-- 게시판 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">📋</div>
+                                    <div class="menu-text">게시판</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')">공지사항</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')">칼럼</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/board/materials/index.html')">강의자료</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/board/videos/index.html')">동영상
+                                        강의</a>
+                                </div>
+                            </div>
+
+                            <!-- 마이페이지 -->
+                            <div class="mobile-menu-item">
+                                <button type="button">
+                                    <div class="menu-icon">👤</div>
+                                    <div class="menu-text">마이페이지</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/personal-info.html')">개인정보
+                                        관리</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/course-history.html')">수강
+                                        내역</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/cert-management.html')">자격증
+                                        관리</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/payment-history.html')">결제
+                                        내역</a>
+                                </div>
+                            </div>
+
+                            <!-- 관리자 (조건부 표시) -->
+                            <div class="mobile-menu-item admin-only" style="display: none;">
+                                <button type="button">
+                                    <div class="menu-icon">⚙️</div>
+                                    <div class="menu-text">관리자</div>
+                                    <div class="toggle-icon">▶</div>
+                                </button>
+                                <div class="mobile-submenu">
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/admin/dashboard.html')">대시보드</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/admin/user-management.html')">회원
+                                        관리</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/admin/course-management.html')">교육
+                                        관리</a>
+                                    <a
+                                        href="javascript:window.location.href=window.adjustPath('pages/admin/cert-management.html')">자격증
+                                        관리</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
@@ -141,9 +283,7 @@
                 <form id="login-form" class="space-y-6">
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
-                        <input type="email" id="email" name="email"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="이메일 주소를 입력하세요" required>
+                        <input type="email" id="email" name="email" required placeholder="이메일 주소를 입력하세요">
                     </div>
 
                     <div>
@@ -152,20 +292,16 @@
                             <a href="javascript:window.location.href=window.adjustPath('pages/auth/find-account.html')"
                                 class="text-xs text-blue-600 hover:text-blue-800">비밀번호 찾기</a>
                         </div>
-                        <input type="password" id="password" name="password"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="비밀번호를 입력하세요" required>
+                        <input type="password" id="password" name="password" required placeholder="비밀번호를 입력하세요">
                     </div>
 
                     <div class="flex items-center">
-                        <input type="checkbox" id="remember-me" name="remember-me"
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <input type="checkbox" id="remember-me" name="remember-me">
                         <label for="remember-me" class="ml-2 block text-sm text-gray-700">로그인 상태 유지</label>
                     </div>
 
                     <div>
-                        <button type="submit" id="login-btn"
-                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        <button type="submit" id="login-btn">
                             로그인
                         </button>
                     </div>
@@ -182,8 +318,7 @@
                     </div>
 
                     <div class="mt-6 grid grid-cols-1 gap-3">
-                        <button type="button" id="google-login-btn"
-                            class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <button type="button" id="google-login-btn">
                             <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
                                     <path fill="#4285F4"
@@ -228,7 +363,8 @@
                     <div class="min-w-[200px]">
                         <p class="text-sm text-gray-400 mb-1">상호: 사단법인 문경</p>
                         <p class="text-sm text-gray-400 mb-1">대표: 최승욱</p>
-                        <p class="text-sm text-gray-400 mb-1">주소: 서울특별시 노원구 한글비석로 233, 새롬스타빌 706호&lpar;중계동, 새롬스타빌&rpar;</p>
+                        <p class="text-sm text-gray-400 mb-1">주소: 서울특별시 노원구 한글비석로 233, 새롬스타빌 706호&lpar;중계동, 새롬스타빌&rpar;
+                        </p>
                         <p class="text-sm text-gray-400 mb-1">전화: </p>
                     </div>
                     <div class="min-w-[200px]">
@@ -279,19 +415,6 @@
         <script src="{basePath}assets/js/utils/validators.js"><\/script>
         <script src="{basePath}assets/js/pages/auth/login.js"><\/script>
         <script src="{basePath}assets/js/main.js"><\/script>
-    </script>
-    <script>
-        // 무한 리디렉션 방지
-        if (window.redirectCount) {
-            window.redirectCount++;
-            if (window.redirectCount > 5) {
-                console.error('무한 리디렉션 감지됨');
-                alert('페이지 로딩 중 문제가 발생했습니다. 홈페이지로 이동합니다.');
-                window.location.href = '/index.html';
-            }
-        } else {
-            window.redirectCount = 1;
-        }
     </script>
 </body>
 

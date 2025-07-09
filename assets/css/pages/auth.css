@@ -62,19 +62,31 @@
     margin-bottom: 0.25rem;
 }
 
-.form-input {
-    width: 100%;
-    padding: 0.5rem 1rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.375rem;
-    font-size: 0.875rem;
-    transition: border-color 0.15s, box-shadow 0.15s;
+.form-input, 
+.form-control,
+input[type="email"], 
+input[type="password"],
+input[type="text"],
+input[type="tel"] {
+    width: 100% !important;
+    padding: 0.5rem 1rem !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.375rem !important;
+    font-size: 0.875rem !important;
+    background-color: #ffffff !important;
+    color: #111827 !important;
+    transition: border-color 0.15s, box-shadow 0.15s !important;
 }
 
-.form-input:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+.form-input:focus, 
+.form-control:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="text"]:focus,
+input[type="tel"]:focus {
+    outline: none !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
 }
 
 .form-input.error {
@@ -100,37 +112,66 @@
 }
 
 /* ===================================
-   버튼 스타일
+   버튼 스타일 (통합)
 =================================== */
 
-.auth-btn {
-    width: 100%;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    font-weight: 500;
-    font-size: 0.875rem;
-    transition: all 0.15s;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+/* 기본 인증 버튼 */
+.auth-btn,
+#login-btn,
+#signup-btn,
+button[type="submit"] {
+    width: 100% !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 0.375rem !important;
+    font-weight: 500 !important;
+    font-size: 0.875rem !important;
+    transition: all 0.15s ease-in-out !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    border: none !important;
 }
 
-.auth-btn.primary {
-    background-color: #3b82f6;
-    color: white;
-    border: none;
+/* Primary 버튼 (로그인, 회원가입) */
+.auth-btn.primary,
+#login-btn,
+#signup-btn,
+button[type="submit"] {
+    background-color: #3b82f6 !important;
+    color: #ffffff !important;
+    border: 1px solid #3b82f6 !important;
 }
 
-.auth-btn.primary:hover {
-    background-color: #2563eb;
+.auth-btn.primary:hover,
+#login-btn:hover,
+#signup-btn:hover,
+button[type="submit"]:hover {
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
 }
 
-.auth-btn.primary:disabled {
-    background-color: #93c5fd;
-    cursor: not-allowed;
+.auth-btn.primary:focus,
+#login-btn:focus,
+#signup-btn:focus,
+button[type="submit"]:focus {
+    outline: 2px solid transparent !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5) !important;
 }
 
+.auth-btn.primary:disabled,
+#login-btn:disabled,
+#signup-btn:disabled,
+button[type="submit"]:disabled {
+    background-color: #93c5fd !important;
+    border-color: #93c5fd !important;
+    cursor: not-allowed !important;
+    opacity: 0.7 !important;
+}
+
+/* Secondary 버튼 */
 .auth-btn.secondary {
     background-color: transparent;
     color: #374151;
@@ -142,21 +183,49 @@
 }
 
 /* 소셜 로그인 버튼 */
-.social-login-btn {
-    position: relative;
-    background-color: white;
-    border: 1px solid #d1d5db;
-    color: #374151;
+.social-login-btn,
+#google-login-btn,
+#google-signup-btn {
+    position: relative !important;
+    background-color: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    color: #374151 !important;
+    width: 100% !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 0.375rem !important;
+    font-weight: 500 !important;
+    font-size: 0.875rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease-in-out !important;
 }
 
-.social-login-btn:hover {
-    background-color: #f9fafb;
+.social-login-btn:hover,
+#google-login-btn:hover,
+#google-signup-btn:hover {
+    background-color: #f9fafb !important;
+    border-color: #d1d5db !important;
 }
 
-.social-login-btn svg {
-    width: 1.25rem;
-    height: 1.25rem;
-    margin-right: 0.5rem;
+.social-login-btn:disabled,
+#google-login-btn:disabled,
+#google-signup-btn:disabled {
+    background-color: #f3f4f6 !important;
+    color: #9ca3af !important;
+    cursor: not-allowed !important;
+    opacity: 0.7 !important;
+}
+
+/* Google 로고 아이콘 크기 통일 */
+.social-login-btn svg,
+#google-login-btn svg,
+#google-signup-btn svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    margin-right: 0.5rem !important;
+    flex-shrink: 0 !important;
 }
 
 /* ===================================
@@ -169,24 +238,35 @@
     margin-bottom: 1rem;
 }
 
-.checkbox-input {
-    width: 1rem;
-    height: 1rem;
-    border-radius: 0.25rem;
-    border-color: #d1d5db;
-    color: #3b82f6;
-    margin-top: 0.125rem;
+.checkbox-input,
+input[type="checkbox"] {
+    width: 1rem !important;
+    height: 1rem !important;
+    border-radius: 0.25rem !important;
+    border-color: #d1d5db !important;
+    color: #3b82f6 !important;
+    margin-top: 0.125rem !important;
+    flex-shrink: 0 !important;
 }
 
-.checkbox-input:checked {
-    background-color: #3b82f6;
-    border-color: #3b82f6;
+.checkbox-input:checked,
+input[type="checkbox"]:checked {
+    background-color: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+}
+
+.checkbox-input:focus,
+input[type="checkbox"]:focus {
+    outline: 2px solid transparent !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5) !important;
 }
 
 .checkbox-label {
     margin-left: 0.5rem;
     font-size: 0.875rem;
     color: #374151;
+    line-height: 1.4;
 }
 
 /* 약관 체크박스 그룹 */
@@ -209,6 +289,22 @@
 
 .terms-individual .checkbox-group {
     margin-bottom: 0.5rem;
+}
+
+/* 약관 보기 버튼 */
+.terms-view-btn {
+    color: #3b82f6 !important;
+    text-decoration: underline !important;
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    font-size: 0.75rem !important;
+    cursor: pointer !important;
+    margin-left: 0.5rem !important;
+}
+
+.terms-view-btn:hover {
+    color: #2563eb !important;
 }
 
 /* ===================================
@@ -368,19 +464,36 @@
     color: #111827;
 }
 
-.modal-close {
-    background: none;
-    border: none;
-    color: #6b7280;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 0.375rem;
-    transition: color 0.15s;
+.modal-close,
+.close {
+    background: none !important;
+    border: none !important;
+    color: #374151 !important; /* 더 진한 회색으로 변경 */
+    cursor: pointer !important;
+    padding: 0.5rem !important;
+    border-radius: 0.375rem !important;
+    transition: all 0.15s !important;
+    font-size: 1.5rem !important;
+    line-height: 1 !important;
+    opacity: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-.modal-close:hover {
-    color: #374151;
-    background-color: #f3f4f6;
+.modal-close:hover,
+.close:hover {
+    color: #111827 !important; /* hover 시 더 진한 색상 */
+    background-color: #f3f4f6 !important;
+    opacity: 1 !important;
+}
+
+.modal-close svg,
+.close svg {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    stroke: currentColor !important;
+    fill: none !important;
 }
 
 .modal-body {
@@ -541,10 +654,426 @@
     outline-offset: 2px;
 }
 
+/* 
+ * 🔧 auth.css 파일 맨 아래에 추가할 모달 z-index 수정 코드
+ * 기존 코드는 그대로 두고 이 코드만 추가하세요.
+ */
+
 /* ===================================
-   다크 모드 지원 (선택적)
+   모달 z-index 계층 구조 개선
 =================================== */
 
-@media (prefers-color-scheme: dark) {
-    /* 다크 모드 스타일은 필요시 추가 */
+/* 기본 모달 z-index (기존 유지) */
+.modal {
+    z-index: 50;
 }
+
+/* Google 약관 모달 - 더 높은 z-index */
+#google-terms-modal {
+    z-index: 60 !important;
+}
+
+/* Google 약관 모달에서 열리는 상세 약관 모달들 - 가장 높은 z-index */
+#google-terms-modal ~ #terms-service-modal,
+#google-terms-modal ~ #privacy-modal,
+#google-terms-modal ~ #marketing-modal {
+    z-index: 70 !important;
+}
+
+/* 
+ * 🎯 모달이 열린 상태에서 다른 모달을 여는 경우를 위한 동적 z-index 
+ * JavaScript에서 사용할 CSS 클래스
+ */
+.modal.modal-stacked {
+    z-index: 70 !important;
+}
+
+.modal.modal-stacked-high {
+    z-index: 80 !important;
+}
+
+/* 
+ * 🔧 모달 백드롭 z-index도 함께 조정
+ * 모달이 올바르게 표시되도록 백드롭도 동일한 계층에 배치
+ */
+.modal-backdrop {
+    z-index: 49; /* 기본 모달보다 1 낮게 */
+}
+
+/* Google 약관 모달 백드롭 */
+#google-terms-modal .modal-backdrop,
+#google-terms-modal::before {
+    z-index: 59 !important;
+}
+
+/* 상세 약관 모달 백드롭 */
+.modal.modal-stacked .modal-backdrop,
+.modal.modal-stacked::before {
+    z-index: 69 !important;
+}
+
+/* 
+ * 🚀 모달 간 부드러운 전환 효과
+ * 모달이 겹칠 때 자연스러운 전환
+ */
+.modal {
+    transition: z-index 0.1s ease;
+}
+
+/* 
+ * 📱 모바일에서 모달 z-index 최적화
+ * 모바일 환경에서 모달이 올바르게 표시되도록 보장
+ */
+@media (max-width: 768px) {
+    .modal {
+        z-index: 9999 !important;
+    }
+    
+    #google-terms-modal {
+        z-index: 10000 !important;
+    }
+    
+    .modal.modal-stacked {
+        z-index: 10001 !important;
+    }
+    
+    .modal.modal-stacked-high {
+        z-index: 10002 !important;
+    }
+}
+
+/* 
+ * 🔧 모달 포커스 관리
+ * 모달이 열릴 때 적절한 포커스 처리
+ */
+.modal:focus {
+    outline: none;
+}
+
+.modal.modal-stacked {
+    outline: 2px solid rgba(59, 130, 246, 0.3);
+    outline-offset: -2px;
+}
+
+/* 
+ * ✨ 완료 표시
+ * 이 코드를 auth.css 파일 맨 아래에 추가하면
+ * 모달 z-index 문제가 해결됩니다!
+ */
+
+ /* 
+ * 🔧 auth.css 파일에 추가할 실시간 검증 스타일
+ * 기존 모달 z-index 코드 아래에 추가하세요.
+ */
+
+/* ===================================
+   실시간 검증 UI 스타일
+=================================== */
+
+/* 필드 검증 상태 표시 */
+.field-validation {
+    position: relative;
+}
+
+.field-validation .form-input,
+.field-validation .form-control {
+    padding-right: 2.5rem !important;
+}
+
+/* 검증 아이콘 */
+.validation-icon {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.25rem;
+    height: 1.25rem;
+    display: none;
+    z-index: 10;
+}
+
+.validation-icon.success {
+    color: #10b981;
+    display: block;
+}
+
+.validation-icon.error {
+    color: #ef4444;
+    display: block;
+}
+
+.validation-icon.loading {
+    color: #6b7280;
+    display: block;
+    animation: spin 1s linear infinite;
+}
+
+/* 검증 메시지 */
+.validation-message {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    min-height: 1rem;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.validation-message.success {
+    color: #10b981;
+}
+
+.validation-message.error {
+    color: #ef4444;
+}
+
+.validation-message.info {
+    color: #6b7280;
+}
+
+/* 필드 상태별 스타일 */
+.form-input.success,
+.form-control.success {
+    border-color: #10b981 !important;
+    background-color: #f0fdf4 !important;
+}
+
+.form-input.error,
+.form-control.error {
+    border-color: #ef4444 !important;
+    background-color: #fef2f2 !important;
+}
+
+.form-input.loading,
+.form-control.loading {
+    border-color: #6b7280 !important;
+    background-color: #f9fafb !important;
+}
+
+/* 비밀번호 강도 표시 */
+.password-strength {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background-color: #f9fafb;
+    border-radius: 0.375rem;
+    border: 1px solid #e5e7eb;
+}
+
+.password-strength-bar {
+    height: 0.25rem;
+    background-color: #e5e7eb;
+    border-radius: 0.125rem;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.password-strength-fill {
+    height: 100%;
+    border-radius: 0.125rem;
+    transition: all 0.3s ease;
+    width: 0%;
+}
+
+.password-strength-fill.weak {
+    background-color: #ef4444;
+    width: 25%;
+}
+
+.password-strength-fill.fair {
+    background-color: #f59e0b;
+    width: 50%;
+}
+
+.password-strength-fill.good {
+    background-color: #10b981;
+    width: 75%;
+}
+
+.password-strength-fill.strong {
+    background-color: #059669;
+    width: 100%;
+}
+
+.password-strength-text {
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.password-strength-text.weak {
+    color: #ef4444;
+}
+
+.password-strength-text.fair {
+    color: #f59e0b;
+}
+
+.password-strength-text.good {
+    color: #10b981;
+}
+
+.password-strength-text.strong {
+    color: #059669;
+}
+
+/* 비밀번호 요구사항 체크리스트 */
+.password-requirements {
+    margin-top: 0.5rem;
+}
+
+.password-requirements ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.75rem;
+}
+
+.password-requirements li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.25rem;
+    padding: 0.125rem 0;
+    transition: all 0.2s ease;
+}
+
+.password-requirements li svg {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+}
+
+.password-requirements li.valid {
+    color: #10b981;
+}
+
+.password-requirements li.invalid {
+    color: #6b7280;
+}
+
+/* 이메일 중복 검사 상태 */
+.email-check-status {
+    display: flex;
+    align-items: center;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.email-check-status.checking {
+    color: #6b7280;
+}
+
+.email-check-status.available {
+    color: #10b981;
+}
+
+.email-check-status.unavailable {
+    color: #ef4444;
+}
+
+.email-check-status svg {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.25rem;
+}
+
+/* 휴대폰 번호 포맷팅 도움말 */
+.phone-format-help {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+
+/* 로딩 스피너 애니메이션 */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 성공 체크 애니메이션 */
+@keyframes checkmark {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.validation-icon.success {
+    animation: checkmark 0.3s ease;
+}
+
+/* 오류 아이콘 애니메이션 */
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-2px);
+    }
+    75% {
+        transform: translateX(2px);
+    }
+}
+
+.validation-icon.error {
+    animation: shake 0.3s ease;
+}
+
+/* 폼 제출 시 로딩 상태 */
+.form-submitting .form-input,
+.form-submitting .form-control {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.form-submitting .validation-icon {
+    display: none;
+}
+
+/* 반응형 조정 */
+@media (max-width: 640px) {
+    .password-strength {
+        padding: 0.375rem;
+    }
+    
+    .password-requirements {
+        margin-top: 0.375rem;
+    }
+    
+    .validation-message {
+        font-size: 0.7rem;
+    }
+}
+
+/* 접근성 개선 */
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* 포커스 시 검증 메시지 강조 */
+.form-input:focus + .validation-message,
+.form-control:focus + .validation-message {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 
+ * ✨ 완료!
+ * 이 스타일들로 실시간 검증 UI가 구현됩니다.
+ */
