@@ -330,7 +330,7 @@
         </main>
     </div>
 
-    <!-- 🔧 자격증 발급 모달 - 구조 통일 및 z-index 수정 -->
+    <!-- 🔧 자격증 발급 모달 - 폼 구조 개선 -->
     <div id="cert-issue-modal" class="cert-modal cert-modal-primary hidden">
         <div class="cert-modal-backdrop" onclick="certManager.closeIssueCertModal()"></div>
         <div class="cert-modal-container">
@@ -345,36 +345,62 @@
                     </button>
                 </div>
                 <div class="cert-modal-body">
+                    <!-- 🔧 폼 구조 개선 -->
                     <form id="cert-issue-form" class="space-y-4">
-                        <div>
-                            <label for="issue-name" class="block text-sm font-medium text-gray-700">수료자명</label>
+                        <div class="form-field">
+                            <label for="issue-name" class="block text-sm font-medium text-gray-700">
+                                수료자명 <span class="text-red-500">*</span>
+                            </label>
                             <input type="text" id="issue-name" name="name" required
-                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                placeholder="수료자 이름을 입력하세요">
                         </div>
-                        <div>
-                            <label for="issue-email" class="block text-sm font-medium text-gray-700">이메일</label>
+
+                        <div class="form-field">
+                            <label for="issue-email" class="block text-sm font-medium text-gray-700">
+                                이메일 <span class="text-red-500">*</span>
+                            </label>
                             <input type="email" id="issue-email" name="email" required
-                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                placeholder="수료자 이메일을 입력하세요">
                         </div>
-                        <div>
-                            <label for="issue-course" class="block text-sm font-medium text-gray-700">교육 과정</label>
+
+                        <div class="form-field">
+                            <label for="issue-course" class="block text-sm font-medium text-gray-700">
+                                교육 과정 <span class="text-red-500">*</span>
+                            </label>
                             <select id="issue-course" name="course" required
                                 class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                                 <option value="">교육 과정을 선택하세요</option>
+                                <!-- 🔧 옵션들은 JavaScript에서 동적으로 로드됩니다 -->
                             </select>
+                            <p class="text-xs text-gray-500 mt-1">
+                                💡 교육과정을 선택하면 수료일과 만료일이 자동으로 설정됩니다.
+                            </p>
                         </div>
-                        <div>
-                            <label for="issue-completion-date"
-                                class="block text-sm font-medium text-gray-700">수료일</label>
-                            <input type="date" id="issue-completion-date" name="completionDate" required
-                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="form-field">
+                                <label for="issue-completion-date" class="block text-sm font-medium text-gray-700">
+                                    수료일 <span class="text-red-500">*</span>
+                                </label>
+                                <input type="date" id="issue-completion-date" name="completionDate" required
+                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <p class="text-xs text-gray-500 mt-1">교육과정 마지막 날로 자동 설정</p>
+                            </div>
+
+                            <div class="form-field">
+                                <label for="issue-expiry-date" class="block text-sm font-medium text-gray-700">
+                                    만료일 <span class="text-red-500">*</span>
+                                </label>
+                                <input type="date" id="issue-expiry-date" name="expiryDate" required
+                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <p class="text-xs text-gray-500 mt-1">수료일로부터 3년 후로 자동 설정</p>
+                            </div>
                         </div>
-                        <div>
-                            <label for="issue-expiry-date" class="block text-sm font-medium text-gray-700">만료일</label>
-                            <input type="date" id="issue-expiry-date" name="expiryDate" required
-                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                        </div>
-                        <div class="flex justify-end space-x-3">
+
+                        <!-- 🔧 통일된 버튼 영역 -->
+                        <div class="form-actions">
                             <button type="button" onclick="certManager.closeIssueCertModal()"
                                 class="admin-btn admin-btn-secondary">
                                 취소
@@ -444,8 +470,11 @@
             <div class="cert-modal-content">
                 <div class="cert-modal-header">
                     <h3 class="cert-modal-title">
-                        <svg class="inline-block w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        <svg class="inline-block w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z">
+                            </path>
                         </svg>
                         결제 완료자 선택 발급
                     </h3>
@@ -463,12 +492,14 @@
                             <div class="flex">
                                 <div class="flex-shrink-0">
                                     <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                        <path fill-rule="evenodd"
+                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                            clip-rule="evenodd"></path>
                                     </svg>
                                 </div>
                                 <div class="ml-3">
                                     <p class="text-sm text-blue-700">
-                                        <span id="current-cert-type-name">건강운동처방사</span> 자격증비를 결제 완료한 신청자 목록입니다. 
+                                        <span id="current-cert-type-name">건강운동처방사</span> 자격증비를 결제 완료한 신청자 목록입니다.
                                         발급할 신청자를 선택하세요.
                                     </p>
                                 </div>
@@ -478,21 +509,26 @@
                         <!-- 필터 및 검색 -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
                             <div>
-                                <label for="paid-search-name" class="block text-sm font-medium text-gray-700">이름 검색</label>
-                                <input type="text" id="paid-search-name" placeholder="이름을 입력하세요" 
+                                <label for="paid-search-name" class="block text-sm font-medium text-gray-700">이름
+                                    검색</label>
+                                <input type="text" id="paid-search-name" placeholder="이름을 입력하세요"
                                     class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
                             </div>
                             <div>
-                                <label for="paid-filter-course" class="block text-sm font-medium text-gray-700">교육 과정</label>
-                                <select id="paid-filter-course" 
+                                <label for="paid-filter-course" class="block text-sm font-medium text-gray-700">교육
+                                    과정</label>
+                                <select id="paid-filter-course"
                                     class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
                                     <option value="">전체</option>
                                 </select>
                             </div>
                             <div class="flex items-end">
-                                <button onclick="certManager.filterPaidApplicants()" class="admin-btn admin-btn-secondary w-full">
-                                    <svg class="inline-block w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                <button onclick="certManager.filterPaidApplicants()"
+                                    class="admin-btn admin-btn-secondary w-full">
+                                    <svg class="inline-block w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                     </svg>
                                     검색
                                 </button>
@@ -501,10 +537,12 @@
 
                         <!-- 신청자 목록 테이블 -->
                         <div class="border border-gray-200 rounded-lg overflow-hidden">
-                            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+                            <div
+                                class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
                                 <div class="flex items-center space-x-4">
                                     <label class="flex items-center">
-                                        <input type="checkbox" id="select-all-paid" onchange="certManager.toggleSelectAllPaid(this)" 
+                                        <input type="checkbox" id="select-all-paid"
+                                            onchange="certManager.toggleSelectAllPaid(this)"
                                             class="mr-2 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
                                         <span class="text-sm font-medium text-gray-700">전체 선택</span>
                                     </label>
@@ -512,25 +550,41 @@
                                 </div>
                                 <span id="selected-count" class="text-sm font-medium text-indigo-600">0명 선택</span>
                             </div>
-                            
+
                             <div class="overflow-x-auto max-h-96">
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50 sticky top-0">
                                         <tr>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">선택</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이메일</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">교육과정</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">결제일</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">결제금액</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                선택</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                이름</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                이메일</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                교육과정</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                결제일</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                결제금액</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                상태</th>
                                         </tr>
                                     </thead>
                                     <tbody id="paid-applicants-tbody" class="bg-white divide-y divide-gray-200">
                                         <tr>
                                             <td colspan="7" class="px-4 py-8 text-center text-gray-500">
                                                 <div class="flex flex-col items-center">
-                                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-4"></div>
+                                                    <div
+                                                        class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-4">
+                                                    </div>
                                                     <span>결제 완료자 목록을 불러오는 중...</span>
                                                 </div>
                                             </td>
@@ -541,7 +595,8 @@
                         </div>
 
                         <!-- 선택된 신청자 정보 -->
-                        <div id="selected-applicants-info" class="hidden bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div id="selected-applicants-info"
+                            class="hidden bg-green-50 border border-green-200 rounded-lg p-4">
                             <h4 class="text-sm font-medium text-green-800 mb-2">선택된 신청자</h4>
                             <div id="selected-applicants-list" class="text-sm text-green-700"></div>
                         </div>
@@ -551,13 +606,15 @@
                             <h4 class="text-sm font-medium text-gray-800 mb-3">자격증 발급 설정</h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label for="bulk-issue-date" class="block text-sm font-medium text-gray-700">발급일</label>
-                                    <input type="date" id="bulk-issue-date" 
+                                    <label for="bulk-issue-date"
+                                        class="block text-sm font-medium text-gray-700">발급일</label>
+                                    <input type="date" id="bulk-issue-date"
                                         class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
                                 </div>
                                 <div>
-                                    <label for="bulk-expiry-date" class="block text-sm font-medium text-gray-700">만료일</label>
-                                    <input type="date" id="bulk-expiry-date" 
+                                    <label for="bulk-expiry-date"
+                                        class="block text-sm font-medium text-gray-700">만료일</label>
+                                    <input type="date" id="bulk-expiry-date"
                                         class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
                                 </div>
                             </div>
@@ -569,10 +626,12 @@
                                 class="admin-btn admin-btn-secondary">
                                 취소
                             </button>
-                            <button type="button" onclick="certManager.issueSelectedCertificates()" id="issue-selected-btn"
-                                class="admin-btn admin-btn-success" disabled>
-                                <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            <button type="button" onclick="certManager.issueSelectedCertificates()"
+                                id="issue-selected-btn" class="admin-btn admin-btn-success" disabled>
+                                <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 선택된 신청자 발급 (<span id="selected-count-btn">0</span>명)
                             </button>

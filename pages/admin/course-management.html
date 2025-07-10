@@ -243,20 +243,23 @@
                     </svg>
                 </button>
             </div>
-            
+
             <form id="course-form" class="course-form">
                 <!-- 🔧 기본 정보 섹션 -->
                 <div class="form-section basic-info-section">
                     <h4 class="section-title">
-                        <svg class="inline-block w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        <svg class="inline-block w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         기본 정보
                     </h4>
-                    
+
                     <div class="form-row">
                         <div class="form-field">
-                            <label for="course-certificate-type" class="form-label">자격증 종류 <span class="required">*</span></label>
+                            <label for="course-certificate-type" class="form-label">자격증 종류 <span
+                                    class="required">*</span></label>
                             <select id="course-certificate-type" name="certificateType" required class="form-select">
                                 <option value="">선택하세요</option>
                                 <option value="health-exercise">건강운동처방사</option>
@@ -266,7 +269,8 @@
                             </select>
                         </div>
                         <div class="form-field">
-                            <label for="course-instructor" class="form-label">강사 선택 <span class="required">*</span></label>
+                            <label for="course-instructor" class="form-label">강사 선택 <span
+                                    class="required">*</span></label>
                             <select id="course-instructor" name="instructor" required class="form-select">
                                 <option value="">강사를 선택하세요</option>
                                 <!-- 강사 목록은 동적으로 로드됩니다 -->
@@ -277,11 +281,13 @@
                     <!-- 교육 기간 -->
                     <div class="form-row">
                         <div class="form-field">
-                            <label for="course-start-date" class="form-label">교육 시작일 <span class="required">*</span></label>
+                            <label for="course-start-date" class="form-label">교육 시작일 <span
+                                    class="required">*</span></label>
                             <input type="date" id="course-start-date" name="startDate" required class="form-input">
                         </div>
                         <div class="form-field">
-                            <label for="course-end-date" class="form-label">교육 종료일 <span class="required">*</span></label>
+                            <label for="course-end-date" class="form-label">교육 종료일 <span
+                                    class="required">*</span></label>
                             <input type="date" id="course-end-date" name="endDate" required class="form-input">
                         </div>
                     </div>
@@ -289,12 +295,16 @@
                     <!-- 신청 기간 -->
                     <div class="form-row">
                         <div class="form-field">
-                            <label for="course-apply-start-date" class="form-label">신청 시작일 <span class="required">*</span></label>
-                            <input type="date" id="course-apply-start-date" name="applyStartDate" required class="form-input">
+                            <label for="course-apply-start-date" class="form-label">신청 시작일 <span
+                                    class="required">*</span></label>
+                            <input type="date" id="course-apply-start-date" name="applyStartDate" required
+                                class="form-input">
                         </div>
                         <div class="form-field">
-                            <label for="course-apply-end-date" class="form-label">신청 종료일 <span class="required">*</span></label>
-                            <input type="date" id="course-apply-end-date" name="applyEndDate" required class="form-input">
+                            <label for="course-apply-end-date" class="form-label">신청 종료일 <span
+                                    class="required">*</span></label>
+                            <input type="date" id="course-apply-end-date" name="applyEndDate" required
+                                class="form-input">
                         </div>
                     </div>
                 </div>
@@ -302,12 +312,15 @@
                 <!-- 🔧 결제 내역 섹션 (개선된 구조) -->
                 <div class="form-section pricing-section">
                     <h4 class="section-title">
-                        <svg class="inline-block w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                        <svg class="inline-block w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
+                            </path>
                         </svg>
                         결제 내역
                     </h4>
-                    
+
                     <div class="pricing-info-card">
                         <p class="pricing-info-text">
                             💡 여기서 설정한 가격이 사용자 결제 페이지에 자동으로 반영됩니다.
@@ -318,66 +331,48 @@
                             <h5 class="subsection-title">💰 기본 가격 설정</h5>
                             <div class="form-row-triple">
                                 <div class="form-field">
-                                    <label for="course-price" class="form-label">교육비 (원) <span class="required">*</span></label>
-                                    <input type="number" id="course-price" name="price" required min="0" step="1000" class="form-input" placeholder="350000">
+                                    <label for="course-price" class="form-label">교육비 (원) <span
+                                            class="required">*</span></label>
+                                    <input type="number" id="course-price" name="price" required min="0" step="1000"
+                                        class="form-input" placeholder="350000">
                                     <p class="field-helper">교육 과정 수강료</p>
                                 </div>
                                 <div class="form-field">
-                                    <label for="certificate-price" class="form-label">자격증 발급비 (원) <span class="required">*</span></label>
-                                    <input type="number" id="certificate-price" name="certificatePrice" required min="0" step="1000" class="form-input" value="50000">
+                                    <label for="certificate-price" class="form-label">자격증 발급비 (원) <span
+                                            class="required">*</span></label>
+                                    <input type="number" id="certificate-price" name="certificatePrice" required min="0"
+                                        step="1000" class="form-input" value="50000">
                                     <p class="field-helper">자격증 발급 및 배송비</p>
                                 </div>
                                 <div class="form-field">
                                     <label for="material-price" class="form-label">교재비 (원)</label>
-                                    <input type="number" id="material-price" name="materialPrice" min="0" step="1000" class="form-input" value="30000">
+                                    <input type="number" id="material-price" name="materialPrice" min="0" step="1000"
+                                        class="form-input" value="30000">
                                     <p class="field-helper">교재 구매비 (선택사항)</p>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 🔧 교재 설정 서브섹션 -->
+                        <!-- 🔧 교재 설정 + 패키지 할인 설정 (한 줄 배치) -->
                         <div class="pricing-subsection">
-                            <h5 class="subsection-title">📚 교재 설정</h5>
+                            <h5 class="subsection-title">📚 교재 설정 및 패키지 할인</h5>
                             <div class="form-row">
                                 <div class="form-field">
                                     <label for="material-name" class="form-label">교재명</label>
-                                    <input type="text" id="material-name" name="materialName" class="form-input" placeholder="예: 건강운동처방사 전문교재">
+                                    <input type="text" id="material-name" name="materialName" class="form-input"
+                                        placeholder="예: 건강운동처방사 전문교재">
                                     <p class="field-helper">교재 이름을 입력하세요</p>
                                 </div>
                                 <div class="form-field">
-                                    <div class="checkbox-group">
-                                        <label class="checkbox-label">
-                                            <input type="checkbox" id="material-required" name="materialRequired">
-                                            <span class="checkbox-text">교재 구매 필수</span>
-                                        </label>
-                                        <p class="field-helper">체크 시 자격증 신청 시 교재를 반드시 구매해야 합니다</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 🔧 패키지 할인 설정 서브섹션 -->
-                        <div class="pricing-subsection">
-                            <h5 class="subsection-title">🎯 패키지 할인 설정</h5>
-                            <div class="form-row">
-                                <div class="form-field">
                                     <label for="package-discount" class="form-label">전체 패키지 할인율 (%)</label>
-                                    <input type="number" id="package-discount" name="packageDiscount" min="0" max="50" step="1" class="form-input" value="0">
+                                    <input type="number" id="package-discount" name="packageDiscount" min="0" max="50"
+                                        step="1" class="form-input" value="0">
                                     <p class="field-helper">교육+자격증+교재 전체 구매 시 할인율 (0% = 할인 없음)</p>
                                 </div>
-                                <div class="form-field">
-                                    <div class="checkbox-group">
-                                        <label class="checkbox-label">
-                                            <input type="checkbox" id="enable-installment" name="enableInstallment">
-                                            <span class="checkbox-text">분할 결제 허용</span>
-                                        </label>
-                                        <p class="field-helper">토스페이먼츠 무이자 할부 옵션 제공</p>
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
-                        <!-- 🔧 가격 미리보기 서브섹션 -->
+                        <!-- 🔧 가격 미리보기 서브섹션 (간소화) -->
                         <div class="pricing-subsection">
                             <h5 class="subsection-title">💡 가격 미리보기</h5>
                             <div class="price-preview-card">
@@ -409,14 +404,14 @@
                                         <span class="price-value savings" id="preview-savings">₩0</span>
                                     </div>
                                 </div>
-                                
-                                <!-- 가격 정책 안내 -->
+
+                                <!-- 🔧 간소화된 가격 정책 안내 -->
                                 <div class="pricing-policy-info">
                                     <p class="policy-title"><strong>💡 가격 정책:</strong></p>
                                     <ul class="policy-list">
-                                        <li>• <strong>교재 필수</strong>: 전체 패키지 할인 적용</li>
-                                        <li>• <strong>교재 선택</strong>: 교육비+자격증비만 할인, 교재비는 별도</li>
-                                        <li>• <strong>할인율 0%</strong>: 패키지 할인 없음</li>
+                                        <li>• 교재는 선택사항으로, 별도 구매 가능</li>
+                                        <li>• 패키지 할인은 교육비+자격증비+교재비 전체에 적용</li>
+                                        <li>• 할인율 0%인 경우 패키지 할인 없음</li>
                                     </ul>
                                 </div>
                             </div>
@@ -427,17 +422,22 @@
                 <!-- 🔧 과정 설정 섹션 -->
                 <div class="form-section course-settings-section">
                     <h4 class="section-title">
-                        <svg class="inline-block w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <svg class="inline-block w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
                         과정 설정
                     </h4>
-                    
+
                     <div class="form-row-triple">
                         <div class="form-field">
                             <label for="course-capacity" class="form-label">정원 <span class="required">*</span></label>
-                            <input type="number" id="course-capacity" name="capacity" required min="1" max="100" class="form-input">
+                            <input type="number" id="course-capacity" name="capacity" required min="1" max="100"
+                                class="form-input">
                             <p class="field-helper">최대 수강 인원</p>
                         </div>
                         <div class="form-field">
@@ -465,7 +465,8 @@
                     <div class="form-row">
                         <div class="form-field">
                             <label for="course-location" class="form-label">교육 장소</label>
-                            <input type="text" id="course-location" name="location" placeholder="서울 강남구 센터" class="form-input">
+                            <input type="text" id="course-location" name="location" placeholder="서울 강남구 센터"
+                                class="form-input">
                             <p class="field-helper">교육이 진행될 장소</p>
                         </div>
                     </div>
@@ -474,12 +475,15 @@
                 <!-- 🔧 자동 생성 정보 섹션 -->
                 <div class="form-section auto-info-section">
                     <h4 class="section-title">
-                        <svg class="inline-block w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        <svg class="inline-block w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
+                            </path>
                         </svg>
                         자동 생성되는 정보
                     </h4>
-                    
+
                     <div class="auto-generation-info">
                         <ul class="auto-generation-list">
                             <li><strong>교육명:</strong> "자격증명 + 년도 + 상반기/하반기 과정" (예: 건강운동처방사 25년 상반기 과정)</li>

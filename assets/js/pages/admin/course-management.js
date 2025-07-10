@@ -1,7 +1,7 @@
 /**
  * 🔧 course-management-enhanced.js
  * 통합 가격 설정 기능이 포함된 개선된 교육 관리 페이지 스크립트
- * 문법 오류 수정 완료 버전
+ * 🔧 수정: 중복 생성, 할인율 0%, 이벤트 리스너 중복 방지 완료 버전
  */
 
 // 🔧 의존성 체크 함수
@@ -54,6 +54,8 @@ window.courseManager = {
     instructors: [],
     courses: [],
     initialized: false,
+    isSubmitting: false, // 🔧 NEW: 중복 제출 방지 플래그
+    eventListenersSet: false, // 🔧 NEW: 이벤트 리스너 중복 등록 방지
 
     /**
      * 🎯 초기화 함수 - async 문법 수정
@@ -80,7 +82,7 @@ window.courseManager = {
             // 🔧 NEW: 가격 계산 이벤트 리스너 설정
             this.initPricingCalculator();
 
-            // 폼 제출 이벤트 리스너 설정
+            // 🔧 수정: 폼 제출 이벤트 리스너 설정 (중복 방지)
             this.setupFormEventListeners();
 
             // 검색 필터 초기화
@@ -107,7 +109,7 @@ window.courseManager = {
      * 🔧 NEW: 실시간 가격 계산기 초기화
      */
     initPricingCalculator: function () {
-        console.log('💰 실시간 가격 계산기 초기화');
+        console.log('💰 간소화된 실시간 가격 계산기 초기화');
 
         // 가격 입력 필드들
         const priceInputs = [
@@ -117,12 +119,6 @@ window.courseManager = {
             'package-discount'
         ];
 
-        // 🔧 NEW: 체크박스 추가 (교재 필수 여부가 계산에 영향)
-        const checkboxes = [
-            'material-required',
-            'enable-installment'
-        ];
-
         // 가격 입력 시 실시간 계산
         priceInputs.forEach(inputId => {
             const input = document.getElementById(inputId);
@@ -130,102 +126,78 @@ window.courseManager = {
                 // input 이벤트로 실시간 반응
                 input.addEventListener('input', () => {
                     this.updatePricePreview();
-                    this.updatePackageLabel(); // 🔧 NEW: 라벨 업데이트
+                    this.updatePackageLabel();
                 });
 
                 // change 이벤트로 확실한 반응
                 input.addEventListener('change', () => {
                     this.updatePricePreview();
-                    this.updatePackageLabel(); // 🔧 NEW: 라벨 업데이트
-                });
-            }
-        });
-
-        // 체크박스 변경 시 실시간 계산
-        checkboxes.forEach(checkboxId => {
-            const checkbox = document.getElementById(checkboxId);
-            if (checkbox) {
-                checkbox.addEventListener('change', () => {
-                    this.updatePricePreview();
-                    this.updatePackageLabel(); // 🔧 NEW: 라벨 업데이트
+                    this.updatePackageLabel();
                 });
             }
         });
 
         // 초기 미리보기 표시
         this.updatePricePreview();
-        this.updatePackageLabel(); // 🔧 NEW: 초기 라벨 설정
+        this.updatePackageLabel();
     },
 
     /**
      * 🔧 NEW: 패키지 라벨 업데이트 (교재 필수 여부에 따라)
      */
     updatePackageLabel: function () {
-        const materialRequired = document.getElementById('material-required')?.checked || false;
         const packageDiscountInput = document.getElementById('package-discount');
-        const packageDiscount = packageDiscountInput ? parseInt(packageDiscountInput.value) || 0 : 0;
+
+        // 할인율 처리 로직
+        let packageDiscount = 0;
+        if (packageDiscountInput && packageDiscountInput.value !== '') {
+            const discountValue = parseInt(packageDiscountInput.value);
+            packageDiscount = isNaN(discountValue) ? 0 : discountValue;
+        }
+
         const packageLabelElement = document.getElementById('package-label');
 
         if (packageLabelElement) {
             if (packageDiscount === 0) {
-                // 할인이 0%인 경우
                 packageLabelElement.textContent = '총 가격:';
-            } else if (materialRequired) {
-                // 교재 필수 + 할인 있음
-                packageLabelElement.textContent = `전체 패키지 (${packageDiscount}% 할인):`;
             } else {
-                // 교재 선택 + 할인 있음
-                packageLabelElement.textContent = `기본 패키지 (${packageDiscount}% 할인):`;
+                packageLabelElement.textContent = `패키지 가격 (${packageDiscount}% 할인):`;
             }
         }
     },
 
     /**
-     * 🔧 NEW: 실시간 가격 미리보기 업데이트
+     * 🔧 수정: 실시간 가격 미리보기 업데이트 (할인율 0% 처리 개선)
      */
     updatePricePreview: function () {
         try {
-            // 입력값 수집 (기본값 수정)
+            // 입력값 수집
             const educationPrice = parseInt(document.getElementById('course-price')?.value) || 0;
             const certificatePrice = parseInt(document.getElementById('certificate-price')?.value) || 50000;
             const materialPrice = parseInt(document.getElementById('material-price')?.value) || 30000;
 
-            // 🔧 수정: 기본값을 0으로 변경하고 실제 입력값 사용
+            // 할인율 처리 로직 개선
             const packageDiscountInput = document.getElementById('package-discount');
-            const packageDiscount = packageDiscountInput ? parseInt(packageDiscountInput.value) || 0 : 0;
+            let packageDiscount = 0;
 
-            // 교재 필수 여부 확인
-            const materialRequired = document.getElementById('material-required')?.checked || false;
+            if (packageDiscountInput && packageDiscountInput.value !== '') {
+                const discountValue = parseInt(packageDiscountInput.value);
+                packageDiscount = isNaN(discountValue) ? 0 : Math.max(0, Math.min(100, discountValue));
+            }
 
-            // 🔧 수정: 명확한 할인 계산 로직
+            // 🔧 간소화된 할인 계산 로직
             let individualTotal, packageTotal, discountAmount;
 
             // 개별 총합 계산 (항상 모든 항목 포함)
             individualTotal = educationPrice + certificatePrice + materialPrice;
 
-            if (materialRequired) {
-                // 교재가 필수인 경우: 전체 금액에 할인 적용
-                if (packageDiscount > 0) {
-                    discountAmount = Math.floor(individualTotal * (packageDiscount / 100));
-                    packageTotal = individualTotal - discountAmount;
-                } else {
-                    // 할인이 0%인 경우
-                    discountAmount = 0;
-                    packageTotal = individualTotal;
-                }
+            // 패키지 할인 적용 (교재는 항상 선택사항으로 처리)
+            if (packageDiscount > 0) {
+                discountAmount = Math.floor(individualTotal * (packageDiscount / 100));
+                packageTotal = individualTotal - discountAmount;
             } else {
-                // 교재가 선택인 경우: 기본 패키지(교육+자격증)만 할인
-                const basePackage = educationPrice + certificatePrice;
-
-                if (packageDiscount > 0) {
-                    const baseDiscountAmount = Math.floor(basePackage * (packageDiscount / 100));
-                    packageTotal = (basePackage - baseDiscountAmount) + materialPrice;
-                    discountAmount = baseDiscountAmount; // 실제 절약 금액은 기본 패키지 할인분만
-                } else {
-                    // 할인이 0%인 경우
-                    discountAmount = 0;
-                    packageTotal = individualTotal;
-                }
+                discountAmount = 0;
+                packageTotal = individualTotal;
             }
 
             // 미리보기 요소들 업데이트
@@ -236,7 +208,7 @@ window.courseManager = {
             this.updatePriceElement('preview-package-total', packageTotal);
             this.updatePriceElement('preview-savings', discountAmount);
 
-            // 🔧 수정: 할인이 없는 경우 UI 조정
+            // 할인이 없는 경우 UI 조정
             const savingsElement = document.querySelector('.price-item.savings');
             if (savingsElement) {
                 if (packageDiscount === 0 || discountAmount === 0) {
@@ -246,25 +218,22 @@ window.courseManager = {
                 }
             }
 
-            // 🔧 수정: 패키지 가격 스타일 및 라벨 조정
+            // 패키지 가격 스타일 조정
             const packageElement = document.querySelector('.price-item.package');
             if (packageElement) {
                 if (packageDiscount === 0 || discountAmount === 0) {
-                    // 할인이 없으면 일반 총합 스타일
                     packageElement.classList.remove('package');
                     packageElement.classList.add('total');
                 } else {
-                    // 할인이 있으면 패키지 스타일
                     packageElement.classList.remove('total');
                     packageElement.classList.add('package');
                 }
             }
 
-            console.log('💰 가격 미리보기 업데이트:', {
+            console.log('💰 간소화된 가격 미리보기 업데이트:', {
                 education: educationPrice,
                 certificate: certificatePrice,
                 material: materialPrice,
-                materialRequired: materialRequired,
                 individual: individualTotal,
                 package: packageTotal,
                 discount: packageDiscount + '%',
@@ -310,15 +279,28 @@ window.courseManager = {
     },
 
     /**
-     * 폼 이벤트 리스너 설정
+     * 🔧 수정: 폼 이벤트 리스너 설정 (중복 등록 방지)
      */
     setupFormEventListeners: function () {
+        // 🔧 NEW: 이미 설정된 경우 중복 방지
+        if (this.eventListenersSet) {
+            console.log('⚠️ 이벤트 리스너가 이미 설정됨, 중복 등록 방지');
+            return;
+        }
+
         const courseForm = document.getElementById('course-form');
         if (courseForm) {
-            courseForm.addEventListener('submit', (event) => {
+            // 🔧 NEW: 기존 이벤트 리스너 제거 (혹시 있을 경우)
+            const newForm = courseForm.cloneNode(true);
+            courseForm.parentNode.replaceChild(newForm, courseForm);
+
+            // 새로운 이벤트 리스너 등록
+            newForm.addEventListener('submit', (event) => {
                 this.handleCourseSubmission(event);
             });
-            console.log('✅ 폼 제출 이벤트 리스너 설정 완료');
+
+            this.eventListenersSet = true;
+            console.log('✅ 폼 제출 이벤트 리스너 설정 완료 (중복 방지)');
         }
     },
 
@@ -971,10 +953,18 @@ window.courseManager = {
     },
 
     /**
-     * 🔧 NEW: 통합 가격 설정이 포함된 교육 과정 제출 처리 - async 문법 수정
+     * 🔧 수정: 통합 가격 설정이 포함된 교육 과정 제출 처리 - 중복 제출 방지 추가
      */
     handleCourseSubmission: async function (event) {
         event.preventDefault();
+
+        // 🔧 NEW: 중복 제출 방지
+        if (this.isSubmitting) {
+            console.log('⚠️ 이미 제출 처리 중입니다');
+            return;
+        }
+
+        this.isSubmitting = true;
 
         try {
             const form = event.target;
@@ -983,7 +973,10 @@ window.courseManager = {
 
             // 🔧 NEW: 통합 가격 정보를 포함한 폼 데이터 수집
             const formData = this.collectEnhancedFormData(form);
-            if (!formData) return;
+            if (!formData) {
+                this.isSubmitting = false; // 🔧 플래그 리셋
+                return;
+            }
 
             // 🔧 NEW: 통합 가격 설정이 포함된 과정 데이터 생성
             const courseData = this.buildEnhancedCourseData(formData);
@@ -996,7 +989,7 @@ window.courseManager = {
                     console.log('교육 과정 수정:', courseId);
                     courseData.updatedAt = window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp();
                     await window.dhcFirebase.db.collection('courses').doc(courseId).update(courseData);
-                    console.log('교육 과정 수정 완료');
+                    console.log('✅ 교육 과정 수정 완료');
 
                     if (window.adminAuth?.showNotification) {
                         window.adminAuth.showNotification('교육 과정이 성공적으로 수정되었습니다.', 'success');
@@ -1007,7 +1000,7 @@ window.courseManager = {
                     courseData.enrolledCount = 0;
 
                     const docRef = await window.dhcFirebase.db.collection('courses').add(courseData);
-                    console.log('교육 과정 추가 완료, 문서 ID:', docRef.id);
+                    console.log('✅ 교육 과정 추가 완료, 문서 ID:', docRef.id);
 
                     if (window.adminAuth?.showNotification) {
                         window.adminAuth.showNotification('교육 과정이 성공적으로 추가되었습니다.', 'success');
@@ -1020,13 +1013,13 @@ window.courseManager = {
             // 모달 닫기
             this.closeCourseModal();
 
-            // 목록 새로고침
+            // 🔧 수정: 목록 새로고침 전 잠시 대기
             setTimeout(async () => {
                 try {
                     await this.loadCourses();
-                    console.log('목록 새로고침 완료');
+                    console.log('✅ 목록 새로고침 완료');
                 } catch (refreshError) {
-                    console.error('목록 새로고침 오류:', refreshError);
+                    console.error('❌ 목록 새로고침 오류:', refreshError);
                     if (window.adminAuth?.showNotification) {
                         window.adminAuth.showNotification('목록을 새로고침하는데 문제가 발생했습니다.', 'warning');
                     }
@@ -1034,13 +1027,16 @@ window.courseManager = {
             }, 500);
 
         } catch (error) {
-            console.error('교육 과정 처리 오류:', error);
+            console.error('❌ 교육 과정 처리 오류:', error);
             this.handleSubmissionError(error);
+        } finally {
+            // 🔧 NEW: 제출 플래그 리셋 (finally 블록에서 확실히 리셋)
+            this.isSubmitting = false;
         }
     },
 
     /**
-     * 🔧 NEW: 통합 가격 정보가 포함된 폼 데이터 수집 및 검증
+     * 🔧 수정: 통합 가격 정보가 포함된 폼 데이터 수집 및 검증 - 할인율 0% 처리 개선
      */
     collectEnhancedFormData: function (form) {
         // 기본 정보
@@ -1055,14 +1051,25 @@ window.courseManager = {
         const method = form.querySelector('#course-method').value;
         const location = form.querySelector('#course-location').value;
 
-        // 🔧 NEW: 통합 가격 정보
+        // 🔧 간소화된 가격 정보
         const price = parseInt(form.querySelector('#course-price').value) || 0;
         const certificatePrice = parseInt(form.querySelector('#certificate-price').value) || 50000;
         const materialPrice = parseInt(form.querySelector('#material-price').value) || 30000;
         const materialName = form.querySelector('#material-name')?.value || '';
-        const materialRequired = form.querySelector('#material-required')?.checked || false;
-        const packageDiscount = parseInt(form.querySelector('#package-discount')?.value) || 10;
-        const enableInstallment = form.querySelector('#enable-installment')?.checked || false;
+
+        // 🔧 할인율 처리 로직 - 빈 값과 0을 정확히 구분
+        const packageDiscountInput = form.querySelector('#package-discount');
+        let packageDiscount = 0;
+
+        if (packageDiscountInput) {
+            const discountValue = packageDiscountInput.value.trim();
+            if (discountValue === '' || discountValue === null || discountValue === undefined) {
+                packageDiscount = 0;
+            } else {
+                const parsedDiscount = parseInt(discountValue);
+                packageDiscount = isNaN(parsedDiscount) ? 0 : Math.max(0, Math.min(100, parsedDiscount));
+            }
+        }
 
         // 유효성 검사
         if (!certificateType || !instructorId || !startDate || !endDate || !applyStartDate || !applyEndDate) {
@@ -1085,7 +1092,7 @@ window.courseManager = {
             return null;
         }
 
-        // 🔧 NEW: 가격 유효성 검사
+        // 가격 유효성 검사
         if (price <= 0) {
             window.adminAuth?.showNotification('교육비를 올바르게 입력하세요.', 'error');
             return null;
@@ -1105,6 +1112,8 @@ window.courseManager = {
         const instructor = this.instructors.find(inst => inst.id === instructorId);
         const instructorName = instructor ? instructor.name : '';
 
+        console.log('🔧 간소화된 폼 데이터 수집 완료 - 할인율:', packageDiscount + '%');
+
         return {
             certificateType,
             instructorId,
@@ -1117,14 +1126,14 @@ window.courseManager = {
             status,
             method,
             location,
-            // 🔧 NEW: 통합 가격 정보
+            // 🔧 간소화된 가격 정보
             price,
             certificatePrice,
             materialPrice,
             materialName,
-            materialRequired,
+            materialRequired: false, // 🔧 항상 false (교재는 선택사항)
             packageDiscount,
-            enableInstallment
+            enableInstallment: false // 🔧 항상 false (분할결제 비활성화)
         };
     },
 
@@ -1147,21 +1156,21 @@ window.courseManager = {
             location: formData.location || '서울 강남구 센터',
             status: formData.status,
 
-            // 🔧 NEW: 통합 가격 정보 (기존 구조 + 새로운 구조 모두 지원)
-            price: formData.price,                    // 기존 필드 (하위 호환성)
+            // 🔧 간소화된 가격 정보 (기존 구조 + 새로운 구조 모두 지원)
+            price: formData.price,
             certificatePrice: formData.certificatePrice,
             materialPrice: formData.materialPrice,
             materialName: formData.materialName,
-            materialRequired: formData.materialRequired,
+            materialRequired: false, // 🔧 항상 false
 
-            // 🔧 NEW: 통합 가격 객체 (토스페이먼츠 연동용)
+            // 🔧 간소화된 가격 객체
             pricing: {
                 education: formData.price,
                 certificate: formData.certificatePrice,
                 material: formData.materialPrice,
-                materialRequired: formData.materialRequired,
+                materialRequired: false, // 🔧 항상 false
                 packageDiscount: formData.packageDiscount,
-                enableInstallment: formData.enableInstallment
+                enableInstallment: false // 🔧 항상 false
             }
         };
 
@@ -1177,6 +1186,8 @@ window.courseManager = {
             courseData.applyStartDate = formData.applyStartDate;
             courseData.applyEndDate = formData.applyEndDate;
         }
+
+        console.log('🔧 간소화된 과정 데이터 구성 완료 - 할인율:', formData.packageDiscount + '%');
 
         return courseData;
     },
@@ -1228,7 +1239,7 @@ window.courseManager = {
                 education: course.price,
                 certificate: course.certificatePrice || 50000,
                 material: course.materialPrice || 30000,
-                packageDiscount: 10
+                packageDiscount: course.pricing?.packageDiscount || 10
             };
 
             const individualTotal = pricingInfo.education + pricingInfo.certificate + pricingInfo.material;
@@ -1277,7 +1288,7 @@ ${course.description || '내용 없음'}
     },
 
     /**
-     * 🔧 NEW: 통합 가격 정보가 포함된 교육 과정 수정 - async 문법 수정
+     * 🔧 수정: 통합 가격 정보가 포함된 교육 과정 수정 - async 문법 수정
      */
     editCourse: async function (courseId) {
         try {
@@ -1312,27 +1323,20 @@ ${course.description || '내용 없음'}
                 form.querySelector('#course-method').value = course.method || '온라인 + 오프라인 병행';
                 form.querySelector('#course-location').value = course.location || '서울 강남구 센터';
 
-                // 🔧 NEW: 통합 가격 정보 채우기
+                // 🔧 간소화된 가격 정보 채우기
                 const pricing = course.pricing || {};
                 form.querySelector('#course-price').value = course.price || pricing.education || '';
                 form.querySelector('#certificate-price').value = course.certificatePrice || pricing.certificate || 50000;
                 form.querySelector('#material-price').value = course.materialPrice || pricing.material || 30000;
-                form.querySelector('#package-discount').value = pricing.packageDiscount || 10;
 
-                // 교재 정보
+                // 할인율 처리 - 0%와 undefined/null 구분
+                const discountValue = pricing.packageDiscount !== undefined ? pricing.packageDiscount : 0;
+                form.querySelector('#package-discount').value = discountValue;
+
+                // 교재명 (체크박스는 제거됨)
                 const materialNameField = form.querySelector('#material-name');
                 if (materialNameField) {
                     materialNameField.value = course.materialName || '';
-                }
-
-                const materialRequiredField = form.querySelector('#material-required');
-                if (materialRequiredField) {
-                    materialRequiredField.checked = course.materialRequired || pricing.materialRequired || false;
-                }
-
-                const enableInstallmentField = form.querySelector('#enable-installment');
-                if (enableInstallmentField) {
-                    enableInstallmentField.checked = pricing.enableInstallment || false;
                 }
 
                 // 날짜 형식 처리
@@ -1353,8 +1357,6 @@ ${course.description || '내용 없음'}
 
                 // 미리보기 업데이트
                 this.updateAutoPreview();
-
-                // 🔧 NEW: 가격 미리보기 업데이트
                 this.updatePricePreview();
 
                 // 모달 표시
@@ -1580,7 +1582,7 @@ if (window.location.hostname === 'localhost' ||
         },
 
         /**
-         * 🔧 NEW: 통합 가격 설정 테스트 데이터로 폼 채우기
+         * 🔧 수정: 통합 가격 설정 테스트 데이터로 폼 채우기 - 할인율 0% 테스트 포함
          */
         fillTestData: function () {
             const form = document.getElementById('course-form');
@@ -1593,7 +1595,7 @@ if (window.location.hostname === 'localhost' ||
             form.querySelector('#course-certificate-type').value = 'health-exercise';
             form.querySelector('#course-capacity').value = '30';
 
-            // 🔧 NEW: 통합 가격 정보 입력
+            // 🔧 수정: 통합 가격 정보 입력 - 할인율 0% 테스트
             form.querySelector('#course-price').value = '350000';          // 교육비
             form.querySelector('#certificate-price').value = '50000';      // 자격증비
             form.querySelector('#material-price').value = '30000';         // 교재비
@@ -1603,7 +1605,8 @@ if (window.location.hostname === 'localhost' ||
                 materialNameField.value = '건강운동처방사 전문교재';
             }
 
-            form.querySelector('#package-discount').value = '15';          // 15% 할인
+            // 🔧 수정: 할인율 0% 테스트
+            form.querySelector('#package-discount').value = '0';           // 0% 할인 테스트
 
             const materialRequiredField = form.querySelector('#material-required');
             if (materialRequiredField) {
@@ -1642,8 +1645,34 @@ if (window.location.hostname === 'localhost' ||
             window.courseManager.updateAutoPreview();
             window.courseManager.updatePricePreview();
 
-            console.log('✅ 통합 가격 설정 테스트 데이터 입력 완료');
-            console.log('💡 가격 미리보기가 자동으로 계산되었는지 확인하세요');
+            console.log('✅ 통합 가격 설정 테스트 데이터 입력 완료 (할인율 0% 테스트)');
+            console.log('💡 가격 미리보기에서 할인이 적용되지 않는지 확인하세요');
+        },
+
+        /**
+         * 🔧 NEW: 할인율 0% 테스트 전용 함수
+         */
+        testZeroDiscount: function () {
+            const form = document.getElementById('course-form');
+            if (!form) {
+                console.log('폼이 열려있지 않습니다. 먼저 "교육 과정 추가" 버튼을 클릭하세요.');
+                return;
+            }
+
+            // 할인율을 0으로 설정
+            const discountInput = form.querySelector('#package-discount');
+            if (discountInput) {
+                discountInput.value = '0';
+                discountInput.dispatchEvent(new Event('input'));
+                discountInput.dispatchEvent(new Event('change'));
+            }
+
+            // 미리보기 강제 업데이트
+            window.courseManager.updatePricePreview();
+            window.courseManager.updatePackageLabel();
+
+            console.log('🔧 할인율 0% 테스트 완료');
+            console.log('💡 패키지 라벨이 "총 가격:"으로 변경되고 절약 금액이 숨겨져야 합니다');
         },
 
         /**
@@ -1683,6 +1712,21 @@ if (window.location.hostname === 'localhost' ||
         },
 
         /**
+         * 🔧 NEW: 중복 제출 테스트
+         */
+        testDuplicateSubmission: function () {
+            console.log('🔧 중복 제출 방지 테스트...');
+            console.log('현재 제출 상태:', window.courseManager.isSubmitting);
+            console.log('이벤트 리스너 설정 상태:', window.courseManager.eventListenersSet);
+
+            if (window.courseManager.isSubmitting) {
+                console.log('⚠️ 현재 제출 처리 중 - 중복 제출 방지 동작 중');
+            } else {
+                console.log('✅ 제출 가능 상태');
+            }
+        },
+
+        /**
          * 강제 초기화
          */
         forceInit: function () {
@@ -1712,7 +1756,7 @@ if (window.location.hostname === 'localhost' ||
          * 도움말
          */
         help: function () {
-            console.log('🎯 통합 가격 설정이 포함된 교육 관리 디버깅 도구');
+            console.log('🎯 수정된 교육 관리 디버깅 도구 (v2.0)');
             console.log('');
             console.log('🔧 의존성 관리:');
             console.log('- testDependencies() : 유틸리티 의존성 확인');
@@ -1722,30 +1766,32 @@ if (window.location.hostname === 'localhost' ||
             console.log('- showCourses() : 과정 목록 확인');
             console.log('');
             console.log('🧪 테스트:');
-            console.log('- fillTestData() : 통합 가격 설정 테스트 데이터로 폼 채우기');
+            console.log('- fillTestData() : 할인율 0% 포함 테스트 데이터 입력');
+            console.log('- testZeroDiscount() : 할인율 0% 전용 테스트');
             console.log('- testPricingCalculator() : 가격 계산기 테스트');
+            console.log('- testDuplicateSubmission() : 중복 제출 방지 테스트');
             console.log('');
             console.log('🔧 강제 실행:');
             console.log('- forceInit() : courseManager 강제 초기화');
             console.log('- forceLoad() : 강제 데이터 로드');
             console.log('- forceAdminInit() : adminUtils 강제 초기화');
             console.log('');
-            console.log('💡 사용법:');
+            console.log('💡 수정된 기능:');
+            console.log('✅ 중복 생성 방지: 제출 플래그 및 이벤트 리스너 중복 방지');
+            console.log('✅ 할인율 0% 처리: 빈 값과 0을 정확히 구분');
+            console.log('✅ 폼 데이터 검증: 할인율 범위 제한 (0-100%)');
+            console.log('✅ UI 업데이트: 할인율 0%일 때 절약 금액 숨김');
+            console.log('');
+            console.log('🎯 테스트 시나리오:');
             console.log('1. testDependencies() : 먼저 의존성 확인');
             console.log('2. 교육 과정 추가 버튼 클릭');
-            console.log('3. fillTestData() : 통합 가격 설정 테스트 데이터 입력');
-            console.log('4. 가격 미리보기 확인');
-            console.log('5. 저장 버튼 클릭');
-            console.log('');
-            console.log('🎯 새로운 기능:');
-            console.log('- 실시간 가격 계산');
-            console.log('- 패키지 할인 적용');
-            console.log('- 교재 필수/선택 설정');
-            console.log('- 분할 결제 설정');
-            console.log('- 토스페이먼츠 연동 준비');
+            console.log('3. fillTestData() : 할인율 0% 테스트 데이터 입력');
+            console.log('4. 가격 미리보기에서 절약 금액이 숨겨지는지 확인');
+            console.log('5. 저장 버튼을 여러 번 클릭해서 중복 생성되지 않는지 확인');
         }
     };
 
-    console.log('🎯 통합 가격 설정이 포함된 교육 관리 디버깅 도구 활성화됨');
+    console.log('🎯 수정된 교육 관리 디버깅 도구 활성화됨 (v2.0)');
     console.log('💡 도움말: window.debugCourseManager.help()');
+    console.log('🔧 주요 수정: 중복 생성 방지, 할인율 0% 처리, 이벤트 리스너 중복 방지');
 }

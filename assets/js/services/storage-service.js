@@ -15,14 +15,14 @@
          * @param {object} metadata - 파일 메타데이터 (선택적)
          * @returns {Promise} - 업로드 결과 프로미스
          */
-        uploadFile: async function (file, path, metadata = {}) {
+         uploadFile: async function (file, path, metadata = {}) {
             try {
                 // Firebase가 초기화되어 있는지 확인
                 if (!window.dhcFirebase || !window.dhcFirebase.storage) {
                     return { success: false, error: { message: "Firebase가 초기화되지 않았습니다." } };
                 }
 
-                // 파일 확장자 유효성 검사 (허용된 확장자 목록)
+                // 🔧 수정: 파일 확장자 유효성 검사 (허용된 확장자 목록) - .hwpx 추가
                 const allowedExtensions = [
                     // 이미지 파일
                     'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg',
@@ -30,8 +30,8 @@
                     'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
                     // 텍스트 파일
                     'txt', 'csv', 'rtf',
-                    // 한글 파일 (추가)
-                    'hwp',
+                    // 한글 파일 (🔧 .hwpx 추가)
+                    'hwp', 'hwpx',
                     // 압축 파일
                     'zip', 'rar', '7z'
                 ];

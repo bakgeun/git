@@ -661,6 +661,8 @@ function initCertManager() {
          * 교육 과정 옵션 로드
          */
         loadCourseOptions: async function () {
+            console.log('🔧 개선된 교육과정 옵션 로드 시작');
+
             const courseSelect = document.getElementById('issue-course');
 
             if (!courseSelect) {
@@ -668,6 +670,7 @@ function initCertManager() {
                 return;
             }
 
+            // 로딩 상태 표시
             courseSelect.innerHTML = '<option value="">로딩 중...</option>';
 
             try {
@@ -769,7 +772,7 @@ function initCertManager() {
                     courses = this.getTestCourseData();
                 }
 
-                // 4. 옵션 업데이트
+                // 4. 옵션 업데이트 (🔧 중요: data-course 속성 추가)
                 if (courses.length > 0) {
                     courseSelect.innerHTML = '<option value="">교육 과정을 선택하세요</option>';
 
@@ -781,12 +784,15 @@ function initCertManager() {
                         const title = course.title || course.name || `${this.getCertTypeName(this.currentCertType)} 과정`;
                         const dateRange = startDate && endDate ? ` (${startDate} ~ ${endDate})` : '';
 
+                        // 🔧 핵심: data-course 속성에 전체 교육과정 데이터 포함 (날짜 자동 설정을 위해 필요)
+                        const courseDataJson = JSON.stringify(course).replace(/"/g, '&quot;');
+
                         courseSelect.innerHTML += `
-                    <option value="${course.id}" data-course="${JSON.stringify(course).replace(/"/g, '&quot;')}">${title}${dateRange}</option>
+                    <option value="${course.id}" data-course="${courseDataJson}">${title}${dateRange}</option>
                 `;
                     });
 
-                    console.log(`교육과정 옵션 ${courses.length}개 로드 완료`);
+                    console.log(`교육과정 옵션 ${courses.length}개 로드 완료 (data-course 속성 포함)`);
                 } else {
                     courseSelect.innerHTML = '<option value="">현재 등록된 교육과정이 없습니다</option>';
                     console.log('표시할 교육과정이 없음');
@@ -822,10 +828,11 @@ function initCertManager() {
                     certificateType: 'health-exercise',
                     status: 'active',
                     startDate: '2025-01-15',
-                    endDate: '2025-03-15',
+                    endDate: '2025-03-15', // 🔧 중요: 수료일 자동 설정을 위해 필요
                     instructor: '김영수 교수',
                     capacity: 30,
-                    currentEnrollment: 25
+                    currentEnrollment: 25,
+                    createdAt: new Date('2025-01-01')
                 },
                 {
                     id: 'course2',
@@ -833,10 +840,11 @@ function initCertManager() {
                     certificateType: 'rehabilitation',
                     status: 'active',
                     startDate: '2025-02-01',
-                    endDate: '2025-04-01',
+                    endDate: '2025-04-01', // 🔧 중요: 수료일 자동 설정을 위해 필요
                     instructor: '이미연 교수',
                     capacity: 25,
-                    currentEnrollment: 20
+                    currentEnrollment: 20,
+                    createdAt: new Date('2025-01-05')
                 },
                 {
                     id: 'course3',
@@ -844,10 +852,11 @@ function initCertManager() {
                     certificateType: 'pilates',
                     status: 'active',
                     startDate: '2025-01-20',
-                    endDate: '2025-03-20',
+                    endDate: '2025-03-20', // 🔧 중요: 수료일 자동 설정을 위해 필요
                     instructor: '박지혜 강사',
                     capacity: 20,
-                    currentEnrollment: 18
+                    currentEnrollment: 18,
+                    createdAt: new Date('2025-01-10')
                 },
                 {
                     id: 'course4',
@@ -855,12 +864,52 @@ function initCertManager() {
                     certificateType: 'recreation',
                     status: 'active',
                     startDate: '2025-02-10',
-                    endDate: '2025-04-10',
+                    endDate: '2025-04-10', // 🔧 중요: 수료일 자동 설정을 위해 필요
                     instructor: '최민수 강사',
                     capacity: 35,
-                    currentEnrollment: 30
+                    currentEnrollment: 30,
+                    createdAt: new Date('2025-01-15')
                 }
             ];
+        },
+
+        /**
+         * 🔧 테스트 교육과정 데이터 생성 (Firebase에 없을 경우)
+         */
+        createTestCourseData: async function () {
+            console.log('🔧 테스트 교육과정 데이터 생성 시작');
+
+            const firebaseStatus = checkFirebaseConnection();
+            if (!firebaseStatus.connected || !window.dhcFirebase) {
+                console.log('Firebase 미연결, 테스트 데이터 생성 건너뛰기');
+                return;
+            }
+
+            try {
+                const testCourses = this.getTestCourseData();
+                const batch = window.dhcFirebase.db.batch();
+
+                testCourses.forEach(course => {
+                    const docRef = window.dhcFirebase.db.collection('courses').doc(course.id);
+
+                    // Firebase 타임스탬프로 변환
+                    const courseWithTimestamp = {
+                        ...course,
+                        startDate: window.dhcFirebase.firebase.firestore.Timestamp.fromDate(new Date(course.startDate)),
+                        endDate: window.dhcFirebase.firebase.firestore.Timestamp.fromDate(new Date(course.endDate)),
+                        createdAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
+                    };
+
+                    batch.set(docRef, courseWithTimestamp);
+                });
+
+                await batch.commit();
+                console.log('✅ 테스트 교육과정 데이터 생성 완료');
+
+            } catch (error) {
+                console.error('❌ 테스트 교육과정 데이터 생성 실패:', error);
+            }
         },
 
         /**
@@ -3336,7 +3385,7 @@ window.certManagementEnglishNameComplete = true;
 
 // window.certManager 객체에 추가할 함수들
 Object.assign(window.certManager, {
-    
+
     // 선택된 신청자 관리
     selectedApplicants: [],
     allPaidApplicants: [],
@@ -3345,7 +3394,7 @@ Object.assign(window.certManager, {
     /**
      * 🆕 결제 완료자 선택 모달 표시
      */
-    showPaidApplicantsModal: async function() {
+    showPaidApplicantsModal: async function () {
         console.log('🆕 결제 완료자 선택 모달 표시');
 
         const modal = document.getElementById('paid-applicants-modal');
@@ -3386,20 +3435,20 @@ Object.assign(window.certManager, {
     /**
      * 🆕 결제 완료자 선택 모달 닫기
      */
-    closePaidApplicantsModal: function() {
+    closePaidApplicantsModal: function () {
         console.log('🆕 결제 완료자 선택 모달 닫기');
 
         const modal = document.getElementById('paid-applicants-modal');
         if (modal && this.modalStates['paid-applicants-modal']) {
             this.modalStates['paid-applicants-modal'] = false;
             modal.classList.add('hidden');
-            
+
             // 상태 초기화
             this.resetPaidApplicantsModal();
-            
+
             // body 모달 상태 업데이트
             this.updateBodyModalState();
-            
+
             console.log('✅ 결제 완료자 선택 모달 닫기 완료');
         }
     },
@@ -3407,9 +3456,9 @@ Object.assign(window.certManager, {
     /**
      * 🆕 기본 날짜 설정
      */
-    setupDefaultDates: function() {
+    setupDefaultDates: function () {
         const today = new Date();
-        
+
         // 발급일 (오늘)
         const issueDateInput = document.getElementById('bulk-issue-date');
         if (issueDateInput) {
@@ -3427,10 +3476,10 @@ Object.assign(window.certManager, {
     /**
      * 🆕 모달 상태 초기화
      */
-    resetPaidApplicantsModal: function() {
+    resetPaidApplicantsModal: function () {
         // 선택 상태 초기화
         this.selectedApplicants = [];
-        
+
         // 체크박스 초기화
         const selectAllCheckbox = document.getElementById('select-all-paid');
         if (selectAllCheckbox) {
@@ -3463,7 +3512,7 @@ Object.assign(window.certManager, {
     /**
      * 🆕 결제 완료자 목록 조회
      */
-    loadPaidApplicants: async function() {
+    loadPaidApplicants: async function () {
         console.log('🆕 결제 완료자 목록 조회 시작');
 
         const tbody = document.getElementById('paid-applicants-tbody');
@@ -3491,7 +3540,7 @@ Object.assign(window.certManager, {
 
             // Firebase 연결 상태 확인
             const firebaseStatus = checkFirebaseConnection();
-            
+
             if (firebaseStatus.connected && window.dhcFirebase) {
                 try {
                     console.log('🔥 Firebase에서 결제 완료자 조회');
@@ -3510,9 +3559,9 @@ Object.assign(window.certManager, {
                     if (!snapshot.empty) {
                         snapshot.forEach(doc => {
                             const data = doc.data();
-                            
+
                             // 자격증 결제가 포함된 경우만 필터링
-                            const hasCertificatePayment = data.items?.some(item => 
+                            const hasCertificatePayment = data.items?.some(item =>
                                 item.type === 'certificate' || item.type === 'package'
                             );
 
@@ -3551,14 +3600,14 @@ Object.assign(window.certManager, {
 
             if (paidApplicants.length === 0) {
                 window.adminAuth?.showNotification(
-                    `${this.getCertTypeName(this.currentCertType)} 자격증비를 결제한 신청자가 없습니다.`, 
+                    `${this.getCertTypeName(this.currentCertType)} 자격증비를 결제한 신청자가 없습니다.`,
                     'info'
                 );
             }
 
         } catch (error) {
             console.error('❌ 결제 완료자 목록 조회 오류:', error);
-            
+
             tbody.innerHTML = `
                 <tr>
                     <td colspan="7" class="px-4 py-8 text-center text-red-500">
@@ -3578,9 +3627,132 @@ Object.assign(window.certManager, {
     },
 
     /**
+     * 🔧 NEW: 교육과정 선택 시 처리
+     */
+    handleCourseSelection: function (selectElement) {
+        const selectedValue = selectElement.value;
+
+        if (!selectedValue) {
+            // 선택 해제시 날짜 초기화
+            this.clearCourseDates();
+            return;
+        }
+
+        try {
+            const selectedOption = selectElement.querySelector(`option[value="${selectedValue}"]`);
+            if (!selectedOption || !selectedOption.dataset.course) {
+                console.warn('교육과정 데이터를 찾을 수 없습니다.');
+                return;
+            }
+
+            const courseData = JSON.parse(selectedOption.dataset.course);
+            console.log('선택된 교육과정:', courseData);
+
+            // 수료일 설정 (교육과정 마지막 날)
+            this.setCompletionDate(courseData);
+
+            // 만료일 설정 (수료일로부터 3년 후)
+            this.setExpiryDate(courseData);
+
+        } catch (error) {
+            console.error('교육과정 선택 처리 오류:', error);
+        }
+    },
+
+    /**
+     * 🔧 NEW: 수료일 설정 (교육과정 마지막 날)
+     */
+    setCompletionDate: function (courseData) {
+        const completionDateInput = document.getElementById('issue-completion-date');
+        if (!completionDateInput) return;
+
+        let completionDate = null;
+
+        // 교육과정 종료일이 있는 경우
+        if (courseData.endDate) {
+            try {
+                if (typeof courseData.endDate === 'string') {
+                    completionDate = new Date(courseData.endDate);
+                } else if (courseData.endDate.toDate) {
+                    // Firebase Timestamp
+                    completionDate = courseData.endDate.toDate();
+                } else if (courseData.endDate.seconds) {
+                    // Firebase Timestamp object
+                    completionDate = new Date(courseData.endDate.seconds * 1000);
+                }
+            } catch (error) {
+                console.error('교육과정 종료일 파싱 오류:', error);
+            }
+        }
+
+        // 종료일이 없거나 파싱에 실패한 경우 오늘 날짜 사용
+        if (!completionDate || isNaN(completionDate.getTime())) {
+            completionDate = new Date();
+            console.log('교육과정 종료일을 찾을 수 없어 오늘 날짜로 설정');
+        }
+
+        // input 필드에 설정
+        const formattedDate = window.formatters.formatDate(completionDate, 'YYYY-MM-DD');
+        completionDateInput.value = formattedDate;
+
+        console.log('수료일 설정:', formattedDate);
+    },
+
+    /**
+     * 🔧 NEW: 만료일 설정 (수료일로부터 3년 후)
+     */
+    setExpiryDate: function (courseData) {
+        const completionDateInput = document.getElementById('issue-completion-date');
+        const expiryDateInput = document.getElementById('issue-expiry-date');
+
+        if (!completionDateInput || !expiryDateInput) return;
+
+        // 수료일 가져오기
+        const completionDateValue = completionDateInput.value;
+        if (!completionDateValue) return;
+
+        try {
+            const completionDate = new Date(completionDateValue);
+
+            // 3년 후 계산
+            const expiryDate = window.dateUtils.addYears(completionDate, 3);
+
+            // input 필드에 설정
+            const formattedExpiryDate = window.formatters.formatDate(expiryDate, 'YYYY-MM-DD');
+            expiryDateInput.value = formattedExpiryDate;
+
+            console.log('만료일 설정:', formattedExpiryDate);
+
+        } catch (error) {
+            console.error('만료일 계산 오류:', error);
+        }
+    },
+
+    /**
+     * 🔧 NEW: 교육과정 날짜 초기화
+     */
+    clearCourseDates: function () {
+        const completionDateInput = document.getElementById('issue-completion-date');
+        const expiryDateInput = document.getElementById('issue-expiry-date');
+
+        if (completionDateInput) {
+            const today = new Date();
+            completionDateInput.value = window.formatters.formatDate(today, 'YYYY-MM-DD');
+        }
+
+        if (expiryDateInput) {
+            const today = new Date();
+            const expiryDate = window.dateUtils.addYears(today, 3);
+            expiryDateInput.value = window.formatters.formatDate(expiryDate, 'YYYY-MM-DD');
+        }
+
+        console.log('교육과정 날짜 초기화 완료');
+    },
+
+    /**
      * 🆕 테스트용 결제 완료자 데이터
      */
-    getMockPaidApplicants: function() {
+    getMockPaidApplicants: function () {
         const mockData = [
             {
                 id: 'payment-001',
@@ -3643,9 +3815,9 @@ Object.assign(window.certManager, {
     /**
      * 🆕 결제 완료자 테이블 업데이트
      */
-    updatePaidApplicantsTable: function() {
+    updatePaidApplicantsTable: function () {
         const tbody = document.getElementById('paid-applicants-tbody');
-        
+
         if (!tbody) {
             console.error('paid-applicants-tbody를 찾을 수 없습니다.');
             return;
@@ -3672,7 +3844,7 @@ Object.assign(window.certManager, {
 
         this.filteredPaidApplicants.forEach(applicant => {
             const isSelected = this.selectedApplicants.some(selected => selected.id === applicant.id);
-            
+
             // 안전한 데이터 접근
             const name = applicant.name || applicant.nameKorean || '-';
             const email = applicant.email || '-';
@@ -3714,7 +3886,7 @@ Object.assign(window.certManager, {
     /**
      * 🆕 자격증 발급 상태 확인
      */
-    getCertificateStatus: function(applicant) {
+    getCertificateStatus: function (applicant) {
         // 실제로는 certificates 컬렉션에서 해당 사용자의 자격증 발급 여부 확인
         // 여기서는 간단한 상태 표시
         const badges = {
@@ -3722,14 +3894,14 @@ Object.assign(window.certManager, {
             'issued': '<span class="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">발급완료</span>',
             'pending': '<span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">발급대기</span>'
         };
-        
+
         return badges['completed']; // 기본적으로 결제완료 상태
     },
 
     /**
      * 🆕 통화 포맷팅
      */
-    formatCurrency: function(amount) {
+    formatCurrency: function (amount) {
         if (!amount && amount !== 0) return '-';
         try {
             return new Intl.NumberFormat('ko-KR', {
@@ -3744,7 +3916,7 @@ Object.assign(window.certManager, {
     /**
      * 🆕 교육과정 필터 옵션 로드
      */
-    loadCourseFilterOptions: function() {
+    loadCourseFilterOptions: function () {
         const filterSelect = document.getElementById('paid-filter-course');
         if (!filterSelect || !this.allPaidApplicants) return;
 
@@ -3765,9 +3937,9 @@ Object.assign(window.certManager, {
     /**
      * 🆕 신청자 선택/해제 토글
      */
-    toggleApplicantSelection: function(checkbox) {
+    toggleApplicantSelection: function (checkbox) {
         const applicantData = JSON.parse(checkbox.dataset.applicant);
-        
+
         if (checkbox.checked) {
             // 선택 추가
             if (!this.selectedApplicants.some(selected => selected.id === applicantData.id)) {
@@ -3787,9 +3959,9 @@ Object.assign(window.certManager, {
     /**
      * 🆕 전체 선택/해제 토글
      */
-    toggleSelectAllPaid: function(checkbox) {
+    toggleSelectAllPaid: function (checkbox) {
         const applicantCheckboxes = document.querySelectorAll('.paid-applicant-checkbox');
-        
+
         applicantCheckboxes.forEach(cb => {
             cb.checked = checkbox.checked;
             if (checkbox.checked) {
@@ -3811,9 +3983,9 @@ Object.assign(window.certManager, {
     /**
      * 🆕 선택 개수 업데이트
      */
-    updateSelectedCount: function() {
+    updateSelectedCount: function () {
         const count = this.selectedApplicants.length;
-        
+
         // 상단 선택 개수
         const selectedCountSpan = document.getElementById('selected-count');
         if (selectedCountSpan) {
@@ -3844,10 +4016,10 @@ Object.assign(window.certManager, {
     /**
      * 🆕 선택된 신청자 정보 표시
      */
-    updateSelectedApplicantsInfo: function() {
+    updateSelectedApplicantsInfo: function () {
         const infoDiv = document.getElementById('selected-applicants-info');
         const listDiv = document.getElementById('selected-applicants-list');
-        
+
         if (!infoDiv || !listDiv) return;
 
         if (this.selectedApplicants.length === 0) {
@@ -3856,18 +4028,18 @@ Object.assign(window.certManager, {
         }
 
         infoDiv.classList.remove('hidden');
-        
+
         const namesList = this.selectedApplicants
             .map(applicant => `${applicant.name || applicant.nameKorean} (${applicant.email})`)
             .join(', ');
-        
+
         listDiv.textContent = namesList;
     },
 
     /**
      * 🆕 검색 및 필터링
      */
-    filterPaidApplicants: function() {
+    filterPaidApplicants: function () {
         console.log('🆕 결제 완료자 필터링 실행');
 
         const searchName = document.getElementById('paid-search-name')?.value.toLowerCase().trim() || '';
@@ -3875,7 +4047,7 @@ Object.assign(window.certManager, {
 
         // 필터링 실행
         this.filteredPaidApplicants = this.allPaidApplicants.filter(applicant => {
-            const nameMatch = !searchName || 
+            const nameMatch = !searchName ||
                 (applicant.name && applicant.name.toLowerCase().includes(searchName)) ||
                 (applicant.nameKorean && applicant.nameKorean.toLowerCase().includes(searchName)) ||
                 (applicant.email && applicant.email.toLowerCase().includes(searchName));
@@ -3889,12 +4061,12 @@ Object.assign(window.certManager, {
 
         // 테이블 업데이트
         this.updatePaidApplicantsTable();
-        
+
         // 선택 상태 초기화 (필터링된 결과에 없는 선택 항목 제거)
         this.selectedApplicants = this.selectedApplicants.filter(selected =>
             this.filteredPaidApplicants.some(filtered => filtered.id === selected.id)
         );
-        
+
         this.updateSelectedCount();
         this.updateSelectedApplicantsInfo();
     },
@@ -3902,7 +4074,7 @@ Object.assign(window.certManager, {
     /**
      * 🆕 선택된 신청자들에게 자격증 발급
      */
-    issueSelectedCertificates: async function() {
+    issueSelectedCertificates: async function () {
         console.log('🆕 선택된 신청자들에게 자격증 발급 시작');
 
         if (this.selectedApplicants.length === 0) {
@@ -3921,7 +4093,7 @@ Object.assign(window.certManager, {
 
         // 확인 다이얼로그
         const confirmMessage = `선택된 ${this.selectedApplicants.length}명에게 ${this.getCertTypeName(this.currentCertType)} 자격증을 발급하시겠습니까?`;
-        
+
         if (!confirm(confirmMessage)) {
             return;
         }
@@ -3952,9 +4124,9 @@ Object.assign(window.certManager, {
                 try {
                     await this.issueCertificateForApplicant(applicant, issueDate, expiryDate);
                     results.success++;
-                    
+
                     console.log(`✅ ${applicant.name} 자격증 발급 성공`);
-                    
+
                 } catch (error) {
                     console.error(`❌ ${applicant.name} 자격증 발급 실패:`, error);
                     results.failed++;
@@ -3966,15 +4138,15 @@ Object.assign(window.certManager, {
             if (results.success > 0) {
                 const message = `${results.success}명의 자격증이 성공적으로 발급되었습니다.` +
                     (results.failed > 0 ? ` (실패: ${results.failed}명)` : '');
-                
+
                 window.adminAuth?.showNotification(message, 'success');
-                
+
                 // 자격증 목록 새로고침
                 this.loadCertificates();
-                
+
                 // 모달 닫기
                 this.closePaidApplicantsModal();
-                
+
             } else {
                 window.adminAuth?.showNotification('자격증 발급에 실패했습니다.', 'error');
             }
@@ -4005,7 +4177,7 @@ Object.assign(window.certManager, {
     /**
      * 🆕 개별 신청자 자격증 발급
      */
-    issueCertificateForApplicant: async function(applicant, issueDate, expiryDate) {
+    issueCertificateForApplicant: async function (applicant, issueDate, expiryDate) {
         console.log(`🆕 ${applicant.name}에게 자격증 발급 시작`);
 
         // 자격증 번호 생성
@@ -4015,53 +4187,53 @@ Object.assign(window.certManager, {
         const certificateData = {
             certificateNumber: certNumber,
             certNumber: certNumber,
-            
+
             // 한글명과 영문명 분리
             holderName: applicant.name || applicant.nameKorean,
             holderNameKorean: applicant.nameKorean || applicant.name,
             holderNameEnglish: applicant.nameEnglish || this.generateEnglishName(applicant.name),
-            
+
             holderEmail: applicant.email,
             userId: applicant.userId,
             certificateType: this.currentCertType,
-            
+
             courseId: applicant.courseId,
             courseName: applicant.courseName,
-            
+
             issueDate: issueDate,
             expiryDate: expiryDate,
-            
+
             status: 'active',
             paymentId: applicant.id, // 결제 정보 연결
-            
+
             // 메타데이터
             createdAt: new Date(),
             updatedAt: new Date(),
             createdBy: 'admin', // 관리자가 발급
             issueMethod: 'bulk_payment', // 결제자 선택 발급
-            
+
             remarks: `${this.getCertTypeName(this.currentCertType)} 자격증 (결제자 선택 발급)`
         };
 
         // Firebase에 저장
         const firebaseStatus = checkFirebaseConnection();
-        
+
         if (firebaseStatus.connected && window.dhcFirebase) {
             try {
                 // Firebase Firestore에 저장
                 const docRef = await window.dhcFirebase.db.collection('certificates').add(certificateData);
-                
+
                 console.log(`✅ Firebase에 자격증 저장 완료: ${docRef.id}`);
-                
+
                 // 결제 정보에 자격증 발급 상태 업데이트
                 await this.updatePaymentStatus(applicant.id, docRef.id);
-                
+
                 return {
                     success: true,
                     certificateId: docRef.id,
                     certificateNumber: certNumber
                 };
-                
+
             } catch (error) {
                 console.error(`❌ Firebase 저장 실패 (${applicant.name}):`, error);
                 throw new Error(`Firebase 저장 실패: ${error.message}`);
@@ -4069,10 +4241,10 @@ Object.assign(window.certManager, {
         } else {
             // 테스트 모드 - 로컬 저장소 시뮬레이션
             console.log(`🔧 테스트 모드: ${applicant.name} 자격증 발급 시뮬레이션`);
-            
+
             // 1초 지연으로 실제 처리 시뮬레이션
             await new Promise(resolve => setTimeout(resolve, 1000));
-            
+
             return {
                 success: true,
                 certificateId: `test_cert_${Date.now()}`,
@@ -4084,13 +4256,13 @@ Object.assign(window.certManager, {
     /**
      * 🆕 자격증 번호 생성
      */
-    generateCertificateNumber: async function() {
+    generateCertificateNumber: async function () {
         const year = new Date().getFullYear();
         const certTypeCode = this.getCertTypeCode(this.currentCertType);
-        
+
         // Firebase에서 가장 최근 번호 조회하여 순번 결정
         let nextNumber = 1;
-        
+
         const firebaseStatus = checkFirebaseConnection();
         if (firebaseStatus.connected && window.dhcFirebase) {
             try {
@@ -4098,13 +4270,13 @@ Object.assign(window.certManager, {
                     .where('certificateType', '==', this.currentCertType)
                     .orderBy('certificateNumber', 'desc')
                     .limit(1);
-                
+
                 const snapshot = await query.get();
-                
+
                 if (!snapshot.empty) {
                     const lastCert = snapshot.docs[0].data();
                     const lastNumber = lastCert.certificateNumber;
-                    
+
                     // 번호에서 순번 추출 (예: HE-2025-0001 → 1)
                     const match = lastNumber.match(/-(\d+)$/);
                     if (match) {
@@ -4120,17 +4292,17 @@ Object.assign(window.certManager, {
             // 테스트 모드
             nextNumber = Math.floor(Math.random() * 1000) + 1;
         }
-        
+
         // 번호 포맷팅 (4자리로 패딩)
         const formattedNumber = nextNumber.toString().padStart(4, '0');
-        
+
         return `${certTypeCode}-${year}-${formattedNumber}`;
     },
 
     /**
      * 🆕 자격증 타입 코드 가져오기
      */
-    getCertTypeCode: function(certType) {
+    getCertTypeCode: function (certType) {
         const codes = {
             'health-exercise': 'HE',
             'rehabilitation': 'RE',
@@ -4143,9 +4315,9 @@ Object.assign(window.certManager, {
     /**
      * 🆕 영문명 생성 (한글명이 있을 때)
      */
-    generateEnglishName: function(koreanName) {
+    generateEnglishName: function (koreanName) {
         if (!koreanName) return 'Unknown';
-        
+
         // 간단한 한글 → 영문 변환 (실제로는 더 정교한 변환 필요)
         const nameMap = {
             '김': 'Kim',
@@ -4169,24 +4341,24 @@ Object.assign(window.certManager, {
             '류': 'Ryu',
             '전': 'Jeon'
         };
-        
+
         if (koreanName.length >= 2) {
             const lastName = koreanName.charAt(0);
             const firstName = koreanName.slice(1);
-            
+
             const englishLastName = nameMap[lastName] || lastName;
             const englishFirstName = this.koreanToEnglish(firstName);
-            
+
             return `${englishLastName} ${englishFirstName}`;
         }
-        
+
         return koreanName; // 변환 실패 시 원본 반환
     },
 
     /**
      * 🆕 한글 → 영문 음성 변환 (간단한 버전)
      */
-    koreanToEnglish: function(korean) {
+    koreanToEnglish: function (korean) {
         const conversionMap = {
             '가': 'Ga', '나': 'Na', '다': 'Da', '라': 'Ra', '마': 'Ma',
             '바': 'Ba', '사': 'Sa', '아': 'A', '자': 'Ja', '차': 'Cha',
@@ -4195,19 +4367,19 @@ Object.assign(window.certManager, {
             '현': 'Hyun', '지': 'Ji', '은': 'Eun', '혜': 'Hye',
             '철': 'Chul', '미': 'Mi', '성': 'Sung', '호': 'Ho'
         };
-        
+
         let result = '';
         for (let char of korean) {
             result += conversionMap[char] || char;
         }
-        
+
         return result || 'Unknown';
     },
 
     /**
      * 🆕 결제 상태 업데이트
      */
-    updatePaymentStatus: async function(paymentId, certificateId) {
+    updatePaymentStatus: async function (paymentId, certificateId) {
         try {
             const firebaseStatus = checkFirebaseConnection();
             if (firebaseStatus.connected && window.dhcFirebase) {
@@ -4217,7 +4389,7 @@ Object.assign(window.certManager, {
                     certificateIssuedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp(),
                     updatedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
                 };
-                
+
                 await window.dhcFirebase.db.collection('payments').doc(paymentId).update(updateData);
                 console.log(`✅ 결제 정보 업데이트 완료: ${paymentId}`);
             }
@@ -4225,6 +4397,129 @@ Object.assign(window.certManager, {
             console.error('결제 상태 업데이트 오류:', error);
             // 오류가 있어도 자격증 발급은 완료된 상태이므로 throw하지 않음
         }
+    },
+
+    /**
+     * 🔧 NEW: 자격증 발급 함수 (누락된 함수 추가)
+     */
+    issueCertificate: async function (formElement) {
+        console.log('🔧 자격증 발급 함수 실행');
+
+        try {
+            // 폼 데이터 수집
+            const formData = new FormData(formElement);
+            const issueData = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                course: formData.get('course'),
+                completionDate: formData.get('completionDate'),
+                expiryDate: formData.get('expiryDate')
+            };
+
+            // 유효성 검사
+            if (!issueData.name || !issueData.email || !issueData.course ||
+                !issueData.completionDate || !issueData.expiryDate) {
+                window.adminAuth?.showNotification('모든 필드를 입력해주세요.', 'warning');
+                return;
+            }
+
+            // 이메일 유효성 검사
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(issueData.email)) {
+                window.adminAuth?.showNotification('올바른 이메일 주소를 입력해주세요.', 'warning');
+                return;
+            }
+
+            // 날짜 유효성 검사
+            const completionDate = new Date(issueData.completionDate);
+            const expiryDate = new Date(issueData.expiryDate);
+
+            if (completionDate >= expiryDate) {
+                window.adminAuth?.showNotification('만료일은 수료일보다 이후여야 합니다.', 'warning');
+                return;
+            }
+
+            // 로딩 표시
+            window.adminAuth?.showNotification('자격증을 발급하는 중...', 'info');
+
+            // 자격증 번호 생성
+            const certNumber = await this.generateCertificateNumber();
+
+            // 자격증 데이터 구성
+            const certificateData = {
+                certificateNumber: certNumber,
+                certNumber: certNumber,
+
+                holderName: issueData.name,
+                holderNameKorean: issueData.name,
+                holderNameEnglish: this.generateEnglishName(issueData.name),
+                holderEmail: issueData.email,
+
+                certificateType: this.currentCertType,
+                courseName: this.getSelectedCourseName(issueData.course),
+                courseId: issueData.course,
+
+                issueDate: issueData.completionDate,
+                expiryDate: issueData.expiryDate,
+
+                status: 'active',
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                createdBy: 'admin',
+                issueMethod: 'manual',
+
+                remarks: `${this.getCertTypeName(this.currentCertType)} 자격증 (관리자 직접 발급)`
+            };
+
+            // Firebase에 저장
+            const firebaseStatus = checkFirebaseConnection();
+
+            if (firebaseStatus.connected && window.dhcFirebase) {
+                try {
+                    const docRef = await window.dhcFirebase.db.collection('certificates').add(certificateData);
+                    console.log('✅ Firebase에 자격증 저장 완료:', docRef.id);
+
+                    window.adminAuth?.showNotification('자격증이 성공적으로 발급되었습니다.', 'success');
+
+                } catch (error) {
+                    console.error('❌ Firebase 저장 실패:', error);
+                    window.adminAuth?.showNotification('자격증 발급 중 오류가 발생했습니다.', 'error');
+                    return;
+                }
+            } else {
+                // 테스트 모드
+                console.log('🔧 테스트 모드: 자격증 발급 시뮬레이션');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                window.adminAuth?.showNotification('자격증이 성공적으로 발급되었습니다. (테스트 모드)', 'success');
+            }
+
+            // 모달 닫기 및 목록 새로고침
+            this.closeIssueCertModal();
+            this.loadCertificates();
+
+        } catch (error) {
+            console.error('자격증 발급 오류:', error);
+            window.adminAuth?.showNotification('자격증 발급 중 오류가 발생했습니다.', 'error');
+        }
+    },
+
+    /**
+     * 🔧 NEW: 선택된 교육과정 이름 가져오기
+     */
+    getSelectedCourseName: function (courseId) {
+        const courseSelect = document.getElementById('issue-course');
+        if (courseSelect) {
+            const selectedOption = courseSelect.querySelector(`option[value="${courseId}"]`);
+            if (selectedOption) {
+                try {
+                    const courseData = JSON.parse(selectedOption.dataset.course);
+                    return courseData.title || courseData.name || selectedOption.textContent;
+                } catch (error) {
+                    return selectedOption.textContent;
+                }
+            }
+        }
+        return '알 수 없는 교육과정';
     }
 
 }); // Object.assign 끝
@@ -4240,7 +4535,7 @@ Object.assign(window.certManager.modalStates, {
 
 // closeModalById 함수에 케이스 추가
 const originalCloseModalById = window.certManager.closeModalById;
-window.certManager.closeModalById = function(modalId) {
+window.certManager.closeModalById = function (modalId) {
     if (modalId === 'paid-applicants-modal') {
         this.closePaidApplicantsModal();
     } else {
@@ -4250,15 +4545,15 @@ window.certManager.closeModalById = function(modalId) {
 
 // closeOtherModals 함수가 새 모달도 처리하도록 업데이트
 const originalCloseOtherModals = window.certManager.closeOtherModals;
-window.certManager.closeOtherModals = function(excludeModalId) {
+window.certManager.closeOtherModals = function (excludeModalId) {
     const allModalIds = [
         'cert-issue-modal',
-        'bulk-issue-modal', 
+        'bulk-issue-modal',
         'cert-detail-modal',
         'cert-edit-modal',
         'paid-applicants-modal' // 🆕 추가
     ];
-    
+
     allModalIds.forEach(modalId => {
         if (modalId !== excludeModalId && this.modalStates[modalId]) {
             this.closeModalById(modalId);
@@ -4272,11 +4567,21 @@ window.certManager.closeOtherModals = function(excludeModalId) {
 
 // registerEventListeners에 새로운 이벤트들 추가
 const originalRegisterEventListeners = window.certManager.registerEventListeners;
-window.certManager.registerEventListeners = function() {
+window.certManager.registerEventListeners = function () {
     // 기존 이벤트 리스너 등록
     originalRegisterEventListeners.call(this);
-    
+
     console.log('🆕 결제자 선택 발급 이벤트 리스너 등록');
+
+    // 교육과정 선택 change 이벤트 추가
+    const courseSelect = document.getElementById('issue-course');
+    if (courseSelect && !courseSelect.dataset.eventAttached) {
+        courseSelect.addEventListener('change', (e) => {
+            this.handleCourseSelection(e.target);
+        });
+        courseSelect.dataset.eventAttached = 'true';
+        console.log('✅ 교육과정 선택 change 이벤트 등록 완료');
+    }
 
     // 검색 필드 엔터키 이벤트
     const paidSearchName = document.getElementById('paid-search-name');
@@ -4306,12 +4611,12 @@ window.certManager.registerEventListeners = function() {
 
 // switchCertType 함수에 모달 닫기 추가
 const originalSwitchCertType = window.certManager.switchCertType;
-window.certManager.switchCertType = function(certType) {
+window.certManager.switchCertType = function (certType) {
     // 결제자 선택 모달이 열려있으면 닫기
     if (this.modalStates['paid-applicants-modal']) {
         this.closePaidApplicantsModal();
     }
-    
+
     // 기존 함수 호출
     originalSwitchCertType.call(this, certType);
 };
@@ -4380,9 +4685,9 @@ const additionalCSS = `
 
 if (window.debugCertManagement) {
     Object.assign(window.debugCertManagement, {
-        
+
         // 🆕 결제자 선택 발급 테스트
-        testPaidApplicantsModal: function() {
+        testPaidApplicantsModal: function () {
             console.log('🆕 결제자 선택 발급 모달 테스트');
             if (window.certManager) {
                 window.certManager.showPaidApplicantsModal();
@@ -4392,7 +4697,7 @@ if (window.debugCertManagement) {
         },
 
         // 🆕 테스트 데이터 확인
-        showMockPaidApplicants: function() {
+        showMockPaidApplicants: function () {
             console.log('🆕 테스트 결제 완료자 데이터:');
             if (window.certManager) {
                 const mockData = window.certManager.getMockPaidApplicants();
@@ -4404,7 +4709,7 @@ if (window.debugCertManagement) {
         },
 
         // 🆕 자격증 번호 생성 테스트
-        testCertNumberGeneration: async function() {
+        testCertNumberGeneration: async function () {
             console.log('🆕 자격증 번호 생성 테스트');
             if (window.certManager) {
                 for (let i = 0; i < 5; i++) {
@@ -4417,10 +4722,10 @@ if (window.debugCertManagement) {
         },
 
         // 🆕 영문명 변환 테스트
-        testEnglishNameGeneration: function() {
+        testEnglishNameGeneration: function () {
             console.log('🆕 영문명 변환 테스트');
             const testNames = ['김영수', '이미영', '박철민', '최지혜', '정현호'];
-            
+
             if (window.certManager) {
                 testNames.forEach(name => {
                     const englishName = window.certManager.generateEnglishName(name);
@@ -4432,9 +4737,9 @@ if (window.debugCertManagement) {
         },
 
         // 🆕 결제자 선택 발급 전체 플로우 테스트
-        testFullPaidFlow: async function() {
+        testFullPaidFlow: async function () {
             console.log('🆕 결제자 선택 발급 전체 플로우 테스트 시작');
-            
+
             if (!window.certManager) {
                 console.error('❌ certManager가 로드되지 않음');
                 return;
@@ -4467,9 +4772,9 @@ if (window.debugCertManagement) {
 
     // 새로운 도움말 업데이트
     const originalHelp = window.debugCertManagement.help;
-    window.debugCertManagement.help = function() {
+    window.debugCertManagement.help = function () {
         originalHelp.call(this);
-        
+
         console.log('\n🆕 결제자 선택 발급 테스트:');
         console.log('- testPaidApplicantsModal() : 결제자 선택 모달 표시');
         console.log('- showMockPaidApplicants() : 테스트 결제 완료자 데이터');

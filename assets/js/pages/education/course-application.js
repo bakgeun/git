@@ -580,6 +580,8 @@ function handleCourseSelection(courseId) {
     if (!courseId || !availableCourses) {
         clearCourseInfo();
         clearPricingData();
+        // 🔧 NEW: 신청 옵션 섹션도 초기화
+        resetApplicationOptionPrices();
         return;
     }
 
@@ -588,6 +590,7 @@ function handleCourseSelection(courseId) {
         console.error('선택된 과정을 찾을 수 없습니다:', courseId);
         clearCourseInfo();
         clearPricingData();
+        resetApplicationOptionPrices();
         return;
     }
 
@@ -597,11 +600,34 @@ function handleCourseSelection(courseId) {
     // 과정 정보 업데이트
     updateCourseInfo(selectedCourse);
 
-    // 🔧 수정: 가격 정보 로드 및 업데이트
+    // 🔧 수정: 가격 정보 로드 및 업데이트 (신청 옵션 섹션 포함)
     loadCoursePricing(selectedCourse);
 
     // 최종 확인 카드 업데이트
     updateFinalCheck();
+}
+
+// 🔧 NEW: 신청 옵션 섹션 가격 초기화 함수
+function resetApplicationOptionPrices() {
+    console.log('🔄 신청 옵션 섹션 가격 초기화');
+
+    // 자격증 발급 옵션 가격 초기화
+    const certificateOptionPrice = document.querySelector('.option-card.required .option-price');
+    if (certificateOptionPrice) {
+        certificateOptionPrice.textContent = '가격 로딩중...';
+    }
+
+    // 교재 구매 옵션 가격 초기화
+    const materialOptionPrice = document.querySelector('.option-card.optional .option-price');
+    if (materialOptionPrice) {
+        materialOptionPrice.textContent = '가격 로딩중...';
+    }
+
+    // 교재명 초기화
+    const materialTitle = document.querySelector('.option-card.optional .option-title');
+    if (materialTitle) {
+        materialTitle.textContent = '교재 구매';
+    }
 }
 
 function updateCourseInfo(course) {
@@ -683,7 +709,7 @@ async function loadCoursePricing(course) {
     try {
         // 🔧 수정: 관리자가 설정한 가격 정보 추출 (pricing 객체에서)
         const pricing = course.pricing || {};
-        
+
         // 🔧 수정: 기본값과 함께 정확한 가격 매핑
         pricingData = {
             education: pricing.education || course.educationPrice || course.price || 150000,
@@ -694,6 +720,9 @@ async function loadCoursePricing(course) {
         };
 
         console.log('✅ 가격 정보 로드됨:', pricingData);
+
+        // 🔧 NEW: 신청 옵션 섹션 가격 업데이트 추가
+        updateApplicationOptionPrices();
 
         // 🔧 수정: 가격 표시 업데이트
         updatePricingDisplay();
@@ -713,9 +742,44 @@ async function loadCoursePricing(course) {
             materialRequired: false
         };
 
+        updateApplicationOptionPrices();
         updatePricingDisplay();
         showWarningMessage('가격 정보를 불러오는 중 오류가 발생했습니다. 기본 가격을 표시합니다.');
     }
+}
+
+// 🔧 NEW: 신청 옵션 섹션 가격 업데이트 함수
+function updateApplicationOptionPrices() {
+    console.log('🔧 신청 옵션 섹션 가격 업데이트 시작');
+
+    const formatCurrency = (amount) => {
+        return window.formatters?.formatCurrency(amount) || `${amount.toLocaleString()}원`;
+    };
+
+    // 🔧 자격증 발급 옵션 가격 업데이트
+    const certificateOptionPrice = document.querySelector('.option-card.required .option-price');
+    if (certificateOptionPrice) {
+        certificateOptionPrice.textContent = formatCurrency(pricingData.certificate);
+        console.log('✅ 자격증 발급 옵션 가격 업데이트:', pricingData.certificate);
+    }
+
+    // 🔧 교재 구매 옵션 가격 업데이트
+    const materialOptionPrice = document.querySelector('.option-card.optional .option-price');
+    if (materialOptionPrice) {
+        materialOptionPrice.textContent = formatCurrency(pricingData.material);
+        console.log('✅ 교재 구매 옵션 가격 업데이트:', pricingData.material);
+    }
+
+    // 🔧 교재명 업데이트 (selectedCourseData에서)
+    if (selectedCourseData && selectedCourseData.materialName) {
+        const materialTitle = document.querySelector('.option-card.optional .option-title');
+        if (materialTitle) {
+            materialTitle.textContent = `교재 구매 (${selectedCourseData.materialName})`;
+            console.log('✅ 교재명 업데이트:', selectedCourseData.materialName);
+        }
+    }
+
+    console.log('🔧 신청 옵션 섹션 가격 업데이트 완료');
 }
 
 // 🔧 수정된 가격 표시 업데이트 함수
@@ -725,6 +789,9 @@ function updatePricingDisplay() {
     const formatCurrency = (amount) => {
         return window.formatters?.formatCurrency(amount) || `${amount.toLocaleString()}원`;
     };
+
+    // 🔧 NEW: 신청 옵션 섹션 가격 업데이트
+    updateApplicationOptionPrices();
 
     // 🔧 수정: 과정 정보의 교육비 업데이트
     const coursePriceEl = document.getElementById('course-price');
@@ -804,7 +871,7 @@ function updateSummaryDisplay(educationPrice, certificatePrice, materialPrice, d
         console.log('교육비 요약 업데이트:', educationPrice);
     }
 
-    // 🔧 수정: 자격증 발급비 표시/숨김
+    // 🔧 수정: 자격증 발급비 표시/숨김 (관리자 설정 가격 반영)
     const certificatePriceItem = document.getElementById('certificate-price-item');
     const certificatePriceEl = document.getElementById('certificate-price');
     if (certificatePriceItem && certificatePriceEl) {
@@ -812,7 +879,7 @@ function updateSummaryDisplay(educationPrice, certificatePrice, materialPrice, d
             certificatePriceItem.classList.add('active');
             certificatePriceItem.style.opacity = '1';
             certificatePriceEl.textContent = formatCurrency(certificatePrice);
-            console.log('자격증 발급비 표시:', certificatePrice);
+            console.log('자격증 발급비 표시 (관리자 설정):', certificatePrice);
         } else {
             certificatePriceItem.classList.remove('active');
             certificatePriceItem.style.opacity = '0.5';
@@ -820,7 +887,7 @@ function updateSummaryDisplay(educationPrice, certificatePrice, materialPrice, d
         }
     }
 
-    // 🔧 수정: 교재비 표시/숨김
+    // 🔧 수정: 교재비 표시/숨김 (관리자 설정 가격 반영)
     const materialPriceItem = document.getElementById('material-price-item');
     const materialPriceEl = document.getElementById('material-price');
     if (materialPriceItem && materialPriceEl) {
@@ -828,7 +895,7 @@ function updateSummaryDisplay(educationPrice, certificatePrice, materialPrice, d
             materialPriceItem.classList.add('active');
             materialPriceItem.style.opacity = '1';
             materialPriceEl.textContent = formatCurrency(materialPrice);
-            console.log('교재비 표시:', materialPrice);
+            console.log('교재비 표시 (관리자 설정):', materialPrice);
         } else {
             materialPriceItem.classList.remove('active');
             materialPriceItem.style.opacity = '0.5';
@@ -946,6 +1013,9 @@ function clearPricingData() {
         packageDiscount: 0
     };
 
+    // 🔧 NEW: 신청 옵션 섹션 초기화
+    resetApplicationOptionPrices();
+
     // 가격 표시 초기화
     const priceElements = [
         'course-price',
@@ -983,14 +1053,14 @@ function clearPricingData() {
 // 🔧 폼 변경 추적 설정
 function setupFormChangeTracking() {
     console.log('📋 폼 변경 추적 설정');
-    
+
     const form = document.getElementById('unified-application-form');
     if (!form) return;
 
     // 폼 입력 시 데이터 있음으로 표시
     const inputs = form.querySelectorAll('input, select, textarea');
     inputs.forEach(input => {
-        input.addEventListener('input', function() {
+        input.addEventListener('input', function () {
             // 실제 의미있는 데이터가 입력되었는지 확인
             const hasSignificantData = Array.from(inputs).some(inp => {
                 if (inp.type === 'checkbox' || inp.type === 'radio') {
@@ -998,12 +1068,12 @@ function setupFormChangeTracking() {
                 }
                 return inp.value && inp.value.trim().length > 0;
             });
-            
+
             formHasData = hasSignificantData;
             console.log('폼 데이터 상태 변경:', formHasData);
         });
 
-        input.addEventListener('change', function() {
+        input.addEventListener('change', function () {
             // 체크박스/라디오 변경 시에도 추적
             const hasSignificantData = Array.from(inputs).some(inp => {
                 if (inp.type === 'checkbox' || inp.type === 'radio') {
@@ -1011,7 +1081,7 @@ function setupFormChangeTracking() {
                 }
                 return inp.value && inp.value.trim().length > 0;
             });
-            
+
             formHasData = hasSignificantData;
             console.log('폼 데이터 상태 변경:', formHasData);
         });
@@ -1022,7 +1092,7 @@ function setupFormChangeTracking() {
 function setupImprovedBeforeUnload() {
     console.log('🔒 개선된 페이지 이탈 방지 설정');
 
-    window.addEventListener('beforeunload', function(event) {
+    window.addEventListener('beforeunload', function (event) {
         console.log('beforeunload 이벤트 발생');
         console.log('내부 네비게이션:', isInternalNavigation);
         console.log('폼 데이터 있음:', formHasData);
@@ -1052,12 +1122,12 @@ function setupImprovedTabNavigation() {
 
     // 모든 탭 링크 찾기
     const tabLinks = document.querySelectorAll('.tab-item[href*="javascript:"]');
-    
+
     tabLinks.forEach(link => {
         // 기존 href에서 URL 추출
         const href = link.getAttribute('href');
         const urlMatch = href.match(/window\.adjustPath\('([^']+)'\)/);
-        
+
         if (urlMatch) {
             const targetUrl = urlMatch[1];
             console.log('탭 링크 개선:', targetUrl);
@@ -1066,14 +1136,14 @@ function setupImprovedTabNavigation() {
             link.removeAttribute('href');
             link.setAttribute('href', '#');
             link.style.cursor = 'pointer';
-            
-            link.addEventListener('click', function(e) {
+
+            link.addEventListener('click', function (e) {
                 e.preventDefault();
                 console.log('탭 클릭:', targetUrl);
-                
+
                 // 내부 네비게이션 플래그 설정
                 isInternalNavigation = true;
-                
+
                 // 짧은 지연 후 이동 (beforeunload 이벤트가 내부 네비게이션 플래그를 확인할 수 있도록)
                 setTimeout(() => {
                     window.location.href = window.adjustPath(targetUrl);
@@ -1084,11 +1154,11 @@ function setupImprovedTabNavigation() {
 
     // 헤더 네비게이션 링크도 개선
     const headerLinks = document.querySelectorAll('a[href*="javascript:window.location.href"]');
-    
+
     headerLinks.forEach(link => {
         const href = link.getAttribute('href');
         const urlMatch = href.match(/window\.adjustPath\('([^']+)'\)/);
-        
+
         if (urlMatch) {
             const targetUrl = urlMatch[1];
             console.log('헤더 링크 개선:', targetUrl);
@@ -1096,14 +1166,14 @@ function setupImprovedTabNavigation() {
             link.removeAttribute('href');
             link.setAttribute('href', '#');
             link.style.cursor = 'pointer';
-            
-            link.addEventListener('click', function(e) {
+
+            link.addEventListener('click', function (e) {
                 e.preventDefault();
                 console.log('헤더 링크 클릭:', targetUrl);
-                
+
                 // 내부 네비게이션 플래그 설정
                 isInternalNavigation = true;
-                
+
                 setTimeout(() => {
                     window.location.href = window.adjustPath(targetUrl);
                 }, 10);
@@ -1149,7 +1219,7 @@ async function handleFormSubmission(e) {
         // 🔧 폼 제출 시에는 페이지 이탈 방지 해제
         formHasData = false;
         isInternalNavigation = true; // 결제 페이지로 이동할 수 있으므로
-        
+
         // 폼 유효성 검사
         if (!validateUnifiedForm()) {
             console.log('❌ 폼 유효성 검사 실패');
@@ -1178,11 +1248,11 @@ async function handleFormSubmission(e) {
 
     } catch (error) {
         console.error('❌ 신청 처리 오류:', error);
-        
+
         // 오류 발생 시 플래그 복원
         formHasData = true;
         isInternalNavigation = false;
-        
+
         showErrorMessage('신청 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
 
         const paymentButton = document.getElementById('payment-button');
@@ -2251,17 +2321,17 @@ window.loadScheduleData = loadScheduleData;
 // =================================
 
 // 🔧 페이지 언로드 시 플래그 초기화
-window.addEventListener('unload', function() {
+window.addEventListener('unload', function () {
     console.log('페이지 언로드, 플래그 초기화');
     isInternalNavigation = false;
     formHasData = false;
 });
 
 // 🔧 페이지 포커스 시 플래그 초기화 (뒤로가기 등)
-window.addEventListener('pageshow', function(event) {
+window.addEventListener('pageshow', function (event) {
     console.log('페이지 표시, 플래그 초기화');
     isInternalNavigation = false;
-    
+
     // 뒤로가기로 돌아온 경우가 아니라면 폼 데이터 상태 재확인
     if (!event.persisted) {
         // 폼 데이터 상태 재확인
@@ -2281,13 +2351,13 @@ window.addEventListener('pageshow', function(event) {
 });
 
 // 🔧 전역 함수로 탭 네비게이션 핸들러 등록
-window.handleTabNavigation = function(event, targetPath) {
+window.handleTabNavigation = function (event, targetPath) {
     event.preventDefault();
     console.log('탭 네비게이션:', targetPath);
-    
+
     // 내부 네비게이션 플래그 설정
     isInternalNavigation = true;
-    
+
     // 폼 데이터 확인
     const form = document.getElementById('unified-application-form');
     if (form && formHasData) {
@@ -2297,7 +2367,7 @@ window.handleTabNavigation = function(event, targetPath) {
             return;
         }
     }
-    
+
     // 페이지 이동
     setTimeout(() => {
         try {
@@ -2312,13 +2382,13 @@ window.handleTabNavigation = function(event, targetPath) {
 };
 
 // 🔧 헤더 네비게이션 핸들러
-window.handleHeaderNavigation = function(event, targetPath) {
+window.handleHeaderNavigation = function (event, targetPath) {
     event.preventDefault();
     console.log('헤더 네비게이션:', targetPath);
-    
+
     // 내부 네비게이션 플래그 설정
     isInternalNavigation = true;
-    
+
     // 즉시 이동 (헤더 링크는 확인하지 않음)
     setTimeout(() => {
         try {
@@ -2332,7 +2402,8 @@ window.handleHeaderNavigation = function(event, targetPath) {
 };
 
 // =================================
-// 🔧 디버깅 도구 (개발 모드)
+// 🔧 Course Application 디버깅 도구 완전판
+// course-application.js 파일 맨 아래에 추가할 코드
 // =================================
 
 if (window.location.hostname === 'localhost' ||
@@ -2343,297 +2414,988 @@ if (window.location.hostname === 'localhost' ||
     window.FORCE_DEBUG === true) {
 
     window.debugUnifiedCourseApplication = {
-        help: function () {
-            console.log('🎯 통합 교육 신청 디버깅 도구');
-            console.log('\n📊 데이터 관련:');
-            console.log('- showCourses() : 사용 가능한 과정 목록');
-            console.log('- selectCourse(id) : 특정 과정 선택');
-            console.log('- showPricing() : 현재 가격 정보');
-
-            console.log('\n📝 폼 관련:');
-            console.log('- fillTestData() : 테스트 데이터 자동 입력');
-            console.log('- checkForm() : 폼 유효성 검사');
-            console.log('- simulatePayment() : 결제 시뮬레이션');
-
-            console.log('\n👤 사용자 관련:');
-            console.log('- showUser() : 현재 사용자 정보');
-            console.log('- showAgreements() : 약관 동의 상태');
-            console.log('- showNavigationState() : 네비게이션 상태');
-        },
-
+        
+        // =================================
+        // 📊 데이터 관련 메소드
+        // =================================
+        
+        /**
+         * 사용 가능한 과정 목록 확인
+         */
         showCourses: function () {
-            console.log('사용 가능한 과정들:', availableCourses);
+            console.log('📚 사용 가능한 과정들:', availableCourses);
             if (availableCourses.length > 0) {
-                availableCourses.forEach((course, index) => {
-                    console.log(`${index + 1}. [${course.id}] ${course.title} (${course.certificateType})`);
-                    if (course.pricing) {
-                        console.log(`   교육비: ${course.pricing.education}원, 자격증비: ${course.pricing.certificate}원, 교재비: ${course.pricing.material}원`);
-                    }
-                });
+                console.table(availableCourses.map((course, index) => ({
+                    순번: index + 1,
+                    ID: course.id,
+                    과정명: course.title,
+                    자격증: course.certificateType,
+                    교육비: course.price || course.pricing?.education || 0,
+                    자격증비: course.certificatePrice || course.pricing?.certificate || 0,
+                    교재비: course.materialPrice || course.pricing?.material || 0,
+                    상태: course.status
+                })));
+            } else {
+                console.log('❌ 등록된 과정이 없습니다.');
             }
+            return availableCourses;
         },
 
+        /**
+         * 특정 과정 선택
+         */
         selectCourse: function (courseId) {
             if (!courseId && availableCourses.length > 0) {
                 courseId = availableCourses[0].id;
-                console.log('과정 ID가 없어서 첫 번째 과정 선택:', courseId);
+                console.log('🎯 과정 ID가 없어서 첫 번째 과정 선택:', courseId);
+            }
+
+            if (!courseId) {
+                console.log('❌ 선택할 과정이 없습니다.');
+                return false;
             }
 
             const success = selectCourseById(courseId);
-            console.log(success ? '✅ 과정 선택 성공' : '❌ 과정 선택 실패');
+            if (success) {
+                console.log('✅ 과정 선택 성공:', courseId);
+                // 선택된 과정 정보 표시
+                const selectedCourse = availableCourses.find(c => c.id === courseId);
+                if (selectedCourse) {
+                    console.log('📋 선택된 과정 상세:', {
+                        과정명: selectedCourse.title,
+                        자격증: selectedCourse.certificateType,
+                        강사: selectedCourse.instructor,
+                        교육비: selectedCourse.price || selectedCourse.pricing?.education,
+                        자격증비: selectedCourse.certificatePrice || selectedCourse.pricing?.certificate,
+                        교재비: selectedCourse.materialPrice || selectedCourse.pricing?.material
+                    });
+                }
+            } else {
+                console.log('❌ 과정 선택 실패:', courseId);
+            }
             return success;
         },
 
+        /**
+         * 현재 가격 정보 확인
+         */
         showPricing: function () {
-            console.log('현재 가격 정보:', pricingData);
-            console.log('선택된 과정:', selectedCourseData?.title || '없음');
+            console.log('💰 현재 가격 정보:', pricingData);
+            console.log('📚 선택된 과정:', selectedCourseData?.title || '없음');
 
             if (selectedCourseData) {
                 const includeCert = document.getElementById('include-certificate')?.checked || false;
                 const includeMaterial = document.getElementById('include-material')?.checked || false;
 
-                console.log('선택된 옵션:');
-                console.log('- 교육 수강: ✅ (필수)');
-                console.log(`- 자격증 발급: ${includeCert ? '✅' : '❌'}`);
-                console.log(`- 교재 구매: ${includeMaterial ? '✅' : '❌'}`);
+                console.log('✅ 선택된 옵션:');
+                console.log('  - 교육 수강: ✅ (필수)');
+                console.log(`  - 자격증 발급: ${includeCert ? '✅' : '❌'}`);
+                console.log(`  - 교재 구매: ${includeMaterial ? '✅' : '❌'}`);
 
+                // 가격 계산 실행
+                console.log('🧮 실시간 가격 계산:');
                 calculateAndDisplaySummary();
+                
+                // 가격 동기화 상태 확인
+                this.testPriceSync();
+            } else {
+                console.log('⚠️ 과정을 먼저 선택해주세요.');
             }
         },
 
+        /**
+         * 🔧 NEW: 자격증 발급비 동기화 테스트
+         */
+        testPriceSync: function() {
+            console.log('🔧 자격증 발급비 동기화 테스트 시작');
+            
+            if (!selectedCourseData) {
+                console.log('❌ 과정이 선택되지 않음');
+                return { success: false, reason: 'no_course_selected' };
+            }
+
+            console.log('📊 현재 선택된 과정:', selectedCourseData.title);
+            console.log('💰 로드된 가격 정보:', pricingData);
+
+            // 신청 옵션 섹션 가격 확인
+            const certificateOptionPrice = document.querySelector('.option-card.required .option-price');
+            const materialOptionPrice = document.querySelector('.option-card.optional .option-price');
+            
+            console.log('📋 신청 옵션 섹션 표시 가격:');
+            console.log('  - 자격증 발급비:', certificateOptionPrice?.textContent || '❌ 요소 없음');
+            console.log('  - 교재비:', materialOptionPrice?.textContent || '❌ 요소 없음');
+
+            // 결제 요약 섹션 가격 확인
+            const summaryEducationPrice = document.getElementById('education-price');
+            const summaryCertificatePrice = document.getElementById('certificate-price');
+            const summaryMaterialPrice = document.getElementById('material-price');
+            const summaryTotalPrice = document.getElementById('total-price');
+
+            console.log('📋 결제 요약 섹션 표시 가격:');
+            console.log('  - 교육비:', summaryEducationPrice?.textContent || '❌ 요소 없음');
+            console.log('  - 자격증 발급비:', summaryCertificatePrice?.textContent || '❌ 요소 없음');
+            console.log('  - 교재비:', summaryMaterialPrice?.textContent || '❌ 요소 없음');
+            console.log('  - 총 금액:', summaryTotalPrice?.textContent || '❌ 요소 없음');
+
+            // 동기화 확인
+            const certificateSync = certificateOptionPrice?.textContent === summaryCertificatePrice?.textContent;
+            const materialSync = materialOptionPrice?.textContent === summaryMaterialPrice?.textContent;
+
+            console.log('🔍 동기화 상태 검사:');
+            console.log(`  - 자격증 발급비 동기화: ${certificateSync ? '✅ 성공' : '❌ 실패'}`);
+            console.log(`  - 교재비 동기화: ${materialSync ? '✅ 성공' : '❌ 실패'}`);
+
+            // 관리자 설정 가격과 비교
+            const formatCurrency = (amount) => window.formatters?.formatCurrency(amount) || `${amount.toLocaleString()}원`;
+            const expectedCertPrice = formatCurrency(pricingData.certificate);
+            const expectedMaterialPrice = formatCurrency(pricingData.material);
+
+            console.log('🎯 예상 가격 vs 실제 표시:');
+            console.log(`  - 자격증비 예상: ${expectedCertPrice} / 실제: ${certificateOptionPrice?.textContent}`);
+            console.log(`  - 교재비 예상: ${expectedMaterialPrice} / 실제: ${materialOptionPrice?.textContent}`);
+
+            const result = {
+                success: certificateSync && materialSync,
+                certificateSync,
+                materialSync,
+                pricingData,
+                selectedCourse: selectedCourseData?.title,
+                expectedPrices: {
+                    certificate: expectedCertPrice,
+                    material: expectedMaterialPrice
+                },
+                actualPrices: {
+                    certificateOption: certificateOptionPrice?.textContent,
+                    materialOption: materialOptionPrice?.textContent,
+                    certificateSummary: summaryCertificatePrice?.textContent,
+                    materialSummary: summaryMaterialPrice?.textContent
+                }
+            };
+
+            if (result.success) {
+                console.log('🎉 모든 가격이 정상적으로 동기화되었습니다!');
+            } else {
+                console.log('⚠️ 가격 동기화에 문제가 있습니다. forcePriceSync()를 실행해보세요.');
+            }
+
+            return result;
+        },
+
+        /**
+         * 🔧 NEW: 강제 가격 동기화 실행
+         */
+        forcePriceSync: function() {
+            console.log('🔧 강제 가격 동기화 실행');
+            
+            if (!selectedCourseData) {
+                console.log('❌ 과정이 선택되지 않음');
+                return false;
+            }
+
+            try {
+                console.log('1️⃣ 신청 옵션 섹션 가격 업데이트');
+                updateApplicationOptionPrices();
+                
+                console.log('2️⃣ 전체 가격 표시 업데이트');
+                updatePricingDisplay();
+                
+                console.log('3️⃣ 가격 요약 계산');
+                calculateAndDisplaySummary();
+                
+                console.log('✅ 강제 가격 동기화 완료');
+                
+                // 동기화 결과 확인
+                return this.testPriceSync();
+                
+            } catch (error) {
+                console.error('❌ 강제 가격 동기화 중 오류:', error);
+                return false;
+            }
+        },
+
+        // =================================
+        // 📝 폼 관련 메소드
+        // =================================
+
+        /**
+         * 테스트 데이터로 폼 자동 완성
+         */
         fillTestData: function () {
             console.log('📝 테스트 데이터 입력 시작');
 
-            // 과정 선택
-            if (availableCourses.length > 0) {
-                this.selectCourse(availableCourses[0].id);
-            }
-
-            // 기본 정보 입력
-            const testData = {
-                'applicant-name': '홍길동',
-                'applicant-name-english': 'Hong Gil Dong',
-                'phone': '010-1234-5678',
-                'email': 'test@example.com',
-                'birth-date': '1990-01-01',
-                'address': '서울시 강남구 테헤란로 123',
-                'emergency-contact': '010-9876-5432'
-            };
-
-            Object.entries(testData).forEach(([id, value]) => {
-                const input = document.getElementById(id);
-                if (input) {
-                    input.value = value;
-                    console.log(`✅ ${id}: ${value}`);
+            try {
+                // 1. 과정 선택
+                if (availableCourses.length > 0) {
+                    const success = this.selectCourse(availableCourses[0].id);
+                    if (!success) {
+                        console.log('❌ 과정 선택 실패');
+                        return false;
+                    }
                 }
-            });
 
-            // 옵션 선택
-            const certificateCheckbox = document.getElementById('include-certificate');
-            const materialCheckbox = document.getElementById('include-material');
+                // 2. 기본 정보 입력
+                const testData = {
+                    'applicant-name': '홍길동',
+                    'applicant-name-english': 'Hong Gil Dong',
+                    'phone': '010-1234-5678',
+                    'email': 'test@example.com',
+                    'birth-date': '1990-01-01',
+                    'address': '서울시 강남구 테헤란로 123',
+                    'emergency-contact': '010-9876-5432'
+                };
 
-            if (certificateCheckbox && !certificateCheckbox.checked) {
-                certificateCheckbox.checked = true;
-                certificateCheckbox.dispatchEvent(new Event('change'));
-                console.log('✅ 자격증 발급 선택');
-            }
+                let filledCount = 0;
+                Object.entries(testData).forEach(([id, value]) => {
+                    const input = document.getElementById(id);
+                    if (input) {
+                        input.value = value;
+                        // input 이벤트 발생 (폼 변경 추적)
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                        console.log(`  ✅ ${id}: ${value}`);
+                        filledCount++;
+                    } else {
+                        console.log(`  ⚠️ ${id}: 요소를 찾을 수 없음`);
+                    }
+                });
 
-            if (materialCheckbox && !materialCheckbox.checked) {
-                materialCheckbox.checked = true;
-                materialCheckbox.dispatchEvent(new Event('change'));
-                console.log('✅ 교재 구매 선택');
-            }
+                // 3. 옵션 선택
+                const certificateCheckbox = document.getElementById('include-certificate');
+                const materialCheckbox = document.getElementById('include-material');
 
-            // 약관 동의
-            const agreements = ['agree-privacy', 'agree-marketing'];
-            agreements.forEach(id => {
-                const checkbox = document.getElementById(id);
-                if (checkbox) {
-                    checkbox.checked = true;
-                    console.log(`✅ ${id} 동의`);
+                if (certificateCheckbox && !certificateCheckbox.checked) {
+                    certificateCheckbox.checked = true;
+                    certificateCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+                    console.log('  ✅ 자격증 발급 선택');
                 }
-            });
 
-            console.log('🎯 테스트 데이터 입력 완료!');
-            updateFinalCheck();
+                if (materialCheckbox && !materialCheckbox.checked) {
+                    materialCheckbox.checked = true;
+                    materialCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+                    console.log('  ✅ 교재 구매 선택');
+                }
+
+                // 4. 약관 동의
+                const agreements = ['agree-privacy', 'agree-marketing'];
+                agreements.forEach(id => {
+                    const checkbox = document.getElementById(id);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                        console.log(`  ✅ ${id} 동의`);
+                    }
+                });
+
+                // 5. 최종 확인 카드 업데이트
+                updateFinalCheck();
+
+                console.log(`🎯 테스트 데이터 입력 완료! (${filledCount}개 필드 입력)`);
+                console.log('💡 이제 checkForm() 또는 simulatePayment()를 실행할 수 있습니다.');
+                
+                return true;
+
+            } catch (error) {
+                console.error('❌ 테스트 데이터 입력 중 오류:', error);
+                return false;
+            }
         },
 
+        /**
+         * 폼 유효성 검사
+         */
         checkForm: function () {
-            console.log('🔍 폼 유효성 검사 결과:');
+            console.log('🔍 폼 유효성 검사 시작');
 
-            const isValid = validateUnifiedForm();
-            console.log(`전체 검사 결과: ${isValid ? '✅ 통과' : '❌ 실패'}`);
+            try {
+                const isValid = validateUnifiedForm();
+                
+                if (isValid) {
+                    console.log('✅ 폼 유효성 검사 통과');
+                    
+                    // 수집된 데이터 미리보기
+                    const form = document.getElementById('unified-application-form');
+                    if (form) {
+                        const applicationData = collectApplicationData();
+                        console.log('📊 수집된 신청 데이터:', applicationData);
+                    }
+                } else {
+                    console.log('❌ 폼 유효성 검사 실패');
+                }
 
-            return isValid;
+                return isValid;
+
+            } catch (error) {
+                console.error('❌ 폼 유효성 검사 중 오류:', error);
+                return false;
+            }
         },
 
+        /**
+         * 결제 시뮬레이션
+         */
         simulatePayment: function () {
             console.log('💳 결제 시뮬레이션 시작');
 
             if (!this.checkForm()) {
                 console.log('❌ 폼 검증 실패, 시뮬레이션 중단');
-                return;
+                return false;
             }
 
-            console.log('📤 결제 폼 제출 시뮬레이션');
-            const form = document.getElementById('unified-application-form');
-            if (form) {
-                const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-                form.dispatchEvent(submitEvent);
+            try {
+                console.log('📤 결제 폼 제출 시뮬레이션');
+                const form = document.getElementById('unified-application-form');
+                if (form) {
+                    const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                    form.dispatchEvent(submitEvent);
+                    console.log('✅ 결제 시뮬레이션 실행됨');
+                    return true;
+                } else {
+                    console.log('❌ 폼을 찾을 수 없음');
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ 결제 시뮬레이션 중 오류:', error);
+                return false;
             }
         },
 
+        // =================================
+        // 👤 사용자 관련 메소드
+        // =================================
+
+        /**
+         * 현재 사용자 정보 확인
+         */
         showUser: function () {
             console.log('👤 현재 사용자 정보:');
             if (courseApplicationUser) {
-                console.log('로그인 상태:', courseApplicationUser.email);
-                console.log('UID:', courseApplicationUser.uid);
-                console.log('표시명:', courseApplicationUser.displayName);
+                console.log('  📧 이메일:', courseApplicationUser.email);
+                console.log('  🆔 UID:', courseApplicationUser.uid);
+                console.log('  👤 표시명:', courseApplicationUser.displayName || '설정되지 않음');
+                console.log('  ✅ 로그인 상태: 로그인됨');
             } else {
-                console.log('비로그인 상태');
+                console.log('  ❌ 로그인 상태: 비로그인');
             }
+            return courseApplicationUser;
         },
 
+        /**
+         * 약관 동의 상태 확인
+         */
         showAgreements: function () {
-            console.log('📋 약관 동의 상태:', userAgreements);
+            console.log('📋 약관 동의 상태:');
+            console.log('  💾 저장된 동의 상태:', userAgreements);
 
             const currentAgreements = {
                 privacy: document.getElementById('agree-privacy')?.checked || false,
                 marketing: document.getElementById('agree-marketing')?.checked || false
             };
 
-            console.log('현재 폼 상태:', currentAgreements);
+            console.log('  📄 현재 폼 상태:', currentAgreements);
+            
+            return {
+                saved: userAgreements,
+                current: currentAgreements
+            };
         },
 
+        // =================================
+        // 🔗 네비게이션 관련 메소드
+        // =================================
+
+        /**
+         * 네비게이션 상태 확인
+         */
         showNavigationState: function() {
             console.log('🔗 네비게이션 상태:');
-            console.log('내부 네비게이션:', isInternalNavigation);
-            console.log('폼 데이터 있음:', formHasData);
+            console.log('  🚪 내부 네비게이션:', isInternalNavigation);
+            console.log('  📝 폼 데이터 있음:', formHasData);
+            
+            // 실제 폼 데이터 확인
+            const form = document.getElementById('unified-application-form');
+            if (form) {
+                const inputs = form.querySelectorAll('input, select, textarea');
+                const hasRealData = Array.from(inputs).some(inp => {
+                    if (inp.type === 'checkbox' || inp.type === 'radio') {
+                        return inp.checked && inp.id !== 'include-certificate';
+                    }
+                    return inp.value && inp.value.trim().length > 0;
+                });
+                
+                console.log('  🔍 실제 폼 데이터 상태:', hasRealData);
+                
+                if (formHasData !== hasRealData) {
+                    console.log('  ⚠️ 플래그와 실제 상태가 다름!');
+                }
+            }
+            
+            return {
+                isInternalNavigation,
+                formHasData,
+                realFormHasData: form ? Array.from(form.querySelectorAll('input, select, textarea')).some(inp => {
+                    if (inp.type === 'checkbox' || inp.type === 'radio') {
+                        return inp.checked && inp.id !== 'include-certificate';
+                    }
+                    return inp.value && inp.value.trim().length > 0;
+                }) : false
+            };
         },
 
+        /**
+         * 내부 네비게이션 플래그 설정
+         */
         setInternalNavigation: function(value) {
             isInternalNavigation = value;
-            console.log('내부 네비게이션 플래그 설정:', value);
+            console.log('🚪 내부 네비게이션 플래그 설정:', value);
         },
 
+        /**
+         * 폼 데이터 플래그 설정
+         */
         setFormHasData: function(value) {
             formHasData = value;
-            console.log('폼 데이터 플래그 설정:', value);
+            console.log('📝 폼 데이터 플래그 설정:', value);
         },
 
+        /**
+         * 탭 네비게이션 테스트
+         */
         testTabNavigation: function() {
             console.log('🔗 탭 네비게이션 테스트');
             const certTab = document.querySelector('.tab-item[href*="cert-application"]');
             if (certTab) {
-                console.log('자격증 신청 탭 클릭 시뮬레이션');
+                console.log('  🎯 자격증 신청 탭 클릭 시뮬레이션');
                 certTab.click();
             } else {
-                console.log('자격증 신청 탭을 찾을 수 없음');
+                console.log('  ❌ 자격증 신청 탭을 찾을 수 없음');
             }
         },
 
+        // =================================
+        // 🧪 통합 테스트 메소드
+        // =================================
+
+        /**
+         * 전체 시스템 테스트
+         */
         runFullTest: function () {
             console.log('🧪 전체 시스템 테스트 시작');
+            console.log('='.repeat(50));
 
-            console.log('\n1️⃣ 과정 데이터 확인');
-            this.showCourses();
+            try {
+                console.log('\n1️⃣ 과정 데이터 확인');
+                this.showCourses();
 
-            console.log('\n2️⃣ 사용자 정보 확인');
-            this.showUser();
+                console.log('\n2️⃣ 사용자 정보 확인');
+                this.showUser();
 
-            console.log('\n3️⃣ 테스트 데이터 입력');
-            this.fillTestData();
+                console.log('\n3️⃣ 네비게이션 상태 확인');
+                this.showNavigationState();
 
-            console.log('\n4️⃣ 가격 정보 확인');
-            this.showPricing();
+                console.log('\n4️⃣ 테스트 데이터 입력');
+                const fillSuccess = this.fillTestData();
 
-            console.log('\n5️⃣ 폼 유효성 검사');
-            this.checkForm();
+                if (fillSuccess) {
+                    console.log('\n5️⃣ 가격 정보 확인');
+                    this.showPricing();
 
-            console.log('\n🎯 모든 테스트 완료!');
-            console.log('💡 이제 simulatePayment()를 실행하여 결제를 시뮬레이션할 수 있습니다.');
+                    console.log('\n6️⃣ 가격 동기화 테스트');
+                    this.testPriceSync();
+
+                    console.log('\n7️⃣ 폼 유효성 검사');
+                    const formValid = this.checkForm();
+
+                    console.log('\n8️⃣ 약관 동의 상태 확인');
+                    this.showAgreements();
+
+                    console.log('\n🎯 전체 테스트 완료!');
+                    
+                    if (formValid) {
+                        console.log('✅ 모든 테스트 통과');
+                        console.log('💡 이제 simulatePayment()를 실행하여 결제를 시뮬레이션할 수 있습니다.');
+                    } else {
+                        console.log('⚠️ 일부 테스트에서 문제 발견');
+                    }
+                } else {
+                    console.log('❌ 테스트 데이터 입력 실패');
+                }
+                
+                return fillSuccess;
+
+            } catch (error) {
+                console.error('❌ 전체 테스트 중 오류:', error);
+                return false;
+            }
         },
 
+        /**
+         * 성능 테스트
+         */
+        performanceTest: function() {
+            console.log('⚡ 성능 테스트 시작');
+            
+            const tests = [
+                {
+                    name: '과정 선택',
+                    fn: () => this.selectCourse()
+                },
+                {
+                    name: '가격 계산',
+                    fn: () => calculateAndDisplaySummary()
+                },
+                {
+                    name: '가격 동기화',
+                    fn: () => updateApplicationOptionPrices()
+                },
+                {
+                    name: '폼 검증',
+                    fn: () => validateUnifiedForm()
+                }
+            ];
+            
+            const results = [];
+            
+            tests.forEach(test => {
+                const start = performance.now();
+                try {
+                    test.fn();
+                    const end = performance.now();
+                    const duration = end - start;
+                    results.push({
+                        name: test.name,
+                        duration: duration.toFixed(2) + 'ms',
+                        success: true
+                    });
+                    console.log(`  ✅ ${test.name}: ${duration.toFixed(2)}ms`);
+                } catch (error) {
+                    const end = performance.now();
+                    const duration = end - start;
+                    results.push({
+                        name: test.name,
+                        duration: duration.toFixed(2) + 'ms',
+                        success: false,
+                        error: error.message
+                    });
+                    console.log(`  ❌ ${test.name}: ${duration.toFixed(2)}ms (오류: ${error.message})`);
+                }
+            });
+            
+            console.table(results);
+            return results;
+        },
+
+        // =================================
+        // 🔧 유틸리티 메소드
+        // =================================
+
+        /**
+         * 모든 데이터 초기화
+         */
         resetAll: function () {
             console.log('🔄 모든 데이터 초기화');
 
-            const form = document.getElementById('unified-application-form');
-            if (form) {
-                form.reset();
-            }
+            try {
+                // 폼 리셋
+                const form = document.getElementById('unified-application-form');
+                if (form) {
+                    form.reset();
+                }
 
-            const courseSelect = document.getElementById('course-select');
-            if (courseSelect) {
-                courseSelect.value = '';
-                courseSelect.dispatchEvent(new Event('change'));
-            }
+                // 과정 선택 초기화
+                const courseSelect = document.getElementById('course-select');
+                if (courseSelect) {
+                    courseSelect.value = '';
+                    courseSelect.dispatchEvent(new Event('change'));
+                }
 
-            const checkboxes = ['include-certificate', 'include-material', 'agree-privacy', 'agree-marketing'];
-            checkboxes.forEach(id => {
-                const checkbox = document.getElementById(id);
-                if (checkbox) {
-                    checkbox.checked = false;
-                    if (id.startsWith('include-')) {
-                        checkbox.dispatchEvent(new Event('change'));
+                // 체크박스 초기화
+                const checkboxes = ['include-certificate', 'include-material', 'agree-privacy', 'agree-marketing'];
+                checkboxes.forEach(id => {
+                    const checkbox = document.getElementById(id);
+                    if (checkbox) {
+                        if (id === 'include-certificate') {
+                            checkbox.checked = true; // 자격증은 기본 선택
+                        } else {
+                            checkbox.checked = false;
+                        }
+                        if (id.startsWith('include-')) {
+                            checkbox.dispatchEvent(new Event('change'));
+                        }
                     }
+                });
+
+                // 전역 변수 초기화
+                selectedCourseData = null;
+                clearPricingData();
+                resetApplicationOptionPrices();
+                updateFinalCheck();
+
+                // 네비게이션 플래그 초기화
+                isInternalNavigation = false;
+                formHasData = false;
+
+                console.log('✅ 모든 데이터 초기화 완료');
+                
+            } catch (error) {
+                console.error('❌ 초기화 중 오류:', error);
+            }
+        },
+
+        /**
+         * 디버깅 도구 상태 확인
+         */
+        status: function() {
+            console.log('🔧 디버깅 도구 상태:');
+            console.log('  📚 사용 가능한 과정 수:', availableCourses.length);
+            console.log('  🎯 선택된 과정:', selectedCourseData?.title || '없음');
+            console.log('  💰 가격 데이터 로드:', Object.keys(pricingData).length > 0);
+            console.log('  👤 사용자 로그인:', !!courseApplicationUser);
+            console.log('  📝 폼 초기화:', !!document.getElementById('unified-application-form'));
+            console.log('  🔗 네비게이션 상태:', { isInternalNavigation, formHasData });
+            
+            return {
+                coursesAvailable: availableCourses.length,
+                courseSelected: !!selectedCourseData,
+                pricingLoaded: Object.keys(pricingData).length > 0,
+                userLoggedIn: !!courseApplicationUser,
+                formInitialized: !!document.getElementById('unified-application-form'),
+                navigationState: { isInternalNavigation, formHasData }
+            };
+        },
+
+        /**
+         * 도움말
+         */
+        help: function () {
+            console.log('🎯 통합 교육 신청 디버깅 도구 (완전판)');
+            console.log('');
+            console.log('🔧 데이터 관련:');
+            console.log('  - showCourses() : 사용 가능한 과정 목록 (테이블 형태)');
+            console.log('  - selectCourse(id) : 특정 과정 선택');
+            console.log('  - showPricing() : 현재 가격 정보 및 계산');
+            console.log('  - testPriceSync() : 자격증 발급비 동기화 테스트');
+            console.log('  - forcePriceSync() : 강제 가격 동기화 실행');
+
+            console.log('\n📝 폼 관련:');
+            console.log('  - fillTestData() : 테스트 데이터 자동 입력');
+            console.log('  - checkForm() : 폼 유효성 검사');
+            console.log('  - simulatePayment() : 결제 시뮬레이션');
+
+            console.log('\n👤 사용자 관련:');
+            console.log('  - showUser() : 현재 사용자 정보');
+            console.log('  - showAgreements() : 약관 동의 상태');
+
+            console.log('\n🔗 네비게이션 관련:');
+            console.log('  - showNavigationState() : 네비게이션 상태 확인');
+            console.log('  - setInternalNavigation(bool) : 내부 네비게이션 플래그 설정');
+            console.log('  - setFormHasData(bool) : 폼 데이터 플래그 설정');
+            console.log('  - testTabNavigation() : 탭 네비게이션 테스트');
+
+            console.log('\n🧪 통합 테스트:');
+            console.log('  - runFullTest() : 전체 시스템 테스트 (추천)');
+            console.log('  - performanceTest() : 성능 테스트');
+
+            console.log('\n🔧 유틸리티:');
+            console.log('  - resetAll() : 모든 데이터 초기화');
+            console.log('  - status() : 디버깅 도구 상태 확인');
+            console.log('  - help() : 이 도움말');
+
+            console.log('\n💡 사용법:');
+            console.log('1. 🚀 빠른 시작: runFullTest()');
+            console.log('2. 🔧 문제 해결: testPriceSync() -> forcePriceSync()');
+            console.log('3. 🧪 개별 테스트: fillTestData() -> checkForm() -> simulatePayment()');
+            console.log('4. 🔄 초기화: resetAll()');
+
+            console.log('\n🎯 새로운 기능 (자격증 발급비 동기화):');
+            console.log('- testPriceSync() : 신청 옵션과 결제 요약의 가격 동기화 확인');
+            console.log('- forcePriceSync() : 가격 동기화 문제 발생 시 강제 수정');
+            console.log('- 실시간 가격 계산 및 패키지 할인 적용');
+            console.log('- 관리자 설정 가격 자동 반영');
+
+            console.log('\n🔗 네비게이션 개선:');
+            console.log('- beforeunload 이벤트 내부 네비게이션 구분 처리');
+            console.log('- 폼 데이터 상태 실시간 추적');
+            console.log('- 탭 변경 시 불필요한 확인 대화상자 방지');
+        },
+
+        // =================================
+        // 🎯 고급 디버깅 메소드
+        // =================================
+
+        /**
+         * 가격 계산 로직 상세 분석
+         */
+        analyzePricing: function() {
+            console.log('🔍 가격 계산 로직 상세 분석');
+            
+            if (!selectedCourseData) {
+                console.log('❌ 과정이 선택되지 않음');
+                return null;
+            }
+
+            const includeCert = document.getElementById('include-certificate')?.checked || false;
+            const includeMaterial = document.getElementById('include-material')?.checked || false;
+
+            console.log('📊 기본 데이터:');
+            console.log('  - 선택된 과정:', selectedCourseData.title);
+            console.log('  - 교육비:', pricingData.education);
+            console.log('  - 자격증비:', pricingData.certificate);
+            console.log('  - 교재비:', pricingData.material);
+            console.log('  - 패키지 할인율:', pricingData.packageDiscount + '%');
+            console.log('  - 교재 필수:', pricingData.materialRequired);
+
+            console.log('\n📋 선택된 옵션:');
+            console.log('  - 교육 수강: ✅ (항상 포함)');
+            console.log('  - 자격증 발급:', includeCert ? '✅' : '❌');
+            console.log('  - 교재 구매:', includeMaterial ? '✅' : '❌');
+
+            // 가격 계산
+            let educationAmount = pricingData.education;
+            let certificateAmount = includeCert ? pricingData.certificate : 0;
+            let materialAmount = includeMaterial ? pricingData.material : 0;
+            let discountAmount = 0;
+
+            const hasPackageDiscount = includeCert && includeMaterial;
+            if (hasPackageDiscount) {
+                const subtotal = educationAmount + certificateAmount + materialAmount;
+                discountAmount = Math.floor(subtotal * (pricingData.packageDiscount / 100));
+            }
+
+            const totalAmount = educationAmount + certificateAmount + materialAmount - discountAmount;
+
+            console.log('\n💰 계산 과정:');
+            console.log('  1️⃣ 교육비:', educationAmount.toLocaleString() + '원');
+            console.log('  2️⃣ 자격증비:', certificateAmount.toLocaleString() + '원');
+            console.log('  3️⃣ 교재비:', materialAmount.toLocaleString() + '원');
+            console.log('  4️⃣ 소계:', (educationAmount + certificateAmount + materialAmount).toLocaleString() + '원');
+            
+            if (hasPackageDiscount) {
+                console.log('  5️⃣ 패키지 할인 적용:', `-${discountAmount.toLocaleString()}원 (${pricingData.packageDiscount}%)`);
+            } else {
+                console.log('  5️⃣ 패키지 할인:', '적용 안됨 (자격증+교재 모두 선택 시에만 적용)');
+            }
+            
+            console.log('  6️⃣ 최종 금액:', totalAmount.toLocaleString() + '원');
+
+            // 실제 표시된 금액과 비교
+            const displayedTotal = document.getElementById('total-price')?.textContent;
+            const formatCurrency = (amount) => window.formatters?.formatCurrency(amount) || `${amount.toLocaleString()}원`;
+            const expectedTotal = formatCurrency(totalAmount);
+
+            console.log('\n🔍 검증:');
+            console.log('  - 계산된 금액:', expectedTotal);
+            console.log('  - 표시된 금액:', displayedTotal);
+            console.log('  - 일치 여부:', expectedTotal === displayedTotal ? '✅' : '❌');
+
+            return {
+                education: educationAmount,
+                certificate: certificateAmount,
+                material: materialAmount,
+                discount: discountAmount,
+                total: totalAmount,
+                hasPackageDiscount,
+                expectedDisplay: expectedTotal,
+                actualDisplay: displayedTotal,
+                isCorrect: expectedTotal === displayedTotal
+            };
+        },
+
+        /**
+         * DOM 요소 상태 분석
+         */
+        analyzeDOMState: function() {
+            console.log('🔍 DOM 요소 상태 분석');
+
+            const elements = {
+                // 과정 선택
+                courseSelect: document.getElementById('course-select'),
+                courseInfo: document.getElementById('course-info'),
+                
+                // 신청 옵션
+                certificateOption: document.querySelector('.option-card.required .option-price'),
+                materialOption: document.querySelector('.option-card.optional .option-price'),
+                
+                // 결제 요약
+                educationPrice: document.getElementById('education-price'),
+                certificatePrice: document.getElementById('certificate-price'),
+                materialPrice: document.getElementById('material-price'),
+                totalPrice: document.getElementById('total-price'),
+                
+                // 체크박스
+                certificateCheckbox: document.getElementById('include-certificate'),
+                materialCheckbox: document.getElementById('include-material'),
+                
+                // 폼
+                form: document.getElementById('unified-application-form'),
+                paymentButton: document.getElementById('payment-button')
+            };
+
+            console.log('📋 DOM 요소 존재 여부:');
+            Object.entries(elements).forEach(([name, element]) => {
+                const exists = !!element;
+                const visible = element ? !element.hidden && element.offsetParent !== null : false;
+                console.log(`  ${exists ? '✅' : '❌'} ${name}: ${exists ? (visible ? '보임' : '숨김') : '없음'}`);
+            });
+
+            console.log('\n📋 체크박스 상태:');
+            if (elements.certificateCheckbox) {
+                console.log('  - 자격증 발급:', elements.certificateCheckbox.checked ? '✅ 선택됨' : '❌ 선택안됨');
+            }
+            if (elements.materialCheckbox) {
+                console.log('  - 교재 구매:', elements.materialCheckbox.checked ? '✅ 선택됨' : '❌ 선택안됨');
+            }
+
+            console.log('\n📋 표시된 가격:');
+            ['certificateOption', 'materialOption', 'educationPrice', 'certificatePrice', 'materialPrice', 'totalPrice'].forEach(key => {
+                if (elements[key]) {
+                    console.log(`  - ${key}:`, elements[key].textContent || '없음');
                 }
             });
 
-            selectedCourseData = null;
-            clearPricingData();
-            updateFinalCheck();
+            return elements;
+        },
 
-            console.log('✅ 초기화 완료');
+        /**
+         * 이벤트 리스너 상태 확인
+         */
+        checkEventListeners: function() {
+            console.log('🔍 이벤트 리스너 상태 확인');
+
+            const testElements = [
+                { id: 'course-select', events: ['change'] },
+                { id: 'include-certificate', events: ['change'] },
+                { id: 'include-material', events: ['change'] },
+                { id: 'unified-application-form', events: ['submit'] }
+            ];
+
+            testElements.forEach(({ id, events }) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    console.log(`📋 ${id}:`);
+                    events.forEach(eventType => {
+                        // 이벤트 테스트
+                        let eventFired = false;
+                        const testHandler = () => { eventFired = true; };
+                        
+                        element.addEventListener(eventType, testHandler);
+                        element.dispatchEvent(new Event(eventType, { bubbles: true }));
+                        element.removeEventListener(eventType, testHandler);
+                        
+                        console.log(`  - ${eventType} 이벤트:`, eventFired ? '✅ 정상' : '❌ 문제');
+                    });
+                } else {
+                    console.log(`❌ ${id}: 요소 없음`);
+                }
+            });
+        },
+
+        /**
+         * Firebase 연동 상태 확인
+         */
+        checkFirebaseConnection: function() {
+            console.log('🔥 Firebase 연동 상태 확인');
+
+            const firebaseChecks = {
+                'Firebase 앱': !!window.dhcFirebase,
+                'Authentication': !!window.dhcFirebase?.auth,
+                'Firestore': !!window.dhcFirebase?.db,
+                'Auth Service': !!window.authService,
+                'DB Service': !!window.dbService,
+                '현재 사용자': !!courseApplicationUser,
+                '사용자 이메일': courseApplicationUser?.email || '없음'
+            };
+
+            console.table(firebaseChecks);
+
+            if (window.dhcFirebase && window.dhcFirebase.db) {
+                console.log('✅ Firebase 연동 정상');
+                return true;
+            } else {
+                console.log('⚠️ Firebase 연동 문제 - 로컬 테스트 모드로 진행');
+                return false;
+            }
+        },
+
+        /**
+         * 로컬 스토리지 상태 확인
+         */
+        checkLocalStorage: function() {
+            console.log('💾 로컬 스토리지 상태 확인');
+
+            const keys = [
+                'dhc_application_data',
+                'dhc_user_preferences',
+                'dhc_form_autosave'
+            ];
+
+            keys.forEach(key => {
+                const data = localStorage.getItem(key);
+                if (data) {
+                    try {
+                        const parsed = JSON.parse(data);
+                        console.log(`✅ ${key}:`, parsed);
+                    } catch (e) {
+                        console.log(`📄 ${key}:`, data);
+                    }
+                } else {
+                    console.log(`❌ ${key}: 없음`);
+                }
+            });
         }
     };
 
-    console.log('🔧 통합 교육 신청 디버깅 도구 활성화됨');
-    console.log('🎯 주요 디버깅 함수들:');
-    console.log('📊 데이터: showCourses(), selectCourse(id), showPricing()');
+    // 디버깅 도구 활성화 메시지
+    console.log('🎯 통합 교육 신청 디버깅 도구 활성화됨 (완전판)');
+    console.log('🚀 빠른 시작: window.debugUnifiedCourseApplication.runFullTest()');
+    console.log('💡 도움말: window.debugUnifiedCourseApplication.help()');
+    console.log('🔧 상태 확인: window.debugUnifiedCourseApplication.status()');
+    console.log('');
+    console.log('🎯 주요 기능:');
+    console.log('📊 데이터: showCourses(), selectCourse(), showPricing()');
+    console.log('🔧 가격 동기화: testPriceSync(), forcePriceSync()');
     console.log('📝 폼: fillTestData(), checkForm(), simulatePayment()');
     console.log('👤 사용자: showUser(), showAgreements()');
     console.log('🔗 네비게이션: showNavigationState(), testTabNavigation()');
-    console.log('🧪 테스트: runFullTest(), resetAll()');
-    console.log('\n💡 도움말: window.debugUnifiedCourseApplication.help()');
-    console.log('🚀 빠른 시작: window.debugUnifiedCourseApplication.runFullTest()');
+    console.log('🧪 테스트: runFullTest(), performanceTest()');
+    console.log('🔍 고급 분석: analyzePricing(), analyzeDOMState()');
 
 } else {
     console.log('프로덕션 모드 - 디버깅 도구 비활성화됨');
+    
+    // 프로덕션에서도 기본적인 상태 확인은 가능하도록
+    window.debugUnifiedCourseApplication = {
+        status: function() {
+            return {
+                mode: 'production',
+                coursesAvailable: availableCourses.length,
+                courseSelected: !!selectedCourseData,
+                userLoggedIn: !!courseApplicationUser
+            };
+        },
+        help: function() {
+            console.log('프로덕션 모드에서는 제한된 디버깅 기능만 사용 가능합니다.');
+            console.log('전체 디버깅 도구를 사용하려면 개발 환경에서 실행하세요.');
+        }
+    };
 }
 
 // =================================
-// 🔧 최종 완료 메시지 및 플래그
+// 🎉 완료 메시지
 // =================================
 
-console.log('\n🎉 === course-application.js 통합 개선 버전 완료 ===');
-console.log('✅ Firebase 기반 데이터 관리');
-console.log('✅ 동적 가격 로딩 및 계산 (수정 완료)');
-console.log('✅ 통합 신청 옵션 (교육+자격증+교재)');
-console.log('✅ 실시간 가격 요약 및 할인 계산');
-console.log('✅ 회원 정보 자동 기입');
-console.log('✅ Firebase 기반 약관 관리');
-console.log('✅ 영문명 입력 도우미 및 실시간 검증');
-console.log('✅ 토스페이먼츠 연동 준비 완료');
-console.log('✅ 포괄적인 폼 유효성 검사');
-console.log('✅ 결제 성공/실패 처리');
-console.log('✅ 내부 네비게이션 개선 (beforeunload 문제 해결)');
-console.log('✅ 향상된 사용자 경험 (로딩, 메시지, 애니메이션)');
-console.log('✅ 개발용 디버깅 도구 완비');
-
-console.log('\n🔧 주요 수정사항:');
-console.log('- 관리자 설정 가격이 올바르게 표시되도록 수정');
-console.log('- 교육비가 0원으로 표시되는 문제 해결');
-console.log('- 교재비 계산 로직 정확성 개선');
-console.log('- 가격 요약 섹션 실시간 업데이트 강화');
-console.log('- beforeunload 이벤트 내부 네비게이션 구분 처리');
-
-console.log('\n🚀 테스트 방법:');
-console.log('1. 관리자에서 설정한 가격이 올바르게 표시되는지 확인');
-console.log('2. 교재 체크박스 변경 시 가격이 정확히 계산되는지 확인');
-console.log('3. 탭 변경 시 불필요한 확인 대화상자가 나타나지 않는지 확인');
-console.log('4. window.debugUnifiedCourseApplication.runFullTest() 실행하여 전체 기능 테스트');
-
-console.log('\n💡 현재 페이지는 완전히 작동 가능한 상태입니다!');
+console.log('\n🎉 === Course Application 디버깅 도구 완전판 로드 완료 ===');
+console.log('✅ 총 25개의 디버깅 메소드 제공');
+console.log('✅ 자격증 발급비 동기화 테스트 기능');
+console.log('✅ 전체 시스템 통합 테스트');
+console.log('✅ 성능 테스트 및 분석 기능');
+console.log('✅ DOM 상태 및 이벤트 리스너 검증');
+console.log('✅ Firebase 연동 상태 확인');
+console.log('✅ 네비게이션 상태 관리');
+console.log('✅ 프로덕션/개발 모드 자동 감지');
+console.log('');
+console.log('🚀 사용 시작: window.debugUnifiedCourseApplication.runFullTest()');
+console.log('💡 문제 해결: window.debugUnifiedCourseApplication.help()');
+console.log('');
+console.log('🎯 이제 완전한 디버깅 환경이 준비되었습니다!');
 
 // 완료 플래그 설정
 window.unifiedCourseApplicationReady = true;

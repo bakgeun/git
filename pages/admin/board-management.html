@@ -684,7 +684,7 @@
                                         또는 여기로 드래그 앤 드롭
                                     </p>
                                     <p class="text-xs text-gray-500 mt-1">
-                                        이미지, PDF, DOC, XLS, PPT, HWP(한글), TXT, ZIP 등 (최대 10MB)
+                                        이미지, PDF, DOC, XLS, PPT, HWP/HWPX(한글), TXT, ZIP 등 (최대 10MB)
                                     </p>
                                 </div>
                             </div>
@@ -694,7 +694,7 @@
 
                             <!-- 숨겨진 파일 입력 -->
                             <input type="file" id="file-input" multiple
-                                accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.rtf,.hwp,.zip,.rar,.7z"
+                                accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.rtf,.hwp,.hwpx,.zip,.rar,.7z"
                                 style="display: none;">
                         </div>
 
@@ -1120,7 +1120,7 @@
             validateFile: function (file) {
                 console.log('📋 파일 검증:', file.name, 'MIME 타입:', file.type);
 
-                // 허용된 MIME 타입들
+                // 🔧 수정: 허용된 MIME 타입들 - .hwpx 관련 MIME 타입 추가
                 const allowedTypes = [
                     // 이미지 파일
                     'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
@@ -1137,11 +1137,13 @@
                     // 텍스트 파일
                     'text/plain', 'text/csv', 'application/rtf',
 
-                    // 한글 파일 - 다양한 MIME 타입 지원
+                    // 🔧 한글 파일 - .hwpx를 위한 MIME 타입 추가
                     'application/x-hwp',
                     'application/haansofthwp',
                     'application/vnd.hancom.hwp',
-                    'application/octet-stream', // 한글 파일이 이 타입으로 인식되는 경우가 많음
+                    'application/vnd.hancom.hwpx',  // 🔧 추가: HWPX 전용 MIME 타입
+                    'application/hwpx',             // 🔧 추가: 일반적인 HWPX MIME 타입
+                    'application/octet-stream',     // 한글 파일이 이 타입으로 인식되는 경우가 많음
 
                     // 압축 파일
                     'application/zip', 'application/x-rar-compressed', 'application/x-7z-compressed'
@@ -1155,6 +1157,7 @@
                 // 2. MIME 타입이 매치되지 않으면 파일 확장자로 검증 (한글 파일 등)
                 if (!isValidType) {
                     const fileName = file.name.toLowerCase();
+                    // 🔧 수정: .hwpx 확장자 추가
                     const allowedExtensions = [
                         // 이미지
                         '.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg',
@@ -1162,8 +1165,8 @@
                         '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
                         // 텍스트
                         '.txt', '.csv', '.rtf',
-                        // 한글 파일
-                        '.hwp',
+                        // 🔧 한글 파일 - .hwpx 추가
+                        '.hwp', '.hwpx',
                         // 압축
                         '.zip', '.rar', '.7z'
                     ];
