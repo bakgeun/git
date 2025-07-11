@@ -430,89 +430,120 @@ function initScheduleTableInteractions() {
 // URL 파라미터 처리 함수 추가
 async function handleURLParameters() {
     console.log('🔗 URL 파라미터 처리 시작');
-    
+
     try {
         const urlParams = new URLSearchParams(window.location.search);
         const courseId = urlParams.get('courseId');
         const fromPage = urlParams.get('from');
-        
+
         console.log('📋 URL 파라미터:', { courseId, fromPage });
-        
+
         if (courseId) {
             console.log('🎯 URL에서 과정 ID 감지:', courseId);
-            
+
             // 과정 데이터가 로드될 때까지 대기
             let retryCount = 0;
             const maxRetries = 10;
-            
+
             while (availableCourses.length === 0 && retryCount < maxRetries) {
                 console.log(`⏳ 과정 데이터 로딩 대기 중... (${retryCount + 1}/${maxRetries})`);
                 await new Promise(resolve => setTimeout(resolve, 500));
                 retryCount++;
             }
-            
+
             if (availableCourses.length === 0) {
                 console.warn('⚠️ 과정 데이터 로딩 시간 초과');
                 showWarningMessage('과정 데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
                 return;
             }
-            
+
             console.log('📊 로드된 과정들:', availableCourses.map(c => ({ id: c.id, title: c.title })));
-            
-            // 🔧 NEW: 하드코딩된 테스트 ID를 실제 Firebase ID로 매핑
+
+            // 🔧 NEW: 실제 Firebase ID 우선 매칭
             let targetCourse = null;
-            
+
             // 1단계: 정확한 ID 매칭 시도
             targetCourse = availableCourses.find(course => course.id === courseId);
-            
+
             if (!targetCourse) {
                 console.log('🔍 정확한 ID 매칭 실패, 자격증 타입으로 매칭 시도');
-                
-                // 2단계: 하드코딩된 테스트 ID를 자격증 타입으로 매핑
+
+                // 2단계: 테스트 ID를 자격증 타입으로 매핑
                 const testIdMapping = {
                     'test-health-1': 'health-exercise',
-                    'test-rehab-1': 'rehabilitation', 
+                    'test-rehab-1': 'rehabilitation',
                     'test-pilates-1': 'pilates',
                     'test-recreation-1': 'recreation'
                 };
-                
-                const targetCertType = testIdMapping[courseId];
-                if (targetCertType) {
-                    console.log('🎯 자격증 타입으로 매칭 시도:', targetCertType);
-                    
-                    // 해당 자격증 타입의 첫 번째 활성 과정 선택
-                    targetCourse = availableCourses.find(course => 
-                        course.certificateType === targetCertType && 
-                        course.status === 'active'
-                    );
-                    
-                    if (!targetCourse) {
-                        // 상태 관계없이 해당 자격증 타입의 과정 찾기
-                        targetCourse = availableCourses.find(course => 
-                            course.certificateType === targetCertType
+
+                // 3단계: 자격증 페이지에서 온 경우 자격증 타입 추출
+                if (fromPage === 'certificate' && !testIdMapping[courseId]) {
+                    // URL이나 referrer에서 자격증 타입 추출 시도
+                    const referrer = document.referrer;
+                    let certType = null;
+
+                    if (referrer.includes('health-exercise')) certType = 'health-exercise';
+                    else if (referrer.includes('rehabilitation')) certType = 'rehabilitation';
+                    else if (referrer.includes('pilates')) certType = 'pilates';
+                    else if (referrer.includes('recreation')) certType = 'recreation';
+
+                    if (certType) {
+                        console.log('🎯 자격증 페이지에서 감지된 타입:', certType);
+                        // 해당 자격증 타입의 활성 과정 찾기
+                        targetCourse = availableCourses.find(course =>
+                            course.certificateType === certType &&
+                            course.status === 'active'
                         );
+
+                        if (!targetCourse) {
+                            // 상태 관계없이 해당 자격증 타입의 과정 찾기
+                            targetCourse = availableCourses.find(course =>
+                                course.certificateType === certType
+                            );
+                        }
+                    }
+                }
+
+                // 4단계: 테스트 ID 매핑 시도
+                if (!targetCourse) {
+                    const targetCertType = testIdMapping[courseId];
+                    if (targetCertType) {
+                        console.log('🎯 테스트 ID로 자격증 타입 매칭 시도:', targetCertType);
+
+                        // 해당 자격증 타입의 첫 번째 활성 과정 선택
+                        targetCourse = availableCourses.find(course =>
+                            course.certificateType === targetCertType &&
+                            course.status === 'active'
+                        );
+
+                        if (!targetCourse) {
+                            // 상태 관계없이 해당 자격증 타입의 과정 찾기
+                            targetCourse = availableCourses.find(course =>
+                                course.certificateType === targetCertType
+                            );
+                        }
                     }
                 }
             }
-            
+
             if (!targetCourse) {
-                console.log('🔍 자격증 타입 매칭도 실패, 첫 번째 과정으로 폴백');
+                console.log('🔍 모든 매칭 실패, 첫 번째 과정으로 폴백');
                 targetCourse = availableCourses[0];
             }
-            
+
             if (targetCourse) {
                 console.log('✅ 대상 과정 찾음:', targetCourse.title, '(ID:', targetCourse.id + ')');
-                
-                // 🔧 실제 Firebase ID로 과정 선택
+
+                // 과정 선택
                 const success = selectCourseById(targetCourse.id);
-                
+
                 if (success) {
                     console.log('🎯 과정 자동 선택 성공');
-                    
+
                     // 과정 선택 섹션으로 스크롤
                     setTimeout(() => {
                         scrollToCourseSelection();
-                        
+
                         // 사용자에게 알림
                         const certNames = {
                             'health-exercise': '건강운동처방사',
@@ -520,21 +551,23 @@ async function handleURLParameters() {
                             'pilates': '필라테스 전문가',
                             'recreation': '레크리에이션지도자'
                         };
-                        
+
                         const certName = certNames[targetCourse.certificateType] || targetCourse.certificateType;
-                        
-                        if (targetCourse.id !== courseId) {
+
+                        if (fromPage === 'certificate') {
+                            showSuccessMessage(`${certName} 자격증 페이지에서 연결된 교육과정이 자동으로 선택되었습니다.`);
+                        } else if (targetCourse.id !== courseId) {
                             showSuccessMessage(`${certName} 과정이 자동으로 선택되었습니다. (유사한 과정으로 매칭됨)`);
                         } else {
                             showSuccessMessage(`${certName} 과정이 자동으로 선택되었습니다.`);
                         }
-                        
+
                         // URL 정리 (새로고침 시 중복 실행 방지)
                         if (window.history && window.history.replaceState) {
                             const newUrl = window.location.pathname;
                             window.history.replaceState({}, document.title, newUrl);
                         }
-                        
+
                     }, 1000);
                 } else {
                     console.warn('❌ 과정 자동 선택 실패');
@@ -547,7 +580,7 @@ async function handleURLParameters() {
         } else {
             console.log('📝 URL 파라미터에 과정 ID 없음');
         }
-        
+
     } catch (error) {
         console.error('❌ URL 파라미터 처리 오류:', error);
         showErrorMessage('페이지 초기화 중 오류가 발생했습니다.');
@@ -558,20 +591,20 @@ async function handleURLParameters() {
 function mapTestIdToRealCourse(testId, availableCourses) {
     const testIdMapping = {
         'test-health-1': 'health-exercise',
-        'test-rehab-1': 'rehabilitation', 
+        'test-rehab-1': 'rehabilitation',
         'test-pilates-1': 'pilates',
         'test-recreation-1': 'recreation'
     };
-    
+
     const targetCertType = testIdMapping[testId];
     if (!targetCertType) {
         return null;
     }
-    
+
     // 활성 상태 우선, 없으면 상태 관계없이
-    return availableCourses.find(course => 
+    return availableCourses.find(course =>
         course.certificateType === targetCertType && course.status === 'active'
-    ) || availableCourses.find(course => 
+    ) || availableCourses.find(course =>
         course.certificateType === targetCertType
     );
 }
@@ -2473,10 +2506,25 @@ window.loadScheduleData = loadScheduleData;
 // =================================
 
 // 🔧 페이지 언로드 시 플래그 초기화
-window.addEventListener('unload', function () {
-    console.log('페이지 언로드, 플래그 초기화');
-    isInternalNavigation = false;
-    formHasData = false;
+window.addEventListener('beforeunload', function (event) {
+    console.log('페이지 언로드 전, 플래그 초기화');
+
+    // 내부 네비게이션인 경우 확인 안함
+    if (isInternalNavigation) {
+        console.log('내부 네비게이션으로 판단, 확인 메시지 표시 안함');
+        return;
+    }
+
+    // 폼에 의미있는 데이터가 있는 경우만 확인
+    if (formHasData) {
+        console.log('작성 중인 데이터 있음, 확인 메시지 표시');
+        const message = '작성 중인 교육신청 내용이 있습니다. 정말 나가시겠습니까?';
+        event.preventDefault();
+        event.returnValue = message;
+        return message;
+    }
+
+    console.log('확인 메시지 표시 조건 없음');
 });
 
 // 🔧 페이지 포커스 시 플래그 초기화 (뒤로가기 등)
@@ -2566,11 +2614,11 @@ if (window.location.hostname === 'localhost' ||
     window.FORCE_DEBUG === true) {
 
     window.debugUnifiedCourseApplication = {
-        
+
         // =================================
         // 📊 데이터 관련 메소드
         // =================================
-        
+
         /**
          * 사용 가능한 과정 목록 확인
          */
@@ -2647,7 +2695,7 @@ if (window.location.hostname === 'localhost' ||
                 // 가격 계산 실행
                 console.log('🧮 실시간 가격 계산:');
                 calculateAndDisplaySummary();
-                
+
                 // 가격 동기화 상태 확인
                 this.testPriceSync();
             } else {
@@ -2658,9 +2706,9 @@ if (window.location.hostname === 'localhost' ||
         /**
          * 🔧 NEW: 자격증 발급비 동기화 테스트
          */
-        testPriceSync: function() {
+        testPriceSync: function () {
             console.log('🔧 자격증 발급비 동기화 테스트 시작');
-            
+
             if (!selectedCourseData) {
                 console.log('❌ 과정이 선택되지 않음');
                 return { success: false, reason: 'no_course_selected' };
@@ -2672,7 +2720,7 @@ if (window.location.hostname === 'localhost' ||
             // 신청 옵션 섹션 가격 확인
             const certificateOptionPrice = document.querySelector('.option-card.required .option-price');
             const materialOptionPrice = document.querySelector('.option-card.optional .option-price');
-            
+
             console.log('📋 신청 옵션 섹션 표시 가격:');
             console.log('  - 자격증 발급비:', certificateOptionPrice?.textContent || '❌ 요소 없음');
             console.log('  - 교재비:', materialOptionPrice?.textContent || '❌ 요소 없음');
@@ -2736,9 +2784,9 @@ if (window.location.hostname === 'localhost' ||
         /**
          * 🔧 NEW: 강제 가격 동기화 실행
          */
-        forcePriceSync: function() {
+        forcePriceSync: function () {
             console.log('🔧 강제 가격 동기화 실행');
-            
+
             if (!selectedCourseData) {
                 console.log('❌ 과정이 선택되지 않음');
                 return false;
@@ -2747,18 +2795,18 @@ if (window.location.hostname === 'localhost' ||
             try {
                 console.log('1️⃣ 신청 옵션 섹션 가격 업데이트');
                 updateApplicationOptionPrices();
-                
+
                 console.log('2️⃣ 전체 가격 표시 업데이트');
                 updatePricingDisplay();
-                
+
                 console.log('3️⃣ 가격 요약 계산');
                 calculateAndDisplaySummary();
-                
+
                 console.log('✅ 강제 가격 동기화 완료');
-                
+
                 // 동기화 결과 확인
                 return this.testPriceSync();
-                
+
             } catch (error) {
                 console.error('❌ 강제 가격 동기화 중 오류:', error);
                 return false;
@@ -2842,7 +2890,7 @@ if (window.location.hostname === 'localhost' ||
 
                 console.log(`🎯 테스트 데이터 입력 완료! (${filledCount}개 필드 입력)`);
                 console.log('💡 이제 checkForm() 또는 simulatePayment()를 실행할 수 있습니다.');
-                
+
                 return true;
 
             } catch (error) {
@@ -2859,10 +2907,10 @@ if (window.location.hostname === 'localhost' ||
 
             try {
                 const isValid = validateUnifiedForm();
-                
+
                 if (isValid) {
                     console.log('✅ 폼 유효성 검사 통과');
-                    
+
                     // 수집된 데이터 미리보기
                     const form = document.getElementById('unified-application-form');
                     if (form) {
@@ -2943,7 +2991,7 @@ if (window.location.hostname === 'localhost' ||
             };
 
             console.log('  📄 현재 폼 상태:', currentAgreements);
-            
+
             return {
                 saved: userAgreements,
                 current: currentAgreements
@@ -2957,11 +3005,11 @@ if (window.location.hostname === 'localhost' ||
         /**
          * 네비게이션 상태 확인
          */
-        showNavigationState: function() {
+        showNavigationState: function () {
             console.log('🔗 네비게이션 상태:');
             console.log('  🚪 내부 네비게이션:', isInternalNavigation);
             console.log('  📝 폼 데이터 있음:', formHasData);
-            
+
             // 실제 폼 데이터 확인
             const form = document.getElementById('unified-application-form');
             if (form) {
@@ -2972,14 +3020,14 @@ if (window.location.hostname === 'localhost' ||
                     }
                     return inp.value && inp.value.trim().length > 0;
                 });
-                
+
                 console.log('  🔍 실제 폼 데이터 상태:', hasRealData);
-                
+
                 if (formHasData !== hasRealData) {
                     console.log('  ⚠️ 플래그와 실제 상태가 다름!');
                 }
             }
-            
+
             return {
                 isInternalNavigation,
                 formHasData,
@@ -2995,7 +3043,7 @@ if (window.location.hostname === 'localhost' ||
         /**
          * 내부 네비게이션 플래그 설정
          */
-        setInternalNavigation: function(value) {
+        setInternalNavigation: function (value) {
             isInternalNavigation = value;
             console.log('🚪 내부 네비게이션 플래그 설정:', value);
         },
@@ -3003,7 +3051,7 @@ if (window.location.hostname === 'localhost' ||
         /**
          * 폼 데이터 플래그 설정
          */
-        setFormHasData: function(value) {
+        setFormHasData: function (value) {
             formHasData = value;
             console.log('📝 폼 데이터 플래그 설정:', value);
         },
@@ -3011,7 +3059,7 @@ if (window.location.hostname === 'localhost' ||
         /**
          * 탭 네비게이션 테스트
          */
-        testTabNavigation: function() {
+        testTabNavigation: function () {
             console.log('🔗 탭 네비게이션 테스트');
             const certTab = document.querySelector('.tab-item[href*="cert-application"]');
             if (certTab) {
@@ -3060,7 +3108,7 @@ if (window.location.hostname === 'localhost' ||
                     this.showAgreements();
 
                     console.log('\n🎯 전체 테스트 완료!');
-                    
+
                     if (formValid) {
                         console.log('✅ 모든 테스트 통과');
                         console.log('💡 이제 simulatePayment()를 실행하여 결제를 시뮬레이션할 수 있습니다.');
@@ -3070,7 +3118,7 @@ if (window.location.hostname === 'localhost' ||
                 } else {
                     console.log('❌ 테스트 데이터 입력 실패');
                 }
-                
+
                 return fillSuccess;
 
             } catch (error) {
@@ -3082,9 +3130,9 @@ if (window.location.hostname === 'localhost' ||
         /**
          * 성능 테스트
          */
-        performanceTest: function() {
+        performanceTest: function () {
             console.log('⚡ 성능 테스트 시작');
-            
+
             const tests = [
                 {
                     name: '과정 선택',
@@ -3103,9 +3151,9 @@ if (window.location.hostname === 'localhost' ||
                     fn: () => validateUnifiedForm()
                 }
             ];
-            
+
             const results = [];
-            
+
             tests.forEach(test => {
                 const start = performance.now();
                 try {
@@ -3130,7 +3178,7 @@ if (window.location.hostname === 'localhost' ||
                     console.log(`  ❌ ${test.name}: ${duration.toFixed(2)}ms (오류: ${error.message})`);
                 }
             });
-            
+
             console.table(results);
             return results;
         },
@@ -3186,7 +3234,7 @@ if (window.location.hostname === 'localhost' ||
                 formHasData = false;
 
                 console.log('✅ 모든 데이터 초기화 완료');
-                
+
             } catch (error) {
                 console.error('❌ 초기화 중 오류:', error);
             }
@@ -3195,7 +3243,7 @@ if (window.location.hostname === 'localhost' ||
         /**
          * 디버깅 도구 상태 확인
          */
-        status: function() {
+        status: function () {
             console.log('🔧 디버깅 도구 상태:');
             console.log('  📚 사용 가능한 과정 수:', availableCourses.length);
             console.log('  🎯 선택된 과정:', selectedCourseData?.title || '없음');
@@ -3203,7 +3251,7 @@ if (window.location.hostname === 'localhost' ||
             console.log('  👤 사용자 로그인:', !!courseApplicationUser);
             console.log('  📝 폼 초기화:', !!document.getElementById('unified-application-form'));
             console.log('  🔗 네비게이션 상태:', { isInternalNavigation, formHasData });
-            
+
             return {
                 coursesAvailable: availableCourses.length,
                 courseSelected: !!selectedCourseData,
@@ -3276,9 +3324,9 @@ if (window.location.hostname === 'localhost' ||
         /**
          * 가격 계산 로직 상세 분석
          */
-        analyzePricing: function() {
+        analyzePricing: function () {
             console.log('🔍 가격 계산 로직 상세 분석');
-            
+
             if (!selectedCourseData) {
                 console.log('❌ 과정이 선택되지 않음');
                 return null;
@@ -3319,13 +3367,13 @@ if (window.location.hostname === 'localhost' ||
             console.log('  2️⃣ 자격증비:', certificateAmount.toLocaleString() + '원');
             console.log('  3️⃣ 교재비:', materialAmount.toLocaleString() + '원');
             console.log('  4️⃣ 소계:', (educationAmount + certificateAmount + materialAmount).toLocaleString() + '원');
-            
+
             if (hasPackageDiscount) {
                 console.log('  5️⃣ 패키지 할인 적용:', `-${discountAmount.toLocaleString()}원 (${pricingData.packageDiscount}%)`);
             } else {
                 console.log('  5️⃣ 패키지 할인:', '적용 안됨 (자격증+교재 모두 선택 시에만 적용)');
             }
-            
+
             console.log('  6️⃣ 최종 금액:', totalAmount.toLocaleString() + '원');
 
             // 실제 표시된 금액과 비교
@@ -3354,28 +3402,28 @@ if (window.location.hostname === 'localhost' ||
         /**
          * DOM 요소 상태 분석
          */
-        analyzeDOMState: function() {
+        analyzeDOMState: function () {
             console.log('🔍 DOM 요소 상태 분석');
 
             const elements = {
                 // 과정 선택
                 courseSelect: document.getElementById('course-select'),
                 courseInfo: document.getElementById('course-info'),
-                
+
                 // 신청 옵션
                 certificateOption: document.querySelector('.option-card.required .option-price'),
                 materialOption: document.querySelector('.option-card.optional .option-price'),
-                
+
                 // 결제 요약
                 educationPrice: document.getElementById('education-price'),
                 certificatePrice: document.getElementById('certificate-price'),
                 materialPrice: document.getElementById('material-price'),
                 totalPrice: document.getElementById('total-price'),
-                
+
                 // 체크박스
                 certificateCheckbox: document.getElementById('include-certificate'),
                 materialCheckbox: document.getElementById('include-material'),
-                
+
                 // 폼
                 form: document.getElementById('unified-application-form'),
                 paymentButton: document.getElementById('payment-button')
@@ -3409,7 +3457,7 @@ if (window.location.hostname === 'localhost' ||
         /**
          * 이벤트 리스너 상태 확인
          */
-        checkEventListeners: function() {
+        checkEventListeners: function () {
             console.log('🔍 이벤트 리스너 상태 확인');
 
             const testElements = [
@@ -3427,11 +3475,11 @@ if (window.location.hostname === 'localhost' ||
                         // 이벤트 테스트
                         let eventFired = false;
                         const testHandler = () => { eventFired = true; };
-                        
+
                         element.addEventListener(eventType, testHandler);
                         element.dispatchEvent(new Event(eventType, { bubbles: true }));
                         element.removeEventListener(eventType, testHandler);
-                        
+
                         console.log(`  - ${eventType} 이벤트:`, eventFired ? '✅ 정상' : '❌ 문제');
                     });
                 } else {
@@ -3443,7 +3491,7 @@ if (window.location.hostname === 'localhost' ||
         /**
          * Firebase 연동 상태 확인
          */
-        checkFirebaseConnection: function() {
+        checkFirebaseConnection: function () {
             console.log('🔥 Firebase 연동 상태 확인');
 
             const firebaseChecks = {
@@ -3470,7 +3518,7 @@ if (window.location.hostname === 'localhost' ||
         /**
          * 로컬 스토리지 상태 확인
          */
-        checkLocalStorage: function() {
+        checkLocalStorage: function () {
             console.log('💾 로컬 스토리지 상태 확인');
 
             const keys = [
@@ -3512,10 +3560,10 @@ if (window.location.hostname === 'localhost' ||
 
 } else {
     console.log('프로덕션 모드 - 디버깅 도구 비활성화됨');
-    
+
     // 프로덕션에서도 기본적인 상태 확인은 가능하도록
     window.debugUnifiedCourseApplication = {
-        status: function() {
+        status: function () {
             return {
                 mode: 'production',
                 coursesAvailable: availableCourses.length,
@@ -3523,7 +3571,7 @@ if (window.location.hostname === 'localhost' ||
                 userLoggedIn: !!courseApplicationUser
             };
         },
-        help: function() {
+        help: function () {
             console.log('프로덕션 모드에서는 제한된 디버깅 기능만 사용 가능합니다.');
             console.log('전체 디버깅 도구를 사용하려면 개발 환경에서 실행하세요.');
         }

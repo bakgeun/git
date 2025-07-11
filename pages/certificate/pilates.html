@@ -55,7 +55,8 @@
                     </li>
                     <li class="group relative nav-item">
                         <a href="#" class="text-blue-600 font-bold py-2 nav-link">교육 과정</a>
-                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/education/instructors.html')"
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
@@ -160,7 +161,8 @@
                                 </button>
                                 <div class="mobile-submenu">
                                     <a
-                                        href="javascript:window.location.href=window.adjustPath('pages/education/instructors.html')">강사 소개</a>
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/instructors.html')">강사
+                                        소개</a>
                                     <a
                                         href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')">교육
                                         과정 안내</a>
@@ -486,36 +488,44 @@
                                 </div>
                             </div>
 
+                            <!-- 🔧 수정: 교육일정으로 제목 변경 -->
                             <div class="cert-sidebar-card">
-                                <h3>시험 일정</h3>
+                                <h3>교육 일정</h3>
                                 <div class="space-y-3" id="exam-schedule-info">
-                                    <!-- 동적으로 업데이트될 예정 -->
-                                    <div class="cert-detail-item">
-                                        <span class="cert-detail-label">접수기간</span>
-                                        <span class="cert-detail-value">2025.02.15-2025.03.15</span>
-                                    </div>
-                                    <div class="cert-detail-item">
-                                        <span class="cert-detail-label">시험일자</span>
-                                        <span class="cert-detail-value">2025.04.12 (토)</span>
-                                    </div>
-                                    <div class="cert-detail-item">
-                                        <span class="cert-detail-label">합격발표</span>
-                                        <span class="cert-detail-value">2025.04.28</span>
-                                    </div>
-                                    <div class="cert-detail-item">
-                                        <span class="cert-detail-label">시험장소</span>
-                                        <span class="cert-detail-value">서울, 부산</span>
+                                    <!-- 🔧 동적으로 업데이트될 예정 - JavaScript에서 관리자가 생성한 최신 교육과정 정보로 업데이트 -->
+                                    <div class="schedule-loading">
+                                        <div class="cert-detail-item">
+                                            <span class="cert-detail-label">로딩 중...</span>
+                                            <span class="cert-detail-value">교육 일정을 불러오는 중입니다</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
+                            <!-- 🔧 수정: 자격증 시험 신청 버튼 제거, 교육과정 신청만 유지 -->
                             <div class="cert-cta-card">
-                                <h3>자격증 신청</h3>
-                                <p class="mb-4">필라테스 전문가 자격증 취득을 위한 교육 및 시험 안내입니다.</p>
+                                <h3>교육 신청</h3>
+                                <p class="mb-4">필라테스 전문가 자격증 취득을 위한 교육 과정 신청입니다.</p>
+                                <!-- 교육과정 신청 버튼만 유지 -->
                                 <a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
                                     class="cert-cta-button">교육 과정 신청하기</a>
-                                <a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')"
-                                    class="cert-cta-button secondary">자격증 시험 신청하기</a>
+
+                                <!-- 🔧 NEW: 교육과정 안내 추가 -->
+                                <div class="mt-4 p-3 bg-blue-50 rounded-lg text-sm" style="text-align: left;">
+                                    <div class="flex items-center mb-2">
+                                        <svg class="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span class="font-medium text-blue-800">교육 신청 안내</span>
+                                    </div>
+                                    <ul class="text-blue-700 space-y-1" style="text-align: left;">
+                                        <li>교육 수료 후 자격증 발급 신청 가능</li>
+                                        <li>교육비, 자격증 발급비 통합 결제</li>
+                                        <li>교재 구매는 선택사항</li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -828,7 +838,8 @@
                     <div class="min-w-[200px]">
                         <p class="text-sm text-gray-400 mb-1">상호: 사단법인 문경</p>
                         <p class="text-sm text-gray-400 mb-1">대표: 최승욱</p>
-                        <p class="text-sm text-gray-400 mb-1">주소: 서울특별시 노원구 한글비석로 233, 새롬스타빌 706호&lpar;중계동, 새롬스타빌&rpar;</p>
+                        <p class="text-sm text-gray-400 mb-1">주소: 서울특별시 노원구 한글비석로 233, 새롬스타빌 706호&lpar;중계동, 새롬스타빌&rpar;
+                        </p>
                         <p class="text-sm text-gray-400 mb-1">전화: </p>
                     </div>
                     <div class="min-w-[200px]">

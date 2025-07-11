@@ -1,70 +1,13 @@
-// recreation.js - 2개 탭 버전
+// recreation.js - 수정된 교육일정 동적 업데이트 버전 (수료증 발급 제거 + 인덱스 문제 해결)
 
-console.log('recreation.js (2개 탭 버전) 로드됨');
+console.log('recreation.js (수정된 교육일정 동적 버전) 로드됨');
 
 // 즉시 실행 함수로 감싸기
 (function () {
-    console.log('즉시 실행 함수 시작');
+    console.log('레크리에이션 페이지 즉시 실행 함수 시작');
 
-    // 시험일정 데이터 정의
-    const examScheduleData = {
-        'health-exercise': {
-            currentExam: {
-                applyPeriod: '2025.02.01-2025.02.28',
-                examDate: '2025.03.15 (토)',
-                resultDate: '2025.03.31',
-                locations: '서울, 부산, 대구, 광주'
-            },
-            nextExam: {
-                applyPeriod: '2025.05.01-2025.05.31',
-                examDate: '2025.06.21 (토)',
-                resultDate: '2025.07.07',
-                locations: '서울, 부산, 대구, 광주, 대전'
-            }
-        },
-        'rehabilitation': {
-            currentExam: {
-                applyPeriod: '2025.03.01-2025.03.31',
-                examDate: '2025.04.19 (토)',
-                resultDate: '2025.05.05',
-                locations: '서울, 부산, 대구'
-            },
-            nextExam: {
-                applyPeriod: '2025.06.01-2025.06.30',
-                examDate: '2025.07.26 (토)',
-                resultDate: '2025.08.11',
-                locations: '서울, 부산, 대구, 광주'
-            }
-        },
-        'pilates': {
-            currentExam: {
-                applyPeriod: '2025.02.15-2025.03.15',
-                examDate: '2025.04.12 (토)',
-                resultDate: '2025.04.28',
-                locations: '서울, 부산'
-            },
-            nextExam: {
-                applyPeriod: '2025.05.15-2025.06.15',
-                examDate: '2025.07.19 (토)',
-                resultDate: '2025.08.04',
-                locations: '서울, 부산, 대구'
-            }
-        },
-        'recreation': {
-            currentExam: {
-                applyPeriod: '2025.05.01-2025.05.31',
-                examDate: '2025.06.30 (일)',
-                resultDate: '2025.07.15',
-                locations: '서울, 대전, 대구, 광주'
-            },
-            nextExam: {
-                applyPeriod: '2025.08.01-2025.08.31',
-                examDate: '2025.09.28 (일)',
-                resultDate: '2025.10.14',
-                locations: '서울, 부산, 대전, 대구, 광주'
-            }
-        }
-    };
+    // 🔧 NEW: 교육일정 데이터 저장 변수
+    let latestEducationSchedule = null;
 
     // 페이지가 이미 로드된 경우 즉시 실행, 아니면 DOMContentLoaded 대기
     if (document.readyState === 'loading') {
@@ -76,32 +19,154 @@ console.log('recreation.js (2개 탭 버전) 로드됨');
     }
 
     function init() {
-        console.log('초기화 시작');
+        console.log('레크리에이션 페이지 초기화 시작');
 
         // 스크립트 로더가 완료될 때까지 약간 지연
         setTimeout(function () {
             console.log('지연 후 초기화 시작');
             initializeTabs();
             initCertificateSwitcher();
-            updateExamSchedule();
+            loadEducationSchedule(); // 🔧 교육일정 동적 로드
             initPageLinking();
         }, 500);
     }
 
-    // 시험일정 업데이트 함수
-    function updateExamSchedule() {
-        console.log('시험일정 업데이트 시작');
+    // 🔧 NEW: 교육일정 동적 로드 함수 - 인덱스 문제 해결 + 수료증 발급 제거
+    async function loadEducationSchedule() {
+        console.log('📚 레크리에이션 교육일정 동적 로드 시작 (전체 로드 방식)');
         
-        // 현재 페이지가 어떤 자격증인지 확인
-        const currentPage = getCurrentCertificateType();
-        console.log('현재 자격증 타입:', currentPage);
-        
-        if (currentPage && examScheduleData[currentPage]) {
-            const scheduleData = examScheduleData[currentPage];
-            updateScheduleDisplay(scheduleData);
-        } else {
-            console.warn('자격증 타입을 찾을 수 없거나 해당 데이터가 없습니다:', currentPage);
+        try {
+            // Firebase 연결 확인
+            if (!window.dhcFirebase || !window.dhcFirebase.db || !window.dbService) {
+                console.log('⚠️ Firebase 미연동, 기본 데이터 사용');
+                updateScheduleDisplay(getDefaultScheduleData());
+                return;
+            }
+
+            // 현재 자격증 타입 확인
+            const currentCertType = getCurrentCertificateType();
+            if (!currentCertType) {
+                console.warn('❌ 현재 자격증 타입을 확인할 수 없습니다');
+                updateScheduleDisplay(getDefaultScheduleData());
+                return;
+            }
+
+            console.log('🎯 현재 자격증 타입:', currentCertType);
+
+            // 🔧 수정: 전체 courses 컬렉션 로드 (인덱스 문제 해결)
+            const allCoursesResult = await window.dbService.getDocuments('courses');
+
+            if (allCoursesResult.success && allCoursesResult.data.length > 0) {
+                console.log('📋 전체 교육과정 로드됨:', allCoursesResult.data.length + '개');
+                
+                // 클라이언트에서 필터링 및 정렬
+                const filteredCourses = allCoursesResult.data.filter(course => {
+                    return course.certificateType === currentCertType && course.status === 'active';
+                });
+                
+                console.log('✅ 필터링된 활성 교육과정:', filteredCourses.length + '개');
+                
+                if (filteredCourses.length > 0) {
+                    // 시작일 기준으로 정렬 (가장 빠른 것부터)
+                    filteredCourses.sort((a, b) => {
+                        const dateA = a.startDate?.toDate ? a.startDate.toDate() : new Date(a.startDate);
+                        const dateB = b.startDate?.toDate ? b.startDate.toDate() : new Date(b.startDate);
+                        return dateA.getTime() - dateB.getTime();
+                    });
+                    
+                    const latestCourse = filteredCourses[0];
+                    console.log('✅ 최신 교육과정 찾음:', latestCourse.title);
+                    console.log('📅 교육과정 상세 정보:', {
+                        title: latestCourse.title,
+                        certificateType: latestCourse.certificateType,
+                        status: latestCourse.status,
+                        startDate: latestCourse.startDate,
+                        endDate: latestCourse.endDate,
+                        applyStartDate: latestCourse.applyStartDate,
+                        applyEndDate: latestCourse.applyEndDate,
+                        location: latestCourse.location
+                    });
+                    
+                    latestEducationSchedule = latestCourse;
+                    updateScheduleDisplay(convertCourseToSchedule(latestCourse));
+                } else {
+                    console.log('⚠️ 활성 교육과정이 없음, 기본 데이터 사용');
+                    updateScheduleDisplay(getDefaultScheduleData());
+                }
+            } else {
+                console.log('⚠️ 교육과정 데이터가 없음, 기본 데이터 사용');
+                updateScheduleDisplay(getDefaultScheduleData());
+            }
+
+        } catch (error) {
+            console.error('❌ 교육일정 로드 오류:', error);
+            updateScheduleDisplay(getDefaultScheduleData());
         }
+    }
+
+    // 🔧 NEW: 교육과정 데이터를 교육일정 형태로 변환 - 수료증 발급 제거
+    function convertCourseToSchedule(course) {
+        try {
+            // 🔧 수정: course-management.js의 실제 필드명에 맞춰 매핑
+            const startDate = course.startDate?.toDate ? course.startDate.toDate() : new Date(course.startDate);
+            const endDate = course.endDate?.toDate ? course.endDate.toDate() : new Date(course.endDate);
+            
+            let applyStartDate, applyEndDate;
+            if (course.applyStartDate && course.applyEndDate) {
+                applyStartDate = course.applyStartDate?.toDate ? course.applyStartDate.toDate() : new Date(course.applyStartDate);
+                applyEndDate = course.applyEndDate?.toDate ? course.applyEndDate.toDate() : new Date(course.applyEndDate);
+            } else {
+                // 신청기간이 설정되지 않은 경우 기본값 설정
+                applyStartDate = new Date(startDate);
+                applyStartDate.setDate(applyStartDate.getDate() - 30);
+                applyEndDate = new Date(startDate);
+                applyEndDate.setDate(applyEndDate.getDate() - 7);
+            }
+
+            const formatDate = (date) => {
+                if (window.formatters && window.formatters.formatDate) {
+                    return window.formatters.formatDate(date, 'YYYY.MM.DD');
+                }
+                return date.toLocaleDateString('ko-KR').replace(/\./g, '.').replace(/\s/g, '');
+            };
+
+            // 🔧 수정: 수료증 발급일 제거, 교육장소 필드명 정확히 매핑
+            return {
+                applyPeriod: `${formatDate(applyStartDate)} ~ ${formatDate(applyEndDate)}`,
+                educationPeriod: `${formatDate(startDate)} ~ ${formatDate(endDate)}`,
+                // 🔧 수정: course.location (단수형) 사용
+                locations: course.location || '서울 강남구 센터'
+            };
+
+        } catch (error) {
+            console.error('❌ 교육과정 데이터 변환 오류:', error);
+            return getDefaultScheduleData();
+        }
+    }
+
+    // 🔧 수정: 기본 교육일정 데이터 - 수료증 발급일 제거
+    function getDefaultScheduleData() {
+        const today = new Date();
+        const nextMonth = new Date(today);
+        nextMonth.setMonth(nextMonth.getMonth() + 1);
+        nextMonth.setDate(1);
+
+        const endDate = new Date(nextMonth);
+        endDate.setMonth(endDate.getMonth() + 2); // 2개월 과정
+
+        const applyStart = new Date(today);
+        const applyEnd = new Date(nextMonth);
+        applyEnd.setDate(applyEnd.getDate() - 7);
+
+        const formatDate = (date) => {
+            return date.toLocaleDateString('ko-KR').replace(/\./g, '.').replace(/\s/g, '');
+        };
+
+        return {
+            applyPeriod: `${formatDate(applyStart)} ~ ${formatDate(applyEnd)}`,
+            educationPeriod: `${formatDate(nextMonth)} ~ ${formatDate(endDate)}`,
+            locations: '서울 강남구 센터'
+        };
     }
 
     // 현재 자격증 타입 확인
@@ -121,9 +186,9 @@ console.log('recreation.js (2개 탭 버전) 로드됨');
         return null;
     }
 
-    // 시험일정 표시 업데이트
+    // 🔧 수정: 교육일정 표시 업데이트 - 수료증 발급 제거
     function updateScheduleDisplay(scheduleData) {
-        console.log('시험일정 표시 업데이트:', scheduleData);
+        console.log('📅 레크리에이션 교육일정 표시 업데이트:', scheduleData);
         
         const scheduleContainer = document.getElementById('exam-schedule-info');
         
@@ -132,45 +197,23 @@ console.log('recreation.js (2개 탭 버전) 로드됨');
             return;
         }
 
-        // 현재 날짜 확인하여 적절한 시험일정 선택
-        const currentExam = selectCurrentExam(scheduleData);
-        
-        // HTML 업데이트
+        // 🔧 수정: 수료증 발급 항목 제거, 교육장소 정보 추가
         scheduleContainer.innerHTML = `
             <div class="cert-detail-item">
-                <span class="cert-detail-label">접수기간</span>
-                <span class="cert-detail-value">${currentExam.applyPeriod}</span>
+                <span class="cert-detail-label">신청기간</span>
+                <span class="cert-detail-value">${scheduleData.applyPeriod}</span>
             </div>
             <div class="cert-detail-item">
-                <span class="cert-detail-label">시험일자</span>
-                <span class="cert-detail-value">${currentExam.examDate}</span>
+                <span class="cert-detail-label">교육기간</span>
+                <span class="cert-detail-value">${scheduleData.educationPeriod}</span>
             </div>
             <div class="cert-detail-item">
-                <span class="cert-detail-label">합격발표</span>
-                <span class="cert-detail-value">${currentExam.resultDate}</span>
-            </div>
-            <div class="cert-detail-item">
-                <span class="cert-detail-label">시험장소</span>
-                <span class="cert-detail-value">${currentExam.locations}</span>
+                <span class="cert-detail-label">교육장소</span>
+                <span class="cert-detail-value">${scheduleData.locations}</span>
             </div>
         `;
         
-        console.log('시험일정 업데이트 완료');
-    }
-
-    // 현재 날짜에 따라 적절한 시험일정 선택
-    function selectCurrentExam(scheduleData) {
-        const today = new Date();
-        const currentExamDate = new Date(scheduleData.currentExam.examDate.split(' ')[0]);
-        
-        // 현재 시험일이 지났으면 다음 시험일정 사용
-        if (today > currentExamDate) {
-            console.log('현재 시험일이 지나서 다음 시험일정 사용');
-            return scheduleData.nextExam;
-        } else {
-            console.log('현재 시험일정 사용');
-            return scheduleData.currentExam;
-        }
+        console.log('✅ 레크리에이션 교육일정 업데이트 완료 (수료증 발급 제거됨)');
     }
 
     // 탭 초기화 함수 (2개 탭용으로 수정)
@@ -251,7 +294,7 @@ console.log('recreation.js (2개 탭 버전) 로드됨');
         }
     }
 
-    // 페이지 간 연동 기능 초기화
+    // 🔧 수정: 페이지 간 연동 기능 초기화 (자격증 시험 신청 버튼 제거)
     function initPageLinking() {
         console.log('페이지 간 연동 기능 초기화');
         
@@ -267,73 +310,61 @@ console.log('recreation.js (2개 탭 버전) 로드됨');
                 console.log('교육과정 신청 버튼 클릭됨:', this.textContent.trim());
                 
                 const certType = getCurrentCertificateType();
-                const courseParam = getCourseParamByCertType(certType);
                 
-                console.log('자격증 타입:', certType, '과정 파라미터:', courseParam);
-                
-                if (courseParam) {
-                    const targetUrl = window.adjustPath(`pages/education/course-application.html?course=${courseParam}`);
-                    console.log('교육과정 신청 페이지로 이동:', targetUrl);
-                    window.location.href = targetUrl;
+                // 🔧 수정: 실제 교육과정 ID 전달
+                let targetUrl;
+                if (latestEducationSchedule && latestEducationSchedule.id) {
+                    targetUrl = window.adjustPath(`pages/education/course-application.html?courseId=${latestEducationSchedule.id}&from=certificate`);
+                    console.log('실제 교육과정 ID로 이동:', latestEducationSchedule.id);
                 } else {
-                    console.log('파라미터가 없어서 기본 페이지로 이동');
-                    window.location.href = window.adjustPath('pages/education/course-application.html');
+                    // 폴백: 자격증 타입으로 매핑
+                    const courseParam = getCourseParamByCertType(certType);
+                    if (courseParam) {
+                        targetUrl = window.adjustPath(`pages/education/course-application.html?courseId=${courseParam}&from=certificate`);
+                        console.log('폴백: 자격증 타입으로 이동:', courseParam);
+                    } else {
+                        targetUrl = window.adjustPath('pages/education/course-application.html');
+                        console.log('기본 페이지로 이동');
+                    }
                 }
+                
+                console.log('교육과정 신청 페이지로 이동:', targetUrl);
+                window.location.href = targetUrl;
             });
         });
         
-        // 자격증 시험 신청하기 버튼들
+        // 🔧 자격증 시험 신청하기 버튼들 제거
         const certApplicationBtns = document.querySelectorAll('a[href*="cert-application.html"]');
-        console.log('자격증 신청 버튼 개수:', certApplicationBtns.length);
+        console.log('자격증 신청 버튼 개수 (제거 대상):', certApplicationBtns.length);
         
         certApplicationBtns.forEach((btn, index) => {
-            console.log(`자격증 신청 버튼 ${index}:`, btn.textContent.trim());
+            console.log(`자격증 신청 버튼 ${index} 제거:`, btn.textContent.trim());
             
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('자격증 신청 버튼 클릭됨:', this.textContent.trim());
-                
-                const certType = getCurrentCertificateType();
-                const certParam = getCertParamByCertType(certType);
-                
-                console.log('자격증 타입:', certType, '자격증 파라미터:', certParam);
-                
-                if (certParam) {
-                    const targetUrl = window.adjustPath(`pages/education/cert-application.html?cert=${certParam}`);
-                    console.log('자격증 신청 페이지로 이동:', targetUrl);
-                    window.location.href = targetUrl;
-                } else {
-                    console.log('파라미터가 없어서 기본 페이지로 이동');
-                    window.location.href = window.adjustPath('pages/education/cert-application.html');
-                }
-            });
+            // 버튼이 포함된 부모 요소도 함께 제거 (레이아웃 정리)
+            const parentElement = btn.closest('.cert-cta-button, .button-container, .action-button');
+            if (parentElement) {
+                parentElement.remove();
+                console.log('부모 요소와 함께 제거됨');
+            } else {
+                btn.remove();
+                console.log('버튼만 제거됨');
+            }
         });
         
+        console.log('✅ 자격증 시험 신청 버튼 모두 제거 완료');
         console.log('페이지 간 연동 기능 초기화 완료');
     }
 
-    // 자격증 타입에 따른 교육과정 파라미터 매핑
+    // 자격증 타입에 따른 교육과정 파라미터 매핑 (폴백용)
     function getCourseParamByCertType(certType) {
         const courseMapping = {
-            'health-exercise': 'health-1',  // 건강운동처방사 과정 1기
-            'rehabilitation': 'rehab-1',    // 운동재활전문가 과정 1기
-            'pilates': 'pilates-3',         // 필라테스 전문가 과정 3기
-            'recreation': 'rec-2'           // 레크리에이션지도자 과정 2기
+            'health-exercise': 'test-health-1',  // 건강운동처방사 과정
+            'rehabilitation': 'test-rehab-1',    // 운동재활전문가 과정
+            'pilates': 'test-pilates-1',         // 필라테스 전문가 과정
+            'recreation': 'test-recreation-1'    // 레크리에이션지도자 과정
         };
         
         return courseMapping[certType] || null;
-    }
-
-    // 자격증 타입에 따른 자격증 신청 파라미터 매핑
-    function getCertParamByCertType(certType) {
-        const certMapping = {
-            'health-exercise': 'health',    // 건강운동처방사
-            'rehabilitation': 'rehab',      // 운동재활전문가
-            'pilates': 'pilates',          // 필라테스 전문가
-            'recreation': 'recreation'      // 레크리에이션지도자
-        };
-        
-        return certMapping[certType] || null;
     }
 
     // 탭 전환 함수 (2개 탭용으로 수정)
@@ -378,18 +409,26 @@ console.log('recreation.js (2개 탭 버전) 로드됨');
         });
     }
 
-    // 수동으로 탭 전환 테스트할 수 있는 전역 함수
-    window.testTab = function (tabId) {
-        console.log('수동 탭 전환 테스트:', tabId);
-        switchTab(tabId);
+    // 🔧 NEW: 교육일정 새로고침 함수 (외부에서 호출 가능)
+    window.refreshRecreationEducationSchedule = function() {
+        console.log('🔄 레크리에이션 교육일정 수동 새로고침');
+        loadEducationSchedule();
     };
 
-    // 시험일정 데이터를 외부에서 접근 가능하도록 전역 객체에 추가
-    window.examScheduleData = examScheduleData;
+    // 🔧 NEW: 현재 로드된 교육과정 정보 확인 함수
+    window.getCurrentRecreationEducationSchedule = function() {
+        return latestEducationSchedule;
+    };
+
+    // 수동으로 탭 전환 테스트할 수 있는 전역 함수
+    window.testRecreationTab = function (tabId) {
+        console.log('수동 레크리에이션 탭 전환 테스트:', tabId);
+        switchTab(tabId);
+    };
     
-    // 시험일정 업데이트 함수를 외부에서 호출 가능하도록 전역 함수로 등록
-    window.updateExamSchedule = updateExamSchedule;
+    // 교육일정 업데이트 함수를 외부에서 호출 가능하도록 전역 함수로 등록
+    window.updateRecreationEducationSchedule = loadEducationSchedule;
 
 })();
 
-console.log('recreation.js (2개 탭 버전) 실행 완료');
+console.log('recreation.js (수정된 교육일정 동적 버전) 실행 완료');
