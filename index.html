@@ -52,13 +52,15 @@
                     </li>
                     <li class="group relative nav-item">
                         <a href="#" class="text-blue-600 font-bold py-2 nav-link">교육 과정</a>
-                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/education/instructors.html')"
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600 font-medium">자격증 신청</a></li>
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600 font-medium">자격증
+                                    신청</a></li>
                         </ul>
                     </li>
                     <li class="group relative nav-item">
@@ -159,7 +161,8 @@
                                 </button>
                                 <div class="mobile-submenu">
                                     <a
-                                        href="javascript:window.location.href=window.adjustPath('pages/education/instructors.html')">강사 소개</a>
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/instructors.html')">강사
+                                        소개</a>
                                     <a
                                         href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')">교육
                                         과정 안내</a>
@@ -328,10 +331,27 @@
             <div class="container mx-auto px-4">
                 <h2 class="text-3xl font-bold text-center mb-12">최신 교육 과정</h2>
 
-                <!-- grid로 변경 - 1줄에 3개 -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- 과정 카드 1 -->
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden h-full">
+                <!-- 🔧 로딩 상태 표시 -->
+                <div id="courses-loading" class="text-center py-8">
+                    <div class="inline-flex items-center space-x-2 text-blue-600">
+                        <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        <span class="text-gray-600">최신 교육과정을 불러오는 중...</span>
+                    </div>
+                </div>
+
+                <!-- 🔧 동적으로 채워질 교육과정 그리드 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="courses-grid">
+                    <!-- 🔧 수정된 폴백용 정적 교육과정 (관리자 설정 가격과 일치) -->
+
+                    <!-- 과정 카드 1 - 건강운동처방사 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden h-full fallback-course">
                         <div class="relative">
                             <img src="assets/images/courses/health-exercise-course.jpeg" alt="건강운동처방사 과정"
                                 class="w-full h-48 object-cover">
@@ -341,55 +361,91 @@
                         <div class="p-6">
                             <span
                                 class="text-sm font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded-md">건강운동처방사</span>
-                            <h3 class="text-xl font-bold mt-2 mb-2">건강운동처방사 자격과정 (온라인)</h3>
+                            <h3 class="text-xl font-bold mt-2 mb-2">건강운동처방사 25년 상반기 과정</h3>
                             <p class="text-gray-600 mb-4">질병예방과 건강증진을 위한 맞춤형 운동처방 전문가 양성과정</p>
+
+                            <!-- 🔧 수정: 관리자 페이지와 정확히 일치하는 가격 -->
                             <div class="flex justify-between items-center">
-                                <span class="text-gray-700 font-medium">350,000원</span>
-                                <a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
+                                <div class="price-info">
+                                    <div class="text-sm text-gray-500 mb-1">교육비</div>
+                                    <span class="text-gray-700 font-medium">150,000원</span>
+                                    <div class="text-xs text-gray-400 mt-1">자격증비, 교재비 별도</div>
+                                </div>
+                                <a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html?courseId=test-health-1&from=home')"
                                     class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">신청하기</a>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 과정 카드 2 -->
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden h-full">
-                        <div class="relative">
-                            <img src="assets/images/courses/rehabilitation-course.jpeg" alt="운동재활지도자 과정"
-                                class="w-full h-48 object-cover">
-                        </div>
-                        <div class="p-6">
-                            <span
-                                class="text-sm font-medium text-green-600 bg-green-100 px-2 py-1 rounded-md">운동재활지도자</span>
-                            <h3 class="text-xl font-bold mt-2 mb-2">운동재활지도자 자격과정 (온/오프라인)</h3>
-                            <p class="text-gray-600 mb-4">부상 및 질환 이후 효과적인 운동재활 프로그램 설계 및 지도 전문가 과정</p>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-700 font-medium">420,000원</span>
-                                <a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
-                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">신청하기</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 과정 카드 3 -->
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden h-full">
+                    <!-- 과정 카드 2 - 필라테스 전문가 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden h-full fallback-course">
                         <div class="relative">
                             <img src="assets/images/courses/pilates-course.jpeg" alt="필라테스 전문가 과정"
                                 class="w-full h-48 object-cover">
-                            <div class="absolute top-0 right-0 bg-red-600 text-white px-3 py-1 m-2 rounded-md text-sm">
-                                마감 임박</div>
+                            <div
+                                class="absolute top-0 right-0 bg-orange-600 text-white px-3 py-1 m-2 rounded-md text-sm">
+                                거의 마감</div>
                         </div>
                         <div class="p-6">
                             <span class="text-sm font-medium text-purple-600 bg-purple-100 px-2 py-1 rounded-md">필라테스
                                 전문가</span>
-                            <h3 class="text-xl font-bold mt-2 mb-2">필라테스 지도자 자격과정 (오프라인)</h3>
+                            <h3 class="text-xl font-bold mt-2 mb-2">필라테스 전문가 25년 하반기 과정</h3>
                             <p class="text-gray-600 mb-4">과학적 원리 기반의 체계적인 필라테스 실기 및 이론 전문가 과정</p>
+
+                            <!-- 🔧 수정: 관리자 페이지와 정확히 일치하는 가격 -->
                             <div class="flex justify-between items-center">
-                                <span class="text-gray-700 font-medium">480,000원</span>
-                                <a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
+                                <div class="price-info">
+                                    <div class="text-sm text-gray-500 mb-1">교육비</div>
+                                    <span class="text-gray-700 font-medium">150,000원</span>
+                                    <div class="text-xs text-gray-400 mt-1">자격증비, 교재비 별도</div>
+                                </div>
+                                <a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html?courseId=test-pilates-1&from=home')"
                                     class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">신청하기</a>
                             </div>
                         </div>
                     </div>
+
+                    <!-- 과정 카드 3 - 운동재활전문가 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden h-full fallback-course">
+                        <div class="relative">
+                            <img src="assets/images/courses/rehabilitation-course.jpeg" alt="운동재활전문가 과정"
+                                class="w-full h-48 object-cover">
+                        </div>
+                        <div class="p-6">
+                            <span
+                                class="text-sm font-medium text-green-600 bg-green-100 px-2 py-1 rounded-md">운동재활전문가</span>
+                            <h3 class="text-xl font-bold mt-2 mb-2">운동재활전문가 25년 상반기 과정</h3>
+                            <p class="text-gray-600 mb-4">부상 및 질환 이후 효과적인 운동재활 프로그램 설계 및 지도 전문가 과정</p>
+
+                            <!-- 🔧 수정: 관리자 페이지와 정확히 일치하는 가격 -->
+                            <div class="flex justify-between items-center">
+                                <div class="price-info">
+                                    <div class="text-sm text-gray-500 mb-1">교육비</div>
+                                    <span class="text-gray-700 font-medium">200,000원</span>
+                                    <div class="text-xs text-gray-400 mt-1">자격증비, 교재비 별도</div>
+                                </div>
+                                <a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html?courseId=test-rehab-1&from=home')"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">신청하기</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🔧 에러 상태 표시 -->
+                <div id="courses-error" class="text-center py-8 hidden">
+                    <div class="text-red-600 mb-4">
+                        <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.732 16.5c-.77.833.192 2.5 1.732 2.5z">
+                            </path>
+                        </svg>
+                        <p class="text-lg font-semibold">교육과정을 불러올 수 없습니다</p>
+                        <p class="text-sm text-gray-500 mt-1">네트워크 연결을 확인하고 다시 시도해주세요.</p>
+                    </div>
+                    <button onclick="window.homePage.refreshData()"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">
+                        다시 시도
+                    </button>
                 </div>
 
                 <div class="text-center mt-8">
@@ -560,7 +616,8 @@
                     <div class="min-w-[200px]">
                         <p class="text-sm text-gray-400 mb-1">상호: 사단법인 문경</p>
                         <p class="text-sm text-gray-400 mb-1">대표: 최승욱</p>
-                        <p class="text-sm text-gray-400 mb-1">주소: 서울특별시 노원구 한글비석로 233, 새롬스타빌 706호&lpar;중계동, 새롬스타빌&rpar;</p>
+                        <p class="text-sm text-gray-400 mb-1">주소: 서울특별시 노원구 한글비석로 233, 새롬스타빌 706호&lpar;중계동, 새롬스타빌&rpar;
+                        </p>
                         <p class="text-sm text-gray-400 mb-1">전화: </p>
                     </div>
                     <div class="min-w-[200px]">

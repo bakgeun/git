@@ -748,3 +748,534 @@
         padding-top: 1rem;
     }
 }
+
+/* 🔧 NEW: 동적 로딩 관련 스타일 추가 */
+
+/* ==========================================
+ * 동적 로딩 상태 스타일
+ * ========================================== */
+
+/* 로딩 상태 */
+#courses-loading {
+    transition: opacity 0.3s ease;
+}
+
+#courses-loading.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 로딩 스피너 애니메이션 */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* 에러 상태 */
+#courses-error {
+    transition: all 0.3s ease;
+}
+
+#courses-error.hidden {
+    display: none !important;
+}
+
+#courses-error svg {
+    filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.1));
+}
+
+/* 폴백 교육과정 페이드 아웃 */
+.fallback-course {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fallback-course.hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+}
+
+/* 동적 교육과정 페이드 인 */
+.dynamic-course {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.dynamic-course:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.dynamic-course:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.dynamic-course:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================
+ * 🔧 NEW: 교육과정 카드 개선 스타일
+ * ========================================== */
+
+/* 새로운 교육과정 카드 호버 효과 */
+.courses-section .grid > div {
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.courses-section .grid > div:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* 🔧 NEW: 동적 가격 표시 스타일 */
+.courses-section .price-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.courses-section .price-info .line-through {
+    text-decoration: line-through;
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+.courses-section .price-info .text-blue-600 {
+    color: #2563eb !important;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.courses-section .price-info .text-red-500 {
+    color: #ef4444 !important;
+    font-weight: 600;
+}
+
+/* 🔧 NEW: 신청하기 버튼 개선 */
+.course-apply-btn {
+    transition: all 0.3s ease !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.course-apply-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4) !important;
+}
+
+.course-apply-btn:active {
+    transform: translateY(0) !important;
+}
+
+/* 🔧 NEW: 특별 배지 개선 */
+.courses-section .absolute.top-0.right-0 {
+    border-radius: 0 0.375rem 0 0.375rem;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* 거의 마감 배지 */
+.courses-section .bg-orange-600 {
+    background-color: #ea580c !important;
+    animation: urgentPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes urgentPulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+/* 교육과정 배지 스타일 개선 */
+.courses-section .bg-blue-100 {
+    background-color: #dbeafe !important;
+    color: #1d4ed8 !important;
+    border: 1px solid #bfdbfe;
+}
+
+.courses-section .bg-green-100 {
+    background-color: #dcfce7 !important;
+    color: #16a34a !important;
+    border: 1px solid #bbf7d0;
+}
+
+.courses-section .bg-purple-100 {
+    background-color: #f3e8ff !important;
+    color: #7c3aed !important;
+    border: 1px solid #e9d5ff;
+}
+
+.courses-section .bg-yellow-100 {
+    background-color: #fef3c7 !important;
+    color: #d97706 !important;
+    border: 1px solid #fed7aa;
+}
+
+/* 🔧 NEW: 카드 로딩 시마 효과 */
+.card-loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* ==========================================
+ * 🔧 NEW: 반응형 개선
+ * ========================================== */
+
+/* 모바일에서 로딩 상태 조정 */
+@media (max-width: 768px) {
+    #courses-loading {
+        padding: 2rem 1rem;
+    }
+    
+    #courses-loading span {
+        font-size: 0.875rem;
+    }
+    
+    #courses-error {
+        padding: 2rem 1rem;
+    }
+    
+    #courses-error p {
+        font-size: 0.875rem;
+    }
+    
+    /* 동적 교육과정 카드 모바일 최적화 */
+    .dynamic-course {
+        animation-delay: 0s;
+    }
+    
+    .dynamic-course:nth-child(1),
+    .dynamic-course:nth-child(2),
+    .dynamic-course:nth-child(3) {
+        animation-delay: 0s;
+    }
+    
+    /* 🔧 NEW: 모바일 가격 표시 조정 */
+    .courses-section .price-info {
+        align-items: center;
+        text-align: center;
+    }
+    
+    .course-apply-btn {
+        width: 100%;
+        justify-content: center;
+        margin-top: 0.5rem;
+    }
+}
+
+/* 태블릿에서 교육과정 그리드 조정 */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .courses-section .grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1rem !important;
+    }
+    
+    .courses-section .grid > div:nth-child(3) {
+        grid-column: span 2;
+        max-width: 50%;
+        margin: 0 auto;
+    }
+}
+
+/* ==========================================
+ * 🔧 NEW: 접근성 개선
+ * ========================================== */
+
+/* 포커스 상태 개선 */
+.courses-section button:focus,
+.courses-section a:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+    .courses-section .bg-blue-100 {
+        background-color: #dbeafe !important;
+        border: 2px solid #1d4ed8;
+    }
+    
+    .courses-section .bg-green-100 {
+        background-color: #dcfce7 !important;
+        border: 2px solid #16a34a;
+    }
+    
+    .courses-section .bg-purple-100 {
+        background-color: #f3e8ff !important;
+        border: 2px solid #7c3aed;
+    }
+    
+    .courses-section .bg-yellow-100 {
+        background-color: #fef3c7 !important;
+        border: 2px solid #d97706;
+    }
+    
+    .course-apply-btn {
+        border: 2px solid #1d4ed8;
+    }
+}
+
+/* 애니메이션 선호도 존중 */
+@media (prefers-reduced-motion: reduce) {
+    .dynamic-course,
+    .fallback-course,
+    #courses-loading,
+    #courses-error,
+    .course-apply-btn,
+    .courses-section .grid > div {
+        animation: none;
+        transition: none;
+    }
+    
+    .courses-section .grid > div:hover {
+        transform: none;
+    }
+    
+    .animate-spin {
+        animation: none;
+    }
+    
+    .course-apply-btn:hover {
+        transform: none !important;
+    }
+}
+
+/* ==========================================
+ * 🔧 NEW: 다크모드 지원 (선택적)
+ * ========================================== */
+
+@media (prefers-color-scheme: dark) {
+    /* 로딩 상태 다크모드 */
+    #courses-loading {
+        color: #e5e7eb;
+    }
+    
+    #courses-loading svg {
+        color: #60a5fa;
+    }
+    
+    /* 에러 상태 다크모드 */
+    #courses-error {
+        color: #f87171;
+    }
+    
+    #courses-error button {
+        background-color: #2563eb;
+    }
+    
+    #courses-error button:hover {
+        background-color: #1d4ed8;
+    }
+    
+    /* 카드 다크모드 */
+    .courses-section .bg-white {
+        background-color: #1f2937 !important;
+        color: #f9fafb;
+    }
+    
+    .courses-section .text-gray-600 {
+        color: #d1d5db !important;
+    }
+    
+    .courses-section .text-gray-700 {
+        color: #e5e7eb !important;
+    }
+}
+
+/* ==========================================
+ * 🔧 NEW: 추가 유틸리티 클래스
+ * ========================================== */
+
+/* 숨김 유틸리티 */
+.hidden {
+    display: none !important;
+}
+
+.opacity-0 {
+    opacity: 0 !important;
+}
+
+.opacity-100 {
+    opacity: 1 !important;
+}
+
+/* 변환 유틸리티 */
+.translate-y-5 {
+    transform: translateY(1.25rem) !important;
+}
+
+.translate-y-0 {
+    transform: translateY(0) !important;
+}
+
+/* 전환 유틸리티 */
+.transition-all {
+    transition: all 0.3s ease !important;
+}
+
+.transition-opacity {
+    transition: opacity 0.3s ease !important;
+}
+
+.transition-transform {
+    transition: transform 0.3s ease !important;
+}
+
+/* 🔧 NEW: 카드 상태 클래스 */
+.course-card-loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.course-card-error {
+    border: 2px dashed #ef4444;
+    opacity: 0.5;
+}
+
+.course-card-success {
+    border: 2px solid #10b981;
+    animation: successPulse 0.6s ease-out;
+}
+
+@keyframes successPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+/* 애니메이션 선호도 존중 */
+@media (prefers-reduced-motion: reduce) {
+    .dynamic-course,
+    .fallback-course,
+    #courses-loading,
+    #courses-error {
+        animation: none;
+        transition: none;
+    }
+    
+    .courses-section .grid > div:hover {
+        transform: none;
+    }
+    
+    .animate-spin {
+        animation: none;
+    }
+}
+
+/* ==========================================
+ * 다크모드 지원 (선택적)
+ * ========================================== */
+
+@media (prefers-color-scheme: dark) {
+    /* 로딩 상태 다크모드 */
+    #courses-loading {
+        color: #e5e7eb;
+    }
+    
+    #courses-loading svg {
+        color: #60a5fa;
+    }
+    
+    /* 에러 상태 다크모드 */
+    #courses-error {
+        color: #f87171;
+    }
+    
+    #courses-error button {
+        background-color: #2563eb;
+    }
+    
+    #courses-error button:hover {
+        background-color: #1d4ed8;
+    }
+}
+
+/* ==========================================
+ * 추가 유틸리티 클래스
+ * ========================================== */
+
+/* 숨김 유틸리티 */
+.hidden {
+    display: none !important;
+}
+
+.opacity-0 {
+    opacity: 0 !important;
+}
+
+.opacity-100 {
+    opacity: 1 !important;
+}
+
+/* 변환 유틸리티 */
+.translate-y-5 {
+    transform: translateY(1.25rem) !important;
+}
+
+.translate-y-0 {
+    transform: translateY(0) !important;
+}
+
+/* 전환 유틸리티 */
+.transition-all {
+    transition: all 0.3s ease !important;
+}
+
+.transition-opacity {
+    transition: opacity 0.3s ease !important;
+}
+
+.transition-transform {
+    transition: transform 0.3s ease !important;
+}

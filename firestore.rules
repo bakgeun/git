@@ -44,6 +44,23 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
     
+    // 🔧 NEW: 사용자 약관 동의 컬렉션 규칙 (빠져있던 규칙 추가)
+    match /user_agreements/{userId} {
+      // 읽기: 본인의 약관 동의 정보 또는 관리자
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // 생성: 인증된 사용자가 본인의 약관 동의
+      allow create: if isAuthenticated() && 
+        request.auth.uid == userId &&
+        isVerified();
+      
+      // 업데이트: 본인의 약관 동의 또는 관리자
+      allow update: if isOwner(userId) || isAdmin();
+      
+      // 삭제: 관리자만
+      allow delete: if isAdmin();
+    }
+    
     // 게시판 공지사항 컬렉션 규칙
     match /board_notice/{noticeId} {
       // 읽기: 모든 사용자 (비로그인 포함) - 🔧 수정

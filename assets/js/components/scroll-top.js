@@ -48,10 +48,10 @@ window.ScrollTopBtn = {
         
         if (scrollY > 300) {
             scrollTopBtn.classList.add('visible');
-            console.log('TOP 버튼 표시, 스크롤 위치:', scrollY);
+            // console.log('TOP 버튼 표시, 스크롤 위치:', scrollY);
         } else {
             scrollTopBtn.classList.remove('visible');
-            console.log('TOP 버튼 숨김, 스크롤 위치:', scrollY);
+            // console.log('TOP 버튼 숨김, 스크롤 위치:', scrollY);
         }
     },
     

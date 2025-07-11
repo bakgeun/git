@@ -83,6 +83,9 @@ async function initUnifiedCourseApplication() {
         // 8. 토스페이먼츠 연동 준비
         initPaymentSystem();
 
+        // 9. 🔧 NEW: URL 파라미터 처리 (과정 자동 선택)
+        await handleURLParameters();
+
         // 🔧 NEW: 개선된 이벤트 설정
         setupFormChangeTracking();
         setupImprovedBeforeUnload();
@@ -422,6 +425,155 @@ function initScheduleTableInteractions() {
             });
         }
     });
+}
+
+// URL 파라미터 처리 함수 추가
+async function handleURLParameters() {
+    console.log('🔗 URL 파라미터 처리 시작');
+    
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseId = urlParams.get('courseId');
+        const fromPage = urlParams.get('from');
+        
+        console.log('📋 URL 파라미터:', { courseId, fromPage });
+        
+        if (courseId) {
+            console.log('🎯 URL에서 과정 ID 감지:', courseId);
+            
+            // 과정 데이터가 로드될 때까지 대기
+            let retryCount = 0;
+            const maxRetries = 10;
+            
+            while (availableCourses.length === 0 && retryCount < maxRetries) {
+                console.log(`⏳ 과정 데이터 로딩 대기 중... (${retryCount + 1}/${maxRetries})`);
+                await new Promise(resolve => setTimeout(resolve, 500));
+                retryCount++;
+            }
+            
+            if (availableCourses.length === 0) {
+                console.warn('⚠️ 과정 데이터 로딩 시간 초과');
+                showWarningMessage('과정 데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+                return;
+            }
+            
+            console.log('📊 로드된 과정들:', availableCourses.map(c => ({ id: c.id, title: c.title })));
+            
+            // 🔧 NEW: 하드코딩된 테스트 ID를 실제 Firebase ID로 매핑
+            let targetCourse = null;
+            
+            // 1단계: 정확한 ID 매칭 시도
+            targetCourse = availableCourses.find(course => course.id === courseId);
+            
+            if (!targetCourse) {
+                console.log('🔍 정확한 ID 매칭 실패, 자격증 타입으로 매칭 시도');
+                
+                // 2단계: 하드코딩된 테스트 ID를 자격증 타입으로 매핑
+                const testIdMapping = {
+                    'test-health-1': 'health-exercise',
+                    'test-rehab-1': 'rehabilitation', 
+                    'test-pilates-1': 'pilates',
+                    'test-recreation-1': 'recreation'
+                };
+                
+                const targetCertType = testIdMapping[courseId];
+                if (targetCertType) {
+                    console.log('🎯 자격증 타입으로 매칭 시도:', targetCertType);
+                    
+                    // 해당 자격증 타입의 첫 번째 활성 과정 선택
+                    targetCourse = availableCourses.find(course => 
+                        course.certificateType === targetCertType && 
+                        course.status === 'active'
+                    );
+                    
+                    if (!targetCourse) {
+                        // 상태 관계없이 해당 자격증 타입의 과정 찾기
+                        targetCourse = availableCourses.find(course => 
+                            course.certificateType === targetCertType
+                        );
+                    }
+                }
+            }
+            
+            if (!targetCourse) {
+                console.log('🔍 자격증 타입 매칭도 실패, 첫 번째 과정으로 폴백');
+                targetCourse = availableCourses[0];
+            }
+            
+            if (targetCourse) {
+                console.log('✅ 대상 과정 찾음:', targetCourse.title, '(ID:', targetCourse.id + ')');
+                
+                // 🔧 실제 Firebase ID로 과정 선택
+                const success = selectCourseById(targetCourse.id);
+                
+                if (success) {
+                    console.log('🎯 과정 자동 선택 성공');
+                    
+                    // 과정 선택 섹션으로 스크롤
+                    setTimeout(() => {
+                        scrollToCourseSelection();
+                        
+                        // 사용자에게 알림
+                        const certNames = {
+                            'health-exercise': '건강운동처방사',
+                            'rehabilitation': '운동재활전문가',
+                            'pilates': '필라테스 전문가',
+                            'recreation': '레크리에이션지도자'
+                        };
+                        
+                        const certName = certNames[targetCourse.certificateType] || targetCourse.certificateType;
+                        
+                        if (targetCourse.id !== courseId) {
+                            showSuccessMessage(`${certName} 과정이 자동으로 선택되었습니다. (유사한 과정으로 매칭됨)`);
+                        } else {
+                            showSuccessMessage(`${certName} 과정이 자동으로 선택되었습니다.`);
+                        }
+                        
+                        // URL 정리 (새로고침 시 중복 실행 방지)
+                        if (window.history && window.history.replaceState) {
+                            const newUrl = window.location.pathname;
+                            window.history.replaceState({}, document.title, newUrl);
+                        }
+                        
+                    }, 1000);
+                } else {
+                    console.warn('❌ 과정 자동 선택 실패');
+                    showWarningMessage('선택하신 과정을 불러올 수 없습니다. 수동으로 선택해주세요.');
+                }
+            } else {
+                console.warn('⚠️ 매칭할 수 있는 과정이 없음');
+                showWarningMessage('요청하신 과정을 찾을 수 없습니다. 다른 과정을 선택해주세요.');
+            }
+        } else {
+            console.log('📝 URL 파라미터에 과정 ID 없음');
+        }
+        
+    } catch (error) {
+        console.error('❌ URL 파라미터 처리 오류:', error);
+        showErrorMessage('페이지 초기화 중 오류가 발생했습니다.');
+    }
+}
+
+// 🔧 NEW: 테스트 데이터 ID 매핑 함수
+function mapTestIdToRealCourse(testId, availableCourses) {
+    const testIdMapping = {
+        'test-health-1': 'health-exercise',
+        'test-rehab-1': 'rehabilitation', 
+        'test-pilates-1': 'pilates',
+        'test-recreation-1': 'recreation'
+    };
+    
+    const targetCertType = testIdMapping[testId];
+    if (!targetCertType) {
+        return null;
+    }
+    
+    // 활성 상태 우선, 없으면 상태 관계없이
+    return availableCourses.find(course => 
+        course.certificateType === targetCertType && course.status === 'active'
+    ) || availableCourses.find(course => 
+        course.certificateType === targetCertType
+    );
 }
 
 // =================================
