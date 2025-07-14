@@ -1077,3 +1077,107 @@ input[type="checkbox"]:focus {
  * ✨ 완료!
  * 이 스타일들로 실시간 검증 UI가 구현됩니다.
  */
+
+ /* ===================================
+   Google 버튼 폰트 오버플로우 수정
+=================================== */
+
+/* Google 회원가입 버튼 텍스트 오버플로우 방지 */
+#google-signup-btn {
+    position: relative !important;
+    background-color: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    color: #374151 !important;
+    width: 100% !important;
+    padding: 0.75rem 1rem !important; /* 패딩 증가 */
+    border-radius: 0.375rem !important;
+    font-weight: 500 !important;
+    font-size: 0.875rem !important; /* 폰트 크기 조정 */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease-in-out !important;
+    min-height: 48px !important; /* 최소 높이 지정 */
+    white-space: nowrap !important; /* 텍스트 줄바꿈 방지 */
+    overflow: hidden !important; /* 오버플로우 숨김 */
+    text-overflow: ellipsis !important; /* 긴 텍스트 생략 표시 */
+}
+
+/* Google 아이콘 크기 최적화 */
+#google-signup-btn svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    margin-right: 0.75rem !important; /* 여백 증가 */
+    flex-shrink: 0 !important; /* 아이콘 크기 고정 */
+}
+
+/* 텍스트 컨테이너 */
+#google-signup-btn span {
+    flex: 1 !important;
+    text-align: center !important;
+    min-width: 0 !important; /* 텍스트 압축 허용 */
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Google 약관 모달의 동의 버튼도 같은 문제 해결 */
+#google-terms-agree-btn {
+    padding: 0.5rem 0.75rem !important; /* 패딩 조정 */
+    font-size: 0.875rem !important; /* 폰트 크기 조정 */
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+}
+
+/* 반응형: 작은 화면에서 폰트 크기 추가 조정 */
+@media (max-width: 640px) {
+    #google-signup-btn {
+        font-size: 0.8rem !important; /* 모바일에서 폰트 크기 더 작게 */
+        padding: 0.75rem 0.75rem !important;
+    }
+    
+    #google-signup-btn svg {
+        width: 1rem !important;
+        height: 1rem !important;
+        margin-right: 0.5rem !important;
+    }
+    
+    #google-terms-agree-btn {
+        font-size: 0.8rem !important;
+        padding: 0.5rem 0.5rem !important;
+    }
+}
+
+/* 매우 작은 화면 (480px 이하)에서 추가 최적화 */
+@media (max-width: 480px) {
+    #google-signup-btn {
+        font-size: 0.75rem !important;
+        padding: 0.75rem 0.5rem !important;
+    }
+    
+    #google-signup-btn span {
+        font-size: 0.75rem !important;
+    }
+    
+    #google-terms-agree-btn {
+        font-size: 0.75rem !important;
+        padding: 0.5rem 0.25rem !important;
+    }
+}
+
+/* 호버 상태에서도 일관성 유지 */
+#google-signup-btn:hover {
+    background-color: #f9fafb !important;
+    border-color: #d1d5db !important;
+    transform: none !important; /* 호버 시 크기 변화 방지 */
+}
+
+#google-signup-btn:disabled {
+    background-color: #f3f4f6 !important;
+    color: #9ca3af !important;
+    cursor: not-allowed !important;
+    opacity: 0.7 !important;
+}

@@ -34,16 +34,8 @@
                         <a href="#" class="text-gray-800 hover:text-blue-600 py-2">기관 소개</a>
                         <ul
                             class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">개요</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">목표 및 전략</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/business.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">사업 내용</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">기관 소개</a></li>
                         </ul>
                     </li>
                     <li class="group relative">
@@ -64,14 +56,12 @@
                         <a href="#" class="text-gray-800 hover:text-blue-600 py-2">교육 과정</a>
                         <ul
                             class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 과정 안내</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/instructors.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')"
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">자격증 신청</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/exam-info.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">시험 안내</a></li>
                         </ul>
                     </li>
                     <li class="group relative">
@@ -104,7 +94,7 @@
             </button>
         </div>
 
-        <!-- Mobile Menu Overlay (about.html과 동일한 구조) -->
+        <!-- Mobile Menu Overlay (일관된 구조) -->
         <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden md:hidden">
             <div class="bg-white h-full w-full flex flex-col">
                 <!-- 모바일 메뉴 헤더 -->
@@ -173,8 +163,8 @@
                                         href="javascript:window.location.href=window.adjustPath('pages/education/instructors.html')">강사
                                         소개</a>
                                     <a
-                                        href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')">교육
-                                        과정 안내</a>
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')">교육
+                                        신청</a>
                                     <a
                                         href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')">자격증
                                         신청</a>
@@ -447,7 +437,7 @@
                         </div>
                     </div>
 
-                    <!-- 약관 동의 (기존과 동일) -->
+                    <!-- 약관 동의 -->
                     <div class="space-y-4">
                         <div class="flex items-start">
                             <div class="flex items-center h-5">
@@ -497,7 +487,8 @@
                     </div>
 
                     <div>
-                        <button type="submit" id="signup-btn">
+                        <button type="submit" id="signup-btn" disabled
+                            class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
                             회원가입
                         </button>
                     </div>
@@ -514,8 +505,10 @@
                     </div>
 
                     <div class="mt-6 grid grid-cols-1 gap-3">
-                        <button type="button" id="google-signup-btn">
-                            <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <button type="button" id="google-signup-btn"
+                            class="w-full inline-flex justify-center items-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition duration-200">
+                            <svg class="w-5 h-5 mr-3 flex-shrink-0" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
                                 <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
                                     <path fill="#4285F4"
                                         d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z" />
@@ -527,7 +520,7 @@
                                         d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z" />
                                 </g>
                             </svg>
-                            Google 계정으로 가입하기
+                            <span class="truncate">Google 계정으로 가입하기</span>
                         </button>
                     </div>
                 </div>
@@ -731,7 +724,7 @@
         </div>
     </div>
 
-    <!-- 👇 여기에 Google 약관 모달 추가 -->
+    <!-- Google 약관 모달 -->
     <div id="google-terms-modal"
         class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="modal-dialog bg-white rounded-lg max-w-md w-full mx-4">
@@ -795,13 +788,16 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer flex justify-between p-4 border-t">
-                    <button type="button" class="px-4 py-2 text-gray-600 hover:text-gray-800 focus:outline-none"
+                <div class="modal-footer flex flex-col sm:flex-row gap-3 p-4 border-t">
+                    <button type="button"
+                        class="order-2 sm:order-1 px-4 py-2 text-gray-600 hover:text-gray-800 focus:outline-none"
                         data-dismiss="modal">취소</button>
+
+                    <!-- 더 넓은 버튼으로 수정 -->
                     <button type="button" id="google-terms-agree-btn"
-                        class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="order-1 sm:order-2 px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm w-full sm:w-auto min-w-[200px] text-center leading-tight"
                         disabled>
-                        동의하고 Google로 가입하기
+                        가입하기
                     </button>
                 </div>
             </div>

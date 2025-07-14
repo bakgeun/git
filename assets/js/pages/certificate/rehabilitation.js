@@ -34,7 +34,7 @@ console.log('rehabilitation.js (수정된 교육일정 동적 버전) 로드됨'
     // 🔧 NEW: 교육일정 동적 로드 함수 - 인덱스 문제 해결 + 수료증 발급 제거
     async function loadEducationSchedule() {
         console.log('📚 운동재활 교육일정 동적 로드 시작 (전체 로드 방식)');
-        
+
         try {
             // Firebase 연결 확인
             if (!window.dhcFirebase || !window.dhcFirebase.db || !window.dbService) {
@@ -58,14 +58,14 @@ console.log('rehabilitation.js (수정된 교육일정 동적 버전) 로드됨'
 
             if (allCoursesResult.success && allCoursesResult.data.length > 0) {
                 console.log('📋 전체 교육과정 로드됨:', allCoursesResult.data.length + '개');
-                
+
                 // 클라이언트에서 필터링 및 정렬
                 const filteredCourses = allCoursesResult.data.filter(course => {
                     return course.certificateType === currentCertType && course.status === 'active';
                 });
-                
+
                 console.log('✅ 필터링된 활성 교육과정:', filteredCourses.length + '개');
-                
+
                 if (filteredCourses.length > 0) {
                     // 시작일 기준으로 정렬 (가장 빠른 것부터)
                     filteredCourses.sort((a, b) => {
@@ -73,7 +73,7 @@ console.log('rehabilitation.js (수정된 교육일정 동적 버전) 로드됨'
                         const dateB = b.startDate?.toDate ? b.startDate.toDate() : new Date(b.startDate);
                         return dateA.getTime() - dateB.getTime();
                     });
-                    
+
                     const latestCourse = filteredCourses[0];
                     console.log('✅ 최신 교육과정 찾음:', latestCourse.title);
                     console.log('📅 교육과정 상세 정보:', {
@@ -86,7 +86,7 @@ console.log('rehabilitation.js (수정된 교육일정 동적 버전) 로드됨'
                         applyEndDate: latestCourse.applyEndDate,
                         location: latestCourse.location
                     });
-                    
+
                     latestEducationSchedule = latestCourse;
                     updateScheduleDisplay(convertCourseToSchedule(latestCourse));
                 } else {
@@ -110,7 +110,7 @@ console.log('rehabilitation.js (수정된 교육일정 동적 버전) 로드됨'
             // 🔧 수정: course-management.js의 실제 필드명에 맞춰 매핑
             const startDate = course.startDate?.toDate ? course.startDate.toDate() : new Date(course.startDate);
             const endDate = course.endDate?.toDate ? course.endDate.toDate() : new Date(course.endDate);
-            
+
             let applyStartDate, applyEndDate;
             if (course.applyStartDate && course.applyEndDate) {
                 applyStartDate = course.applyStartDate?.toDate ? course.applyStartDate.toDate() : new Date(course.applyStartDate);
@@ -172,7 +172,7 @@ console.log('rehabilitation.js (수정된 교육일정 동적 버전) 로드됨'
     // 현재 자격증 타입 확인
     function getCurrentCertificateType() {
         const currentPath = window.location.pathname;
-        
+
         if (currentPath.includes('health-exercise')) {
             return 'health-exercise';
         } else if (currentPath.includes('rehabilitation')) {
@@ -182,16 +182,16 @@ console.log('rehabilitation.js (수정된 교육일정 동적 버전) 로드됨'
         } else if (currentPath.includes('recreation')) {
             return 'recreation';
         }
-        
+
         return null;
     }
 
     // 🔧 수정: 교육일정 표시 업데이트 - 수료증 발급 제거
     function updateScheduleDisplay(scheduleData) {
         console.log('📅 운동재활 교육일정 표시 업데이트:', scheduleData);
-        
+
         const scheduleContainer = document.getElementById('exam-schedule-info');
-        
+
         if (!scheduleContainer) {
             console.error('exam-schedule-info 요소를 찾을 수 없습니다');
             return;
@@ -212,7 +212,7 @@ console.log('rehabilitation.js (수정된 교육일정 동적 버전) 로드됨'
                 <span class="cert-detail-value">${scheduleData.locations}</span>
             </div>
         `;
-        
+
         console.log('✅ 운동재활 교육일정 업데이트 완료 (수료증 발급 제거됨)');
     }
 
@@ -252,7 +252,7 @@ console.log('rehabilitation.js (수정된 교육일정 동적 버전) 로드됨'
         // 첫 번째 탭 활성화 확인
         const firstTab = document.querySelector('.tab-item[data-tab="overview"]');
         const firstContent = document.getElementById('overview-content');
-        
+
         if (firstTab && firstContent) {
             firstTab.classList.add('active');
             firstContent.classList.add('active');
@@ -265,10 +265,10 @@ console.log('rehabilitation.js (수정된 교육일정 동적 버전) 로드됨'
     // 자격증 전환 버튼 초기화
     function initCertificateSwitcher() {
         console.log('자격증 전환 탭 초기화');
-        
+
         const currentPage = window.location.pathname;
         let activeCert = '';
-        
+
         if (currentPage.includes('health-exercise')) {
             activeCert = 'health-exercise';
         } else if (currentPage.includes('rehabilitation')) {
@@ -278,14 +278,14 @@ console.log('rehabilitation.js (수정된 교육일정 동적 버전) 로드됨'
         } else if (currentPage.includes('recreation')) {
             activeCert = 'recreation';
         }
-        
+
         console.log('현재 자격증 페이지:', activeCert);
-        
+
         const certTabs = document.querySelectorAll('.cert-tab-item');
         certTabs.forEach(tab => {
             tab.classList.remove('active');
         });
-        
+
         if (activeCert) {
             const activeTab = document.querySelector(`.cert-tab-item[href*="${activeCert}"]`);
             if (activeTab) {
@@ -295,22 +295,23 @@ console.log('rehabilitation.js (수정된 교육일정 동적 버전) 로드됨'
     }
 
     // 🔧 수정: 페이지 간 연동 기능 초기화 (자격증 시험 신청 버튼 제거)
+    // 🔧 수정: 페이지 간 연동 기능 초기화 (자격증 시험 신청 버튼 제거 - 네비게이션 메뉴 보호)
     function initPageLinking() {
         console.log('페이지 간 연동 기능 초기화');
-        
+
         // 교육 과정 신청하기 버튼들
         const courseApplicationBtns = document.querySelectorAll('a[href*="course-application.html"]');
         console.log('교육과정 신청 버튼 개수:', courseApplicationBtns.length);
-        
+
         courseApplicationBtns.forEach((btn, index) => {
             console.log(`교육과정 신청 버튼 ${index}:`, btn.textContent.trim());
-            
-            btn.addEventListener('click', function(e) {
+
+            btn.addEventListener('click', function (e) {
                 e.preventDefault();
                 console.log('교육과정 신청 버튼 클릭됨:', this.textContent.trim());
-                
+
                 const certType = getCurrentCertificateType();
-                
+
                 // 🔧 수정: 실제 교육과정 ID 전달
                 let targetUrl;
                 if (latestEducationSchedule && latestEducationSchedule.id) {
@@ -327,19 +328,20 @@ console.log('rehabilitation.js (수정된 교육일정 동적 버전) 로드됨'
                         console.log('기본 페이지로 이동');
                     }
                 }
-                
+
                 console.log('교육과정 신청 페이지로 이동:', targetUrl);
                 window.location.href = targetUrl;
             });
         });
-        
-        // 🔧 자격증 시험 신청하기 버튼들 제거
-        const certApplicationBtns = document.querySelectorAll('a[href*="cert-application.html"]');
-        console.log('자격증 신청 버튼 개수 (제거 대상):', certApplicationBtns.length);
-        
+
+        // 🔧 수정: 네비게이션 메뉴의 자격증 신청 링크는 보호하고, 
+        // 페이지 콘텐츠 영역의 자격증 신청 버튼만 제거
+        const certApplicationBtns = document.querySelectorAll('main a[href*="cert-application.html"], .cert-cta-card a[href*="cert-application.html"], .cert-sidebar a[href*="cert-application.html"]');
+        console.log('자격증 신청 버튼 개수 (제거 대상, 네비게이션 제외):', certApplicationBtns.length);
+
         certApplicationBtns.forEach((btn, index) => {
             console.log(`자격증 신청 버튼 ${index} 제거:`, btn.textContent.trim());
-            
+
             // 버튼이 포함된 부모 요소도 함께 제거 (레이아웃 정리)
             const parentElement = btn.closest('.cert-cta-button, .button-container, .action-button');
             if (parentElement) {
@@ -350,8 +352,8 @@ console.log('rehabilitation.js (수정된 교육일정 동적 버전) 로드됨'
                 console.log('버튼만 제거됨');
             }
         });
-        
-        console.log('✅ 자격증 시험 신청 버튼 모두 제거 완료');
+
+        console.log('✅ 자격증 시험 신청 버튼 제거 완료 (네비게이션 메뉴는 보호됨)');
         console.log('페이지 간 연동 기능 초기화 완료');
     }
 
@@ -363,7 +365,7 @@ console.log('rehabilitation.js (수정된 교육일정 동적 버전) 로드됨'
             'pilates': 'test-pilates-1',         // 필라테스 전문가 과정
             'recreation': 'test-recreation-1'    // 레크리에이션지도자 과정
         };
-        
+
         return courseMapping[certType] || null;
     }
 
@@ -410,13 +412,13 @@ console.log('rehabilitation.js (수정된 교육일정 동적 버전) 로드됨'
     }
 
     // 🔧 NEW: 교육일정 새로고침 함수 (외부에서 호출 가능)
-    window.refreshRehabilitationEducationSchedule = function() {
+    window.refreshRehabilitationEducationSchedule = function () {
         console.log('🔄 운동재활 교육일정 수동 새로고침');
         loadEducationSchedule();
     };
 
     // 🔧 NEW: 현재 로드된 교육과정 정보 확인 함수
-    window.getCurrentRehabilitationEducationSchedule = function() {
+    window.getCurrentRehabilitationEducationSchedule = function () {
         return latestEducationSchedule;
     };
 
@@ -425,7 +427,7 @@ console.log('rehabilitation.js (수정된 교육일정 동적 버전) 로드됨'
         console.log('수동 운동재활 탭 전환 테스트:', tabId);
         switchTab(tabId);
     };
-    
+
     // 교육일정 업데이트 함수를 외부에서 호출 가능하도록 전역 함수로 등록
     window.updateRehabilitationEducationSchedule = loadEducationSchedule;
 
