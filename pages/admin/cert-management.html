@@ -337,7 +337,7 @@
             <div class="cert-modal-content">
                 <div class="cert-modal-header">
                     <h3 class="cert-modal-title">자격증 발급</h3>
-                    <button onclick="certManager.closeIssueCertModal()" class="cert-modal-close">
+                    <button onclick="window.certManager.closeIssueCertModal()" class="cert-modal-close">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"></path>
@@ -401,7 +401,7 @@
 
                         <!-- 🔧 통일된 버튼 영역 -->
                         <div class="form-actions">
-                            <button type="button" onclick="certManager.closeIssueCertModal()"
+                            <button type="button" onclick="window.certManager.closeIssueCertModal()"
                                 class="admin-btn admin-btn-secondary">
                                 취소
                             </button>
@@ -417,12 +417,12 @@
 
     <!-- 🔧 일괄 발급 모달 - 구조 통일 및 z-index 수정 -->
     <div id="bulk-issue-modal" class="cert-modal cert-modal-secondary hidden">
-        <div class="cert-modal-backdrop" onclick="certManager.closeBulkIssuanceModal()"></div>
+        <div class="cert-modal-backdrop" onclick="window.certManager.closeBulkIssuanceModal()"></div>
         <div class="cert-modal-container cert-modal-large">
             <div class="cert-modal-content">
                 <div class="cert-modal-header">
                     <h3 class="cert-modal-title">자격증 일괄 발급</h3>
-                    <button onclick="certManager.closeBulkIssuanceModal()" class="cert-modal-close">
+                    <button onclick="window.certManager.closeBulkIssuanceModal()" class="cert-modal-close">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"></path>
@@ -452,8 +452,8 @@
                                 class="admin-btn admin-btn-secondary">
                                 취소
                             </button>
-                            <button type="button" onclick="certManager.processBulkIssuance()" id="bulk-issue-btn"
-                                class="admin-btn admin-btn-primary" disabled>
+                            <button type="button" onclick="window.certManager.closeBulkIssuanceModal()"
+                                class="admin-btn admin-btn-secondary">
                                 일괄 발급
                             </button>
                         </div>
@@ -465,7 +465,7 @@
 
     <!-- 🆕 NEW: 결제자 선택 발급 모달 -->
     <div id="paid-applicants-modal" class="cert-modal cert-modal-secondary hidden">
-        <div class="cert-modal-backdrop" onclick="certManager.closePaidApplicantsModal()"></div>
+        <div class="cert-modal-backdrop" onclick="window.certManager.closePaidApplicantsModal()"></div>
         <div class="cert-modal-container cert-modal-large">
             <div class="cert-modal-content">
                 <div class="cert-modal-header">
@@ -478,7 +478,7 @@
                         </svg>
                         결제 완료자 선택 발급
                     </h3>
-                    <button onclick="certManager.closePaidApplicantsModal()" class="cert-modal-close">
+                    <button onclick="window.certManager.closePaidApplicantsModal()" class="cert-modal-close">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"></path>
@@ -622,9 +622,8 @@
 
                         <!-- 버튼 그룹 -->
                         <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                            <button type="button" onclick="certManager.closePaidApplicantsModal()"
+                            <button type="button" onclick="window.certManager.closePaidApplicantsModal()"
                                 class="admin-btn admin-btn-secondary">
-                                취소
                             </button>
                             <button type="button" onclick="certManager.issueSelectedCertificates()"
                                 id="issue-selected-btn" class="admin-btn admin-btn-success" disabled>
@@ -649,7 +648,7 @@
             <div class="cert-modal-content">
                 <div class="cert-modal-header">
                     <h3 class="cert-modal-title">자격증 상세 정보</h3>
-                    <button onclick="certManager.closeCertDetailModal()" class="cert-modal-close">
+                    <button onclick="window.certManager.closeCertDetailModal()" class="cert-modal-close">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"></path>
@@ -661,7 +660,8 @@
                         <!-- 동적으로 내용이 삽입됩니다 -->
                     </div>
                     <div class="flex justify-end space-x-3 mt-6">
-                        <button onclick="certManager.closeCertDetailModal()" class="admin-btn admin-btn-secondary">
+                        <button onclick="window.certManager.closeCertDetailModal()"
+                            class="admin-btn admin-btn-secondary">
                             닫기
                         </button>
                     </div>
@@ -672,12 +672,12 @@
 
     <!-- 🔧 자격증 수정 모달 - 구조 통일 및 z-index 수정 -->
     <div id="cert-edit-modal" class="cert-modal cert-modal-quaternary hidden">
-        <div class="cert-modal-backdrop" onclick="certManager.closeCertEditModal()"></div>
+        <div class="cert-modal-backdrop" onclick="window.certManager.closeCertEditModal()"></div>
         <div class="cert-modal-container">
             <div class="cert-modal-content">
                 <div class="cert-modal-header">
                     <h3 class="cert-modal-title">자격증 정보 수정</h3>
-                    <button onclick="certManager.closeCertEditModal()" class="cert-modal-close">
+                    <button onclick="window.certManager.closeCertEditModal()" class="cert-modal-close">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"></path>
@@ -737,7 +737,7 @@
                         </div>
 
                         <div class="flex justify-end space-x-3">
-                            <button type="button" onclick="certManager.closeCertEditModal()"
+                            <button type="button" onclick="window.certManager.closeCertEditModal()"
                                 class="admin-btn admin-btn-secondary">
                                 취소
                             </button>
@@ -795,13 +795,14 @@
         // 페이지 로드 시 실행 - course-application.html과 동일한 패턴
         window.addEventListener('load', async function () {
             try {
-                console.log('자격증 관리 페이지 초기화 시작 (결제자 선택 발급 기능 추가)');
+                console.log('자격증 관리 페이지 초기화 시작');
 
-                // 스크립트 로드 완료 대기
+                // 1. 필수 스크립트들이 모두 로드될 때까지 대기
                 let retryCount = 0;
-                const maxRetries = 50;
+                const maxRetries = 100; // 최대 10초 대기
 
-                while (!window.adminAuth && retryCount < maxRetries) {
+                // 모든 필수 객체들이 로드될 때까지 대기
+                while ((!window.adminAuth || !window.certManager) && retryCount < maxRetries) {
                     await new Promise(resolve => setTimeout(resolve, 100));
                     retryCount++;
                 }
@@ -814,34 +815,39 @@
 
                 console.log('관리자 권한 확인 시작');
 
-                // 관리자 권한 확인
+                // 2. 관리자 권한 확인
                 const hasAccess = await window.adminAuth.checkAdminAccess();
 
                 if (hasAccess) {
                     console.log('관리자 권한 확인 완료');
-
-                    // 관리자 정보 표시
                     window.adminAuth.displayAdminInfo();
 
-                    // 자격증 관리자 초기화
-                    console.log('자격증 관리자 초기화 시작 (결제자 선택 발급 기능 포함)');
-
-                    // certManager 로드 완료 대기
-                    let certRetryCount = 0;
-                    while (!window.certManager && certRetryCount < maxRetries) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                        certRetryCount++;
-                    }
-
+                    // 3. certManager가 있으면 초기화, 없으면 대기 후 재시도
                     if (window.certManager) {
-                        await window.certManager.init();
-                        console.log('개선된 자격증 관리자 초기화 완료');
+                        console.log('자격증 관리자 초기화 시작');
+
+                        // loadCertificatesData 함수가 로드될 때까지 추가 대기
+                        let dataRetryCount = 0;
+                        while (typeof window.certManager.loadCertificatesData !== 'function' && dataRetryCount < 50) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            dataRetryCount++;
+                        }
+
+                        if (typeof window.certManager.loadCertificatesData === 'function') {
+                            await window.certManager.init();
+                            console.log('자격증 관리자 초기화 완료');
+                        } else {
+                            console.warn('loadCertificatesData 함수 로드 실패, 기본 초기화만 진행');
+                            // 기본 모달 관리만 초기화
+                            window.certManager.closeAllModals();
+                            window.certManager.registerEventListeners();
+                        }
                     } else {
                         console.error('자격증 관리자 스크립트 로드 실패');
                         window.adminAuth.showNotification('자격증 관리자 초기화에 실패했습니다.', 'error');
                     }
 
-                    // 추가 페이지별 초기화 함수 실행
+                    // 4. 추가 페이지별 초기화
                     if (typeof window.initPage === 'function') {
                         window.initPage();
                     }
@@ -858,17 +864,10 @@
                 }
             }
 
-            // 사이드바 토글 기능 초기화
-            if (typeof adminUtils !== 'undefined' && adminUtils.initAdminSidebar) {
-                adminUtils.initAdminSidebar();
-            }
-
-            // adminUtils가 로드되었는지 확인 후 초기화 호출
+            // 5. 사이드바 및 기타 관리자 기능 초기화
             if (window.adminUtils && window.adminUtils.initAdminPage) {
                 console.log('adminUtils.initAdminPage 호출');
                 window.adminUtils.initAdminPage();
-            } else {
-                console.warn('adminUtils가 로드되지 않았거나 initAdminPage가 없습니다.');
             }
         });
     </script>

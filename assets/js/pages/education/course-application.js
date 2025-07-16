@@ -30,6 +30,10 @@ let userAgreements = {
 let isInternalNavigation = false;
 let formHasData = false;
 
+// 전역 변수 추가
+let courseDataListener = null;
+let isRealTimeEnabled = true;
+
 // =================================
 // 🔧 DOM 준비 및 초기화
 // =================================
@@ -192,7 +196,7 @@ async function loadEducationData() {
 }
 
 async function loadScheduleData() {
-    console.log('📅 교육 일정 로드');
+    console.log('📅 교육 일정 로드 (실시간 동기화 포함)');
 
     const loadingEl = document.getElementById('schedule-loading');
     const errorEl = document.getElementById('schedule-error');
@@ -202,35 +206,103 @@ async function loadScheduleData() {
     try {
         showLoadingState();
 
+        if (window.dhcFirebase?.db && window.dbService && isRealTimeEnabled) {
+            console.log('🔥 Firebase 실시간 리스너 설정');
+
+            // 기존 리스너 해제
+            if (courseDataListener) {
+                courseDataListener();
+                courseDataListener = null;
+            }
+
+            // 실시간 리스너 설정
+            courseDataListener = window.dhcFirebase.db.collection('courses')
+                .orderBy('startDate', 'asc')
+                .onSnapshot({
+                    next: (snapshot) => {
+                        console.log('📡 실시간 데이터 변경 감지:', snapshot.size, '개 과정');
+
+                        const courses = [];
+                        snapshot.forEach(doc => {
+                            courses.push({
+                                id: doc.id,
+                                ...doc.data()
+                            });
+                        });
+
+                        if (courses.length === 0) {
+                            showEmptyState();
+                            return;
+                        }
+
+                        // 정렬: 자격증 타입별, 날짜순
+                        courses.sort((a, b) => {
+                            const typeOrder = ['health-exercise', 'rehabilitation', 'pilates', 'recreation'];
+                            const typeA = typeOrder.indexOf(a.certificateType) !== -1 ? typeOrder.indexOf(a.certificateType) : 999;
+                            const typeB = typeOrder.indexOf(b.certificateType) !== -1 ? typeOrder.indexOf(b.certificateType) : 999;
+
+                            if (typeA !== typeB) return typeA - typeB;
+
+                            const dateA = a.startDate?.toDate ? a.startDate.toDate() : new Date(a.startDate || 0);
+                            const dateB = b.startDate?.toDate ? b.startDate.toDate() : new Date(b.startDate || 0);
+
+                            return dateA.getTime() - dateB.getTime();
+                        });
+
+                        // 🔧 중요: 전역 변수 업데이트
+                        availableCourses = courses;
+
+                        // 테이블 렌더링
+                        renderScheduleTable(courses);
+                        showScheduleContainer();
+                        initScheduleTableInteractions();
+
+                        // 🔧 과정 선택 드롭다운도 업데이트
+                        populateCourseOptions(courses);
+
+                        // 🔧 현재 선택된 과정이 변경되었는지 확인
+                        checkSelectedCourseUpdate();
+
+                        // 🔧 사용자에게 알림 (첫 로드가 아닌 경우)
+                        if (snapshot.metadata && !snapshot.metadata.fromCache) {
+                            showInfoMessage('교육 일정이 업데이트되었습니다.');
+                        }
+
+                        console.log('✅ 실시간 데이터 업데이트 완료');
+                    },
+                    error: (error) => {
+                        console.error('❌ 실시간 리스너 오류:', error);
+                        // 실시간 연결 실패 시 일반 조회로 폴백
+                        loadScheduleDataFallback();
+                    }
+                });
+
+        } else {
+            console.log('Firebase 미연동 또는 실시간 모드 비활성화, 일반 조회 사용');
+            await loadScheduleDataFallback();
+        }
+
+    } catch (error) {
+        console.error('❌ 교육 일정 로드 오류:', error);
+        await loadScheduleDataFallback();
+    }
+}
+
+async function loadScheduleDataFallback() {
+    console.log('📅 일반 교육 일정 로드 (폴백)');
+
+    try {
         let courses = [];
 
         if (window.dhcFirebase?.db && window.dbService) {
-            console.log('Firebase에서 교육 과정 로드');
-
             const result = await window.dbService.getDocuments('courses');
-
             if (result.success) {
                 courses = result.data;
                 console.log(`✅ Firebase에서 ${courses.length}개 과정 로드됨`);
-
-                // 정렬: 자격증 타입별, 날짜순
-                courses.sort((a, b) => {
-                    const typeOrder = ['health-exercise', 'rehabilitation', 'pilates', 'recreation'];
-                    const typeA = typeOrder.indexOf(a.certificateType) !== -1 ? typeOrder.indexOf(a.certificateType) : 999;
-                    const typeB = typeOrder.indexOf(b.certificateType) !== -1 ? typeOrder.indexOf(b.certificateType) : 999;
-
-                    if (typeA !== typeB) return typeA - typeB;
-
-                    const dateA = a.startDate?.toDate ? a.startDate.toDate() : new Date(a.startDate || 0);
-                    const dateB = b.startDate?.toDate ? b.startDate.toDate() : new Date(b.startDate || 0);
-
-                    return dateA.getTime() - dateB.getTime();
-                });
             } else {
                 throw new Error(result.error?.message || 'Firebase 데이터 로드 실패');
             }
         } else {
-            console.log('Firebase 미연동, 테스트 데이터 사용');
             courses = getTestScheduleData();
         }
 
@@ -239,30 +311,57 @@ async function loadScheduleData() {
             return;
         }
 
+        // 정렬
+        courses.sort((a, b) => {
+            const typeOrder = ['health-exercise', 'rehabilitation', 'pilates', 'recreation'];
+            const typeA = typeOrder.indexOf(a.certificateType) !== -1 ? typeOrder.indexOf(a.certificateType) : 999;
+            const typeB = typeOrder.indexOf(b.certificateType) !== -1 ? typeOrder.indexOf(b.certificateType) : 999;
+
+            if (typeA !== typeB) return typeA - typeB;
+
+            const dateA = a.startDate?.toDate ? a.startDate.toDate() : new Date(a.startDate || 0);
+            const dateB = b.startDate?.toDate ? b.startDate.toDate() : new Date(b.startDate || 0);
+
+            return dateA.getTime() - dateB.getTime();
+        });
+
         availableCourses = courses;
         renderScheduleTable(courses);
         showScheduleContainer();
         initScheduleTableInteractions();
 
     } catch (error) {
-        console.error('❌ 교육 일정 로드 오류:', error);
+        console.error('❌ 폴백 데이터 로드 오류:', error);
+        showErrorState();
+    }
+}
 
-        if (error.message?.includes('index')) {
-            console.log('🔄 Firebase 인덱스 오류, 테스트 데이터로 폴백');
-            try {
-                const testCourses = getTestScheduleData();
-                availableCourses = testCourses;
-                renderScheduleTable(testCourses);
-                showScheduleContainer();
-                initScheduleTableInteractions();
-                showWarningMessage('Firebase 인덱스 설정 중입니다. 임시로 테스트 데이터를 표시합니다.');
-                return;
-            } catch (fallbackError) {
-                console.error('테스트 데이터 폴백 실패:', fallbackError);
+function checkSelectedCourseUpdate() {
+    if (selectedCourseData) {
+        const updatedCourse = availableCourses.find(course => course.id === selectedCourseData.id);
+
+        if (updatedCourse) {
+            // 중요한 필드들만 비교 (타임스탬프 제외)
+            const importantFields = ['title', 'status', 'price', 'certificatePrice', 'materialPrice', 'capacity', 'enrolledCount'];
+            const hasImportantChanges = importantFields.some(field =>
+                JSON.stringify(selectedCourseData[field]) !== JSON.stringify(updatedCourse[field])
+            );
+
+            if (hasImportantChanges) {
+                console.log('🔄 선택된 과정 데이터 변경 감지, 업데이트 중...');
+
+                // 선택된 과정 데이터 업데이트
+                selectedCourseData = updatedCourse;
+
+                // UI 업데이트
+                updateCourseInfo(updatedCourse);
+                loadCoursePricing(updatedCourse);
+                updateFinalCheck();
+
+                // 사용자에게 알림
+                showInfoMessage('선택하신 교육 과정 정보가 업데이트되었습니다.');
             }
         }
-
-        showErrorState();
     }
 }
 
@@ -348,7 +447,22 @@ function calculateCourseStatus(course, now, applyStartDate, applyEndDate) {
     let canApply = false;
 
     if (course.status === 'active') {
-        if (now >= applyStartDate && now <= applyEndDate) {
+        // 🔧 수정: 신청 종료일을 당일 23:59:59까지 유효하도록 설정
+        const applyEndDateTime = new Date(applyEndDate);
+        applyEndDateTime.setHours(23, 59, 59, 999);
+
+        // 🔧 디버깅 로그 (개발 환경에서만)
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            console.log('🔍 상태 계산:', {
+                courseName: course.title,
+                currentTime: now.toLocaleString(),
+                applyEndDate: applyEndDate.toLocaleString(),
+                applyEndDateTime: applyEndDateTime.toLocaleString(),
+                isInPeriod: now >= applyStartDate && now <= applyEndDateTime
+            });
+        }
+
+        if (now >= applyStartDate && now <= applyEndDateTime) {
             const enrolledCount = course.enrolledCount || 0;
             const capacity = course.capacity || 30;
 
@@ -365,9 +479,8 @@ function calculateCourseStatus(course, now, applyStartDate, applyEndDate) {
                 canApply = true;
             }
         } else if (now < applyStartDate) {
-            statusText = '모집중';
-            statusClass = 'status-available';
-            canApply = true;
+            statusText = '준비중';
+            statusClass = 'status-upcoming';
         } else {
             statusText = '마감';
             statusClass = 'status-closed';
@@ -2601,6 +2714,23 @@ window.handleHeaderNavigation = function (event, targetPath) {
     }, 10);
 };
 
+// 🔧 페이지 언로드 시 리스너 해제
+window.addEventListener('beforeunload', function () {
+    if (courseDataListener) {
+        courseDataListener();
+        courseDataListener = null;
+        console.log('🔄 실시간 리스너 해제됨');
+    }
+});
+
+// 🔧 페이지 포커스 시 강제 새로고침 (선택사항)
+window.addEventListener('focus', function () {
+    if (!courseDataListener && isRealTimeEnabled) {
+        console.log('🔄 페이지 포커스 시 데이터 새로고침');
+        loadScheduleData();
+    }
+});
+
 // =================================
 // 🔧 Course Application 디버깅 도구 완전판
 // course-application.js 파일 맨 아래에 추가할 코드
@@ -3262,11 +3392,65 @@ if (window.location.hostname === 'localhost' ||
             };
         },
 
+        toggleRealTime: function() {
+            isRealTimeEnabled = !isRealTimeEnabled;
+            console.log('🔄 실시간 동기화:', isRealTimeEnabled ? '활성화' : '비활성화');
+            
+            if (isRealTimeEnabled) {
+                loadScheduleData();
+            } else {
+                if (courseDataListener) {
+                    courseDataListener();
+                    courseDataListener = null;
+                }
+            }
+        },
+        
+        forceRefresh: async function() {
+            console.log('🔄 강제 데이터 새로고침');
+            
+            try {
+                // 기존 리스너 해제
+                if (courseDataListener) {
+                    courseDataListener();
+                    courseDataListener = null;
+                }
+                
+                // 캐시 초기화
+                availableCourses = [];
+                selectedCourseData = null;
+                clearPricingData();
+                
+                // 데이터 다시 로드
+                await loadScheduleData();
+                
+                console.log('✅ 강제 새로고침 완료');
+                return true;
+                
+            } catch (error) {
+                console.error('❌ 강제 새로고침 오류:', error);
+                return false;
+            }
+        },
+        
+        checkRealTimeStatus: function() {
+            console.log('🔍 실시간 동기화 상태:');
+            console.log('  - 실시간 모드:', isRealTimeEnabled);
+            console.log('  - 리스너 활성:', !!courseDataListener);
+            console.log('  - 로드된 과정 수:', availableCourses.length);
+            
+            return {
+                realTimeEnabled: isRealTimeEnabled,
+                listenerActive: !!courseDataListener,
+                coursesLoaded: availableCourses.length
+            };
+        },
+
         /**
          * 도움말
          */
         help: function () {
-            console.log('🎯 통합 교육 신청 디버깅 도구 (완전판)');
+            console.log('🎯 통합 교육 신청 디버깅 도구 (완전판 + 실시간 동기화)');
             console.log('');
             console.log('🔧 데이터 관련:');
             console.log('  - showCourses() : 사용 가능한 과정 목록 (테이블 형태)');
@@ -3299,22 +3483,47 @@ if (window.location.hostname === 'localhost' ||
             console.log('  - status() : 디버깅 도구 상태 확인');
             console.log('  - help() : 이 도움말');
 
+            console.log('\n🔄 실시간 동기화 (NEW):');
+            console.log('  - toggleRealTime() : 실시간 동기화 토글');
+            console.log('  - forceRefresh() : 강제 데이터 새로고침');
+            console.log('  - checkRealTimeStatus() : 실시간 동기화 상태 확인');
+
+            console.log('\n🔍 고급 분석:');
+            console.log('  - analyzePricing() : 가격 계산 로직 상세 분석');
+            console.log('  - analyzeDOMState() : DOM 요소 상태 분석');
+            console.log('  - checkEventListeners() : 이벤트 리스너 상태 확인');
+            console.log('  - checkFirebaseConnection() : Firebase 연동 상태 확인');
+            console.log('  - checkLocalStorage() : 로컬 스토리지 상태 확인');
+
             console.log('\n💡 사용법:');
             console.log('1. 🚀 빠른 시작: runFullTest()');
             console.log('2. 🔧 문제 해결: testPriceSync() -> forcePriceSync()');
             console.log('3. 🧪 개별 테스트: fillTestData() -> checkForm() -> simulatePayment()');
             console.log('4. 🔄 초기화: resetAll()');
+            console.log('5. 🔄 실시간 동기화: checkRealTimeStatus() -> forceRefresh()');
+            console.log('6. 🔍 문제 진단: analyzePricing() -> analyzeDOMState()');
 
-            console.log('\n🎯 새로운 기능 (자격증 발급비 동기화):');
-            console.log('- testPriceSync() : 신청 옵션과 결제 요약의 가격 동기화 확인');
-            console.log('- forcePriceSync() : 가격 동기화 문제 발생 시 강제 수정');
-            console.log('- 실시간 가격 계산 및 패키지 할인 적용');
-            console.log('- 관리자 설정 가격 자동 반영');
+            console.log('\n🎯 새로운 기능 (실시간 동기화):');
+            console.log('✅ 관리자 수정 시 자동 업데이트');
+            console.log('✅ 브라우저 새로고침 불필요');
+            console.log('✅ 선택된 과정 자동 업데이트');
+            console.log('✅ Firebase 연결 상태 모니터링');
+            console.log('✅ 폴백 메커니즘으로 안정성 보장');
 
-            console.log('\n🔗 네비게이션 개선:');
-            console.log('- beforeunload 이벤트 내부 네비게이션 구분 처리');
-            console.log('- 폼 데이터 상태 실시간 추적');
-            console.log('- 탭 변경 시 불필요한 확인 대화상자 방지');
+            console.log('\n🔧 실시간 동기화 테스트 시나리오:');
+            console.log('1. checkRealTimeStatus() : 현재 상태 확인');
+            console.log('2. 관리자 페이지에서 교육 과정 수정');
+            console.log('3. 사용자 페이지에서 자동 업데이트 확인');
+            console.log('4. forceRefresh() : 강제 새로고침 테스트');
+            console.log('5. toggleRealTime() : 실시간 모드 토글 테스트');
+
+            console.log('\n⚠️ 주의사항:');
+            console.log('- 실시간 동기화는 Firebase 연결이 필요합니다');
+            console.log('- 네트워크 연결이 불안정할 경우 자동으로 폴백 모드로 전환됩니다');
+            console.log('- 페이지 언로드 시 리스너가 자동으로 해제됩니다');
+
+            console.log('\n🚀 시작하기:');
+            console.log('먼저 checkRealTimeStatus()를 실행하여 현재 상태를 확인하세요!');
         },
 
         // =================================
@@ -3601,4 +3810,6 @@ console.log('🎯 이제 완전한 디버깅 환경이 준비되었습니다!');
 window.unifiedCourseApplicationReady = true;
 window.courseApplicationFullyLoaded = true;
 
+console.log('🔧 실시간 동기화 기능 추가 완료');
+console.log('💡 테스트: window.debugUnifiedCourseApplication.checkRealTimeStatus()');
 console.log('🚀 course-application.js 완전 로딩 완료!');
