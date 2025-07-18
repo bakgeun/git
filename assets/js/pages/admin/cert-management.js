@@ -1866,6 +1866,747 @@ Object.assign(window.certManager, {
 console.log('✅ cert-management.js Part 5 (모달 관리) 로드 완료');
 
 /**
+ * cert-management.js에 추가할 갱신 비용 설정 함수들
+ * 
+ * 위치: Part 5 (모달 관리) 로드 완료 로그 다음에 추가
+ * 즉, console.log('✅ cert-management.js Part 5 (모달 관리) 로드 완료'); 바로 다음
+ */
+
+// =================================
+// 💰 갱신 비용 설정 기능 추가
+// =================================
+
+// certManager 객체에 갱신 비용 설정 관련 속성 및 메소드 추가
+Object.assign(window.certManager, {
+    // 갱신 비용 설정 관련 속성
+    currentRenewalFees: {},
+    currentFeeTab: 'health-exercise',
+
+    /**
+     * 갱신 비용 설정 모달 열기
+     */
+    showRenewalFeeModal() {
+        console.log('💰 갱신 비용 설정 모달 열기');
+
+        const modal = document.getElementById('renewal-fee-modal');
+        if (modal) {
+            this.closeOtherModals('renewal-fee-modal');
+            this.modalStates['renewal-fee-modal'] = true;
+            modal.classList.remove('hidden');
+            document.body.classList.add('modal-open');
+
+            // 기존 갱신 비용 설정 로드
+            this.loadRenewalFeeSettings();
+
+            // 첫 번째 탭 활성화
+            this.switchRenewalFeeTab('health-exercise');
+
+            // 폼 이벤트 설정
+            setTimeout(() => {
+                this.setupRenewalFeeFormEvents();
+            }, 100);
+        }
+    },
+
+    /**
+     * 갱신 비용 설정 모달 닫기
+     */
+    closeRenewalFeeModal() {
+        this.closeModalById('renewal-fee-modal');
+    },
+
+    /**
+     * 갱신 비용 설정 탭 전환
+     */
+    switchRenewalFeeTab(certType) {
+        console.log('🔄 갱신 비용 설정 탭 전환:', certType);
+
+        // 탭 UI 업데이트
+        const tabs = document.querySelectorAll('.renewal-fee-tab');
+        tabs.forEach(tab => {
+            if (tab.dataset.cert === certType) {
+                tab.classList.add('active', 'border-indigo-500', 'text-indigo-600');
+                tab.classList.remove('border-transparent', 'text-gray-500');
+            } else {
+                tab.classList.remove('active', 'border-indigo-500', 'text-indigo-600');
+                tab.classList.add('border-transparent', 'text-gray-500');
+            }
+        });
+
+        // 현재 탭 업데이트
+        this.currentFeeTab = certType;
+
+        // 숨겨진 필드 업데이트
+        const currentCertTypeInput = document.getElementById('current-cert-type');
+        if (currentCertTypeInput) {
+            currentCertTypeInput.value = certType;
+        }
+
+        // 해당 자격증 유형의 비용 설정 로드
+        this.loadCertTypeFeeSettings(certType);
+    },
+
+    /**
+     * 기존 갱신 비용 설정 로드
+     */
+    async loadRenewalFeeSettings() {
+        console.log('📥 갱신 비용 설정 로드');
+
+        try {
+            const firebaseStatus = checkFirebaseConnection();
+
+            if (firebaseStatus.connected && window.dhcFirebase) {
+                const result = await window.dbService.getDocument('settings', 'renewal-fees');
+
+                if (result.success) {
+                    this.currentRenewalFees = result.data;
+                    console.log('✅ 기존 갱신 비용 설정 로드 성공:', this.currentRenewalFees);
+                } else {
+                    console.log('📝 기존 설정 없음, 기본값 사용');
+                    this.currentRenewalFees = this.getDefaultRenewalFees();
+                }
+            } else {
+                console.log('🔧 Firebase 미연결, 기본값 사용');
+                this.currentRenewalFees = this.getDefaultRenewalFees();
+            }
+        } catch (error) {
+            console.error('❌ 갱신 비용 설정 로드 오류:', error);
+            this.currentRenewalFees = this.getDefaultRenewalFees();
+        }
+    },
+
+    /**
+     * 특정 자격증 유형의 비용 설정 로드
+     */
+    loadCertTypeFeeSettings(certType) {
+        console.log('📋 자격증 유형별 비용 설정 로드:', certType);
+
+        const settings = this.currentRenewalFees[certType] || this.getDefaultRenewalFees()[certType];
+
+        // 폼 필드에 값 설정
+        this.setFormValue('renewal-base-fee', settings.renewal);
+        this.setFormValue('delivery-fee', settings.deliveryFee || 5000);
+        this.setFormValue('education-online-fee', settings.education.online);
+        this.setFormValue('education-offline-fee', settings.education.offline);
+        this.setFormValue('education-completed-fee', settings.education.completed);
+        this.setFormValue('early-discount-rate', (settings.earlyDiscountRate * 100));
+        this.setFormValue('online-discount-rate', (settings.onlineDiscountRate * 100));
+
+        // 미리보기 업데이트
+        this.updateFeePreview(certType, settings);
+    },
+
+    /**
+     * 폼 필드에 값 설정
+     */
+    setFormValue(fieldId, value) {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.value = value;
+        }
+    },
+
+    /**
+     * 기본 갱신 비용 설정 반환
+     */
+    getDefaultRenewalFees() {
+        return {
+            'health-exercise': {
+                renewal: 50000,
+                deliveryFee: 5000,
+                education: { online: 80000, offline: 100000, completed: 0 },
+                earlyDiscountRate: 0.1,
+                onlineDiscountRate: 0.2
+            },
+            'rehabilitation': {
+                renewal: 50000,
+                deliveryFee: 5000,
+                education: { online: 96000, offline: 120000, completed: 0 },
+                earlyDiscountRate: 0.1,
+                onlineDiscountRate: 0.2
+            },
+            'pilates': {
+                renewal: 40000,
+                deliveryFee: 5000,
+                education: { online: 64000, offline: 80000, completed: 0 },
+                earlyDiscountRate: 0.1,
+                onlineDiscountRate: 0.2
+            },
+            'recreation': {
+                renewal: 30000,
+                deliveryFee: 5000,
+                education: { online: 56000, offline: 70000, completed: 0 },
+                earlyDiscountRate: 0.1,
+                onlineDiscountRate: 0.2
+            }
+        };
+    },
+
+    /**
+     * 비용 미리보기 업데이트
+     */
+    updateFeePreview(certType, settings) {
+        const preview = document.getElementById('fee-preview');
+        if (!preview) return;
+
+        const certTypeName = this.getCertTypeName(certType);
+
+        // 할인 계산 예시
+        const earlyDiscountAmount = Math.round(settings.renewal * settings.earlyDiscountRate);
+        const onlineDiscountAmount = Math.round(settings.education.online * settings.onlineDiscountRate);
+
+        // 시나리오별 총 비용
+        const scenarios = {
+            normalOnline: settings.renewal + settings.education.online,
+            normalOffline: settings.renewal + settings.education.offline,
+            earlyOnline: settings.renewal + settings.education.online - earlyDiscountAmount - onlineDiscountAmount,
+            earlyOffline: settings.renewal + settings.education.offline - earlyDiscountAmount,
+            completed: settings.renewal
+        };
+
+        preview.innerHTML = `
+            <div class="font-medium text-green-800 mb-2">${certTypeName} 갱신 비용</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <div class="font-medium">일반 갱신</div>
+                    <div>• 온라인 교육: ${scenarios.normalOnline.toLocaleString()}원</div>
+                    <div>• 오프라인 교육: ${scenarios.normalOffline.toLocaleString()}원</div>
+                    <div>• 교육 이수 완료: ${scenarios.completed.toLocaleString()}원</div>
+                </div>
+                <div>
+                    <div class="font-medium">조기 갱신 (60일 전)</div>
+                    <div>• 온라인 교육: ${scenarios.earlyOnline.toLocaleString()}원 
+                        <span class="text-red-600">(-${(earlyDiscountAmount + onlineDiscountAmount).toLocaleString()}원)</span>
+                    </div>
+                    <div>• 오프라인 교육: ${scenarios.earlyOffline.toLocaleString()}원 
+                        <span class="text-red-600">(-${earlyDiscountAmount.toLocaleString()}원)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2 text-xs text-green-600">
+                * 실물 + 디지털 배송 선택 시 배송비 ${settings.deliveryFee?.toLocaleString() || '5,000'}원 추가
+            </div>
+        `;
+    },
+
+    /**
+     * 갱신 비용 설정 저장
+     */
+    async saveRenewalFeeSettings(event) {
+        event.preventDefault();
+
+        console.log('💾 갱신 비용 설정 저장');
+
+        try {
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                <svg class="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                저장 중...
+            `;
+            }
+
+            // 폼 데이터 수집
+            const formData = this.collectRenewalFeeFormData();
+
+            // 현재 설정 업데이트
+            this.currentRenewalFees[this.currentFeeTab] = formData;
+
+            // Firebase에 저장
+            const firebaseStatus = checkFirebaseConnection();
+
+            if (firebaseStatus.connected && window.dhcFirebase) {
+                // 🔧 db-service 함수 사용으로 변경
+                const result = await window.dbService.saveRenewalFeeSettings(this.currentRenewalFees);
+
+                if (result.success) {
+                    console.log('✅ 갱신 비용 설정 저장 성공');
+
+                    // 🆕 성공 알림
+                    if (window.showSuccessToast) {
+                        window.showSuccessToast('갱신 비용 설정이 저장되었습니다.');
+                    } else if (window.adminAuth?.showNotification) {
+                        window.adminAuth.showNotification('갱신 비용 설정이 저장되었습니다.', 'success');
+                    }
+
+                    // 미리보기 업데이트
+                    this.updateFeePreview(this.currentFeeTab, formData);
+
+                    // 🆕 1초 후 모달 닫기
+                    setTimeout(() => {
+                        this.closeRenewalFeeModal();
+                    }, 1000);
+
+                } else {
+                    throw new Error('Firestore 저장 실패: ' + result.error);
+                }
+            } else {
+                console.log('🔧 테스트 모드: 설정 저장 시뮬레이션');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                if (window.showSuccessToast) {
+                    window.showSuccessToast('갱신 비용 설정이 저장되었습니다. (테스트 모드)');
+                } else if (window.adminAuth?.showNotification) {
+                    window.adminAuth.showNotification('갱신 비용 설정이 저장되었습니다. (테스트 모드)', 'success');
+                }
+
+                // 🆕 1초 후 모달 닫기
+                setTimeout(() => {
+                    this.closeRenewalFeeModal();
+                }, 1000);
+            }
+
+        } catch (error) {
+            console.error('❌ 갱신 비용 설정 저장 오류:', error);
+
+            if (window.showErrorToast) {
+                window.showErrorToast('갱신 비용 설정 저장 중 오류가 발생했습니다.');
+            } else if (window.adminAuth?.showNotification) {
+                window.adminAuth.showNotification('갱신 비용 설정 저장 중 오류가 발생했습니다.', 'error');
+            }
+        } finally {
+            // 버튼 상태 복원
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `
+                <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                설정 저장
+            `;
+            }
+        }
+    },
+
+    /**
+     * 갱신 비용 폼 데이터 수집
+     */
+    collectRenewalFeeFormData() {
+        const getValue = (id) => {
+            const element = document.getElementById(id);
+            return element ? element.value : '';
+        };
+
+        const getNumericValue = (id) => {
+            const value = getValue(id);
+            return value ? parseFloat(value) : 0;
+        };
+
+        return {
+            renewal: getNumericValue('renewal-base-fee'),
+            deliveryFee: getNumericValue('delivery-fee'),
+            education: {
+                online: getNumericValue('education-online-fee'),
+                offline: getNumericValue('education-offline-fee'),
+                completed: getNumericValue('education-completed-fee')
+            },
+            earlyDiscountRate: getNumericValue('early-discount-rate') / 100,
+            onlineDiscountRate: getNumericValue('online-discount-rate') / 100
+        };
+    },
+
+    /**
+     * 갱신 비용 설정 폼 이벤트 등록
+     */
+    setupRenewalFeeFormEvents() {
+        // 폼 제출 이벤트
+        const form = document.getElementById('renewal-fee-form');
+        if (form && !form.dataset.eventAttached) {
+            form.addEventListener('submit', (e) => this.saveRenewalFeeSettings(e));
+            form.dataset.eventAttached = 'true';
+        }
+
+        // 입력 필드 변경 시 미리보기 업데이트
+        const updatePreview = () => {
+            const formData = this.collectRenewalFeeFormData();
+            this.updateFeePreview(this.currentFeeTab, formData);
+        };
+
+        const inputFields = [
+            'renewal-base-fee', 'delivery-fee', 'education-online-fee',
+            'education-offline-fee', 'early-discount-rate', 'online-discount-rate'
+        ];
+
+        inputFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field && !field.dataset.eventAttached) {
+                field.addEventListener('input', updatePreview);
+                field.dataset.eventAttached = 'true';
+            }
+        });
+    }
+});
+
+// modalStates에 갱신 비용 모달 추가
+if (window.certManager && window.certManager.modalStates) {
+    window.certManager.modalStates['renewal-fee-modal'] = false;
+}
+
+console.log('✅ 갱신 비용 설정 기능 추가 완료');
+
+// =================================
+// 2. 관리자 페이지 JavaScript 추가 (cert-management.js)
+// =================================
+
+/**
+ * 갱신 비용 설정 관련 함수들을 certManager 객체에 추가
+ */
+const certManagerEnhancements = {
+    // 현재 갱신 비용 설정 데이터
+    currentRenewalFees: {},
+    currentFeeTab: 'health-exercise',
+
+    /**
+     * 갱신 비용 설정 모달 열기
+     */
+    showRenewalFeeModal() {
+        console.log('💰 갱신 비용 설정 모달 열기');
+
+        const modal = document.getElementById('renewal-fee-modal');
+        if (modal) {
+            this.closeOtherModals('renewal-fee-modal');
+            this.modalStates['renewal-fee-modal'] = true;
+            modal.classList.remove('hidden');
+            document.body.classList.add('modal-open');
+
+            // 기존 갱신 비용 설정 로드
+            this.loadRenewalFeeSettings();
+
+            // 첫 번째 탭 활성화
+            this.switchRenewalFeeTab('health-exercise');
+        }
+    },
+
+    /**
+     * 갱신 비용 설정 모달 닫기
+     */
+    closeRenewalFeeModal() {
+        console.log('🔒 갱신 비용 설정 모달 닫기');
+
+        const modal = document.getElementById('renewal-fee-modal');
+        if (modal) {
+            // 모달 숨기기
+            modal.classList.add('hidden');
+
+            // 모달 상태 업데이트
+            if (this.modalStates) {
+                this.modalStates['renewal-fee-modal'] = false;
+            }
+
+            // body 클래스 제거
+            document.body.classList.remove('modal-open');
+
+            console.log('✅ 갱신 비용 설정 모달 닫기 완료');
+        } else {
+            console.warn('⚠️ 갱신 비용 설정 모달을 찾을 수 없습니다.');
+        }
+    },
+
+    /**
+     * 갱신 비용 설정 탭 전환
+     */
+    switchRenewalFeeTab(certType) {
+        console.log('🔄 갱신 비용 설정 탭 전환:', certType);
+
+        // 탭 UI 업데이트
+        const tabs = document.querySelectorAll('.renewal-fee-tab');
+        tabs.forEach(tab => {
+            if (tab.dataset.cert === certType) {
+                tab.classList.add('active', 'border-indigo-500', 'text-indigo-600');
+                tab.classList.remove('border-transparent', 'text-gray-500');
+            } else {
+                tab.classList.remove('active', 'border-indigo-500', 'text-indigo-600');
+                tab.classList.add('border-transparent', 'text-gray-500');
+            }
+        });
+
+        // 현재 탭 업데이트
+        this.currentFeeTab = certType;
+
+        // 숨겨진 필드 업데이트
+        const currentCertTypeInput = document.getElementById('current-cert-type');
+        if (currentCertTypeInput) {
+            currentCertTypeInput.value = certType;
+        }
+
+        // 해당 자격증 유형의 비용 설정 로드
+        this.loadCertTypeFeeSettings(certType);
+    },
+
+    /**
+     * 기존 갱신 비용 설정 로드
+     */
+    async loadRenewalFeeSettings() {
+        console.log('📥 갱신 비용 설정 로드');
+
+        try {
+            const firebaseStatus = checkFirebaseConnection();
+
+            if (firebaseStatus.connected && window.dhcFirebase) {
+                const result = await window.dbService.getDocument('settings', 'renewal-fees');
+
+                if (result.success) {
+                    this.currentRenewalFees = result.data;
+                    console.log('✅ 기존 갱신 비용 설정 로드 성공:', this.currentRenewalFees);
+                } else {
+                    console.log('📝 기존 설정 없음, 기본값 사용');
+                    this.currentRenewalFees = this.getDefaultRenewalFees();
+                }
+            } else {
+                console.log('🔧 Firebase 미연결, 기본값 사용');
+                this.currentRenewalFees = this.getDefaultRenewalFees();
+            }
+        } catch (error) {
+            console.error('❌ 갱신 비용 설정 로드 오류:', error);
+            this.currentRenewalFees = this.getDefaultRenewalFees();
+        }
+    },
+
+    /**
+     * 특정 자격증 유형의 비용 설정 로드
+     */
+    loadCertTypeFeeSettings(certType) {
+        console.log('📋 자격증 유형별 비용 설정 로드:', certType);
+
+        const settings = this.currentRenewalFees[certType] || this.getDefaultRenewalFees()[certType];
+
+        // 폼 필드에 값 설정
+        this.setFormValue('renewal-base-fee', settings.renewal);
+        this.setFormValue('delivery-fee', settings.deliveryFee || 5000);
+        this.setFormValue('education-online-fee', settings.education.online);
+        this.setFormValue('education-offline-fee', settings.education.offline);
+        this.setFormValue('education-completed-fee', settings.education.completed);
+        this.setFormValue('early-discount-rate', (settings.earlyDiscountRate * 100));
+        this.setFormValue('online-discount-rate', (settings.onlineDiscountRate * 100));
+
+        // 미리보기 업데이트
+        this.updateFeePreview(certType, settings);
+    },
+
+    /**
+     * 폼 필드에 값 설정
+     */
+    setFormValue(fieldId, value) {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.value = value;
+        }
+    },
+
+    /**
+     * 기본 갱신 비용 설정 반환
+     */
+    getDefaultRenewalFees() {
+        return {
+            'health-exercise': {
+                renewal: 50000,
+                deliveryFee: 5000,
+                education: { online: 80000, offline: 100000, completed: 0 },
+                earlyDiscountRate: 0.1,
+                onlineDiscountRate: 0.2
+            },
+            'rehabilitation': {
+                renewal: 50000,
+                deliveryFee: 5000,
+                education: { online: 96000, offline: 120000, completed: 0 },
+                earlyDiscountRate: 0.1,
+                onlineDiscountRate: 0.2
+            },
+            'pilates': {
+                renewal: 40000,
+                deliveryFee: 5000,
+                education: { online: 64000, offline: 80000, completed: 0 },
+                earlyDiscountRate: 0.1,
+                onlineDiscountRate: 0.2
+            },
+            'recreation': {
+                renewal: 30000,
+                deliveryFee: 5000,
+                education: { online: 56000, offline: 70000, completed: 0 },
+                earlyDiscountRate: 0.1,
+                onlineDiscountRate: 0.2
+            }
+        };
+    },
+
+    /**
+     * 비용 미리보기 업데이트
+     */
+    updateFeePreview(certType, settings) {
+        const preview = document.getElementById('fee-preview');
+        if (!preview) return;
+
+        const certTypeName = this.getCertTypeName(certType);
+
+        // 할인 계산 예시
+        const earlyDiscountAmount = Math.round(settings.renewal * settings.earlyDiscountRate);
+        const onlineDiscountAmount = Math.round(settings.education.online * settings.onlineDiscountRate);
+
+        // 시나리오별 총 비용
+        const scenarios = {
+            normalOnline: settings.renewal + settings.education.online,
+            normalOffline: settings.renewal + settings.education.offline,
+            earlyOnline: settings.renewal + settings.education.online - earlyDiscountAmount - onlineDiscountAmount,
+            earlyOffline: settings.renewal + settings.education.offline - earlyDiscountAmount,
+            completed: settings.renewal
+        };
+
+        preview.innerHTML = `
+            <div class="font-medium text-green-800 mb-2">${certTypeName} 갱신 비용</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <div class="font-medium">일반 갱신</div>
+                    <div>• 온라인 교육: ${scenarios.normalOnline.toLocaleString()}원</div>
+                    <div>• 오프라인 교육: ${scenarios.normalOffline.toLocaleString()}원</div>
+                    <div>• 교육 이수 완료: ${scenarios.completed.toLocaleString()}원</div>
+                </div>
+                <div>
+                    <div class="font-medium">조기 갱신 (60일 전)</div>
+                    <div>• 온라인 교육: ${scenarios.earlyOnline.toLocaleString()}원 
+                        <span class="text-red-600">(-${(earlyDiscountAmount + onlineDiscountAmount).toLocaleString()}원)</span>
+                    </div>
+                    <div>• 오프라인 교육: ${scenarios.earlyOffline.toLocaleString()}원 
+                        <span class="text-red-600">(-${earlyDiscountAmount.toLocaleString()}원)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2 text-xs text-green-600">
+                * 실물 + 디지털 배송 선택 시 배송비 ${settings.deliveryFee?.toLocaleString() || '5,000'}원 추가
+            </div>
+        `;
+    },
+
+    /**
+     * 갱신 비용 설정 저장
+     */
+    async saveRenewalFeeSettings(event) {
+        event.preventDefault();
+
+        console.log('💾 갱신 비용 설정 저장');
+
+        try {
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <svg class="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    저장 중...
+                `;
+            }
+
+            // 폼 데이터 수집
+            const formData = this.collectRenewalFeeFormData();
+
+            // 현재 설정 업데이트
+            this.currentRenewalFees[this.currentFeeTab] = formData;
+
+            // Firebase에 저장
+            const firebaseStatus = checkFirebaseConnection();
+
+            if (firebaseStatus.connected && window.dhcFirebase) {
+                const result = await window.dbService.updateDocument('settings', 'renewal-fees', this.currentRenewalFees);
+
+                if (result.success) {
+                    console.log('✅ 갱신 비용 설정 저장 성공');
+                    window.adminAuth?.showNotification('갱신 비용 설정이 저장되었습니다.', 'success');
+
+                    // 미리보기 업데이트
+                    this.updateFeePreview(this.currentFeeTab, formData);
+                } else {
+                    throw new Error('Firestore 저장 실패');
+                }
+            } else {
+                console.log('🔧 테스트 모드: 설정 저장 시뮬레이션');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                window.adminAuth?.showNotification('갱신 비용 설정이 저장되었습니다. (테스트 모드)', 'success');
+            }
+
+        } catch (error) {
+            console.error('❌ 갱신 비용 설정 저장 오류:', error);
+            window.adminAuth?.showNotification('갱신 비용 설정 저장 중 오류가 발생했습니다.', 'error');
+        } finally {
+            // 버튼 상태 복원
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `
+                    <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    설정 저장
+                `;
+            }
+        }
+    },
+
+    /**
+     * 갱신 비용 폼 데이터 수집
+     */
+    collectRenewalFeeFormData() {
+        const getValue = (id) => {
+            const element = document.getElementById(id);
+            return element ? element.value : '';
+        };
+
+        const getNumericValue = (id) => {
+            const value = getValue(id);
+            return value ? parseFloat(value) : 0;
+        };
+
+        return {
+            renewal: getNumericValue('renewal-base-fee'),
+            deliveryFee: getNumericValue('delivery-fee'),
+            education: {
+                online: getNumericValue('education-online-fee'),
+                offline: getNumericValue('education-offline-fee'),
+                completed: getNumericValue('education-completed-fee')
+            },
+            earlyDiscountRate: getNumericValue('early-discount-rate') / 100,
+            onlineDiscountRate: getNumericValue('online-discount-rate') / 100
+        };
+    },
+
+    /**
+     * 갱신 비용 설정 폼 이벤트 등록
+     */
+    setupRenewalFeeFormEvents() {
+        // 폼 제출 이벤트
+        const form = document.getElementById('renewal-fee-form');
+        if (form && !form.dataset.eventAttached) {
+            form.addEventListener('submit', (e) => this.saveRenewalFeeSettings(e));
+            form.dataset.eventAttached = 'true';
+        }
+
+        // 입력 필드 변경 시 미리보기 업데이트
+        const updatePreview = () => {
+            const formData = this.collectRenewalFeeFormData();
+            this.updateFeePreview(this.currentFeeTab, formData);
+        };
+
+        const inputFields = [
+            'renewal-base-fee', 'delivery-fee', 'education-online-fee',
+            'education-offline-fee', 'early-discount-rate', 'online-discount-rate'
+        ];
+
+        inputFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field && !field.dataset.eventAttached) {
+                field.addEventListener('input', updatePreview);
+                field.dataset.eventAttached = 'true';
+            }
+        });
+    }
+};
+
+/**
  * cert-management.js Part 6 - 자격증 처리 및 신청 관리
  */
 
@@ -3446,6 +4187,907 @@ Object.assign(window.certManager, {
     }
 });
 
+/**
+ * 관리자 갱신 신청자 관리 기능 추가
+ * cert-management.js에 추가할 코드
+ */
+
+// =================================
+// 💰 관리자 갱신 신청자 관리 기능 추가
+// =================================
+
+// certManager 객체에 갱신 관리 기능 추가
+Object.assign(window.certManager, {
+    // 갱신 신청자 관련 데이터
+    renewalApplicants: [],
+    filteredRenewalApplicants: [],
+    currentRenewalPage: 1,
+    renewalPageSize: 10,
+
+    /**
+     * 갱신 신청자 관리 모달 열기
+     */
+    showRenewalManagementModal() {
+        console.log('📋 갱신 신청자 관리 모달 열기');
+
+        const modal = document.getElementById('renewal-management-modal');
+        if (modal) {
+            this.closeOtherModals('renewal-management-modal');
+            this.modalStates['renewal-management-modal'] = true;
+            modal.classList.remove('hidden');
+            document.body.classList.add('modal-open');
+
+            // 현재 자격증 타입 표시
+            const certTypeName = document.getElementById('renewal-current-cert-type-name');
+            if (certTypeName) {
+                certTypeName.textContent = this.getCertTypeName(this.currentCertType);
+            }
+
+            // 갱신 신청자 목록 로드
+            this.loadRenewalApplicants();
+        }
+    },
+
+    /**
+     * 갱신 신청자 관리 모달 닫기
+     */
+    closeRenewalManagementModal() {
+        this.closeModalById('renewal-management-modal');
+    },
+
+    /**
+     * 갱신 신청자 목록 로드
+     */
+    async loadRenewalApplicants() {
+        console.log('📥 갱신 신청자 목록 로드');
+
+        const tableBody = document.getElementById('renewal-applicants-tbody');
+        if (!tableBody) return;
+
+        // 로딩 상태 표시
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                    <div class="flex flex-col items-center">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-4"></div>
+                        <span>갱신 신청자 목록을 불러오는 중...</span>
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        try {
+            const firebaseStatus = checkFirebaseConnection();
+
+            if (firebaseStatus.connected && window.dhcFirebase) {
+                // Firebase에서 갱신 신청 데이터 조회
+                const result = await window.dbService.getDocuments('applications', {
+                    where: [
+                        { field: 'type', operator: '==', value: 'renewal' },
+                        { field: 'certType', operator: '==', value: this.currentCertType },
+                        { field: 'status', operator: 'in', value: ['payment_pending', 'under_review', 'processing'] }
+                    ],
+                    orderBy: { field: 'createdAt', direction: 'desc' },
+                    limit: 50
+                });
+
+                if (result.success) {
+                    this.renewalApplicants = result.data;
+                    console.log(`✅ Firebase에서 ${this.renewalApplicants.length}개의 갱신 신청 조회`);
+                } else {
+                    console.error('❌ Firebase 갱신 신청 조회 실패:', result.error);
+                    this.renewalApplicants = this.getMockRenewalApplicants();
+                }
+            } else {
+                console.log('🔧 Firebase 미연결, 테스트 데이터 사용');
+                this.renewalApplicants = this.getMockRenewalApplicants();
+            }
+
+            this.filteredRenewalApplicants = [...this.renewalApplicants];
+            this.updateRenewalApplicantsTable();
+            this.updateRenewalApplicantsCount();
+
+        } catch (error) {
+            console.error('❌ 갱신 신청자 목록 로드 오류:', error);
+            this.renewalApplicants = this.getMockRenewalApplicants();
+            this.filteredRenewalApplicants = [...this.renewalApplicants];
+            this.updateRenewalApplicantsTable();
+        }
+    },
+
+    /**
+     * 테스트용 갱신 신청 데이터
+     */
+    getMockRenewalApplicants() {
+        return [
+            {
+                id: 'renewal-001',
+                type: 'renewal',
+                certId: 'cert-001',
+                certType: this.currentCertType,
+                certName: this.getCertTypeName(this.currentCertType),
+                certNumber: 'HE-2022-0001',
+                holderName: '김갱신',
+                holderEmail: 'renewal1@example.com',
+                educationType: 'online',
+                cpeHours: 15,
+                deliveryMethod: 'both',
+                totalAmount: 120000,
+                status: 'under_review',
+                progress: 50,
+                createdAt: { seconds: new Date('2025-07-10').getTime() / 1000 },
+                expiryDate: { seconds: new Date('2025-08-15').getTime() / 1000 },
+                daysUntilExpiry: 30
+            },
+            {
+                id: 'renewal-002',
+                type: 'renewal',
+                certId: 'cert-002',
+                certType: this.currentCertType,
+                certName: this.getCertTypeName(this.currentCertType),
+                certNumber: 'HE-2023-0015',
+                holderName: '이재발급',
+                holderEmail: 'renewal2@example.com',
+                educationType: 'offline',
+                cpeHours: 20,
+                deliveryMethod: 'physical',
+                totalAmount: 150000,
+                status: 'payment_pending',
+                progress: 25,
+                createdAt: { seconds: new Date('2025-07-12').getTime() / 1000 },
+                expiryDate: { seconds: new Date('2025-09-30').getTime() / 1000 },
+                daysUntilExpiry: 75
+            },
+            {
+                id: 'renewal-003',
+                type: 'renewal',
+                certId: 'cert-003',
+                certType: this.currentCertType,
+                certName: this.getCertTypeName(this.currentCertType),
+                certNumber: 'HE-2023-0032',
+                holderName: '박연장',
+                holderEmail: 'renewal3@example.com',
+                educationType: 'completed',
+                cpeHours: 12,
+                deliveryMethod: 'digital',
+                totalAmount: 50000,
+                status: 'processing',
+                progress: 75,
+                createdAt: { seconds: new Date('2025-07-08').getTime() / 1000 },
+                expiryDate: { seconds: new Date('2025-07-20').getTime() / 1000 },
+                daysUntilExpiry: 3
+            }
+        ].filter(item => item.certType === this.currentCertType);
+    },
+
+    /**
+     * 갱신 신청자 테이블 업데이트
+     */
+    updateRenewalApplicantsTable() {
+        const tableBody = document.getElementById('renewal-applicants-tbody');
+        if (!tableBody) return;
+
+        if (!this.filteredRenewalApplicants || this.filteredRenewalApplicants.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                        <span>갱신 신청자가 없습니다.</span>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        let tableHtml = '';
+        this.filteredRenewalApplicants.forEach(applicant => {
+            const createdDate = new Date(applicant.createdAt.seconds * 1000);
+            const expiryDate = applicant.expiryDate ? new Date(applicant.expiryDate.seconds * 1000) : null;
+            
+            const statusBadge = this.getRenewalStatusBadge(applicant.status);
+            const educationTypeName = this.getEducationTypeName(applicant.educationType);
+            const deliveryMethodName = this.getDeliveryMethodName(applicant.deliveryMethod);
+            
+            // 만료 임박 표시
+            const isUrgent = applicant.daysUntilExpiry <= 7;
+            const urgentClass = isUrgent ? 'bg-red-50 border-l-4 border-red-400' : '';
+
+            tableHtml += `
+                <tr class="hover:bg-gray-50 ${urgentClass}">
+                    <td class="px-4 py-3">
+                        <input type="checkbox" class="renewal-checkbox rounded border-gray-300" 
+                               data-id="${applicant.id}">
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="font-medium text-gray-900">${applicant.certNumber}</div>
+                        ${isUrgent ? '<div class="text-xs text-red-600 font-bold">🚨 만료 임박</div>' : ''}
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="font-medium text-gray-900">${applicant.holderName}</div>
+                        <div class="text-sm text-gray-500">${applicant.holderEmail}</div>
+                    </td>
+                    <td class="px-4 py-3 text-gray-600">${educationTypeName}</td>
+                    <td class="px-4 py-3 text-gray-600">${applicant.cpeHours}시간</td>
+                    <td class="px-4 py-3 text-gray-600">${deliveryMethodName}</td>
+                    <td class="px-4 py-3">
+                        <div class="text-sm font-medium text-green-600">
+                            ${applicant.totalAmount.toLocaleString()}원
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        ${statusBadge}
+                        <div class="mt-1">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-600 h-2 rounded-full" style="width: ${applicant.progress}%"></div>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1">${applicant.progress}% 진행</div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex space-x-1">
+                            <button onclick="certManager.viewRenewalDetails('${applicant.id}')" 
+                                class="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600" 
+                                title="상세보기">
+                                📄 상세
+                            </button>
+                            ${applicant.status === 'under_review' ? `
+                                <button onclick="certManager.approveRenewal('${applicant.id}')" 
+                                    class="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600" 
+                                    title="승인">
+                                    ✅ 승인
+                                </button>
+                                <button onclick="certManager.rejectRenewal('${applicant.id}')" 
+                                    class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600" 
+                                    title="거절">
+                                    ❌ 거절
+                                </button>
+                            ` : ''}
+                            ${applicant.status === 'processing' ? `
+                                <button onclick="certManager.completeRenewal('${applicant.id}')" 
+                                    class="px-2 py-1 bg-purple-500 text-white rounded text-xs hover:bg-purple-600" 
+                                    title="완료 처리">
+                                    🎯 완료
+                                </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tableBody.innerHTML = tableHtml;
+    },
+
+    /**
+     * 갱신 신청자 수 업데이트
+     */
+    updateRenewalApplicantsCount() {
+        const countElement = document.getElementById('renewal-applicants-count');
+        if (countElement) {
+            countElement.textContent = `총 ${this.filteredRenewalApplicants.length}명`;
+        }
+    },
+
+    /**
+     * 갱신 상태 뱃지 반환
+     */
+    getRenewalStatusBadge(status) {
+        const badges = {
+            'payment_pending': '<span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 font-medium">💳 결제 대기</span>',
+            'under_review': '<span class="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 font-medium">📝 심사 중</span>',
+            'processing': '<span class="px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800 font-medium">⚙️ 처리 중</span>',
+            'approved': '<span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 font-medium">✅ 승인</span>',
+            'rejected': '<span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800 font-medium">❌ 거절</span>',
+            'completed': '<span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 font-medium">🎉 완료</span>'
+        };
+        return badges[status] || `<span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800 font-medium">${status}</span>`;
+    },
+
+    /**
+     * 교육 유형명 반환
+     */
+    getEducationTypeName(type) {
+        const types = {
+            'online': '온라인',
+            'offline': '오프라인',
+            'completed': '이수 완료'
+        };
+        return types[type] || type;
+    },
+
+    /**
+     * 배송 방법명 반환
+     */
+    getDeliveryMethodName(method) {
+        const methods = {
+            'digital': '디지털',
+            'physical': '실물',
+            'both': '실물+디지털'
+        };
+        return methods[method] || method;
+    },
+
+    /**
+     * 갱신 신청 상세보기
+     */
+    async viewRenewalDetails(renewalId) {
+        console.log('📄 갱신 신청 상세보기:', renewalId);
+
+        try {
+            // 신청 정보 찾기
+            let renewal = this.filteredRenewalApplicants.find(r => r.id === renewalId);
+            
+            if (!renewal) {
+                window.adminAuth?.showNotification('갱신 신청 정보를 찾을 수 없습니다.', 'error');
+                return;
+            }
+
+            // 상세 정보 모달 표시
+            this.displayRenewalDetails(renewal);
+
+        } catch (error) {
+            console.error('갱신 신청 상세보기 오류:', error);
+            window.adminAuth?.showNotification('갱신 신청 정보 조회 중 오류가 발생했습니다.', 'error');
+        }
+    },
+
+    /**
+     * 갱신 신청 상세 정보 표시
+     */
+    displayRenewalDetails(renewal) {
+        const modalContent = document.getElementById('renewal-detail-content');
+        if (!modalContent) {
+            console.error('renewal-detail-content를 찾을 수 없습니다.');
+            return;
+        }
+
+        const createdDate = new Date(renewal.createdAt.seconds * 1000);
+        const expiryDate = renewal.expiryDate ? new Date(renewal.expiryDate.seconds * 1000) : null;
+
+        modalContent.innerHTML = `
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <h4 class="font-medium text-gray-700">자격증 번호</h4>
+                    <p class="text-gray-900">${renewal.certNumber}</p>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-700">자격증 종류</h4>
+                    <p class="text-gray-900">${renewal.certName}</p>
+                </div>
+            </div>
+            
+            <div>
+                <h4 class="font-medium text-gray-700">신청자 정보</h4>
+                <div class="space-y-1">
+                    <p><span class="font-medium">이름:</span> ${renewal.holderName}</p>
+                    <p><span class="font-medium">이메일:</span> ${renewal.holderEmail}</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <h4 class="font-medium text-gray-700">교육 정보</h4>
+                    <div class="space-y-1">
+                        <p><span class="font-medium">교육 유형:</span> ${this.getEducationTypeName(renewal.educationType)}</p>
+                        <p><span class="font-medium">보수교육 시간:</span> ${renewal.cpeHours}시간</p>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-700">배송 정보</h4>
+                    <div class="space-y-1">
+                        <p><span class="font-medium">배송 방법:</span> ${this.getDeliveryMethodName(renewal.deliveryMethod)}</p>
+                        <p><span class="font-medium">결제 금액:</span> ${renewal.totalAmount.toLocaleString()}원</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <h4 class="font-medium text-gray-700">신청일</h4>
+                    <p class="text-gray-900">${createdDate.toLocaleDateString('ko-KR')}</p>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-700">만료일</h4>
+                    <p class="text-gray-900">${expiryDate ? expiryDate.toLocaleDateString('ko-KR') : '-'}</p>
+                    ${renewal.daysUntilExpiry <= 7 ? 
+                        '<p class="text-red-600 text-sm font-bold">🚨 만료 임박!</p>' : ''}
+                </div>
+            </div>
+            
+            <div>
+                <h4 class="font-medium text-gray-700">처리 상태</h4>
+                <div class="flex items-center space-x-3 mt-2">
+                    ${this.getRenewalStatusBadge(renewal.status)}
+                    <div class="flex-1">
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div class="bg-blue-600 h-3 rounded-full" style="width: ${renewal.progress}%"></div>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">진행률: ${renewal.progress}%</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 pt-4 border-t border-gray-200">
+                <h4 class="font-medium text-gray-700">관리자 작업</h4>
+                <div class="flex space-x-3 mt-2">
+                    ${renewal.status === 'under_review' ? `
+                        <button onclick="certManager.approveRenewal('${renewal.id}'); certManager.closeRenewalDetailModal();" 
+                            class="admin-btn admin-btn-success">
+                            ✅ 승인
+                        </button>
+                        <button onclick="certManager.rejectRenewal('${renewal.id}'); certManager.closeRenewalDetailModal();" 
+                            class="admin-btn admin-btn-danger">
+                            ❌ 거절
+                        </button>
+                    ` : ''}
+                    ${renewal.status === 'processing' ? `
+                        <button onclick="certManager.completeRenewal('${renewal.id}'); certManager.closeRenewalDetailModal();" 
+                            class="admin-btn admin-btn-primary">
+                            🎯 완료 처리
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+
+        const modal = document.getElementById('renewal-detail-modal');
+        if (modal) {
+            this.closeOtherModals('renewal-detail-modal');
+            this.modalStates['renewal-detail-modal'] = true;
+            modal.classList.remove('hidden');
+            document.body.classList.add('modal-open');
+        }
+    },
+
+    /**
+     * 갱신 신청 승인
+     */
+    async approveRenewal(renewalId) {
+        console.log('✅ 갱신 신청 승인:', renewalId);
+
+        if (!confirm('이 갱신 신청을 승인하시겠습니까?')) {
+            return;
+        }
+
+        try {
+            window.adminAuth?.showNotification('갱신 신청을 승인하는 중...', 'info');
+
+            const firebaseStatus = checkFirebaseConnection();
+
+            if (firebaseStatus.connected && window.dhcFirebase) {
+                // Firebase 업데이트
+                const result = await window.dbService.updateDocument('applications', renewalId, {
+                    status: 'processing',
+                    progress: 75,
+                    approvedAt: new Date(),
+                    approvedBy: 'admin'
+                });
+
+                if (result.success) {
+                    window.adminAuth?.showNotification('갱신 신청이 승인되었습니다.', 'success');
+                } else {
+                    throw new Error('상태 업데이트 실패');
+                }
+            } else {
+                // 테스트 모드 시뮬레이션
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                window.adminAuth?.showNotification('갱신 신청이 승인되었습니다. (테스트 모드)', 'success');
+            }
+
+            // 목록 새로고침
+            this.loadRenewalApplicants();
+
+        } catch (error) {
+            console.error('❌ 갱신 신청 승인 오류:', error);
+            window.adminAuth?.showNotification('갱신 신청 승인 중 오류가 발생했습니다.', 'error');
+        }
+    },
+
+    /**
+     * 갱신 신청 거절
+     */
+    async rejectRenewal(renewalId) {
+        console.log('❌ 갱신 신청 거절:', renewalId);
+
+        const reason = prompt('거절 사유를 입력하세요:');
+        if (!reason) {
+            return;
+        }
+
+        try {
+            window.adminAuth?.showNotification('갱신 신청을 거절하는 중...', 'info');
+
+            const firebaseStatus = checkFirebaseConnection();
+
+            if (firebaseStatus.connected && window.dhcFirebase) {
+                const result = await window.dbService.updateDocument('applications', renewalId, {
+                    status: 'rejected',
+                    progress: 0,
+                    rejectedAt: new Date(),
+                    rejectedBy: 'admin',
+                    rejectionReason: reason
+                });
+
+                if (result.success) {
+                    window.adminAuth?.showNotification('갱신 신청이 거절되었습니다.', 'info');
+                } else {
+                    throw new Error('상태 업데이트 실패');
+                }
+            } else {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                window.adminAuth?.showNotification('갱신 신청이 거절되었습니다. (테스트 모드)', 'info');
+            }
+
+            // 목록 새로고침
+            this.loadRenewalApplicants();
+
+        } catch (error) {
+            console.error('❌ 갱신 신청 거절 오류:', error);
+            window.adminAuth?.showNotification('갱신 신청 거절 중 오류가 발생했습니다.', 'error');
+        }
+    },
+
+    /**
+     * 갱신 완료 처리
+     */
+    async completeRenewal(renewalId) {
+        console.log('🎯 갱신 완료 처리:', renewalId);
+
+        if (!confirm('이 갱신을 완료 처리하시겠습니까? 새로운 자격증이 발급됩니다.')) {
+            return;
+        }
+
+        try {
+            window.adminAuth?.showNotification('갱신을 완료 처리하는 중...', 'info');
+
+            // 테스트 모드 시뮬레이션
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            window.adminAuth?.showNotification('갱신이 완료되었습니다. 새로운 자격증이 발급되었습니다.', 'success');
+
+            // 목록 새로고침
+            this.loadRenewalApplicants();
+            // 자격증 목록도 새로고침
+            this.loadCertificatesData();
+
+        } catch (error) {
+            console.error('❌ 갱신 완료 처리 오류:', error);
+            window.adminAuth?.showNotification('갱신 완료 처리 중 오류가 발생했습니다.', 'error');
+        }
+    },
+
+    /**
+     * 갱신 신청 필터링
+     */
+    filterRenewalApplicants() {
+        const nameFilter = document.getElementById('renewal-search-name')?.value.toLowerCase() || '';
+        const statusFilter = document.getElementById('renewal-filter-status')?.value || '';
+
+        this.filteredRenewalApplicants = this.renewalApplicants.filter(applicant => {
+            const nameMatch = !nameFilter || 
+                applicant.holderName.toLowerCase().includes(nameFilter) ||
+                applicant.holderEmail.toLowerCase().includes(nameFilter);
+
+            const statusMatch = !statusFilter || applicant.status === statusFilter;
+
+            return nameMatch && statusMatch;
+        });
+
+        this.updateRenewalApplicantsTable();
+        this.updateRenewalApplicantsCount();
+    },
+
+    /**
+     * 갱신 신청 상세보기 모달 닫기
+     */
+    closeRenewalDetailModal() {
+        this.closeModalById('renewal-detail-modal');
+    }
+});
+
+// 모달 상태에 갱신 관리 모달들 추가
+if (window.certManager && window.certManager.modalStates) {
+    window.certManager.modalStates['renewal-management-modal'] = false;
+    window.certManager.modalStates['renewal-detail-modal'] = false;
+}
+
+console.log('✅ 관리자 갱신 신청자 관리 기능 추가 완료');
+
+// cert-management.js 파일에 추가 - 디버깅 및 수정된 함수들
+
+// =================================
+// 🔧 갱신 관리 모달 디버깅 및 수정
+// =================================
+
+console.log('🔧 갱신 관리 모달 디버깅 시작');
+
+// 1. certManager 객체 확인
+if (!window.certManager) {
+    console.error('❌ certManager 객체가 없습니다!');
+    window.certManager = {};
+}
+
+// 2. modalStates 확인 및 초기화
+if (!window.certManager.modalStates) {
+    console.log('🔧 modalStates 초기화');
+    window.certManager.modalStates = {
+        'cert-issue-modal': false,
+        'bulk-issue-modal': false,
+        'cert-detail-modal': false,
+        'cert-edit-modal': false,
+        'paid-applicants-modal': false,
+        'renewal-fee-modal': false,
+        'renewal-management-modal': false,  // 🆕 추가
+        'renewal-detail-modal': false       // 🆕 추가
+    };
+}
+
+// 3. 갱신 관리 함수들이 없다면 추가
+if (!window.certManager.showRenewalManagementModal) {
+    console.log('🔧 갱신 관리 함수들 추가');
+    
+    // 갱신 관리 모달 열기 함수
+    window.certManager.showRenewalManagementModal = function() {
+        console.log('📋 갱신 신청자 관리 모달 열기');
+        
+        const modal = document.getElementById('renewal-management-modal');
+        console.log('모달 요소:', modal);
+        
+        if (modal) {
+            console.log('✅ 모달 요소 발견, 모달 열기 중...');
+            
+            // 다른 모달들 닫기
+            this.closeOtherModals('renewal-management-modal');
+            
+            // 모달 상태 업데이트
+            this.modalStates['renewal-management-modal'] = true;
+            
+            // 모달 표시
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.zIndex = '9999';
+            modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            
+            document.body.classList.add('modal-open');
+            document.body.style.overflow = 'hidden';
+
+            // 현재 자격증 타입 표시
+            const certTypeName = document.getElementById('renewal-current-cert-type-name');
+            if (certTypeName) {
+                certTypeName.textContent = this.getCertTypeName(this.currentCertType || 'health-exercise');
+            }
+
+            // 갱신 신청자 목록 로드
+            if (typeof this.loadRenewalApplicants === 'function') {
+                this.loadRenewalApplicants();
+            } else {
+                console.warn('loadRenewalApplicants 함수가 없습니다. 테스트 데이터로 대체합니다.');
+                this.loadTestRenewalData();
+            }
+            
+            console.log('✅ 갱신 관리 모달 열기 완료');
+        } else {
+            console.error('❌ renewal-management-modal 요소를 찾을 수 없습니다!');
+            alert('갱신 관리 모달을 찾을 수 없습니다. HTML에 모달이 추가되었는지 확인해주세요.');
+        }
+    };
+
+    // 갱신 관리 모달 닫기 함수
+    window.certManager.closeRenewalManagementModal = function() {
+        console.log('🔒 갱신 관리 모달 닫기');
+        
+        const modal = document.getElementById('renewal-management-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            
+            if (this.modalStates) {
+                this.modalStates['renewal-management-modal'] = false;
+            }
+        }
+    };
+
+    // 테스트 데이터 로드 함수
+    window.certManager.loadTestRenewalData = function() {
+        console.log('🧪 테스트 갱신 데이터 로드');
+        
+        const tableBody = document.getElementById('renewal-applicants-tbody');
+        if (tableBody) {
+            tableBody.innerHTML = `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-center">
+                        <input type="checkbox" class="renewal-checkbox rounded border-gray-300">
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="font-medium text-gray-900">HE-2022-0001</div>
+                        <div class="text-xs text-red-600 font-bold">🚨 만료 임박</div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="font-medium text-gray-900">김갱신</div>
+                        <div class="text-sm text-gray-500">renewal@example.com</div>
+                    </td>
+                    <td class="px-4 py-3 text-gray-600">온라인</td>
+                    <td class="px-4 py-3 text-gray-600">15시간</td>
+                    <td class="px-4 py-3 text-gray-600">실물+디지털</td>
+                    <td class="px-4 py-3">
+                        <div class="text-sm font-medium text-green-600">120,000원</div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 font-medium">📝 심사 중</span>
+                        <div class="mt-1">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-600 h-2 rounded-full" style="width: 50%"></div>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1">50% 진행</div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex space-x-1">
+                            <button onclick="alert('갱신 신청 상세보기 - 테스트')" 
+                                class="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600">
+                                📄 상세
+                            </button>
+                            <button onclick="alert('갱신 승인 - 테스트')" 
+                                class="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600">
+                                ✅ 승인
+                            </button>
+                            <button onclick="alert('갱신 거절 - 테스트')" 
+                                class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600">
+                                ❌ 거절
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-center">
+                        <input type="checkbox" class="renewal-checkbox rounded border-gray-300">
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="font-medium text-gray-900">HE-2023-0015</div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="font-medium text-gray-900">이재발급</div>
+                        <div class="text-sm text-gray-500">renewal2@example.com</div>
+                    </td>
+                    <td class="px-4 py-3 text-gray-600">오프라인</td>
+                    <td class="px-4 py-3 text-gray-600">20시간</td>
+                    <td class="px-4 py-3 text-gray-600">실물</td>
+                    <td class="px-4 py-3">
+                        <div class="text-sm font-medium text-green-600">150,000원</div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 font-medium">💳 결제 대기</span>
+                        <div class="mt-1">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-yellow-600 h-2 rounded-full" style="width: 25%"></div>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1">25% 진행</div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex space-x-1">
+                            <button onclick="alert('갱신 신청 상세보기 - 테스트')" 
+                                class="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600">
+                                📄 상세
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            
+            // 카운트 업데이트
+            const countElement = document.getElementById('renewal-applicants-count');
+            if (countElement) {
+                countElement.textContent = '총 2명 (테스트 데이터)';
+            }
+            
+            console.log('✅ 테스트 갱신 데이터 로드 완료');
+        }
+    };
+
+    // closeOtherModals 함수가 없다면 간단한 버전 추가
+    if (!window.certManager.closeOtherModals) {
+        window.certManager.closeOtherModals = function(excludeModalId) {
+            console.log('🔒 다른 모달들 닫기 (제외:', excludeModalId, ')');
+            
+            // 모든 모달 닫기
+            const modals = document.querySelectorAll('.cert-modal');
+            modals.forEach(modal => {
+                if (modal.id !== excludeModalId) {
+                    modal.classList.add('hidden');
+                    modal.style.display = 'none';
+                }
+            });
+        };
+    }
+
+    // getCertTypeName 함수가 없다면 추가
+    if (!window.certManager.getCertTypeName) {
+        window.certManager.getCertTypeName = function(type) {
+            const types = {
+                'health-exercise': '건강운동처방사',
+                'rehabilitation': '운동재활전문가',
+                'pilates': '필라테스 전문가',
+                'recreation': '레크리에이션지도자'
+            };
+            return types[type] || type || '알 수 없음';
+        };
+    }
+
+    console.log('✅ 갱신 관리 함수들 추가 완료');
+}
+
+// 4. 전역 함수로도 접근 가능하게 만들기 (디버깅용)
+window.showRenewalManagementModal = function() {
+    console.log('🔧 전역 함수로 갱신 관리 모달 열기');
+    if (window.certManager && window.certManager.showRenewalManagementModal) {
+        window.certManager.showRenewalManagementModal();
+    } else {
+        console.error('❌ certManager.showRenewalManagementModal 함수를 찾을 수 없습니다!');
+        alert('갱신 관리 함수가 로드되지 않았습니다. 페이지를 새로고침해주세요.');
+    }
+};
+
+// 5. 디버깅 도구
+window.debugRenewalModal = {
+    checkModal: function() {
+        const modal = document.getElementById('renewal-management-modal');
+        console.log('갱신 관리 모달 요소:', modal);
+        console.log('certManager 객체:', window.certManager);
+        console.log('showRenewalManagementModal 함수:', window.certManager?.showRenewalManagementModal);
+        return {
+            modal: !!modal,
+            certManager: !!window.certManager,
+            function: !!(window.certManager?.showRenewalManagementModal)
+        };
+    },
+    
+    testOpen: function() {
+        console.log('🧪 갱신 모달 테스트 열기');
+        if (window.certManager?.showRenewalManagementModal) {
+            window.certManager.showRenewalManagementModal();
+        } else {
+            console.error('함수를 찾을 수 없습니다!');
+        }
+    },
+    
+    forceOpen: function() {
+        console.log('🔧 강제로 갱신 모달 열기');
+        const modal = document.getElementById('renewal-management-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.zIndex = '9999';
+            modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            document.body.style.overflow = 'hidden';
+            console.log('✅ 강제 열기 완료');
+        } else {
+            console.error('❌ 모달 요소를 찾을 수 없습니다!');
+        }
+    }
+};
+
+console.log('✅ 갱신 관리 모달 디버깅 스크립트 로드 완료');
+console.log('💡 테스트 방법:');
+console.log('1. window.debugRenewalModal.checkModal() - 상태 확인');
+console.log('2. window.debugRenewalModal.testOpen() - 테스트 열기');
+console.log('3. window.debugRenewalModal.forceOpen() - 강제 열기');
+
 // =================================
 // 🎯 개발자 디버깅 도구
 // =================================
@@ -3494,3 +5136,4 @@ console.log('\n🚀 최적화된 코드로 성능이 크게 향상되었습니�
 window.certManagementOptimized = true;
 
 console.log('✅ cert-management.js Part 7 (PDF 생성 및 완료) 로드 완료');
+

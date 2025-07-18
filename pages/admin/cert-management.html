@@ -263,8 +263,31 @@
                     <h2 class="text-xl font-semibold text-gray-800">
                         <span id="cert-type-title">건강운동처방사</span> 자격증 목록
                     </h2>
-                    <!-- 🔧 개선된 버튼 그룹 (결제자 선택 발급 버튼 추가) -->
+                    <!-- 🔧 개선된 버튼 그룹 (갱신 비용 설정 버튼 추가) -->
                     <div class="flex space-x-3">
+                        <!-- 💰 NEW: 갱신 비용 설정 버튼 (기존) -->
+                        <button onclick="certManager.showRenewalFeeModal()" class="admin-btn admin-btn-secondary">
+                            <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m-3-6h6m-6 0a3 3 0 11-6 0 3 3 0 016 0z">
+                                </path>
+                            </svg>
+                            💰 갱신 비용 설정
+                        </button>
+
+                        <!-- 🆕 NEW: 갱신 신청자 관리 버튼 - 여기에 추가하세요 -->
+                        <button onclick="certManager.showRenewalManagementModal()" class="admin-btn admin-btn-warning">
+                            <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                </path>
+                            </svg>
+                            🔄 갱신 신청자 관리
+                        </button>
+
+                        <!-- 기존 버튼들 -->
                         <button onclick="certManager.showBulkIssuanceModal()" class="admin-btn admin-btn-secondary">
                             <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
@@ -274,6 +297,7 @@
                             </svg>
                             일괄 발급
                         </button>
+
                         <!-- 🆕 NEW: 결제자 선택 발급 버튼 -->
                         <button onclick="certManager.showPaidApplicantsModal()" class="admin-btn admin-btn-success">
                             <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor"
@@ -284,6 +308,7 @@
                             </svg>
                             결제자 선택 발급
                         </button>
+
                         <button onclick="certManager.showIssueCertModal()" class="admin-btn admin-btn-primary">
                             <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
@@ -624,6 +649,7 @@
                         <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
                             <button type="button" onclick="window.certManager.closePaidApplicantsModal()"
                                 class="admin-btn admin-btn-secondary">
+                                취소
                             </button>
                             <button type="button" onclick="certManager.issueSelectedCertificates()"
                                 id="issue-selected-btn" class="admin-btn admin-btn-success" disabled>
@@ -635,6 +661,430 @@
                                 선택된 신청자 발급 (<span id="selected-count-btn">0</span>명)
                             </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 💰 NEW: 갱신 비용 설정 모달 -->
+    <div id="renewal-fee-modal" class="cert-modal cert-modal-secondary hidden">
+        <div class="cert-modal-backdrop" onclick="certManager.closeRenewalFeeModal()"></div>
+        <div class="cert-modal-container cert-modal-large">
+            <div class="cert-modal-content">
+                <div class="cert-modal-header">
+                    <h3 class="cert-modal-title">
+                        <svg class="inline-block w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m-3-6h6m-6 0a3 3 0 11-6 0 3 3 0 016 0z">
+                            </path>
+                        </svg>
+                        갱신 비용 설정
+                    </h3>
+                    <button onclick="certManager.closeRenewalFeeModal()" class="cert-modal-close">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="cert-modal-body">
+                    <div class="space-y-6">
+                        <!-- 안내 메시지 -->
+                        <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-blue-700">
+                                        자격증별 갱신 비용과 할인 정책을 설정할 수 있습니다.
+                                        변경사항은 즉시 적용되며, 사용자가 갱신 신청 시 새로운 비용이 반영됩니다.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 자격증 유형 탭 -->
+                        <div class="border-b border-gray-200">
+                            <nav class="-mb-px flex space-x-8" id="renewal-fee-tabs">
+                                <button onclick="certManager.switchRenewalFeeTab('health-exercise')"
+                                    class="renewal-fee-tab active border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                                    data-cert="health-exercise">
+                                    건강운동처방사
+                                </button>
+                                <button onclick="certManager.switchRenewalFeeTab('rehabilitation')"
+                                    class="renewal-fee-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                                    data-cert="rehabilitation">
+                                    운동재활전문가
+                                </button>
+                                <button onclick="certManager.switchRenewalFeeTab('pilates')"
+                                    class="renewal-fee-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                                    data-cert="pilates">
+                                    필라테스 전문가
+                                </button>
+                                <button onclick="certManager.switchRenewalFeeTab('recreation')"
+                                    class="renewal-fee-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                                    data-cert="recreation">
+                                    레크리에이션지도자
+                                </button>
+                            </nav>
+                        </div>
+
+                        <!-- 갱신 비용 설정 폼 -->
+                        <form id="renewal-fee-form" class="space-y-6">
+                            <input type="hidden" id="current-cert-type" value="health-exercise">
+
+                            <!-- 기본 갱신 비용 -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="text-lg font-medium text-gray-900 mb-4">기본 갱신 비용</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="renewal-base-fee" class="block text-sm font-medium text-gray-700">
+                                            갱신 수수료 <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="mt-1 relative rounded-md shadow-sm">
+                                            <input type="number" id="renewal-base-fee" min="0" step="1000" required
+                                                class="block w-full border-gray-300 rounded-md pl-3 pr-12 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                                placeholder="50000">
+                                            <div
+                                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <span class="text-gray-500 sm:text-sm">원</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="delivery-fee" class="block text-sm font-medium text-gray-700">
+                                            배송비 (실물 + 디지털)
+                                        </label>
+                                        <div class="mt-1 relative rounded-md shadow-sm">
+                                            <input type="number" id="delivery-fee" min="0" step="1000" value="5000"
+                                                class="block w-full border-gray-300 rounded-md pl-3 pr-12 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                            <div
+                                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <span class="text-gray-500 sm:text-sm">원</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 교육 비용 -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="text-lg font-medium text-gray-900 mb-4">갱신 교육 비용</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label for="education-online-fee"
+                                            class="block text-sm font-medium text-gray-700">
+                                            온라인 교육 <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="mt-1 relative rounded-md shadow-sm">
+                                            <input type="number" id="education-online-fee" min="0" step="1000" required
+                                                class="block w-full border-gray-300 rounded-md pl-3 pr-12 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                                placeholder="80000">
+                                            <div
+                                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <span class="text-gray-500 sm:text-sm">원</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="education-offline-fee"
+                                            class="block text-sm font-medium text-gray-700">
+                                            오프라인 교육 <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="mt-1 relative rounded-md shadow-sm">
+                                            <input type="number" id="education-offline-fee" min="0" step="1000" required
+                                                class="block w-full border-gray-300 rounded-md pl-3 pr-12 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                                placeholder="100000">
+                                            <div
+                                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <span class="text-gray-500 sm:text-sm">원</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="education-completed-fee"
+                                            class="block text-sm font-medium text-gray-700">
+                                            교육 이수 완료
+                                        </label>
+                                        <div class="mt-1 relative rounded-md shadow-sm">
+                                            <input type="number" id="education-completed-fee" min="0" step="1000"
+                                                value="0" readonly
+                                                class="block w-full border-gray-300 rounded-md pl-3 pr-12 py-2 bg-gray-100 text-gray-500">
+                                            <div
+                                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <span class="text-gray-500 sm:text-sm">원</span>
+                                            </div>
+                                        </div>
+                                        <p class="mt-1 text-xs text-gray-500">교육 이수 완료 시 추가 비용 없음</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 할인 정책 -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="text-lg font-medium text-gray-900 mb-4">할인 정책</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="early-discount-rate"
+                                            class="block text-sm font-medium text-gray-700">
+                                            조기 갱신 할인율 (만료 60일 전)
+                                        </label>
+                                        <div class="mt-1 relative rounded-md shadow-sm">
+                                            <input type="number" id="early-discount-rate" min="0" max="100" step="0.1"
+                                                value="10"
+                                                class="block w-full border-gray-300 rounded-md pl-3 pr-12 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                            <div
+                                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <span class="text-gray-500 sm:text-sm">%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="online-discount-rate"
+                                            class="block text-sm font-medium text-gray-700">
+                                            온라인 교육 할인율
+                                        </label>
+                                        <div class="mt-1 relative rounded-md shadow-sm">
+                                            <input type="number" id="online-discount-rate" min="0" max="100" step="0.1"
+                                                value="20"
+                                                class="block w-full border-gray-300 rounded-md pl-3 pr-12 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                            <div
+                                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <span class="text-gray-500 sm:text-sm">%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 미리보기 -->
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                <h4 class="text-lg font-medium text-green-800 mb-3">비용 미리보기</h4>
+                                <div id="fee-preview" class="text-sm text-green-700 space-y-2">
+                                    <!-- 동적으로 업데이트될 내용 -->
+                                </div>
+                            </div>
+
+                            <!-- 버튼 그룹 -->
+                            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                                <button type="button" onclick="certManager.closeRenewalFeeModal()"
+                                    class="admin-btn admin-btn-secondary">
+                                    취소
+                                </button>
+                                <button type="submit" class="admin-btn admin-btn-primary">
+                                    <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    설정 저장
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔧 갱신 신청자 관리 모달 -->
+    <div id="renewal-management-modal" class="cert-modal cert-modal-secondary hidden">
+        <div class="cert-modal-backdrop" onclick="certManager.closeRenewalManagementModal()"></div>
+        <div class="cert-modal-container cert-modal-large">
+            <div class="cert-modal-content">
+                <div class="cert-modal-header">
+                    <h3 class="cert-modal-title">
+                        <svg class="inline-block w-5 h-5 mr-2 text-orange-600" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                            </path>
+                        </svg>
+                        갱신 신청자 관리
+                    </h3>
+                    <button onclick="certManager.closeRenewalManagementModal()" class="cert-modal-close">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="cert-modal-body">
+                    <div class="space-y-4">
+                        <!-- 안내 메시지 -->
+                        <div class="bg-orange-50 border-l-4 border-orange-400 p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-orange-700">
+                                        <span id="renewal-current-cert-type-name">건강운동처방사</span> 자격증 갱신 신청자 목록입니다.
+                                        신청을 검토하고 승인/거절을 처리하세요.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 필터 및 검색 -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <label for="renewal-search-name" class="block text-sm font-medium text-gray-700">이름/이메일
+                                    검색</label>
+                                <input type="text" id="renewal-search-name" placeholder="이름 또는 이메일을 입력하세요"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            </div>
+                            <div>
+                                <label for="renewal-filter-status" class="block text-sm font-medium text-gray-700">상태
+                                    필터</label>
+                                <select id="renewal-filter-status"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                    <option value="">전체</option>
+                                    <option value="payment_pending">결제 대기</option>
+                                    <option value="under_review">심사 중</option>
+                                    <option value="processing">처리 중</option>
+                                    <option value="approved">승인</option>
+                                    <option value="rejected">거절</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end">
+                                <button onclick="certManager.filterRenewalApplicants()"
+                                    class="admin-btn admin-btn-secondary w-full">
+                                    <svg class="inline-block w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                    검색
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 갱신 신청자 목록 테이블 -->
+                        <div class="border border-gray-200 rounded-lg overflow-hidden">
+                            <div
+                                class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+                                <div class="flex items-center space-x-4">
+                                    <span id="renewal-applicants-count" class="text-sm text-gray-600">총 0명</span>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button onclick="certManager.loadRenewalApplicants()"
+                                        class="admin-btn admin-btn-sm admin-btn-secondary">
+                                        <svg class="inline-block w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                            </path>
+                                        </svg>
+                                        새로고침
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto max-h-96">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50 sticky top-0">
+                                        <tr>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                선택</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                자격증 번호</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                신청자</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                교육 유형</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                보수교육</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                배송 방법</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                금액</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                진행 상황</th>
+                                            <th
+                                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                작업</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="renewal-applicants-tbody" class="bg-white divide-y divide-gray-200">
+                                        <tr>
+                                            <td colspan="9" class="px-4 py-8 text-center text-gray-500">
+                                                <div class="flex flex-col items-center">
+                                                    <div
+                                                        class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-4">
+                                                    </div>
+                                                    <span>갱신 신청자 목록을 불러오는 중...</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- 일괄 작업 버튼 (향후 추가 가능) -->
+                        <div class="hidden bg-blue-50 p-4 rounded-lg">
+                            <h4 class="text-sm font-medium text-blue-800 mb-2">일괄 작업</h4>
+                            <div class="flex space-x-2">
+                                <button class="admin-btn admin-btn-sm admin-btn-success">선택된 신청 일괄 승인</button>
+                                <button class="admin-btn admin-btn-sm admin-btn-danger">선택된 신청 일괄 거절</button>
+                            </div>
+                        </div>
+
+                        <!-- 버튼 그룹 -->
+                        <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                            <button type="button" onclick="certManager.closeRenewalManagementModal()"
+                                class="admin-btn admin-btn-secondary">
+                                닫기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔧 갱신 신청 상세보기 모달 -->
+    <div id="renewal-detail-modal" class="cert-modal cert-modal-tertiary hidden">
+        <div class="cert-modal-backdrop" onclick="certManager.closeRenewalDetailModal()"></div>
+        <div class="cert-modal-container">
+            <div class="cert-modal-content">
+                <div class="cert-modal-header">
+                    <h3 class="cert-modal-title">갱신 신청 상세 정보</h3>
+                    <button onclick="certManager.closeRenewalDetailModal()" class="cert-modal-close">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="cert-modal-body">
+                    <div id="renewal-detail-content" class="space-y-4">
+                        <!-- 동적으로 내용이 삽입됩니다 -->
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button onclick="certManager.closeRenewalDetailModal()" class="admin-btn admin-btn-secondary">
+                            닫기
+                        </button>
                     </div>
                 </div>
             </div>

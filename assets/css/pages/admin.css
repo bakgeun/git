@@ -2958,6 +2958,34 @@ body.modal-open {
     }
 }
 
+.admin-btn-warning {
+    background-color: #f59e0b;
+    color: white;
+    border: 1px solid #d97706;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.admin-btn-warning:hover {
+    background-color: #d97706;
+    border-color: #b45309;
+    transform: translateY(-1px);
+}
+
+.admin-btn-warning:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+}
+
+.admin-btn-warning:active {
+    transform: translateY(0);
+}
+
 /* =================================== */
 /* 🔧 모든 기존 중복 스타일 무효화 */
 /* =================================== */

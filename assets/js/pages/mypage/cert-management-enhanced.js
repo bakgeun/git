@@ -1,43 +1,126 @@
 /**
- * cert-management-enhanced.js
- * 오류 수정 및 테스트 완료 버전
+ * cert-management-enhanced.js Part 1
+ * 초기화 및 변수 설정, 동적 갱신 비용 시스템
  */
 
 (function () {
-    // 전역 변수
+    'use strict';
+
+    // =================================
+    // 전역 변수 선언 및 초기화
+    // =================================
+
     let certificates = [];
     let applications = [];
     let selectedCertForRenewal = null;
     let currentModalStep = 1;
     let renewalProgress = 0;
 
-    // 자격증 갱신 비용 정보 (할인 적용)
-    const renewalFees = {
+    // 🔧 자격증 갱신 비용 정보 (동적 로드 가능)
+    let renewalFees = {
         'health-exercise': {
             renewal: 50000,
+            deliveryFee: 5000,
             education: { online: 80000, offline: 100000, completed: 0 },
             earlyDiscountRate: 0.1,
             onlineDiscountRate: 0.2
         },
         'rehabilitation': {
             renewal: 50000,
+            deliveryFee: 5000,
             education: { online: 96000, offline: 120000, completed: 0 },
             earlyDiscountRate: 0.1,
             onlineDiscountRate: 0.2
         },
         'pilates': {
             renewal: 40000,
+            deliveryFee: 5000,
             education: { online: 64000, offline: 80000, completed: 0 },
             earlyDiscountRate: 0.1,
             onlineDiscountRate: 0.2
         },
         'recreation': {
             renewal: 30000,
+            deliveryFee: 5000,
             education: { online: 56000, offline: 70000, completed: 0 },
             earlyDiscountRate: 0.1,
             onlineDiscountRate: 0.2
         }
     };
+
+    // 🆕 전역 변수로 노출 (디버깅 및 외부 접근용)
+    window.renewalFees = renewalFees;
+    window.selectedCertForRenewal = selectedCertForRenewal;
+    window.certificates = certificates;
+    window.applications = applications;
+
+    // =================================
+    // Firebase 연결 상태 확인 함수
+    // =================================
+
+    function checkFirebaseConnection() {
+        try {
+            return {
+                connected: !!(window.dhcFirebase && window.dhcFirebase.db && window.dhcFirebase.auth),
+                auth: !!(window.dhcFirebase && window.dhcFirebase.auth),
+                db: !!(window.dhcFirebase && window.dhcFirebase.db),
+                user: window.dhcFirebase?.auth?.currentUser || null
+            };
+        } catch (error) {
+            console.error('Firebase 연결 상태 확인 오류:', error);
+            return {
+                connected: false,
+                auth: false,
+                db: false,
+                user: null
+            };
+        }
+    }
+
+    // =================================
+    // 동적 갱신 비용 로드 함수
+    // =================================
+
+    /**
+     * 동적 갱신 비용 로드
+     */
+    async function loadDynamicRenewalFees() {
+        console.log('📥 동적 갱신 비용 로드 시작');
+
+        try {
+            const firebaseStatus = checkFirebaseConnection();
+
+            if (firebaseStatus.connected && window.dhcFirebase) {
+                const result = await window.dbService.getRenewalFeeSettings();
+
+                if (result.success && result.data) {
+                    Object.keys(renewalFees).forEach(key => delete renewalFees[key]);
+                    Object.assign(renewalFees, result.data);
+                    window.renewalFees = renewalFees;
+
+                    console.log('✅ 동적 갱신 비용 로드 성공:', renewalFees);
+                    showNotification('최신 갱신 비용이 적용되었습니다.', 'success');
+                    return true;
+                } else {
+                    console.log('📝 설정된 갱신 비용 없음, 기본값 사용');
+                    showNotification('기본 갱신 비용을 사용합니다.', 'info');
+                    return false;
+                }
+            } else {
+                console.log('🔧 Firebase 미연결, 기본값 사용');
+                showNotification('기본 갱신 비용을 사용합니다. (오프라인 모드)', 'info');
+                return false;
+            }
+        } catch (error) {
+            console.error('❌ 동적 갱신 비용 로드 오류:', error);
+            showNotification('갱신 비용 로드 중 오류가 발생했습니다. 기본값을 사용합니다.', 'error');
+            return false;
+        }
+    }
+
+    // =================================
+    // 페이지 초기화 함수
+    // =================================
 
     /**
      * 페이지 초기화
@@ -70,13 +153,15 @@
 
         } catch (error) {
             console.error('페이지 초기화 오류:', error);
-            if (window.mypageHelpers && window.mypageHelpers.showNotification) {
-                window.mypageHelpers.showNotification('페이지 초기화 중 오류가 발생했습니다.', 'error');
-            }
+            showNotification('페이지 초기화 중 오류가 발생했습니다.', 'error');
         } finally {
             showLoadingState(false);
         }
     }
+
+    // =================================
+    // 자격증 및 신청 내역 로드
+    // =================================
 
     /**
      * 자격증 목록 로드
@@ -107,12 +192,12 @@
 
             if (result.success) {
                 certificates = result.data;
+                window.certificates = certificates;
                 console.log('자격증 로드 성공:', certificates.length + '개');
             } else {
                 console.error('자격증 조회 실패:', result.error);
                 certificates = [];
 
-                // 권한 오류가 아닌 경우에만 알림 표시
                 if (!result.error.includes('permission') && !result.error.includes('Missing')) {
                     showNotification('자격증 정보를 불러오는 중 오류가 발생했습니다.', 'error');
                 }
@@ -122,7 +207,6 @@
             console.error('자격증 로드 오류:', error);
             certificates = [];
 
-            // 인증 관련 오류인 경우 로그인 페이지로 리다이렉션
             if (error.message && (error.message.includes('auth') || error.message.includes('permission'))) {
                 setTimeout(() => {
                     window.location.href = window.adjustPath('pages/auth/login.html');
@@ -147,25 +231,30 @@
             console.log('신청 내역 로드 시작:', user.uid);
 
             const result = await window.dbService.getDocuments('applications', {
-                where: {
-                    field: 'userId',
-                    operator: '==',
-                    value: user.uid
-                },
-                orderBy: {
-                    field: 'createdAt',
-                    direction: 'desc'
-                }
+                where: { field: 'userId', operator: '==', value: user.uid },
+                limit: 50
             });
 
             if (result.success) {
-                applications = result.data;
+                const sortedApplications = result.data.sort((a, b) => {
+                    const dateA = new Date(a.createdAt || a.timestamp || 0);
+                    const dateB = new Date(b.createdAt || b.timestamp || 0);
+                    return dateB - dateA;
+                });
+
+                applications = sortedApplications;
+                window.applications = applications;
                 console.log('신청 내역 로드 성공:', applications.length + '개');
             } else {
                 console.error('신청 내역 조회 실패:', result.error);
                 applications = [];
 
-                // 권한 오류가 아닌 경우에만 알림 표시
+                if (result.error && typeof result.error === 'object' &&
+                    (result.error.message?.includes('index') || result.error.code === 'failed-precondition')) {
+                    console.log('📋 인덱스 오류 - 빈 배열 반환');
+                    return;
+                }
+
                 if (!result.error.includes('permission') && !result.error.includes('Missing')) {
                     showNotification('신청 내역을 불러오는 중 오류가 발생했습니다.', 'error');
                 }
@@ -174,8 +263,418 @@
         } catch (error) {
             console.error('신청 내역 로드 오류:', error);
             applications = [];
+
+            if (error.message?.includes('index') || error.code === 'failed-precondition') {
+                console.log('📋 Firestore 인덱스가 필요합니다. 현재는 빈 배열을 반환합니다.');
+                return;
+            }
         }
     }
+
+    // =================================
+    // Part 2: 갱신 모달 관련 함수들
+    // =================================
+
+    /**
+     * 갱신 모달 열기
+     */
+    window.openRenewalModal = async function (certId) {
+        console.log('🔄 갱신 모달 열기 시작:', certId);
+
+        try {
+            // 1. 동적 비용 로드
+            console.log('💰 최신 갱신 비용 로드 중...');
+            const feeLoaded = await loadDynamicRenewalFees();
+
+            // 2. 자격증 정보 확인
+            let cert = certificates.find(c => c.id === certId);
+
+            if (!cert) {
+                console.log('🧪 테스트용 자격증 데이터 생성');
+                cert = {
+                    id: certId,
+                    certType: 'health-exercise',
+                    certName: '건강운동처방사 (테스트)',
+                    certNumber: 'TEST-2024-001',
+                    issuedAt: { seconds: new Date('2022-01-01').getTime() / 1000 },
+                    expiryDate: { seconds: new Date('2025-01-01').getTime() / 1000 }
+                };
+            }
+
+            selectedCertForRenewal = cert;
+            window.selectedCertForRenewal = cert;
+            currentModalStep = 1;
+
+            // 3. 모달 표시
+            const modal = document.getElementById('renewal-modal');
+            if (!modal) {
+                console.error('❌ 갱신 모달 요소를 찾을 수 없습니다!');
+                showNotification('갱신 모달을 찾을 수 없습니다.', 'error');
+                return;
+            }
+
+            // 강력한 모달 표시
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.zIndex = '9999';
+            modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+
+            document.body.style.overflow = 'hidden';
+
+            // 4. 모달에 자격증 정보 설정
+            const elements = {
+                'selected-cert-name': cert.certName,
+                'selected-cert-details': `발급일: ${new Date(cert.issuedAt.seconds * 1000).toLocaleDateString('ko-KR')}`,
+                'selected-cert-number': cert.certNumber,
+                'selected-cert-expiry': `만료일: ${new Date(cert.expiryDate.seconds * 1000).toLocaleDateString('ko-KR')}`,
+                'renewal-cert-id': cert.id
+            };
+
+            Object.entries(elements).forEach(([id, value]) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    if (element.tagName === 'INPUT') {
+                        element.value = value;
+                    } else {
+                        element.textContent = value;
+                    }
+                }
+            });
+
+            // 5. 초기화
+            updateModalSteps(1);
+            updateModalStepInfo(1, 4);
+            setDefaultFormValues();
+
+            // 6. 주소찾기 기능 설정 (중요!)
+            setupAddressSearchFeature();
+
+            // 7. 동적 비용으로 금액 업데이트
+            setTimeout(() => {
+                updateRenewalTotalAmountWithDynamicFees();
+            }, 200);
+
+            // 8. 갱신 진행률 업데이트
+            const statusMessage = feeLoaded ?
+                '갱신 신청 모달이 열렸습니다. (최신 비용 적용)' :
+                '갱신 신청 모달이 열렸습니다. (기본 비용 적용)';
+
+            updateRenewalProgress(25, statusMessage);
+
+            console.log('✅ 갱신 모달 열기 완료');
+
+        } catch (error) {
+            console.error('❌ 갱신 모달 열기 오류:', error);
+            showNotification('갱신 모달을 여는 중 오류가 발생했습니다.', 'error');
+        }
+    };
+
+    /**
+     * 갱신 모달 닫기
+     */
+    window.closeRenewalModal = function () {
+        console.log('🔒 갱신 모달 닫기');
+
+        const modal = document.getElementById('renewal-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+            modal.style.visibility = 'hidden';
+            modal.style.opacity = '0';
+            document.body.style.overflow = '';
+        }
+
+        selectedCertForRenewal = null;
+        window.selectedCertForRenewal = null;
+        currentModalStep = 1;
+
+        const form = document.getElementById('renewal-form');
+        if (form) {
+            form.reset();
+        }
+
+        resetFileUploadArea('renewal-education-completion');
+        resetFileUploadArea('renewal-cpe-documents');
+        checkRenewalNeeded();
+    };
+
+    // =================================
+    // 주소찾기 기능 (완전히 정리된 버전)
+    // =================================
+
+    /**
+     * 전역 주소찾기 함수
+     */
+    window.findRenewalAddress = function () {
+        console.log('🏠 주소찾기 시작');
+
+        // 배송 방법 확인
+        const deliveryMethod = document.getElementById('renewal-delivery-method');
+        if (deliveryMethod && deliveryMethod.value === 'digital') {
+            showNotification('디지털 수령 시에는 주소 입력이 필요하지 않습니다.', 'info');
+            return;
+        }
+
+        // Daum Postcode API 확인 및 실행
+        if (typeof daum !== 'undefined' && daum.Postcode) {
+            executePostcodeSearch();
+        } else {
+            loadPostcodeAPI();
+        }
+    };
+
+    /**
+     * 다음 우편번호 API 로드
+     */
+    function loadPostcodeAPI() {
+        console.log('📥 Daum Postcode API 로드 중...');
+        showNotification('주소 검색 서비스를 로드하는 중입니다...', 'info');
+
+        const script = document.createElement('script');
+        script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+        script.onload = function () {
+            console.log('✅ Daum Postcode API 로드 완료');
+            executePostcodeSearch();
+        };
+        script.onerror = function () {
+            console.error('❌ Daum Postcode API 로드 실패');
+            showNotification('주소 검색 서비스 로드에 실패했습니다.', 'error');
+        };
+        document.head.appendChild(script);
+    }
+
+    /**
+     * 우편번호 검색 실행
+     */
+    function executePostcodeSearch() {
+        console.log('🔍 우편번호 검색 팝업 열기');
+
+        try {
+            // z-index 스타일 적용
+            ensurePostcodeStyles();
+
+            new daum.Postcode({
+                oncomplete: function (data) {
+                    console.log('📍 주소 선택됨:', data);
+
+                    const zipcode = document.getElementById('renewal-zipcode');
+                    const address1 = document.getElementById('renewal-address1');
+                    const address2 = document.getElementById('renewal-address2');
+
+                    if (zipcode) {
+                        zipcode.value = data.zonecode;
+                        console.log('✅ 우편번호 입력:', data.zonecode);
+                    }
+
+                    if (address1) {
+                        address1.value = data.address;
+                        console.log('✅ 기본주소 입력:', data.address);
+                    }
+
+                    if (address2) {
+                        address2.focus();
+                        console.log('✅ 상세주소 필드로 포커스 이동');
+                    }
+
+                    showNotification('주소가 입력되었습니다.', 'success');
+                    updateRenewalProgress(60, '배송 정보가 입력되었습니다.');
+                },
+                onclose: function (state) {
+                    console.log('주소찾기 팝업 닫힘:', state);
+                    if (state === 'COMPLETE_CLOSE') {
+                        const address2 = document.getElementById('renewal-address2');
+                        if (address2) address2.focus();
+                    }
+                }
+            }).open();
+
+        } catch (error) {
+            console.error('❌ 우편번호 검색 실행 오류:', error);
+            showNotification('주소 검색 중 오류가 발생했습니다.', 'error');
+        }
+    }
+
+    /**
+     * Postcode 팝업 z-index 스타일 보장
+     */
+    function ensurePostcodeStyles() {
+        if (!document.getElementById('postcode-zindex-fix')) {
+            const style = document.createElement('style');
+            style.id = 'postcode-zindex-fix';
+            style.textContent = `
+                #daum-postcode-container, 
+                .daum-postcode,
+                #layer_daum_postcode {
+                    z-index: 99999 !important;
+                    position: fixed !important;
+                }
+                .renewal-modal {
+                    z-index: 9999 !important;
+                }
+            `;
+            document.head.appendChild(style);
+            console.log('✅ Postcode z-index 스타일 적용 완료');
+        }
+    }
+
+    /**
+     * 주소찾기 기능 설정
+     */
+    function setupAddressSearchFeature() {
+        console.log('🏠 주소찾기 기능 설정');
+
+        ensurePostcodeStyles();
+
+        setTimeout(() => {
+            const findAddressBtn = document.getElementById('renewal-find-address');
+            if (findAddressBtn) {
+                // 기존 이벤트 제거
+                findAddressBtn.onclick = null;
+                findAddressBtn.removeAttribute('onclick');
+
+                // 새 이벤트 추가
+                findAddressBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔍 주소찾기 버튼 클릭됨');
+                    window.findRenewalAddress();
+                });
+
+                console.log('✅ 주소찾기 버튼 설정 완료');
+            } else {
+                console.warn('⚠️ 주소찾기 버튼을 찾을 수 없습니다.');
+            }
+        }, 100);
+    }
+
+    // HTML onclick을 위한 전역 함수
+    window.handleAddressSearch = function () {
+        console.log('🏠 HTML onclick 주소찾기 호출');
+        window.findRenewalAddress();
+    };
+
+    // =================================
+    // Part 3: 갱신 비용 계산 및 UI 업데이트
+    // =================================
+
+    /**
+     * 갱신 총 금액 업데이트 (동적 비용 사용)
+     */
+    function updateRenewalTotalAmountWithDynamicFees() {
+        console.log('💰 갱신 비용 계산 시작');
+
+        if (!selectedCertForRenewal) {
+            console.warn('선택된 자격증이 없습니다.');
+            return;
+        }
+
+        const fees = renewalFees[selectedCertForRenewal.certType];
+        if (!fees) {
+            console.error('자격증 유형에 해당하는 비용 정보를 찾을 수 없습니다:', selectedCertForRenewal.certType);
+            showNotification('자격증 유형의 비용 정보를 찾을 수 없습니다.', 'error');
+            return;
+        }
+
+        const educationTypeSelect = document.getElementById('renewal-education-type');
+        const deliveryMethodSelect = document.getElementById('renewal-delivery-method');
+
+        if (!educationTypeSelect || !deliveryMethodSelect) {
+            console.warn('필수 선택 요소를 찾을 수 없습니다.');
+            return;
+        }
+
+        const educationType = educationTypeSelect.value;
+        const deliveryMethod = deliveryMethodSelect.value;
+
+        // 기본 비용 계산
+        const renewalFee = fees.renewal || 0;
+        let educationFee = 0;
+
+        if (educationType && fees.education && fees.education[educationType] !== undefined) {
+            educationFee = fees.education[educationType];
+        }
+
+        const deliveryFee = deliveryMethod === 'both' ? (fees.deliveryFee || 0) : 0;
+
+        // 할인 계산
+        let discountAmount = 0;
+        let discountReasons = [];
+
+        // 조기 갱신 할인 (만료 60일 전)
+        const today = new Date();
+        const expiryDate = new Date(selectedCertForRenewal.expiryDate.seconds * 1000);
+        const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+
+        if (daysUntilExpiry >= 60) {
+            const earlyDiscount = Math.round(renewalFee * (fees.earlyDiscountRate || 0));
+            discountAmount += earlyDiscount;
+            discountReasons.push(`조기 갱신 할인 (${((fees.earlyDiscountRate || 0) * 100)}%)`);
+        }
+
+        // 온라인 교육 할인
+        if (educationType === 'online') {
+            const onlineDiscount = Math.round(educationFee * (fees.onlineDiscountRate || 0));
+            discountAmount += onlineDiscount;
+            discountReasons.push(`온라인 교육 할인 (${((fees.onlineDiscountRate || 0) * 100)}%)`);
+        }
+
+        // 총 금액 계산
+        const subtotal = renewalFee + educationFee + deliveryFee;
+        const totalAmount = Math.max(0, subtotal - discountAmount);
+
+        // UI 업데이트
+        const elements = {
+            '.renewal-fee': renewalFee.toLocaleString() + '원',
+            '.education-fee': educationFee.toLocaleString() + '원',
+            '.delivery-fee': deliveryFee.toLocaleString() + '원',
+            '.discount-amount': '-' + discountAmount.toLocaleString() + '원',
+            '.total-amount': totalAmount.toLocaleString() + '원'
+        };
+
+        Object.entries(elements).forEach(([selector, value]) => {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.textContent = value;
+            }
+        });
+
+        // 할인 정보 표시
+        updateDiscountInfo(discountReasons, discountAmount);
+
+        // 배송비 행 표시/숨김
+        const deliveryFeeRow = document.getElementById('renewal-delivery-fee-row');
+        if (deliveryFeeRow) {
+            if (deliveryMethod === 'both') {
+                deliveryFeeRow.style.display = 'flex';
+            } else {
+                deliveryFeeRow.style.display = 'none';
+            }
+        }
+
+        console.log('✅ 갱신 비용 업데이트 완료:', {
+            renewalFee,
+            educationFee,
+            deliveryFee,
+            discountAmount,
+            totalAmount,
+            discountReasons
+        });
+    }
+
+    // 전역으로 노출
+    window.updateRenewalTotalAmount = updateRenewalTotalAmountWithDynamicFees;
+    window.updateRenewalTotalAmountWithDynamicFees = updateRenewalTotalAmountWithDynamicFees;
+
+    // =================================
+    // 갱신 프로세스 관련 함수들
+    // =================================
 
     /**
      * 갱신 프로세스 초기화
@@ -213,8 +712,12 @@
         });
     }
 
+    // =================================
+    // Part 4: UI 렌더링 및 대시보드
+    // =================================
+
     /**
-     * 갱신 진행률 업데이트
+     * 갱신 진행률 업데이트 (Part 3에서 이어짐)
      */
     function updateRenewalProgress(percentage, message) {
         renewalProgress = percentage;
@@ -247,6 +750,44 @@
                 statusBadge.textContent = '완료';
                 statusBadge.className = 'status-badge completed';
             }
+        }
+    }
+
+    /**
+     * 모달 단계 업데이트
+     */
+    function updateModalSteps(activeStep) {
+        const modalSteps = document.querySelectorAll('#renewal-modal .process-step');
+        modalSteps.forEach((step, index) => {
+            const circle = step.querySelector('.step-circle');
+            const label = step.querySelector('.step-label');
+
+            if (!circle || !label) return;
+
+            circle.classList.remove('active', 'completed');
+            label.classList.remove('active', 'completed');
+
+            if (index < activeStep - 1) {
+                circle.classList.add('completed');
+                label.classList.add('completed');
+                circle.innerHTML = '✓';
+            } else if (index === activeStep - 1) {
+                circle.classList.add('active');
+                label.classList.add('active');
+                circle.textContent = index + 1;
+            } else {
+                circle.textContent = index + 1;
+            }
+        });
+    }
+
+    /**
+     * 모달 단계 정보 업데이트
+     */
+    function updateModalStepInfo(current, total) {
+        const stepInfo = document.getElementById('modal-step-info');
+        if (stepInfo) {
+            stepInfo.textContent = `${current}/${total} 단계 진행 중`;
         }
     }
 
@@ -545,129 +1086,9 @@
         }
     }
 
-    /**
-     * 이벤트 리스너 설정
-     */
-    function setupEventListeners() {
-        // 갱신 교육 유형 변경
-        const educationTypeSelect = document.getElementById('renewal-education-type');
-        if (educationTypeSelect) {
-            educationTypeSelect.addEventListener('change', function () {
-                const completionField = document.getElementById('renewal-education-completion-field');
-                if (completionField) {
-                    if (this.value === 'completed') {
-                        completionField.classList.remove('hidden');
-                    } else {
-                        completionField.classList.add('hidden');
-                    }
-                }
-                updateRenewalTotalAmount();
-            });
-        }
-
-        // 배송 방법 변경
-        const deliveryMethodSelect = document.getElementById('renewal-delivery-method');
-        if (deliveryMethodSelect) {
-            deliveryMethodSelect.addEventListener('change', function () {
-                const addressFields = document.getElementById('renewal-address-fields');
-                const deliveryFeeRow = document.getElementById('renewal-delivery-fee-row');
-
-                if (this.value === 'digital') {
-                    if (addressFields) addressFields.style.display = 'none';
-                    if (deliveryFeeRow) deliveryFeeRow.style.display = 'none';
-                } else {
-                    if (addressFields) addressFields.style.display = 'block';
-                    if (deliveryFeeRow) {
-                        if (this.value === 'both') {
-                            deliveryFeeRow.style.display = 'flex';
-                        } else {
-                            deliveryFeeRow.style.display = 'none';
-                        }
-                    }
-                }
-                updateRenewalTotalAmount();
-            });
-        }
-
-        // 주소 찾기
-        const findAddressBtn = document.getElementById('renewal-find-address');
-        if (findAddressBtn) {
-            findAddressBtn.addEventListener('click', function () {
-                if (typeof daum !== 'undefined' && daum.Postcode) {
-                    findRenewalAddress();
-                } else {
-                    const script = document.createElement('script');
-                    script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
-                    script.onload = findRenewalAddress;
-                    document.head.appendChild(script);
-                }
-            });
-        }
-
-        // 파일 업로드 처리
-        setupFileUpload('renewal-education-completion', false);
-        setupFileUpload('renewal-cpe-documents', true);
-    }
-
-    /**
-     * 갱신 모달 열기
-     */
-    window.openRenewalModal = function (certId) {
-        const cert = certificates.find(c => c.id === certId);
-        if (!cert) {
-            // 테스트용 자격증 생성
-            cert = {
-                id: certId,
-                certType: 'health-exercise',
-                certName: '건강운동처방사 (테스트)',
-                certNumber: 'TEST-2024-001',
-                issuedAt: { seconds: new Date('2022-01-01').getTime() / 1000 },
-                expiryDate: { seconds: new Date('2025-01-01').getTime() / 1000 }
-            };
-        }
-
-        selectedCertForRenewal = cert;
-        currentModalStep = 1;
-
-        // 모달에 자격증 정보 설정
-        const elements = {
-            'selected-cert-name': cert.certName,
-            'selected-cert-details': `발급일: ${new Date(cert.issuedAt.seconds * 1000).toLocaleDateString('ko-KR')}`,
-            'selected-cert-number': cert.certNumber,
-            'selected-cert-expiry': `만료일: ${new Date(cert.expiryDate.seconds * 1000).toLocaleDateString('ko-KR')}`,
-            'renewal-cert-id': cert.id
-        };
-
-        Object.entries(elements).forEach(([id, value]) => {
-            const element = document.getElementById(id);
-            if (element) {
-                if (element.tagName === 'INPUT') {
-                    element.value = value;
-                } else {
-                    element.textContent = value;
-                }
-            }
-        });
-
-        // 모달 단계 초기화
-        updateModalSteps(1);
-        updateModalStepInfo(1, 4);
-
-        // 기본값 설정
-        setDefaultFormValues();
-
-        // 금액 업데이트
-        updateRenewalTotalAmount();
-
-        // 모달 표시
-        const modal = document.getElementById('renewal-modal');
-        if (modal) {
-            modal.classList.remove('hidden');
-        }
-
-        // 갱신 진행률 업데이트
-        updateRenewalProgress(25, '갱신 신청 모달이 열렸습니다.');
-    };
+    // =================================
+    // Part 5: 폼 처리 및 갱신 신청
+    // =================================
 
     /**
      * 기본값 설정
@@ -690,143 +1111,6 @@
     }
 
     /**
-     * 모달 단계 업데이트
-     */
-    function updateModalSteps(activeStep) {
-        const modalSteps = document.querySelectorAll('#renewal-modal .process-step');
-        modalSteps.forEach((step, index) => {
-            const circle = step.querySelector('.step-circle');
-            const label = step.querySelector('.step-label');
-
-            if (!circle || !label) return;
-
-            circle.classList.remove('active', 'completed');
-            label.classList.remove('active', 'completed');
-
-            if (index < activeStep - 1) {
-                circle.classList.add('completed');
-                label.classList.add('completed');
-                circle.innerHTML = '✓';
-            } else if (index === activeStep - 1) {
-                circle.classList.add('active');
-                label.classList.add('active');
-                circle.textContent = index + 1;
-            } else {
-                circle.textContent = index + 1;
-            }
-        });
-    }
-
-    /**
-     * 모달 단계 정보 업데이트
-     */
-    function updateModalStepInfo(current, total) {
-        const stepInfo = document.getElementById('modal-step-info');
-        if (stepInfo) {
-            stepInfo.textContent = `${current}/${total} 단계 진행 중`;
-        }
-    }
-
-    /**
-     * 갱신 모달 닫기
-     */
-    window.closeRenewalModal = function () {
-        const modal = document.getElementById('renewal-modal');
-        if (modal) {
-            modal.classList.add('hidden');
-        }
-
-        selectedCertForRenewal = null;
-        currentModalStep = 1;
-
-        // 폼 리셋
-        const form = document.getElementById('renewal-form');
-        if (form) {
-            form.reset();
-        }
-
-        // 파일 업로드 영역 리셋
-        resetFileUploadArea('renewal-education-completion');
-        resetFileUploadArea('renewal-cpe-documents');
-
-        // 갱신 진행률 리셋
-        checkRenewalNeeded();
-    };
-
-    /**
-     * 갱신 총 금액 업데이트 (할인 적용)
-     */
-    function updateRenewalTotalAmount() {
-        if (!selectedCertForRenewal) return;
-
-        const fees = renewalFees[selectedCertForRenewal.certType];
-        if (!fees) return;
-
-        const educationTypeSelect = document.getElementById('renewal-education-type');
-        const deliveryMethodSelect = document.getElementById('renewal-delivery-method');
-
-        if (!educationTypeSelect || !deliveryMethodSelect) return;
-
-        const educationType = educationTypeSelect.value;
-        const deliveryMethod = deliveryMethodSelect.value;
-
-        // 기본 비용 계산
-        const renewalFee = fees.renewal;
-        let educationFee = 0;
-
-        if (educationType && fees.education[educationType] !== undefined) {
-            educationFee = fees.education[educationType];
-        }
-
-        const deliveryFee = deliveryMethod === 'both' ? 5000 : 0;
-
-        // 할인 계산
-        let discountAmount = 0;
-        let discountReasons = [];
-
-        // 조기 갱신 할인 (만료 60일 전)
-        const today = new Date();
-        const expiryDate = new Date(selectedCertForRenewal.expiryDate.seconds * 1000);
-        const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-
-        if (daysUntilExpiry >= 60) {
-            const earlyDiscount = Math.round(renewalFee * fees.earlyDiscountRate);
-            discountAmount += earlyDiscount;
-            discountReasons.push(`조기 갱신 할인 (${(fees.earlyDiscountRate * 100)}%)`);
-        }
-
-        // 온라인 교육 할인
-        if (educationType === 'online') {
-            const onlineDiscount = Math.round(educationFee * fees.onlineDiscountRate);
-            discountAmount += onlineDiscount;
-            discountReasons.push(`온라인 교육 할인 (${(fees.onlineDiscountRate * 100)}%)`);
-        }
-
-        // 총 금액 계산
-        const subtotal = renewalFee + educationFee + deliveryFee;
-        const totalAmount = subtotal - discountAmount;
-
-        // UI 업데이트
-        const elements = {
-            '.renewal-fee': renewalFee.toLocaleString() + '원',
-            '.education-fee': educationFee.toLocaleString() + '원',
-            '.delivery-fee': deliveryFee.toLocaleString() + '원',
-            '.discount-amount': '-' + discountAmount.toLocaleString() + '원',
-            '.total-amount': totalAmount.toLocaleString() + '원'
-        };
-
-        Object.entries(elements).forEach(([selector, value]) => {
-            const element = document.querySelector(selector);
-            if (element) {
-                element.textContent = value;
-            }
-        });
-
-        // 할인 정보 표시
-        updateDiscountInfo(discountReasons, discountAmount);
-    }
-
-    /**
      * 할인 정보 업데이트
      */
     function updateDiscountInfo(reasons, amount) {
@@ -845,12 +1129,10 @@
         if (!discountList || !titleElement) return;
 
         if (reasons.length > 0 && amount > 0) {
-            // 할인 적용된 경우
             discountInfoSection.classList.remove('hidden');
             discountList.innerHTML = reasons.map(reason => `<li>• ${reason}</li>`).join('');
             titleElement.textContent = `할인 혜택 (총 ${amount.toLocaleString()}원 할인)`;
         } else {
-            // 할인 없는 경우 기본 할인 정보 표시
             discountList.innerHTML = `
                 <li>• 온라인 교육 선택 시: 교육비 20% 할인</li>
                 <li>• 조기 갱신 신청 시 (만료 60일 전): 갱신비 10% 할인</li>
@@ -861,7 +1143,7 @@
     }
 
     /**
-     * 갱신 신청 제출 (수정된 버전)
+     * 갱신 신청 제출
      */
     window.submitRenewalApplication = async function () {
         try {
@@ -874,7 +1156,7 @@
             const submitBtn = document.querySelector('.modal-footer .btn-primary');
             if (!submitBtn) return;
 
-            const originalText = submitBtn.innerHTML; // 수정: 변수 정의 추가
+            const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = `
                 <svg class="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
@@ -887,8 +1169,6 @@
             // 모달 단계 진행
             updateModalSteps(5);
             updateModalStepInfo(5, 4);
-
-            // 갱신 진행률 업데이트
             updateRenewalProgress(75, '갱신 신청서를 처리하고 있습니다...');
 
             // selectedCertForRenewal null 체크 및 기본값 설정
@@ -923,14 +1203,12 @@
 
             // 성공 메시지
             showNotification('갱신 신청이 성공적으로 제출되었습니다!', 'success');
-
-            // 갱신 진행률 완료
             updateRenewalProgress(100, '갱신 신청이 완료되었습니다. 결제 페이지로 이동합니다.');
 
             // 모달 닫기
             closeRenewalModal();
 
-            // 결제 페이지로 이동 (테스트 환경에서는 alert로 대체)
+            // 결제 페이지로 이동
             setTimeout(() => {
                 if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                     alert(`결제 페이지로 이동합니다.\n상품: ${selectedCertForRenewal.certName} 갱신\n금액: ${formData.totalAmount.toLocaleString()}원`);
@@ -949,8 +1227,6 @@
         } catch (error) {
             console.error('갱신 신청 오류:', error);
             showNotification('갱신 신청 중 오류가 발생했습니다.', 'error');
-
-            // 진행률 리셋
             updateRenewalProgress(25, '오류가 발생했습니다. 다시 시도해주세요.');
         } finally {
             // 버튼 상태 복원
@@ -968,7 +1244,7 @@
     };
 
     /**
-     * 갱신 폼 유효성 검사 (개선된 버전)
+     * 갱신 폼 유효성 검사
      */
     function validateRenewalForm() {
         const requiredFields = [
@@ -1055,8 +1331,12 @@
         return true;
     }
 
+    // =================================
+    // Part 6: 파일 처리 및 데이터 저장
+    // =================================
+
     /**
-     * 갱신 폼 데이터 수집 (개선된 버전)
+     * 갱신 폼 데이터 수집 (Part 5에서 이어짐)
      */
     function collectRenewalFormData() {
         if (!selectedCertForRenewal) {
@@ -1079,7 +1359,7 @@
         // 비용 계산
         const renewalFee = fees.renewal;
         const educationFee = fees.education[educationType] || 0;
-        const deliveryFee = deliveryMethod === 'both' ? 5000 : 0;
+        const deliveryFee = deliveryMethod === 'both' ? (fees.deliveryFee || 5000) : 0;
 
         // 할인 계산
         let discountAmount = 0;
@@ -1123,7 +1403,7 @@
     }
 
     /**
-     * 갱신 신청 저장 (개선된 버전)
+     * 갱신 신청 저장
      */
     async function saveRenewalApplication(formData) {
         const user = window.authService.getCurrentUser();
@@ -1131,9 +1411,7 @@
             throw new Error('사용자 인증이 필요합니다.');
         }
 
-        // 애플리케이션 ID 생성
         const applicationId = 'renewal_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-
         console.log('갱신 신청 저장 시작:', applicationId);
 
         try {
@@ -1279,7 +1557,14 @@
     }
 
     /**
-     * 자격증 다운로드 (개선된 버전)
+     * 파일 확장자 추출
+     */
+    function getFileExtension(filename) {
+        return filename.split('.').pop().toLowerCase();
+    }
+
+    /**
+     * 자격증 다운로드
      */
     window.downloadCertificate = async function (certId) {
         try {
@@ -1291,7 +1576,6 @@
 
             showNotification('자격증을 다운로드하고 있습니다...', 'info');
 
-            // Firebase Storage에서 자격증 파일 다운로드
             const user = window.authService.getCurrentUser();
             if (!user) {
                 showNotification('로그인이 필요합니다.', 'error');
@@ -1319,7 +1603,7 @@
                 console.error('Storage 다운로드 오류:', storageError);
 
                 if (storageError.code === 'storage/object-not-found') {
-                    showNotification('자격증 파일이 아directly 준비되지 않았습니다. 관리자에게 문의하세요.', 'error');
+                    showNotification('자격증 파일이 아직 준비되지 않았습니다. 관리자에게 문의하세요.', 'error');
                 } else if (storageError.code === 'storage/unauthorized') {
                     showNotification('자격증 다운로드 권한이 없습니다.', 'error');
                 } else {
@@ -1333,49 +1617,8 @@
         }
     };
 
-    // ========================================
-    // 5. 파일 확장자 추출 헬퍼 함수 추가
-    // ========================================
-    function getFileExtension(filename) {
-        return filename.split('.').pop().toLowerCase();
-    }
-
     /**
-     * 샘플 자격증 PDF 생성 (로컬 테스트용)
-     */
-    function generateSampleCertificatePDF(cert) {
-        const formatDate = (date) => {
-            return date.toLocaleDateString('ko-KR', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            });
-        };
-
-        const content = `
-디지털헬스케어센터 자격증
-
-자격증명: ${cert.certName}
-자격증번호: ${cert.certNumber}
-발급일: ${formatDate(new Date(cert.issuedAt.seconds * 1000))}
-만료일: ${formatDate(new Date(cert.expiryDate.seconds * 1000))}
-
-본 자격증은 디지털헬스케어센터에서 발급한 공식 자격증입니다.
-        `;
-
-        const blob = new Blob([content], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${cert.certName}_${cert.certNumber}.txt`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-    }
-
-    /**
-     * 결제 페이지로 이동 (개선된 버전)
+     * 결제 페이지로 이동
      */
     window.goToPayment = function (applicationId) {
         const app = applications.find(a => a.id === applicationId);
@@ -1384,7 +1627,6 @@
             return;
         }
 
-        // 진행률 업데이트
         updateRenewalProgress(50, '결제 페이지로 이동합니다...');
 
         const paymentParams = new URLSearchParams({
@@ -1397,13 +1639,13 @@
         });
 
         setTimeout(() => {
-            // 실제 결제 페이지로 이동 (아직 결제 시스템이 없으므로 알림으로 대체)
             alert(`결제 시스템 연동 예정\n\n상품: ${app.certName} ${app.type === 'certification' ? '신청' : '갱신'}\n금액: ${(app.totalAmount || 50000).toLocaleString()}원\n신청 ID: ${applicationId}`);
-
-            // 실제 결제 시스템 연동 시 아래 코드로 교체
-            // window.location.href = window.adjustPath(`pages/education/cert-application.html?${paymentParams.toString()}`);
         }, 1000);
     };
+
+    // =================================
+    // 상태 및 헬퍼 함수들
+    // =================================
 
     /**
      * 상태 텍스트 반환
@@ -1435,41 +1677,12 @@
         return classMap[status] || 'status-default';
     }
 
-    /**
-     * 주소 찾기 (개선된 버전)
-     */
-    function findRenewalAddress() {
-        if (typeof daum === 'undefined' || !daum.Postcode) {
-            showNotification('주소 검색 서비스를 로드하는 중입니다...', 'info');
-            return;
-        }
-
-        new daum.Postcode({
-            oncomplete: function (data) {
-                const zipcodeElement = document.getElementById('renewal-zipcode');
-                const address1Element = document.getElementById('renewal-address1');
-                const address2Element = document.getElementById('renewal-address2');
-
-                if (zipcodeElement) zipcodeElement.value = data.zonecode;
-                if (address1Element) address1Element.value = data.address;
-                if (address2Element) address2Element.focus();
-
-                // 주소 입력 완료 시 진행률 업데이트
-                updateRenewalProgress(60, '배송 정보가 입력되었습니다.');
-
-                console.log('주소 선택 완료:', data);
-            },
-            onclose: function (state) {
-                if (state === 'COMPLETE_CLOSE') {
-                    const address2Element = document.getElementById('renewal-address2');
-                    if (address2Element) address2Element.focus();
-                }
-            }
-        }).open();
-    }
+    // =================================
+    // 파일 업로드 처리
+    // =================================
 
     /**
-     * 파일 업로드 설정 (개선된 버전)
+     * 파일 업로드 설정
      */
     function setupFileUpload(inputId, isMultiple) {
         const input = document.getElementById(inputId);
@@ -1513,7 +1726,7 @@
     }
 
     /**
-     * 파일 업로드 처리 (개선된 버전)
+     * 파일 업로드 처리
      */
     function handleFileUpload(input, isMultiple) {
         const files = input.files;
@@ -1530,12 +1743,11 @@
             handleSingleFile(files[0], preview, dropZone, input);
         }
 
-        // 파일 업로드 완료 시 진행률 업데이트
         updateRenewalProgress(40, '파일이 업로드되었습니다.');
     }
 
     /**
-     * 단일 파일 처리 (개선된 버전)
+     * 단일 파일 처리
      */
     function handleSingleFile(file, preview, dropZone, input) {
         if (!validateFile(file)) {
@@ -1551,7 +1763,6 @@
         dropZone.classList.add('hidden');
         preview.classList.remove('hidden');
 
-        // 제거 버튼 이벤트
         const removeBtn = preview.querySelector('.remove-file');
         if (removeBtn) {
             removeBtn.onclick = () => {
@@ -1563,7 +1774,7 @@
     }
 
     /**
-     * 다중 파일 처리 (개선된 버전)
+     * 다중 파일 처리
      */
     function handleMultipleFiles(files, previewList, dropZone, input) {
         if (files.length > 5) {
@@ -1595,7 +1806,6 @@
             dropZone.classList.add('hidden');
             previewList.classList.remove('hidden');
         } else {
-            // 모든 파일이 유효하지 않은 경우
             input.value = '';
         }
     }
@@ -1612,7 +1822,7 @@
     }
 
     /**
-     * 파일 유효성 검사 (개선된 버전)
+     * 파일 유효성 검사
      */
     function validateFile(file) {
         // 파일 크기 체크 (5MB)
@@ -1648,7 +1858,6 @@
 
         if (!input) return;
 
-        // 파일 목록에서 제거
         const dt = new DataTransfer();
         const files = Array.from(input.files);
         files.forEach((file, i) => {
@@ -1658,10 +1867,8 @@
         });
         input.files = dt.files;
 
-        // UI에서 제거
         previewItem.remove();
 
-        // 파일이 모두 제거된 경우
         if (previewList.children.length === 0) {
             const dropZone = previewList.parentElement.querySelector('.file-drop-zone');
             if (dropZone) {
@@ -1689,6 +1896,82 @@
         }
     }
 
+    // =================================
+    // Part 7: 이벤트 리스너 및 유틸리티
+    // =================================
+
+    /**
+     * 이벤트 리스너 설정
+     */
+    function setupEventListeners() {
+        console.log('🔧 이벤트 리스너 설정 시작');
+
+        // 갱신 교육 유형 변경
+        const educationTypeSelect = document.getElementById('renewal-education-type');
+        if (educationTypeSelect) {
+            educationTypeSelect.addEventListener('change', function () {
+                const completionField = document.getElementById('renewal-education-completion-field');
+                if (completionField) {
+                    if (this.value === 'completed') {
+                        completionField.classList.remove('hidden');
+                    } else {
+                        completionField.classList.add('hidden');
+                    }
+                }
+                updateRenewalTotalAmountWithDynamicFees();
+            });
+            console.log('✅ 교육 유형 선택 이벤트 설정 완료');
+        }
+
+        // 배송 방법 변경
+        const deliveryMethodSelect = document.getElementById('renewal-delivery-method');
+        if (deliveryMethodSelect) {
+            deliveryMethodSelect.addEventListener('change', function () {
+                const addressFields = document.getElementById('renewal-address-fields');
+                const deliveryFeeRow = document.getElementById('renewal-delivery-fee-row');
+
+                console.log('📦 배송 방법 변경됨:', this.value);
+
+                if (this.value === 'digital') {
+                    if (addressFields) {
+                        addressFields.style.display = 'none';
+                        console.log('📱 디지털 수령 - 주소 필드 숨김');
+                    }
+                    if (deliveryFeeRow) {
+                        deliveryFeeRow.style.display = 'none';
+                        console.log('💰 배송비 숨김');
+                    }
+                } else {
+                    if (addressFields) {
+                        addressFields.style.display = 'block';
+                        console.log('📦 실물 수령 - 주소 필드 표시');
+                    }
+                    if (deliveryFeeRow) {
+                        if (this.value === 'both') {
+                            deliveryFeeRow.style.display = 'flex';
+                            console.log('💰 배송비 표시 (실물+디지털)');
+                        } else {
+                            deliveryFeeRow.style.display = 'none';
+                            console.log('💰 배송비 숨김 (실물만)');
+                        }
+                    }
+                }
+                updateRenewalTotalAmountWithDynamicFees();
+            });
+            console.log('✅ 배송 방법 선택 이벤트 설정 완료');
+        }
+
+        // 파일 업로드 처리
+        setupFileUpload('renewal-education-completion', false);
+        setupFileUpload('renewal-cpe-documents', true);
+
+        console.log('✅ 모든 이벤트 리스너 설정 완료');
+    }
+
+    // =================================
+    // 유틸리티 함수들
+    // =================================
+
     /**
      * 로딩 상태 표시
      */
@@ -1704,7 +1987,7 @@
     }
 
     /**
-     * 알림 메시지 표시 (개선된 버전)
+     * 알림 메시지 표시
      */
     function showNotification(message, type = 'info') {
         // 기존 알림 제거
@@ -1774,11 +2057,55 @@
         }
     }
 
+    // =================================
+    // 전역 함수 노출 및 새로고침 기능
+    // =================================
+
+    /**
+     * 갱신 비용 새로고침 함수
+     */
+    window.refreshRenewalFees = async function () {
+        console.log('🔄 갱신 비용 수동 새로고침');
+
+        try {
+            showNotification('갱신 비용 정보를 업데이트하고 있습니다...', 'info');
+
+            const result = await loadDynamicRenewalFees();
+
+            if (result) {
+                if (selectedCertForRenewal) {
+                    updateRenewalTotalAmountWithDynamicFees();
+                }
+
+                showNotification('갱신 비용 정보가 성공적으로 업데이트되었습니다.', 'success');
+            } else {
+                showNotification('갱신 비용 정보 업데이트에 실패했습니다.', 'error');
+            }
+
+            return result;
+        } catch (error) {
+            console.error('갱신 비용 새로고침 오류:', error);
+            showNotification('갱신 비용 새로고침 중 오류가 발생했습니다.', 'error');
+            return false;
+        }
+    };
+
+    // =================================
+    // Part 8: 이벤트 처리 및 최종 완성
+    // =================================
+
+    // 전역 접근을 위한 함수들 노출
+    window.loadDynamicRenewalFees = loadDynamicRenewalFees;
+    window.updateRenewalTotalAmountWithDynamicFees = updateRenewalTotalAmountWithDynamicFees;
+
+    // =================================
+    // 브라우저 이벤트 처리
+    // =================================
+
     /**
      * 브라우저 뒤로가기 처리
      */
     window.addEventListener('popstate', function (event) {
-        // 모달이 열려있는 경우 닫기
         const modal = document.getElementById('renewal-modal');
         if (modal && !modal.classList.contains('hidden')) {
             closeRenewalModal();
@@ -1810,7 +2137,6 @@
      */
     document.addEventListener('visibilitychange', function () {
         if (!document.hidden) {
-            // 페이지가 다시 보이게 되면 데이터 새로고침
             setTimeout(refreshData, 1000);
         }
     });
@@ -1820,7 +2146,6 @@
      */
     window.addEventListener('error', function (event) {
         console.error('전역 오류:', event.error);
-        // 개발 환경에서만 알림 표시
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             showNotification('예기치 않은 오류가 발생했습니다.', 'error');
         }
@@ -1831,12 +2156,57 @@
      */
     window.addEventListener('unhandledrejection', function (event) {
         console.error('미처리 Promise 거부:', event.reason);
-        // Firebase 권한 오류는 개발 환경에서 정상이므로 알림 표시하지 않음
         if (!event.reason.message || !event.reason.message.includes('permissions')) {
             showNotification('처리되지 않은 오류가 발생했습니다.', 'error');
         }
         event.preventDefault();
     });
+
+    // =================================
+    // mypageHelpers 네임스페이스
+    // =================================
+
+    /**
+     * mypageHelpers 네임스페이스에 함수 추가
+     */
+    if (!window.mypageHelpers) {
+        window.mypageHelpers = {};
+    }
+
+    Object.assign(window.mypageHelpers, {
+        showNotification,
+        refreshData,
+        loadDynamicRenewalFees: loadDynamicRenewalFees,
+        updateRenewalTotalAmountWithDynamicFees: updateRenewalTotalAmountWithDynamicFees,
+        checkAuthState: function () {
+            if (!window.authService || !window.authService.getCurrentUser) {
+                console.error('AuthService가 로드되지 않았습니다.');
+                setTimeout(() => {
+                    window.location.href = window.adjustPath('pages/auth/login.html');
+                }, 1000);
+                return false;
+            }
+
+            const user = window.authService.getCurrentUser();
+            if (!user) {
+                console.log('사용자가 로그인되지 않았습니다.');
+                setTimeout(() => {
+                    window.location.href = window.adjustPath('pages/auth/login.html');
+                }, 1000);
+                return false;
+            }
+
+            if (!user.emailVerified) {
+                console.warn('이메일 인증이 완료되지 않았습니다.');
+            }
+
+            return true;
+        }
+    });
+
+    // =================================
+    // 디버깅 도구 (개발 환경)
+    // =================================
 
     /**
      * 디버그 모드 (개발 환경에서만)
@@ -1855,6 +2225,7 @@
             updateRenewalProgress,
             updateProcessSteps,
             showNotification,
+            
             // Firebase 연동 테스트용 함수들
             testFirebaseConnection: async function () {
                 try {
@@ -1865,7 +2236,6 @@
                         return { error: '로그인 필요' };
                     }
 
-                    // Firestore 연결 테스트
                     const certResult = await window.dbService.getDocuments('certificates', {
                         where: { field: 'userId', operator: '==', value: user.uid }
                     });
@@ -1892,7 +2262,7 @@
                 }
             },
 
-            // 테스트 자격증 생성 (관리자용)
+            // 테스트 자격증 생성
             createTestCertificate: async function () {
                 const user = window.authService.getCurrentUser();
                 if (!user) {
@@ -1917,7 +2287,7 @@
                     console.log('테스트 자격증 생성 결과:', result);
 
                     if (result.success) {
-                        await refreshData(); // 데이터 새로고침
+                        await refreshData();
                         showNotification('테스트 자격증이 생성되었습니다.', 'success');
                     }
 
@@ -1929,72 +2299,152 @@
             }
         };
 
-        console.log('🔧 자격증 관리 디버그 모드 활성화 (Firebase 연동)');
+        // 갱신 비용 디버깅 도구
+        window.debugRenewalSystem = {
+            help: () => {
+                console.log('🔧 갱신 비용 시스템 디버깅 도구');
+                console.log('- checkGlobalVars() : 전역 변수 상태 확인');
+                console.log('- testDynamicLoad() : 동적 로드 테스트');
+                console.log('- testModalOpen() : 모달 열기 테스트');
+                console.log('- testFeeCalculation() : 비용 계산 테스트');
+                console.log('- refreshFees() : 수동 새로고침');
+            },
+
+            checkGlobalVars: () => {
+                console.log('=== 전역 변수 상태 ===');
+                console.log('renewalFees:', window.renewalFees);
+                console.log('selectedCertForRenewal:', window.selectedCertForRenewal);
+                console.log('certificates:', window.certificates);
+            },
+
+            testDynamicLoad: () => window.loadDynamicRenewalFees(),
+            testModalOpen: () => window.openRenewalModal('test-cert-001'),
+            testFeeCalculation: () => window.updateRenewalTotalAmountWithDynamicFees(),
+            refreshFees: () => window.refreshRenewalFees()
+        };
+
+        // 주소찾기 디버깅 도구
+        window.debugAddressSearch = {
+            help: () => {
+                console.log('🔧 주소찾기 디버깅 도구');
+                console.log('- test() : 주소찾기 직접 테스트');
+                console.log('- check() : 버튼 상태 확인');
+                console.log('- setup() : 이벤트 리스너 재설정');
+            },
+
+            test: () => {
+                console.log('🧪 주소찾기 테스트');
+                window.findRenewalAddress();
+            },
+
+            check: () => {
+                const btn = document.getElementById('renewal-find-address');
+                console.log('주소찾기 버튼:', btn ? '존재' : '없음');
+                if (btn) {
+                    console.log('버튼 onclick:', btn.onclick);
+                }
+                
+                console.log('전역 함수들:');
+                console.log('- window.findRenewalAddress:', typeof window.findRenewalAddress);
+                console.log('- window.handleAddressSearch:', typeof window.handleAddressSearch);
+            },
+
+            setup: () => {
+                console.log('🔧 이벤트 리스너 재설정');
+                setupAddressSearchFeature();
+            }
+        };
+
+        // 전역 디버깅 유틸리티
+        window.debugUtils = {
+            help: () => {
+                console.log('🔧 전역 디버깅 유틸리티');
+                console.log('- checkAllGlobals() : 모든 전역 변수 확인');
+                console.log('- testFullFlow() : 전체 플로우 테스트');
+                console.log('- resetAllData() : 모든 데이터 리셋');
+            },
+
+            checkAllGlobals: () => {
+                console.log('=== 모든 전역 변수 확인 ===');
+                console.log('renewalFees:', window.renewalFees);
+                console.log('selectedCertForRenewal:', window.selectedCertForRenewal);
+                console.log('certificates:', window.certificates);
+                console.log('applications:', window.applications);
+                console.log('mypageHelpers:', window.mypageHelpers);
+                console.log('authService:', window.authService);
+                console.log('dbService:', window.dbService);
+            },
+
+            testFullFlow: async () => {
+                console.log('🧪 전체 플로우 테스트 시작');
+
+                try {
+                    // 1. 동적 비용 로드 테스트
+                    console.log('1. 동적 비용 로드 테스트...');
+                    await window.loadDynamicRenewalFees();
+
+                    // 2. 모달 열기 테스트
+                    console.log('2. 모달 열기 테스트...');
+                    window.openRenewalModal('test-cert-001');
+
+                    // 3. 비용 계산 테스트 (지연 실행)
+                    setTimeout(() => {
+                        console.log('3. 비용 계산 테스트...');
+                        window.updateRenewalTotalAmountWithDynamicFees();
+                        console.log('✅ 전체 플로우 테스트 완료');
+                    }, 1000);
+
+                } catch (error) {
+                    console.error('❌ 전체 플로우 테스트 실패:', error);
+                }
+            },
+
+            resetAllData: () => {
+                console.log('🔄 모든 데이터 리셋');
+                window.certificates = [];
+                window.applications = [];
+                window.selectedCertForRenewal = null;
+                if (window.mypageHelpers && window.mypageHelpers.refreshData) {
+                    window.mypageHelpers.refreshData();
+                }
+                console.log('✅ 데이터 리셋 완료');
+            }
+        };
+
+        console.log('🔧 자격증 관리 디버그 모드 활성화');
         console.log('테스트 함수:');
         console.log('- window.debugCertManagement.testFirebaseConnection()');
         console.log('- window.debugCertManagement.createTestCertificate()');
+        console.log('- window.debugRenewalSystem.help()');
+        console.log('- window.debugAddressSearch.help()');
+        console.log('- window.debugUtils.help()');
     }
 
-    /**
-     * mypageHelpers 네임스페이스에 함수 추가
-     */
-    if (!window.mypageHelpers) {
-        window.mypageHelpers = {};
-    }
-
-    Object.assign(window.mypageHelpers, {
-        showNotification,
-        refreshData,
-        checkAuthState: function () {
-            if (!window.authService || !window.authService.getCurrentUser) {
-                console.error('AuthService가 로드되지 않았습니다.');
-                setTimeout(() => {
-                    window.location.href = window.adjustPath('pages/auth/login.html');
-                }, 1000);
-                return false;
-            }
-
-            const user = window.authService.getCurrentUser();
-            if (!user) {
-                console.log('사용자가 로그인되지 않았습니다.');
-                setTimeout(() => {
-                    window.location.href = window.adjustPath('pages/auth/login.html');
-                }, 1000);
-                return false;
-            }
-
-            // 이메일 인증 확인 (선택사항)
-            if (!user.emailVerified) {
-                console.warn('이메일 인증이 완료되지 않았습니다.');
-            }
-
-            return true;
-        }
-    });
+    // =================================
+    // 최종 초기화 및 완료
+    // =================================
 
     // 페이지 로드 시 초기화
     document.addEventListener('DOMContentLoaded', function () {
-        // 약간의 지연 후 초기화 (다른 스크립트 로딩 대기)
         setTimeout(initializePage, 100);
     });
 
-    /**
-     * ServiceWorker 등록 (PWA 지원) - 주석 처리
-     */
-    /*
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-            navigator.serviceWorker.register('/sw.js')
-                .then(function(registration) {
-                    console.log('ServiceWorker 등록 성공:', registration.scope);
-                })
-                .catch(function(error) {
-                    console.log('ServiceWorker 등록 실패:', error);
-                });
-        });
-    }
-    */
+    console.log('✅ 자격증 관리 페이지 스크립트 로드 완료 - 정리된 버전');
+    console.log('🎉 동적 갱신 비용 시스템 및 주소찾기 기능 완성!');
 
-    console.log('✅ 자격증 관리 페이지 스크립트 로드 완료 - 수정된 버전');
+})(); // IIFE 끝
 
-})();
+// =================================
+// IIFE 외부 - 추가 디버깅 도구
+// =================================
+
+console.log('🎉 cert-management-enhanced.js 전체 로딩 완료!');
+console.log('📋 주요 기능:');
+console.log('  ✅ 동적 갱신 비용 로드');
+console.log('  ✅ 갱신 모달 시스템');
+console.log('  ✅ 주소찾기 기능 (완전 정리됨)');
+console.log('  ✅ 파일 업로드 처리');
+console.log('  ✅ 폼 유효성 검사');
+console.log('  ✅ Firebase 연동');
+console.log('  ✅ 디버깅 도구');
+console.log('🚀 시스템 준비 완료!');

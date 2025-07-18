@@ -1407,3 +1407,396 @@ console.log('📸 테스트: window.dbService.debug.help()');
 // 완료 플래그 설정
 window.dbServiceEnhancementComplete = true;
 
+// =================================
+// 갱신 비용 설정 관련 함수들 (window.dbServiceEnhancementComplete = true; 다음에 추가)
+// =================================
+
+/**
+ * 갱신 비용 설정 저장
+ * @param {Object} renewalFeeData - 갱신 비용 데이터
+ * @returns {Promise<Object>} 저장 결과
+ */
+window.dbService.saveRenewalFeeSettings = async function(renewalFeeData) {
+    console.log('💾 갱신 비용 설정 저장 (db-service)');
+    
+    try {
+        // Firebase 연결 확인
+        if (!window.dhcFirebase || !window.dhcFirebase.db) {
+            console.log('🔧 Firebase 미연결, 로컬 저장 시뮬레이션');
+            await new Promise(resolve => setTimeout(resolve, 1000)); // 시뮬레이션 지연
+            return { 
+                success: true, 
+                message: '갱신 비용 설정이 저장되었습니다. (로컬 모드)',
+                data: renewalFeeData
+            };
+        }
+
+        // 메타데이터 추가
+        const dataWithMetadata = {
+            ...renewalFeeData,
+            lastUpdated: new Date().toISOString(),
+            updatedBy: getCurrentUserEmail() || 'admin',
+            version: '1.0'
+        };
+
+        // Firestore에 저장
+        await window.dhcFirebase.db
+            .collection('settings')
+            .doc('renewal-fees')
+            .set(dataWithMetadata, { merge: true });
+        
+        console.log('✅ 갱신 비용 설정 저장 완료');
+        return { 
+            success: true, 
+            message: '갱신 비용 설정이 성공적으로 저장되었습니다.',
+            data: dataWithMetadata
+        };
+        
+    } catch (error) {
+        console.error('❌ 갱신 비용 설정 저장 오류:', error);
+        return { 
+            success: false, 
+            error: error.message,
+            message: '갱신 비용 설정 저장 중 오류가 발생했습니다.'
+        };
+    }
+};
+
+/**
+ * 갱신 비용 설정 조회
+ * @returns {Promise<Object>} 조회 결과
+ */
+window.dbService.getRenewalFeeSettings = async function() {
+    console.log('📥 갱신 비용 설정 조회 (db-service)');
+    
+    try {
+        // Firebase 연결 확인
+        if (!window.dhcFirebase || !window.dhcFirebase.db) {
+            console.log('🔧 Firebase 미연결, 기본값 반환');
+            return { 
+                success: true, 
+                data: getDefaultRenewalFeeSettings(),
+                message: '기본 갱신 비용 설정을 사용합니다. (로컬 모드)'
+            };
+        }
+
+        // Firestore에서 조회
+        const doc = await window.dhcFirebase.db
+            .collection('settings')
+            .doc('renewal-fees')
+            .get();
+        
+        if (doc.exists) {
+            const data = doc.data();
+            console.log('✅ 갱신 비용 설정 조회 완료');
+            return { 
+                success: true, 
+                data: data,
+                message: '갱신 비용 설정을 성공적으로 조회했습니다.'
+            };
+        } else {
+            console.log('📝 갱신 비용 설정이 없습니다. 기본값을 사용하세요.');
+            return { 
+                success: false, 
+                error: 'No renewal fee settings found',
+                message: '설정된 갱신 비용이 없습니다. 관리자가 설정해주세요.',
+                data: getDefaultRenewalFeeSettings()
+            };
+        }
+        
+    } catch (error) {
+        console.error('❌ 갱신 비용 설정 조회 오류:', error);
+        return { 
+            success: false, 
+            error: error.message,
+            message: '갱신 비용 설정 조회 중 오류가 발생했습니다.',
+            data: getDefaultRenewalFeeSettings()
+        };
+    }
+};
+
+/**
+ * 특정 자격증 유형의 갱신 비용 조회
+ * @param {string} certType - 자격증 유형 (health-exercise, rehabilitation, pilates, recreation)
+ * @returns {Promise<Object>} 조회 결과
+ */
+window.dbService.getCertTypeRenewalFee = async function(certType) {
+    console.log('📋 자격증 유형별 갱신 비용 조회:', certType);
+    
+    try {
+        const result = await this.getRenewalFeeSettings();
+        
+        if (result.success && result.data) {
+            const certTypeFee = result.data[certType];
+            
+            if (certTypeFee) {
+                console.log('✅ 자격증 유형별 갱신 비용 조회 완료');
+                return { 
+                    success: true, 
+                    data: certTypeFee,
+                    message: `${getCertTypeName(certType)} 갱신 비용을 조회했습니다.`
+                };
+            } else {
+                console.log('📝 해당 자격증 유형의 갱신 비용 설정이 없습니다.');
+                const defaultFees = getDefaultRenewalFeeSettings();
+                return { 
+                    success: false, 
+                    error: 'No fee settings for this cert type',
+                    message: `${getCertTypeName(certType)}의 갱신 비용 설정이 없습니다. 기본값을 사용합니다.`,
+                    data: defaultFees[certType] || defaultFees['health-exercise']
+                };
+            }
+        } else {
+            // 전체 설정 조회 실패 시 기본값 반환
+            const defaultFees = getDefaultRenewalFeeSettings();
+            return { 
+                success: false, 
+                error: result.error || 'Failed to get renewal fee settings',
+                message: result.message || '갱신 비용 설정을 조회할 수 없습니다. 기본값을 사용합니다.',
+                data: defaultFees[certType] || defaultFees['health-exercise']
+            };
+        }
+        
+    } catch (error) {
+        console.error('❌ 자격증 유형별 갱신 비용 조회 오류:', error);
+        const defaultFees = getDefaultRenewalFeeSettings();
+        return { 
+            success: false, 
+            error: error.message,
+            message: '갱신 비용 조회 중 오류가 발생했습니다. 기본값을 사용합니다.',
+            data: defaultFees[certType] || defaultFees['health-exercise']
+        };
+    }
+};
+
+/**
+ * 갱신 비용 계산 헬퍼 함수
+ * @param {string} certType - 자격증 유형
+ * @param {string} educationType - 교육 유형 (online, offline, completed)
+ * @param {string} deliveryMethod - 배송 방법 (digital, both)
+ * @param {Date} expiryDate - 자격증 만료일
+ * @returns {Promise<Object>} 계산된 비용 정보
+ */
+window.dbService.calculateRenewalFee = async function(certType, educationType, deliveryMethod, expiryDate) {
+    console.log('🧮 갱신 비용 계산:', { certType, educationType, deliveryMethod, expiryDate });
+    
+    try {
+        // 갱신 비용 설정 조회
+        const feeResult = await this.getCertTypeRenewalFee(certType);
+        const fees = feeResult.data;
+        
+        if (!fees) {
+            throw new Error('갱신 비용 설정을 찾을 수 없습니다.');
+        }
+
+        // 기본 비용 계산
+        const renewalFee = fees.renewal || 0;
+        const educationFee = fees.education[educationType] || 0;
+        const deliveryFee = (deliveryMethod === 'both') ? (fees.deliveryFee || 0) : 0;
+
+        // 할인 계산
+        let discountAmount = 0;
+        let discountReasons = [];
+
+        // 조기 갱신 할인 (만료 60일 전)
+        const today = new Date();
+        const daysUntilExpiry = Math.ceil((new Date(expiryDate) - today) / (1000 * 60 * 60 * 24));
+
+        if (daysUntilExpiry >= 60) {
+            const earlyDiscount = Math.round(renewalFee * (fees.earlyDiscountRate || 0));
+            discountAmount += earlyDiscount;
+            discountReasons.push({
+                type: 'early',
+                name: `조기 갱신 할인 (${Math.round((fees.earlyDiscountRate || 0) * 100)}%)`,
+                amount: earlyDiscount
+            });
+        }
+
+        // 온라인 교육 할인
+        if (educationType === 'online') {
+            const onlineDiscount = Math.round(educationFee * (fees.onlineDiscountRate || 0));
+            discountAmount += onlineDiscount;
+            discountReasons.push({
+                type: 'online',
+                name: `온라인 교육 할인 (${Math.round((fees.onlineDiscountRate || 0) * 100)}%)`,
+                amount: onlineDiscount
+            });
+        }
+
+        // 총 금액 계산
+        const subtotal = renewalFee + educationFee + deliveryFee;
+        const totalAmount = Math.max(0, subtotal - discountAmount);
+
+        const result = {
+            certType,
+            certTypeName: getCertTypeName(certType),
+            breakdown: {
+                renewalFee,
+                educationFee,
+                deliveryFee,
+                subtotal,
+                discountAmount,
+                totalAmount
+            },
+            discounts: discountReasons,
+            daysUntilExpiry,
+            calculatedAt: new Date().toISOString()
+        };
+
+        console.log('✅ 갱신 비용 계산 완료:', result);
+        return { success: true, data: result };
+        
+    } catch (error) {
+        console.error('❌ 갱신 비용 계산 오류:', error);
+        return { 
+            success: false, 
+            error: error.message,
+            message: '갱신 비용 계산 중 오류가 발생했습니다.'
+        };
+    }
+};
+
+/**
+ * 기본 갱신 비용 설정 반환
+ * @returns {Object} 기본 갱신 비용 설정
+ */
+function getDefaultRenewalFeeSettings() {
+    return {
+        'health-exercise': {
+            renewal: 50000,
+            deliveryFee: 5000,
+            education: { online: 80000, offline: 100000, completed: 0 },
+            earlyDiscountRate: 0.1,
+            onlineDiscountRate: 0.2
+        },
+        'rehabilitation': {
+            renewal: 50000,
+            deliveryFee: 5000,
+            education: { online: 96000, offline: 120000, completed: 0 },
+            earlyDiscountRate: 0.1,
+            onlineDiscountRate: 0.2
+        },
+        'pilates': {
+            renewal: 40000,
+            deliveryFee: 5000,
+            education: { online: 64000, offline: 80000, completed: 0 },
+            earlyDiscountRate: 0.1,
+            onlineDiscountRate: 0.2
+        },
+        'recreation': {
+            renewal: 30000,
+            deliveryFee: 5000,
+            education: { online: 56000, offline: 70000, completed: 0 },
+            earlyDiscountRate: 0.1,
+            onlineDiscountRate: 0.2
+        }
+    };
+}
+
+/**
+ * 자격증 유형명 반환 헬퍼 함수
+ * @param {string} certType - 자격증 유형
+ * @returns {string} 자격증 유형명
+ */
+function getCertTypeName(certType) {
+    const certTypeNames = {
+        'health-exercise': '건강운동처방사',
+        'rehabilitation': '운동재활전문가',
+        'pilates': '필라테스 전문가',
+        'recreation': '레크리에이션지도자'
+    };
+    
+    return certTypeNames[certType] || certType;
+}
+
+/**
+ * 현재 사용자 이메일 반환
+ * @returns {string|null} 사용자 이메일
+ */
+function getCurrentUserEmail() {
+    try {
+        if (window.dhcFirebase && window.dhcFirebase.auth) {
+            const currentUser = window.dhcFirebase.auth.currentUser;
+            return currentUser ? currentUser.email : null;
+        }
+        return null;
+    } catch (error) {
+        console.warn('사용자 정보 조회 실패:', error);
+        return null;
+    }
+}
+
+// =================================
+// 테스트 함수들 (개발 환경에서만)
+// =================================
+
+if (window.location.hostname === 'localhost' || 
+    window.location.hostname === '127.0.0.1' ||
+    window.location.search.includes('debug=true')) {
+    
+    window.testRenewalFeeDB = {
+        help: () => {
+            console.log('🧪 갱신 비용 DB 함수 테스트 도구');
+            console.log('📋 사용 가능한 함수:');
+            console.log('- testSave() : 갱신 비용 설정 저장 테스트');
+            console.log('- testGet() : 갱신 비용 설정 조회 테스트');
+            console.log('- testGetCertType() : 자격증별 갱신 비용 조회 테스트');
+            console.log('- testCalculate() : 갱신 비용 계산 테스트');
+        },
+        
+        testSave: async () => {
+            console.log('🧪 갱신 비용 설정 저장 테스트');
+            
+            const testData = {
+                'health-exercise': {
+                    renewal: 60000,
+                    deliveryFee: 5000,
+                    education: { online: 90000, offline: 110000, completed: 0 },
+                    earlyDiscountRate: 0.15,
+                    onlineDiscountRate: 0.25
+                }
+            };
+            
+            const result = await window.dbService.saveRenewalFeeSettings(testData);
+            console.log('저장 결과:', result);
+            return result;
+        },
+        
+        testGet: async () => {
+            console.log('🧪 갱신 비용 설정 조회 테스트');
+            
+            const result = await window.dbService.getRenewalFeeSettings();
+            console.log('조회 결과:', result);
+            return result;
+        },
+        
+        testGetCertType: async (certType = 'health-exercise') => {
+            console.log('🧪 자격증별 갱신 비용 조회 테스트:', certType);
+            
+            const result = await window.dbService.getCertTypeRenewalFee(certType);
+            console.log('조회 결과:', result);
+            return result;
+        },
+        
+        testCalculate: async () => {
+            console.log('🧪 갱신 비용 계산 테스트');
+            
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + 90); // 90일 후 만료
+            
+            const result = await window.dbService.calculateRenewalFee(
+                'health-exercise', 
+                'online', 
+                'both', 
+                expiryDate
+            );
+            console.log('계산 결과:', result);
+            return result;
+        }
+    };
+    
+    console.log('🧪 갱신 비용 DB 함수 테스트 도구 활성화');
+    console.log('💡 사용법: window.testRenewalFeeDB.help()');
+}
+
+console.log('🎉 갱신 비용 관련 db-service 함수 추가 완료!');
