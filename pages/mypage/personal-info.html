@@ -29,24 +29,12 @@
                     </div>
                 </a>
             </div>
+            <!-- 🔧 index.html과 동일한 네비게이션 메뉴로 통일 -->
             <nav class="main-nav hidden md:flex">
                 <ul class="flex space-x-6">
-                    <li class="group relative nav-item">
-                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">기관 소개</a>
-                        <ul
-                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">개요</a>
-                            </li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">목표 및 전략</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/business.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">사업 내용</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
-                        </ul>
+                    <li class="nav-item">
+                        <a href="javascript:window.location.href=window.adjustPath('pages/about.html')"
+                            class="text-gray-800 hover:text-blue-600 py-2 nav-link">기관 소개</a>
                     </li>
                     <li class="group relative nav-item">
                         <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">자격증 소개</a>
@@ -66,14 +54,12 @@
                         <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">교육 과정</a>
                         <ul
                             class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 과정 안내</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/instructors.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')"
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">자격증 신청</a></li>
-                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/exam-info.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">시험 안내</a></li>
                         </ul>
                     </li>
                     <li class="group relative nav-item">
@@ -126,20 +112,22 @@
 
                         <!-- 메인 메뉴 -->
                         <div class="space-y-2 mobile-menu-nav">
+                            <!-- 홈 링크 추가 -->
+                            <div class="mobile-menu-item">
+                                <a href="javascript:window.location.href=window.adjustPath('index.html')"
+                                    class="p-3 bg-white rounded-lg shadow-sm flex items-center">
+                                    <div class="menu-icon">🏠</div>
+                                    <div class="menu-text">홈</div>
+                                </a>
+                            </div>
+
                             <!-- 기관 소개 -->
                             <div class="mobile-menu-item">
-                                <button type="button">
+                                <a href="javascript:window.location.href=window.adjustPath('pages/about.html')"
+                                    class="p-3 bg-white rounded-lg shadow-sm flex items-center">
                                     <div class="menu-icon">🏢</div>
                                     <div class="menu-text">기관 소개</div>
-                                    <div class="toggle-icon">▶</div>
-                                </button>
-                                <div class="mobile-submenu">
-                                    <a href="javascript:window.location.href=window.adjustPath('pages/about/overview.html')">개요</a>
-                                    <a href="javascript:window.location.href=window.adjustPath('pages/about/vision.html')">목표 및 전략</a>
-                                    <a href="javascript:window.location.href=window.adjustPath('pages/about/business.html')">사업 내용</a>
-                                    <a href="javascript:window.location.href=window.adjustPath('pages/about/organization.html')">조직도</a>
-                                    <a href="javascript:window.location.href=window.adjustPath('pages/about/instructors.html')">강사 소개</a>
-                                </div>
+                                </a>
                             </div>
 
                             <!-- 자격증 소개 -->
@@ -165,10 +153,9 @@
                                     <div class="toggle-icon">▶</div>
                                 </button>
                                 <div class="mobile-submenu">
-                                    <a href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')">교육 과정 안내</a>
+                                    <a href="javascript:window.location.href=window.adjustPath('pages/education/instructors.html')">강사 소개</a>
                                     <a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')">교육 신청</a>
                                     <a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')">자격증 신청</a>
-                                    <a href="javascript:window.location.href=window.adjustPath('pages/education/exam-info.html')">시험 안내</a>
                                 </div>
                             </div>
 
@@ -273,26 +260,7 @@
                         <p class="mypage-description">회원님의 개인정보를 안전하게 관리하세요.</p>
                     </div>
 
-                    <!-- 개인정보 관리 콘텐츠 -->
-                    <div class="content-card">
-                        <div class="card-header">
-                            <h2 class="card-title">프로필 사진</h2>
-                            <p class="card-subtitle">회원님을 나타내는 프로필 사진을 설정하세요.</p>
-                        </div>
-
-                        <div class="profile-photo-container">
-                            <div class="profile-photo" id="profile-photo-preview">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="profile-photo-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                            </div>
-                            <div class="profile-photo-actions">
-                                <button id="upload-photo-btn" class="btn btn-primary">사진 변경</button>
-                                <button id="remove-photo-btn" class="btn btn-secondary">사진 삭제</button>
-                                <input type="file" id="profile-photo-input" class="hidden" accept="image/*">
-                            </div>
-                        </div>
-                    </div>
+                    <!-- 🔧 프로필 사진 섹션 제거됨 -->
 
                     <!-- 개인정보 수정 폼 -->
                     <div class="content-card">
@@ -405,7 +373,6 @@
         </div>
     </main>
 
-    <!-- 푸터 -->
     <footer class="bg-gray-800 text-white">
         <div class="container mx-auto px-4 py-6">
             <!-- 기관 정보 및 소셜 링크 -->
@@ -422,7 +389,8 @@
                     <div class="min-w-[200px]">
                         <p class="text-sm text-gray-400 mb-1">상호: 사단법인 문경</p>
                         <p class="text-sm text-gray-400 mb-1">대표: 최승욱</p>
-                        <p class="text-sm text-gray-400 mb-1">주소: 서울특별시 노원구 한글비석로 233, 새롬스타빌 706호&lpar;중계동, 새롬스타빌&rpar;</p>
+                        <p class="text-sm text-gray-400 mb-1">주소: 서울특별시 노원구 한글비석로 233, 새롬스타빌 706호&lpar;중계동, 새롬스타빌&rpar;
+                        </p>
                         <p class="text-sm text-gray-400 mb-1">전화: </p>
                     </div>
                     <div class="min-w-[200px]">

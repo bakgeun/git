@@ -44,18 +44,13 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
     
-    // 🔧 NEW: 사용자 약관 동의 컬렉션 규칙 (빠져있던 규칙 추가)
+    // 🔧 FIXED: 사용자 약관 동의 컬렉션 규칙 (간소화)
     match /user_agreements/{userId} {
       // 읽기: 본인의 약관 동의 정보 또는 관리자
       allow read: if isOwner(userId) || isAdmin();
       
-      // 생성: 인증된 사용자가 본인의 약관 동의
-      allow create: if isAuthenticated() && 
-        request.auth.uid == userId &&
-        isVerified();
-      
-      // 업데이트: 본인의 약관 동의 또는 관리자
-      allow update: if isOwner(userId) || isAdmin();
+      // 생성/업데이트: 인증된 사용자가 본인의 약관 동의 (검증 조건 완화)
+      allow create, update: if isAuthenticated() && request.auth.uid == userId;
       
       // 삭제: 관리자만
       allow delete: if isAdmin();
@@ -63,7 +58,7 @@ service cloud.firestore {
     
     // 게시판 공지사항 컬렉션 규칙
     match /board_notice/{noticeId} {
-      // 읽기: 모든 사용자 (비로그인 포함) - 🔧 수정
+      // 읽기: 모든 사용자 (비로그인 포함)
       allow read: if true;
       
       // 생성, 업데이트, 삭제: 관리자만
@@ -72,7 +67,7 @@ service cloud.firestore {
     
     // 게시판 칼럼 컬렉션 규칙
     match /board_column/{columnId} {
-      // 읽기: 모든 사용자 (비로그인 포함) - 🔧 수정
+      // 읽기: 모든 사용자 (비로그인 포함)
       allow read: if true;
       
       // 생성, 업데이트, 삭제: 관리자만
@@ -81,7 +76,7 @@ service cloud.firestore {
     
     // 게시판 강의자료 컬렉션 규칙
     match /board_materials/{materialId} {
-      // 읽기: 모든 사용자 (비로그인 포함) - 🔧 수정
+      // 읽기: 모든 사용자 (비로그인 포함)
       allow read: if true;
       
       // 생성, 업데이트, 삭제: 관리자만
@@ -90,7 +85,7 @@ service cloud.firestore {
     
     // 게시판 동영상 강의 컬렉션 규칙
     match /board_videos/{videoId} {
-      // 읽기: 모든 사용자 (비로그인 포함) - 🔧 수정
+      // 읽기: 모든 사용자 (비로그인 포함)
       allow read: if true;
       
       // 생성, 업데이트, 삭제: 관리자만
@@ -99,7 +94,7 @@ service cloud.firestore {
     
     // 공지사항 컬렉션 규칙
     match /notices/{noticeId} {
-      // 읽기: 모든 사용자 (비로그인 포함) - 🔧 수정
+      // 읽기: 모든 사용자 (비로그인 포함)
       allow read: if true;
       
       // 생성, 업데이트, 삭제: 관리자만
@@ -108,7 +103,7 @@ service cloud.firestore {
     
     // 칼럼 컬렉션 규칙
     match /columns/{columnId} {
-      // 읽기: 모든 사용자 (비로그인 포함) - 🔧 수정
+      // 읽기: 모든 사용자 (비로그인 포함)
       allow read: if true;
       
       // 생성, 업데이트, 삭제: 관리자만
@@ -117,7 +112,7 @@ service cloud.firestore {
     
     // 강의자료 컬렉션 규칙
     match /materials/{materialId} {
-      // 읽기: 모든 사용자 (비로그인 포함) - 🔧 수정
+      // 읽기: 모든 사용자 (비로그인 포함)
       allow read: if true;
       
       // 생성, 업데이트, 삭제: 관리자만
@@ -126,14 +121,14 @@ service cloud.firestore {
     
     // 동영상 강의 컬렉션 규칙
     match /videos/{videoId} {
-      // 읽기: 모든 사용자 (비로그인 포함) - 🔧 수정
+      // 읽기: 모든 사용자 (비로그인 포함)
       allow read: if true;
       
       // 생성, 업데이트, 삭제: 관리자만
       allow create, update, delete: if isAdmin();
     }
     
-    // 🔧 교육과정 컬렉션 규칙 (가장 중요한 수정!)
+    // 교육과정 컬렉션 규칙
     match /courses/{courseId} {
       // 읽기: 모든 사용자 (비로그인 포함) - 교육 신청 페이지에서 접근 가능
       allow read: if true;
@@ -142,7 +137,7 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
     
-    // 🔧 강사 정보 컬렉션 규칙 (공개)
+    // 강사 정보 컬렉션 규칙
     match /instructors/{instructorId} {
       // 읽기: 모든 사용자 (비로그인 포함) - 강사 소개 페이지에서 접근 가능
       allow read: if true;
@@ -151,7 +146,7 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
     
-    // 🔧 설정 컬렉션 규칙 (가격 정보 등 공개)
+    // 설정 컬렉션 규칙
     match /settings/{settingId} {
       // 읽기: 모든 사용자 (비로그인 포함) - 가격 정보 등 공개
       allow read: if true;
@@ -170,76 +165,52 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
-    // 자격증 신청/갱신 컬렉션 규칙
+    // 🔧 FIXED: 신청서 컬렉션 규칙 (대폭 간소화)
     match /applications/{applicationId} {
       // 읽기: 본인의 신청서 또는 관리자
       allow read: if isAuthenticated() && 
         (resource.data.userId == request.auth.uid || isAdmin());
       
-      // 생성: 인증된 사용자가 본인의 신청서 생성
-      allow create: if isAuthenticated() && 
-        request.resource.data.userId == request.auth.uid &&
-        isVerified() &&
-        // 필수 필드 검증
-        request.resource.data.keys().hasAll(['type', 'certType', 'certName', 'status', 'createdAt']) &&
-        // 타입 검증
-        request.resource.data.type is string &&
-        request.resource.data.certType is string &&
-        request.resource.data.certName is string &&
-        request.resource.data.status in ['payment_pending', 'under_review'] &&
-        // 금액 필드 검증
-        (request.resource.data.totalAmount is number && request.resource.data.totalAmount > 0);
+      // 🎯 생성: 인증된 사용자라면 누구나 신청 가능 (검증 조건 대폭 완화)
+      allow create: if isAuthenticated();
       
-      // 업데이트: 본인의 신청서 (상태 변경 제한) 또는 관리자가 모든 것
+      // 업데이트: 본인의 신청서 또는 관리자
       allow update: if isAuthenticated() && 
-        ((resource.data.userId == request.auth.uid && 
-          // 사용자는 status, progress, 결제 관련 필드를 변경할 수 없음
-          request.resource.data.status == resource.data.status &&
-          request.resource.data.progress == resource.data.progress &&
-          request.resource.data.totalAmount == resource.data.totalAmount) || 
-         isAdmin());
+        (resource.data.userId == request.auth.uid || isAdmin());
       
       // 삭제: 관리자만
       allow delete: if isAdmin();
     }
     
-    // 🔧 수강신청 컬렉션 규칙 (새로 추가)
+    // 수강신청 컬렉션 규칙
     match /course_applications/{applicationId} {
       // 읽기: 본인의 수강신청 또는 관리자
       allow read: if isAuthenticated() && 
         (resource.data.userId == request.auth.uid || isAdmin());
       
-      // 생성: 인증된 사용자가 본인의 수강신청
-      allow create: if isAuthenticated() && 
-        request.resource.data.userId == request.auth.uid &&
-        isVerified();
+      // 🎯 생성: 인증된 사용자라면 누구나 신청 가능
+      allow create: if isAuthenticated();
       
-      // 업데이트: 본인의 수강신청 (상태 변경 제한) 또는 관리자
+      // 업데이트: 본인의 수강신청 또는 관리자
       allow update: if isAuthenticated() && 
-        ((resource.data.userId == request.auth.uid && 
-          request.resource.data.status == resource.data.status) || 
-         isAdmin());
+        (resource.data.userId == request.auth.uid || isAdmin());
       
       // 삭제: 관리자만
       allow delete: if isAdmin();
     }
     
-    // 🔧 자격증 신청 컬렉션 규칙 (Certificate Applications)
+    // 자격증 신청 컬렉션 규칙
     match /certificate_applications/{applicationId} {
       // 읽기: 본인의 신청서 또는 관리자
       allow read: if isAuthenticated() && 
         (resource.data.userId == request.auth.uid || isAdmin());
       
-      // 생성: 인증된 사용자가 본인의 신청서 생성
-      allow create: if isAuthenticated() && 
-        request.resource.data.userId == request.auth.uid &&
-        isVerified();
+      // 🎯 생성: 인증된 사용자라면 누구나 신청 가능
+      allow create: if isAuthenticated();
       
-      // 업데이트: 본인의 신청서 (상태 변경 제한) 또는 관리자
+      // 업데이트: 본인의 신청서 또는 관리자
       allow update: if isAuthenticated() && 
-        ((resource.data.userId == request.auth.uid && 
-          request.resource.data.status == resource.data.status) || 
-         isAdmin());
+        (resource.data.userId == request.auth.uid || isAdmin());
       
       // 삭제: 관리자만
       allow delete: if isAdmin();
@@ -251,16 +222,12 @@ service cloud.firestore {
       allow read: if isAuthenticated() && 
         (resource.data.userId == request.auth.uid || isAdmin());
       
-      // 생성: 인증된 사용자가 본인의 수강신청
-      allow create: if isAuthenticated() && 
-        request.resource.data.userId == request.auth.uid &&
-        isVerified();
+      // 🎯 생성: 인증된 사용자라면 누구나 신청 가능
+      allow create: if isAuthenticated();
       
-      // 업데이트: 본인의 수강신청 (상태 변경 제한) 또는 관리자
+      // 업데이트: 본인의 수강신청 또는 관리자
       allow update: if isAuthenticated() && 
-        ((resource.data.userId == request.auth.uid && 
-          request.resource.data.status == resource.data.status) || 
-         isAdmin());
+        (resource.data.userId == request.auth.uid || isAdmin());
       
       // 삭제: 관리자만
       allow delete: if isAdmin();

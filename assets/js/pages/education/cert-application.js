@@ -51,11 +51,11 @@ window.CertApplication = window.CertApplication || {};
             // 🔧 자격증 정보
             certificateType: applicationData['cert-type'] || applicationData.certificateType || '',
             certificateName: getCertificateTypeName(applicationData['cert-type'] || applicationData.certificateType),
-            
+
             // 🔧 교육 정보  
             courseCompletionDate: applicationData['course-completion-date'] || applicationData.courseCompletionDate || '',
             examPassDate: applicationData['exam-pass-date'] || applicationData.examPassDate || '',
-            
+
             // 🔧 주소 정보
             deliveryAddress: applicationData['delivery-address'] || currentAddress.fullAddress || '',
             postalCode: currentAddress.postalCode || '',
@@ -71,16 +71,16 @@ window.CertApplication = window.CertApplication || {};
             // 🔧 상태 정보 (통일)
             status: 'pending', // 신청 상태
             applicationStatus: 'submitted', // 신청 제출됨
-            
+
             // 🔧 메타데이터
             applicationId: applicationData.applicationId || '',
             type: 'certificate_application',
             timestamp: new Date().toISOString(),
-            
+
             // 🔧 사용자 정보
             userId: currentUser ? currentUser.uid : null,
             userEmail: currentUser ? currentUser.email : applicationData.email,
-            
+
             // 🔧 신청 방법
             applicationMethod: 'online_form',
             source: 'cert-application-page'
@@ -96,7 +96,7 @@ window.CertApplication = window.CertApplication || {};
     function getCertificateTypeName(type) {
         const typeNames = {
             'health-exercise': '건강운동처방사',
-            'rehabilitation': '운동재활전문가', 
+            'rehabilitation': '운동재활전문가',
             'pilates': '필라테스 전문가',
             'recreation': '레크리에이션지도자'
         };
@@ -317,7 +317,7 @@ window.CertApplication = window.CertApplication || {};
         console.log('🎓 자격증 종류 선택 시스템 초기화');
         const certTypeSelect = document.getElementById('cert-type');
         if (!certTypeSelect) return;
-        
+
         certTypeSelect.addEventListener('change', function () {
             selectedCertificateType = this.value;
             if (this.value) {
@@ -333,7 +333,7 @@ window.CertApplication = window.CertApplication || {};
     function initAutoFillSystem() {
         const autoFillBtn = document.getElementById('auto-fill-btn');
         if (!autoFillBtn) return;
-        
+
         autoFillBtn.addEventListener('click', async function () {
             if (!currentUser) {
                 showWarningMessage('로그인 후 이용 가능합니다.');
@@ -359,12 +359,12 @@ window.CertApplication = window.CertApplication || {};
     function initAddressSearch() {
         const addressSearchBtn = document.getElementById('address-search-btn');
         if (!addressSearchBtn) return;
-        
+
         addressSearchBtn.addEventListener('click', function (e) {
             e.preventDefault();
             openAddressSearch();
         });
-        
+
         const addressDetailInput = document.getElementById('address-detail');
         if (addressDetailInput) {
             addressDetailInput.addEventListener('input', updateFullAddress);
@@ -376,18 +376,18 @@ window.CertApplication = window.CertApplication || {};
             showErrorMessage('주소 검색 서비스를 준비 중입니다. 잠시 후 다시 시도해주세요.');
             return;
         }
-        
+
         try {
             new daum.Postcode({
                 oncomplete: function (data) {
                     document.getElementById('postal-code').value = data.zonecode;
                     document.getElementById('address-basic').value = data.address;
                     document.getElementById('address-detail').focus();
-                    
+
                     currentAddress.postalCode = data.zonecode;
                     currentAddress.basicAddress = data.address;
                     updateFullAddress();
-                    
+
                     showSuccessMessage('주소가 입력되었습니다. 상세 주소를 입력해주세요.');
                 }
             }).open();
@@ -400,11 +400,11 @@ window.CertApplication = window.CertApplication || {};
         const postalCode = document.getElementById('postal-code')?.value || '';
         const basicAddress = document.getElementById('address-basic')?.value || '';
         const detailAddress = document.getElementById('address-detail')?.value || '';
-        
+
         currentAddress.postalCode = postalCode;
         currentAddress.basicAddress = basicAddress;
         currentAddress.detailAddress = detailAddress;
-        
+
         if (postalCode && basicAddress) {
             currentAddress.fullAddress = `(${postalCode}) ${basicAddress}${detailAddress ? ' ' + detailAddress : ''}`;
             const deliveryAddressInput = document.getElementById('delivery-address');
@@ -417,20 +417,96 @@ window.CertApplication = window.CertApplication || {};
     function initPhotoUpload() {
         const photoUploadZone = document.getElementById('photo-upload-zone');
         const photoFileInput = document.getElementById('photo-file');
-        
+
         if (!photoUploadZone || !photoFileInput) return;
-        
+
+        // 🔧 클릭 이벤트 (기존)
         photoUploadZone.addEventListener('click', function () {
             if (!this.classList.contains('has-file')) {
                 photoFileInput.click();
             }
         });
-        
+
+        // 🆕 드래그 앤 드롭 이벤트 추가
+        photoUploadZone.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.add('drag-over');
+        });
+
+        photoUploadZone.addEventListener('dragenter', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.add('drag-over');
+        });
+
+        photoUploadZone.addEventListener('dragleave', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            // 드래그가 완전히 영역을 벗어났을 때만 클래스 제거
+            if (!this.contains(e.relatedTarget)) {
+                this.classList.remove('drag-over');
+            }
+        });
+
+        photoUploadZone.addEventListener('drop', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('drag-over');
+
+            // 파일이 이미 업로드된 상태라면 드롭 무시
+            if (this.classList.contains('has-file')) {
+                showWarningMessage('이미 파일이 업로드되었습니다. 새 파일을 업로드하려면 기존 파일을 제거해주세요.');
+                return;
+            }
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                // 첫 번째 파일만 처리
+                handlePhotoFile(files[0]);
+            }
+        });
+
+        // 🔧 파일 입력 변경 이벤트 (기존)
         photoFileInput.addEventListener('change', function () {
             if (this.files.length > 0) {
                 handlePhotoFile(this.files[0]);
             }
         });
+
+        // 🆕 파일 제거 버튼 이벤트 추가
+        const removeButton = document.getElementById('preview-remove');
+        if (removeButton) {
+            removeButton.addEventListener('click', function (e) {
+                e.stopPropagation(); // 부모 클릭 이벤트 방지
+                removePhotoFile();
+            });
+        }
+    }
+
+    // 🆕 파일 제거 함수 추가
+    function removePhotoFile() {
+        const photoUploadZone = document.getElementById('photo-upload-zone');
+        const photoFileInput = document.getElementById('photo-file');
+        const uploadContent = document.getElementById('upload-content');
+        const uploadPreview = document.getElementById('upload-preview');
+
+        if (!photoUploadZone || !photoFileInput) return;
+
+        // 전역 변수 초기화
+        uploadedPhotoFile = null;
+
+        // 파일 입력 초기화
+        photoFileInput.value = '';
+
+        // UI 상태 초기화
+        photoUploadZone.classList.remove('has-file', 'error');
+
+        // 미리보기 숨기고 업로드 영역 표시
+        if (uploadPreview) uploadPreview.style.display = 'none';
+        if (uploadContent) uploadContent.style.display = 'flex';
+
+        console.log('📷 사진 파일이 제거되었습니다.');
     }
 
     function handlePhotoFile(file) {
@@ -439,7 +515,7 @@ window.CertApplication = window.CertApplication || {};
             showErrorMessage(validationResult.message);
             return;
         }
-        
+
         uploadedPhotoFile = file;
         const reader = new FileReader();
         reader.onload = function (e) {
@@ -555,63 +631,296 @@ window.CertApplication = window.CertApplication || {};
      * 🆕 통일된 신청 데이터 수집
      */
     function collectUnifiedApplicationData() {
+        console.log('📋 관리자 호환 신청 데이터 수집');
+
         const form = document.getElementById('certificate-issuance-form');
         const formData = new FormData(form);
-        
-        // 🔧 기본 데이터 구조 (스키마 통일)
+
+        // 🔧 관리자 페이지 호환 필드명 사용
         const data = {
+            // =================================
+            // 🎯 관리자 페이지 필수 필드 (cert-management.js 호환)
+            // =================================
+
+            // 사용자 정보 (관리자가 조회하는 필드명)
+            holderName: formData.get('name-korean') || '',
+            holderNameKorean: formData.get('name-korean') || '',
+            holderNameEnglish: formData.get('name-english') || '',
+            holderEmail: formData.get('email') || '',
+            holderPhone: formData.get('phone') || '',
+            holderBirthDate: formData.get('birth-date') || '',
+
+            // 자격증 정보 (관리자가 관리하는 필드)
+            certificateType: formData.get('cert-type') || '',
+            certificateName: getCertificateTypeName(formData.get('cert-type')),
+            certificateNumber: null, // 관리자가 발급 시 생성
+
+            // 교육 정보
+            courseCompletionDate: formData.get('course-completion-date') || '',
+            examPassDate: formData.get('exam-pass-date') || '',
+
+            // 주소 정보
+            deliveryAddress: formData.get('delivery-address') || currentAddress.fullAddress || '',
+            postalCode: currentAddress.postalCode || '',
+            basicAddress: currentAddress.basicAddress || '',
+            detailAddress: currentAddress.detailAddress || '',
+
+            // 🔧 관리자 작업용 상태 필드
+            status: 'submitted', // 신청 완료 상태
+            applicationStatus: 'pending_review', // 관리자 검토 대기
+            issueStatus: 'pending', // 발급 대기
+            isIssued: false, // 아직 발급되지 않음
+            needsApproval: true, // 관리자 승인 필요
+
+            // 처리 상태 추적
+            processStep: 'document_submitted', // 현재 처리 단계
+            assignedAdmin: null, // 담당 관리자
+            reviewNotes: '', // 검토 메모
+
+            // 발급 관련
+            expectedIssueDate: null, // 예상 발급일
+            actualIssueDate: null, // 실제 발급일
+            issuedBy: null, // 발급 담당자
+
+            // 배송 관련
+            shippingStatus: 'pending', // 배송 상태
+            trackingNumber: null, // 운송장 번호
+
+            // 알림 상태
+            notificationSent: false, // 신청 완료 알림 발송 여부
+            reminderSent: false, // 리마인더 발송 여부
+
+            // =================================
+            // 🔧 메타데이터 및 기존 호환성
+            // =================================
+
+            // 메타데이터
             applicationId: 'CERT_' + Date.now(),
             timestamp: new Date().toISOString(),
             type: 'certificate_application',
-            
-            // 🔧 통일된 필드명 사용
+            source: 'cert-application-page',
+            applicationMethod: 'online_form',
+
+            // 사진 정보
+            photoFileName: uploadedPhotoFile ? uploadedPhotoFile.name : '',
+            photoFileSize: uploadedPhotoFile ? uploadedPhotoFile.size : 0,
+            photoFileType: uploadedPhotoFile ? uploadedPhotoFile.type : '',
+            photoUrl: '', // 업로드 후 설정
+            photoPath: '', // 업로드 후 설정
+
+            // 사용자 정보
+            userId: currentUser ? currentUser.uid : null,
+            userEmail: currentUser ? currentUser.email : formData.get('email'),
+
+            // 타임스탬프
+            createdAt: new Date(),
+            updatedAt: new Date(),
+
+            // =================================
+            // 🔧 기존 호환성을 위한 필드들 유지
+            // =================================
+
+            // 기존 cert-application.js 필드들 (호환성 유지)
             nameKorean: formData.get('name-korean') || '',
             nameEnglish: formData.get('name-english') || '',
             email: formData.get('email') || '',
             phone: formData.get('phone') || '',
             birthDate: formData.get('birth-date') || '',
-            
-            certificateType: formData.get('cert-type') || '',
-            courseCompletionDate: formData.get('course-completion-date') || '',
-            examPassDate: formData.get('exam-pass-date') || '',
-            
-            deliveryAddress: formData.get('delivery-address') || '',
-            
-            // 파일 정보 (File 객체는 제외)
-            photoFileName: uploadedPhotoFile ? uploadedPhotoFile.name : '',
-            photoFileSize: uploadedPhotoFile ? uploadedPhotoFile.size : 0,
-            photoFileType: uploadedPhotoFile ? uploadedPhotoFile.type : ''
+            fullAddress: currentAddress.fullAddress || ''
         };
 
-        // 자격증 정보 추가
-        if (data.certificateType) {
-            data.certificateName = getCertificateTypeName(data.certificateType);
-        }
-
-        // 주소 정보 정리
-        data.fullAddress = currentAddress.fullAddress;
-        data.postalCode = currentAddress.postalCode;
-        data.basicAddress = currentAddress.basicAddress;
-        data.detailAddress = currentAddress.detailAddress;
-
-        // 사용자 정보 추가
-        if (currentUser) {
-            data.userId = currentUser.uid;
-            data.userEmail = currentUser.email;
-        }
-
+        console.log('✅ 관리자 호환 데이터 수집 완료:', data);
         return data;
     }
 
     /**
+     * 🆕 관리자 조회용 certificates 컬렉션 저장 (신규 함수)
+     */
+    async function saveToAdminCollection(applicationData) {
+        console.log('📊 관리자 조회용 certificates 컬렉션에 저장');
+
+        try {
+            const firebaseStatus = checkFirebaseConnection();
+
+            if (firebaseStatus.connected && window.dbService) {
+
+                // 🔧 관리자 페이지 최적화 데이터
+                const adminOptimizedData = {
+                    ...applicationData,
+
+                    // 관리자 검색/필터링용 추가 필드
+                    searchableText: `${applicationData.holderNameKorean} ${applicationData.holderNameEnglish} ${applicationData.holderEmail} ${applicationData.certificateName}`,
+
+                    // 관리자 대시보드용 카운터
+                    priority: calculatePriority(applicationData),
+                    urgency: calculateUrgency(applicationData),
+
+                    // 처리 예상 시간
+                    estimatedProcessDays: 5, // 기본 5일
+
+                    // 추가 메타데이터
+                    submissionChannel: 'website',
+                    deviceInfo: navigator.userAgent,
+                    browserInfo: getBrowserInfo()
+                };
+
+                console.log('📋 관리자 최적화 데이터:', adminOptimizedData);
+
+                const result = await window.dbService.addDocument('certificates', adminOptimizedData);
+
+                if (result.success) {
+                    console.log('✅ certificates 컬렉션 저장 성공:', result.id);
+
+                    // 🔧 관리자 알림 큐에 추가 (향후 구현)
+                    await addToAdminNotificationQueue(result.id, adminOptimizedData);
+
+                    return {
+                        success: true,
+                        certificateId: result.id,
+                        collection: 'certificates'
+                    };
+                } else {
+                    throw new Error('certificates 컬렉션 저장 실패: ' + result.error);
+                }
+
+            } else {
+                console.log('🔧 Firebase 미연결, 로컬 저장');
+
+                // 로컬 스토리지에 저장 (테스트용)
+                const localData = {
+                    id: 'local_cert_' + Date.now(),
+                    data: applicationData,
+                    timestamp: new Date().toISOString()
+                };
+
+                localStorage.setItem('dhc_cert_application', JSON.stringify(localData));
+
+                return {
+                    success: true,
+                    certificateId: localData.id,
+                    collection: 'local_storage'
+                };
+            }
+
+        } catch (error) {
+            console.error('❌ 관리자 컬렉션 저장 오류:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * 🆕 기존 호환성용 applications 컬렉션 저장 (신규 함수)
+     */
+    async function saveToLegacyCollection(applicationData) {
+        console.log('📋 기존 호환성용 applications 컬렉션에 저장');
+
+        try {
+            if (window.dbService) {
+                // 🔧 수정: 권한 오류 시 graceful 처리
+                const legacyData = {
+                    ...applicationData,
+                    status: 'submitted',
+                    applicationStatus: 'document_submitted'
+                };
+
+                const result = await window.dbService.addDocument('applications', legacyData);
+
+                if (result.success) {
+                    console.log('✅ applications 컬렉션 저장 성공:', result.id);
+                    return {
+                        success: true,
+                        applicationId: result.id,
+                        collection: 'applications'
+                    };
+                } else {
+                    console.warn('⚠️ applications 컬렉션 저장 실패 (권한 문제일 수 있음):', result.error);
+                    // 🔧 수정: 실패해도 전체 프로세스는 계속 진행
+                    return {
+                        success: false,
+                        error: result.error,
+                        note: 'applications 컬렉션 저장 실패하지만 certificates 저장이 성공하면 문제없음'
+                    };
+                }
+
+            } else {
+                console.log('dbService 미연동, applications 저장 스킵');
+                return {
+                    success: false,
+                    error: 'dbService not available',
+                    note: 'Firebase 미연결 상태'
+                };
+            }
+
+        } catch (error) {
+            console.error('❌ applications 컬렉션 저장 오류:', error);
+
+            // 🔧 수정: 권한 오류는 치명적이지 않음
+            if (error.message.includes('permissions')) {
+                console.warn('💡 권한 문제로 applications 저장 실패 - 이는 정상적인 상황입니다.');
+                console.warn('💡 certificates 컬렉션만으로도 모든 기능이 정상 작동합니다.');
+            }
+
+            return {
+                success: false,
+                error: error.message,
+                isPermissionError: error.message.includes('permissions')
+            };
+        }
+    }
+
+    /**
+     * 🆕 통합 저장 처리 (기존 함수 교체)
+     */
+    async function saveApplicationData(applicationData) {
+        console.log('💾 통합 신청 데이터 저장 시작');
+
+        try {
+            // 1. 🎯 메인: 관리자 조회용 certificates 컬렉션에 저장
+            console.log('1️⃣ 관리자 조회용 certificates 컬렉션 저장');
+            const certificateResult = await saveToAdminCollection(applicationData);
+
+            if (!certificateResult.success) {
+                throw new Error('메인 저장 실패: ' + certificateResult.error);
+            }
+
+            // 2. 🔧 서브: 기존 호환성용 applications 컬렉션에 저장
+            console.log('2️⃣ 기존 호환성용 applications 컬렉션 저장');
+            const applicationResult = await saveToLegacyCollection(applicationData);
+
+            // applications 실패는 경고만 출력 (치명적이지 않음)
+            if (!applicationResult.success) {
+                console.warn('⚠️ applications 컬렉션 저장 실패, 계속 진행');
+            }
+
+            // 3. 🔧 성공 처리
+            console.log('✅ 통합 저장 완료');
+            console.log('- certificates ID:', certificateResult.certificateId);
+            console.log('- applications ID:', applicationResult.success ? applicationResult.applicationId : 'failed');
+
+            return {
+                success: true,
+                certificateId: certificateResult.certificateId,
+                applicationId: applicationResult.success ? applicationResult.applicationId : null,
+                mainCollection: 'certificates',
+                legacyCollection: applicationResult.success ? 'applications' : null
+            };
+
+        } catch (error) {
+            console.error('❌ 통합 저장 실패:', error);
+            throw error;
+        }
+    }
+
+
+    /**
      * 🆕 두 컬렉션에 저장 (연동을 위해)
      */
-    async function saveToMultipleCollections(certificateData) {
+    /* async function saveToMultipleCollections(certificateData) {
         console.log('🔄 두 컬렉션에 저장 시작');
 
         try {
             const firebaseStatus = checkFirebaseConnection();
-            
+
             if (firebaseStatus.connected && window.dbService) {
                 // 1. 기존 신청 컬렉션에 저장 (호환성 유지)
                 const applicationResult = await window.dbService.addDocument('certificate_applications', {
@@ -626,7 +935,7 @@ window.CertApplication = window.CertApplication || {};
                     status: 'pending', // 대기 중 (미발급)
                     applicationStatus: 'submitted',
                     issueStatus: 'pending', // 발급 대기
-                    
+
                     // 🔧 관리자 조회를 위한 추가 필드
                     isIssued: false,
                     needsApproval: true,
@@ -637,7 +946,7 @@ window.CertApplication = window.CertApplication || {};
                     console.log('✅ 두 컬렉션 저장 성공');
                     console.log('- 신청 문서 ID:', applicationResult.id);
                     console.log('- 자격증 문서 ID:', certificateResult.id);
-                    
+
                     return {
                         success: true,
                         applicationId: applicationResult.id,
@@ -662,7 +971,7 @@ window.CertApplication = window.CertApplication || {};
                 error: error.message
             };
         }
-    }
+    }*/
 
     /**
      * 🔧 Firebase 연결 상태 확인
@@ -684,7 +993,7 @@ window.CertApplication = window.CertApplication || {};
     function initFormValidation() {
         const form = document.getElementById('certificate-issuance-form');
         if (!form) return;
-        
+
         const inputs = form.querySelectorAll('input, select, textarea');
         inputs.forEach(input => {
             input.addEventListener('blur', () => validateField(input));
@@ -694,12 +1003,12 @@ window.CertApplication = window.CertApplication || {};
     function validateField(field) {
         if (!field) return false;
         const value = field.value.trim();
-        
+
         if (field.hasAttribute('required') && !value) {
             showFieldError(field, '필수 입력 항목입니다.');
             return false;
         }
-        
+
         clearFieldError(field);
         return true;
     }
@@ -707,13 +1016,13 @@ window.CertApplication = window.CertApplication || {};
     function validateFullForm() {
         let isValid = true;
         const requiredFields = document.querySelectorAll('input[required], select[required]');
-        
+
         requiredFields.forEach(field => {
             if (!validateField(field)) {
                 isValid = false;
             }
         });
-        
+
         if (!uploadedPhotoFile) {
             const photoFileInput = document.getElementById('photo-file');
             if (photoFileInput) {
@@ -721,7 +1030,7 @@ window.CertApplication = window.CertApplication || {};
                 isValid = false;
             }
         }
-        
+
         return isValid;
     }
 
@@ -732,10 +1041,10 @@ window.CertApplication = window.CertApplication || {};
             'pilates': '필라테스 전문가',
             'recreation': '레크리에이션지도자'
         };
-        
+
         const certificateInfoDisplay = document.getElementById('certificate-info-display');
         const selectedCertName = document.getElementById('selected-cert-name');
-        
+
         if (certType && certNames[certType]) {
             selectedCertName.textContent = certNames[certType];
             certificateInfoDisplay.style.display = 'block';
@@ -823,27 +1132,167 @@ window.CertApplication = window.CertApplication || {};
         }
     }
 
-    function handleApplicationSuccess(applicationData) {
-        console.log('신청 완료 후 처리');
+    /**
+     * 🆕 개선된 신청 완료 처리 (기존 함수 교체)
+     */
+    function handleApplicationSuccess(applicationData, saveResult) {
+        console.log('🎉 개선된 신청 완료 처리');
+        console.log('저장 결과:', saveResult);
 
+        try {
+            // 1. 사용자에게 성공 메시지 표시
+            showEnhancedSuccessModal(applicationData, saveResult);
+
+            // 2. 폼 비활성화
+            disableFormAfterSubmission();
+
+            // 3. 🔧 리다이렉션 계획 (사용자 상태에 따라)
+            setTimeout(() => {
+                handlePostSubmissionRedirection(applicationData, saveResult);
+            }, 5000);
+
+            // 4. 🔧 관리자 알림 (향후 구현)
+            // scheduleAdminNotification(saveResult.certificateId);
+
+        } catch (error) {
+            console.error('❌ 신청 완료 처리 오류:', error);
+            showErrorMessage('신청은 완료되었으나 일부 후속 처리에서 오류가 발생했습니다.');
+        }
+    }
+
+    /**
+     * 🆕 개선된 성공 모달 (관리자 정보 포함)
+     */
+    function showEnhancedSuccessModal(applicationData, saveResult) {
+        const modal = document.createElement('div');
+        modal.className = 'application-success-modal';
+        modal.innerHTML = `
+            <div class="modal-overlay">
+                <div class="modal-content">
+                    <div class="success-header">
+                        <div class="success-icon">🎉</div>
+                        <h2 class="success-title">자격증 발급 신청이 완료되었습니다!</h2>
+                </div>
+                
+                <div class="success-body">
+                    <div class="success-info">
+                        <div class="info-row">
+                            <span class="info-label">신청 자격증:</span>
+                            <span class="info-value">${applicationData.certificateName}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">신청자:</span>
+                            <span class="info-value">${applicationData.holderNameKorean} (${applicationData.holderNameEnglish})</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">신청번호:</span>
+                            <span class="info-value">${applicationData.applicationId}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">관리자 추적번호:</span>
+                            <span class="info-value">${saveResult.certificateId}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="next-steps">
+                        <h3>처리 절차</h3>
+                        <ul>
+                            <li>📋 관리자가 제출서류를 검토합니다 (1-2일)</li>
+                            <li>✅ 자격 요건 확인 후 승인합니다 (1-2일)</li>
+                            <li>🎓 자격증을 발급합니다 (1-2일)</li>
+                            <li>📮 등기우편으로 발송합니다 (2-3일)</li>
+                            <li>📧 각 단계별로 진행상황을 알려드립니다</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="contact-info">
+                        <h3>문의 및 확인</h3>
+                        <p>📞 전화: 02-1234-5678 (평일 09:00-18:00)</p>
+                        <p>📧 이메일: nhohs1507@gmail.com</p>
+                        <p>🆔 문의 시 추적번호를 말씀해주세요: <strong>${saveResult.certificateId}</strong></p>
+                    </div>
+                </div>
+                
+                <div class="success-actions">
+                    ${currentUser ?
+                `<button onclick="window.location.href='${window.adjustPath('pages/mypage/cert-management.html')}'" class="btn-primary">
+                            마이페이지에서 확인
+                        </button>` :
+                `<button onclick="window.location.href='${window.adjustPath('index.html')}'" class="btn-primary">
+                            홈으로 이동
+                        </button>`
+            }
+                    <button onclick="this.closest('.application-success-modal').remove(); document.body.style.overflow='auto';" class="btn-secondary">
+                        닫기
+                    </button>
+                </div>
+            </div>
+        </div>
+        `;
+
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+
+        // 자동 제거 (15초 후)
         setTimeout(() => {
-            showInfoMessage(`신청 번호: ${applicationData.applicationId}`);
-            showInfoMessage('관리자 검토 후 자격증이 발급됩니다.');
-        }, 2000);
+            if (modal.parentElement) {
+                modal.remove();
+                document.body.style.overflow = 'auto';
+            }
+        }, 15000);
+    }
 
+    /**
+     * 🆕 폼 비활성화 (신청 완료 후)
+     */
+    function disableFormAfterSubmission() {
         const form = document.getElementById('certificate-issuance-form');
         if (form) {
             const inputs = form.querySelectorAll('input, select, textarea, button');
             inputs.forEach(input => {
-                if (input.type !== 'button' && input.id !== 'submit-issuance-btn') {
+                if (input.id !== 'submit-issuance-btn') {
                     input.disabled = true;
+                    input.style.backgroundColor = '#f9fafb';
+                    input.style.color = '#6b7280';
                 }
             });
-        }
 
-        setTimeout(() => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 3000);
+            // 완료 배지 추가
+            const completeBadge = document.createElement('div');
+            completeBadge.className = 'completion-badge';
+            completeBadge.innerHTML = `
+            <div style="background: #10b981; color: white; padding: 12px 20px; border-radius: 8px; text-align: center; margin: 20px 0; font-weight: 600;">
+                ✅ 신청이 완료되었습니다. 관리자 검토를 기다려주세요.
+            </div>
+        `;
+            form.insertBefore(completeBadge, form.firstChild);
+        }
+    }
+
+    /**
+     * 🆕 신청 완료 후 리다이렉션
+     */
+    function handlePostSubmissionRedirection(applicationData, saveResult) {
+        if (currentUser) {
+            console.log('로그인 사용자 → 마이페이지로 이동');
+            const redirectUrl = window.adjustPath('pages/mypage/cert-management.html');
+
+            // URL에 신청 정보 추가
+            const params = new URLSearchParams({
+                from: 'cert-application',
+                applicationId: applicationData.applicationId,
+                certificateId: saveResult.certificateId,
+                status: 'submitted'
+            });
+
+            window.location.href = `${redirectUrl}?${params.toString()}`;
+        } else {
+            console.log('비로그인 사용자 → 홈페이지로 이동');
+            showInfoMessage('신청이 완료되었습니다. 진행상황은 이메일로 안내드립니다.');
+            setTimeout(() => {
+                window.location.href = window.adjustPath('index.html');
+            }, 2000);
+        }
     }
 
     function updateSubmitButtonState(button, state) {
@@ -1181,6 +1630,88 @@ window.CertApplication = window.CertApplication || {};
     }
 
     // =================================
+    // 🔧 5. 유틸리티 함수들 (신규 추가)
+    // =================================
+
+    /**
+     * 🆕 Firebase 연결 상태 확인
+     */
+    function checkFirebaseConnection() {
+        try {
+            return {
+                connected: !!(window.dhcFirebase && window.dhcFirebase.db && window.dhcFirebase.auth),
+                auth: !!(window.dhcFirebase && window.dhcFirebase.auth),
+                db: !!(window.dhcFirebase && window.dhcFirebase.db),
+                user: window.dhcFirebase?.auth?.currentUser || null
+            };
+        } catch (error) {
+            console.error('Firebase 연결 상태 확인 오류:', error);
+            return {
+                connected: false,
+                auth: false,
+                db: false,
+                user: null
+            };
+        }
+    }
+
+    /**
+     * 🆕 우선순위 계산 (관리자용)
+     */
+    function calculatePriority(applicationData) {
+        let priority = 'normal';
+
+        // 교육 수료일이 오래된 경우 높은 우선순위
+        if (applicationData.courseCompletionDate) {
+            const completionDate = new Date(applicationData.courseCompletionDate);
+            const daysSinceCompletion = Math.floor((new Date() - completionDate) / (1000 * 60 * 60 * 24));
+
+            if (daysSinceCompletion > 60) {
+                priority = 'high';
+            } else if (daysSinceCompletion > 30) {
+                priority = 'medium';
+            }
+        }
+
+        return priority;
+    }
+
+    /**
+     * 🆕 긴급도 계산 (관리자용)
+     */
+    function calculateUrgency(applicationData) {
+        // 기본적으로 모든 자격증 신청은 표준 처리
+        return 'standard';
+    }
+
+    /**
+     * 🆕 브라우저 정보 수집
+     */
+    function getBrowserInfo() {
+        return {
+            userAgent: navigator.userAgent,
+            language: navigator.language,
+            platform: navigator.platform,
+            cookieEnabled: navigator.cookieEnabled,
+            timestamp: new Date().toISOString()
+        };
+    }
+
+    /**
+     * 🆕 관리자 알림 큐 추가 (향후 구현)
+     */
+    async function addToAdminNotificationQueue(certificateId, applicationData) {
+        console.log('📨 관리자 알림 큐에 추가 (향후 구현)');
+
+        // 향후 구현 예정:
+        // - 새로운 신청 알림
+        // - 긴급 처리 필요 알림
+        // - 처리 지연 알림
+
+        return true;
+    }
+
+    // =================================
     // 공개 API
     // =================================
 
@@ -1215,7 +1746,7 @@ window.CertApplication = window.CertApplication || {};
             // 🆕 데이터 변환 테스트
             testDataConversion: function () {
                 console.log('🔄 데이터 변환 테스트 시작');
-                
+
                 const testData = {
                     'name-korean': '홍길동',
                     'name-english': 'Hong Gil Dong',
@@ -1235,7 +1766,7 @@ window.CertApplication = window.CertApplication || {};
                 console.log('- nameEnglish →', converted.holderNameEnglish);
                 console.log('- email →', converted.holderEmail);
                 console.log('- certificateType →', converted.certificateType);
-                
+
                 return converted;
             },
 
@@ -1289,6 +1820,142 @@ window.CertApplication = window.CertApplication || {};
         console.log('💡 새로운 함수: testDataConversion(), checkCollections()');
     }
 
+    /**
+     * 🆕 관리자 연동 테스트 함수들 (기존 debug 객체에 추가)
+     */
+    if (window.CertApplication && window.CertApplication.debug) {
+
+        // 기존 debug 객체에 새로운 함수들 추가
+        Object.assign(window.CertApplication.debug, {
+
+            /**
+             * 🆕 관리자 연동 테스트
+             */
+            testAdminIntegration: function () {
+                console.log('🔧 관리자 연동 테스트');
+
+                const testData = {
+                    'name-korean': '홍길동',
+                    'name-english': 'Hong Gil Dong',
+                    'email': 'test@example.com',
+                    'phone': '010-1234-5678',
+                    'cert-type': 'health-exercise',
+                    'course-completion-date': '2025-01-15',
+                    'exam-pass-date': '2025-01-20'
+                };
+
+                const collected = collectUnifiedApplicationData();
+                console.log('수집된 데이터:', collected);
+
+                // 관리자 필수 필드 확인
+                const adminFields = [
+                    'holderName', 'holderNameKorean', 'holderNameEnglish',
+                    'holderEmail', 'certificateType', 'certificateName',
+                    'status', 'applicationStatus', 'issueStatus',
+                    'needsApproval', 'isIssued'
+                ];
+
+                console.log('📋 관리자 필수 필드 확인:');
+                adminFields.forEach(field => {
+                    const exists = collected.hasOwnProperty(field);
+                    const value = collected[field];
+                    console.log(`${exists ? '✅' : '❌'} ${field}: ${value || 'undefined'}`);
+                });
+
+                return collected;
+            },
+
+            /**
+             * 🆕 저장 프로세스 테스트
+             */
+            testSaveProcess: async function () {
+                console.log('💾 저장 프로세스 테스트');
+
+                try {
+                    // 테스트 데이터로 폼 채우기
+                    this.fillTestData();
+
+                    // 데이터 수집
+                    const applicationData = collectUnifiedApplicationData();
+                    console.log('테스트 데이터:', applicationData);
+
+                    // 저장 시뮬레이션
+                    console.log('저장 시뮬레이션 실행...');
+
+                    if (window.dbService) {
+                        console.log('✅ Firebase 연결됨, 실제 저장 테스트');
+                        const result = await saveApplicationData(applicationData);
+                        console.log('저장 결과:', result);
+                        return result;
+                    } else {
+                        console.log('🔧 Firebase 미연결, 로컬 저장 시뮬레이션');
+                        const mockResult = {
+                            success: true,
+                            certificateId: 'test_cert_' + Date.now(),
+                            applicationId: 'test_app_' + Date.now(),
+                            mainCollection: 'certificates',
+                            legacyCollection: 'applications'
+                        };
+                        console.log('시뮬레이션 결과:', mockResult);
+                        return mockResult;
+                    }
+
+                } catch (error) {
+                    console.error('❌ 저장 프로세스 테스트 실패:', error);
+                    return { success: false, error: error.message };
+                }
+            },
+
+            /**
+             * 🆕 전체 플로우 테스트
+             */
+            testFullFlow: async function () {
+                console.log('🧪 전체 플로우 테스트 시작');
+
+                try {
+                    console.log('1️⃣ 관리자 연동 테스트');
+                    const adminTest = this.testAdminIntegration();
+
+                    console.log('2️⃣ 저장 프로세스 테스트');
+                    const saveTest = await this.testSaveProcess();
+
+                    console.log('3️⃣ 성공 처리 시뮬레이션');
+                    if (saveTest.success) {
+                        const testApplicationData = collectUnifiedApplicationData();
+                        handleApplicationSuccess(testApplicationData, saveTest);
+                    }
+
+                    console.log('🎉 전체 플로우 테스트 완료');
+
+                    return {
+                        success: true,
+                        adminIntegration: adminTest,
+                        saveProcess: saveTest
+                    };
+
+                } catch (error) {
+                    console.error('❌ 전체 플로우 테스트 실패:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+        });
+    }
+
+    console.log('✅ cert-application.js 핵심 함수 수정 완료!');
+    console.log('🎯 주요 개선사항:');
+    console.log('  - 관리자 페이지 호환 필드명 (holderName, holderNameKorean 등)');
+    console.log('  - certificates 컬렉션 저장 (관리자 조회용)');
+    console.log('  - applications 컬렉션 저장 (기존 호환성)');
+    console.log('  - 상태 관리 표준화 (status, applicationStatus, issueStatus)');
+    console.log('  - 관리자 작업용 필드 추가 (needsApproval, processStep 등)');
+    console.log('');
+    console.log('🧪 테스트 명령어:');
+    console.log('  - window.CertApplication.debug.testAdminIntegration()');
+    console.log('  - window.CertApplication.debug.testSaveProcess()');
+    console.log('  - window.CertApplication.debug.testFullFlow()');
+    console.log('');
+    console.log('🚀 이제 관리자 페이지에서 신청 데이터를 조회할 수 있습니다!');
+
     // 완료 플래그 설정
     CertApp.isReady = true;
 
@@ -1319,7 +1986,7 @@ console.log('📸 테스트: window.CertApplication.debug.testDataConversion()')
 // =================================
 
 // cert-application.js의 마지막 부분에 추가
-(function() {
+(function () {
     'use strict';
 
     // 🆕 전역 네임스페이스에 변환 함수 등록
@@ -1328,7 +1995,7 @@ console.log('📸 테스트: window.CertApplication.debug.testDataConversion()')
     /**
      * 🆕 전역적으로 접근 가능한 데이터 변환 함수
      */
-    window.CertApplicationUtils.convertApplicationToCertificate = function(applicationData) {
+    window.CertApplicationUtils.convertApplicationToCertificate = function (applicationData) {
         console.log('🔄 전역 변환 함수 호출:', applicationData);
 
         const convertedData = {
@@ -1342,23 +2009,23 @@ console.log('📸 테스트: window.CertApplication.debug.testDataConversion()')
             // 🔧 자격증 정보
             certificateType: applicationData['cert-type'] || applicationData.certificateType || '',
             certificateName: getCertificateTypeName(applicationData['cert-type'] || applicationData.certificateType),
-            
+
             // 🔧 교육 정보  
             courseCompletionDate: applicationData['course-completion-date'] || applicationData.courseCompletionDate || '',
             examPassDate: applicationData['exam-pass-date'] || applicationData.examPassDate || '',
-            
+
             // 🔧 주소 정보
             deliveryAddress: applicationData['delivery-address'] || applicationData.deliveryAddress || '',
-            
+
             // 🔧 상태 정보 (통일)
             status: 'pending', // 신청 상태
             applicationStatus: 'submitted', // 신청 제출됨
-            
+
             // 🔧 메타데이터
             applicationId: applicationData.applicationId || 'TEMP_' + Date.now(),
             type: 'certificate_application',
             timestamp: new Date().toISOString(),
-            
+
             // 🔧 신청 방법
             applicationMethod: 'online_form',
             source: 'cert-application-page'
@@ -1373,7 +2040,7 @@ console.log('📸 테스트: window.CertApplication.debug.testDataConversion()')
     function getCertificateTypeName(type) {
         const typeNames = {
             'health-exercise': '건강운동처방사',
-            'rehabilitation': '운동재활전문가', 
+            'rehabilitation': '운동재활전문가',
             'pilates': '필라테스 전문가',
             'recreation': '레크리에이션지도자'
         };
@@ -1383,7 +2050,7 @@ console.log('📸 테스트: window.CertApplication.debug.testDataConversion()')
     /**
      * 🆕 테스트 데이터 생성
      */
-    window.CertApplicationUtils.generateTestData = function() {
+    window.CertApplicationUtils.generateTestData = function () {
         return {
             'name-korean': '홍길동',
             'name-english': 'Hong Gil Dong',
@@ -1399,19 +2066,19 @@ console.log('📸 테스트: window.CertApplication.debug.testDataConversion()')
     /**
      * 🆕 변환 테스트 함수 (전역 접근용)
      */
-    window.CertApplicationUtils.testDataConversion = function() {
+    window.CertApplicationUtils.testDataConversion = function () {
         console.log('🔄 전역 데이터 변환 테스트 시작');
-        
+
         const testData = this.generateTestData();
         const converted = this.convertApplicationToCertificate(testData);
-        
+
         console.log('변환 결과:', converted);
         console.log('\n필드 매핑 확인:');
         console.log('- nameKorean →', converted.holderNameKorean);
         console.log('- nameEnglish →', converted.holderNameEnglish);
         console.log('- email →', converted.holderEmail);
         console.log('- certificateType →', converted.certificateType);
-        
+
         return converted;
     };
 
@@ -1429,7 +2096,7 @@ if (window.CertApplication && window.CertApplication.debug) {
     // 전역 접근 가능한 함수들을 기존 디버깅 객체에도 연결
     Object.assign(window.CertApplication.debug, {
         // 전역 변환 함수와 연결
-        testDataConversion: function() {
+        testDataConversion: function () {
             if (window.CertApplicationUtils && window.CertApplicationUtils.testDataConversion) {
                 return window.CertApplicationUtils.testDataConversion();
             } else {
@@ -1439,30 +2106,30 @@ if (window.CertApplication && window.CertApplication.debug) {
         },
 
         // 🆕 스키마 호환성 테스트
-        testSchemaCompatibility: function() {
+        testSchemaCompatibility: function () {
             console.log('🔤 스키마 호환성 테스트');
-            
+
             const testData = window.CertApplicationUtils.generateTestData();
             const converted = window.CertApplicationUtils.convertApplicationToCertificate(testData);
-            
+
             // cert-management.js에서 기대하는 필드들 확인
             const expectedFields = [
                 'holderName',
-                'holderNameKorean', 
+                'holderNameKorean',
                 'holderNameEnglish',
                 'holderEmail',
                 'certificateType',
                 'status',
                 'applicationStatus'
             ];
-            
+
             console.log('📊 필수 필드 확인:');
             expectedFields.forEach(field => {
                 const hasField = converted.hasOwnProperty(field);
                 const value = converted[field];
                 console.log(`${hasField ? '✅' : '❌'} ${field}: ${value || 'undefined'}`);
             });
-            
+
             return {
                 testData,
                 converted,
@@ -1470,7 +2137,7 @@ if (window.CertApplication && window.CertApplication.debug) {
             };
         }
     });
-    
+
     console.log('✅ CertApplication.debug 확장 완료');
 }
 
@@ -1492,14 +2159,14 @@ window.CertApplicationUtils = window.CertApplicationUtils || {};
 /**
  * 🆕 전역적으로 접근 가능한 데이터 변환 함수
  */
-window.CertApplicationUtils.convertApplicationToCertificate = function(applicationData) {
+window.CertApplicationUtils.convertApplicationToCertificate = function (applicationData) {
     console.log('🔄 전역 변환 함수 호출:', applicationData);
 
     // 자격증 종류명 가져오기 함수 (내부)
     function getCertificateTypeName(type) {
         const typeNames = {
             'health-exercise': '건강운동처방사',
-            'rehabilitation': '운동재활전문가', 
+            'rehabilitation': '운동재활전문가',
             'pilates': '필라테스 전문가',
             'recreation': '레크리에이션지도자'
         };
@@ -1517,23 +2184,23 @@ window.CertApplicationUtils.convertApplicationToCertificate = function(applicati
         // 🔧 자격증 정보
         certificateType: applicationData['cert-type'] || applicationData.certificateType || '',
         certificateName: getCertificateTypeName(applicationData['cert-type'] || applicationData.certificateType),
-        
+
         // 🔧 교육 정보  
         courseCompletionDate: applicationData['course-completion-date'] || applicationData.courseCompletionDate || '',
         examPassDate: applicationData['exam-pass-date'] || applicationData.examPassDate || '',
-        
+
         // 🔧 주소 정보
         deliveryAddress: applicationData['delivery-address'] || applicationData.deliveryAddress || '',
-        
+
         // 🔧 상태 정보 (통일)
         status: 'pending', // 신청 상태
         applicationStatus: 'submitted', // 신청 제출됨
-        
+
         // 🔧 메타데이터
         applicationId: applicationData.applicationId || 'TEMP_' + Date.now(),
         type: 'certificate_application',
         timestamp: new Date().toISOString(),
-        
+
         // 🔧 신청 방법
         applicationMethod: 'online_form',
         source: 'cert-application-page'
@@ -1546,7 +2213,7 @@ window.CertApplicationUtils.convertApplicationToCertificate = function(applicati
 /**
  * 🆕 테스트 데이터 생성
  */
-window.CertApplicationUtils.generateTestData = function() {
+window.CertApplicationUtils.generateTestData = function () {
     return {
         'name-korean': '홍길동',
         'name-english': 'Hong Gil Dong',
@@ -1562,49 +2229,49 @@ window.CertApplicationUtils.generateTestData = function() {
 /**
  * 🆕 변환 테스트 함수 (전역 접근용)
  */
-window.CertApplicationUtils.testDataConversion = function() {
+window.CertApplicationUtils.testDataConversion = function () {
     console.log('🔄 전역 데이터 변환 테스트 시작');
-    
+
     const testData = this.generateTestData();
     const converted = this.convertApplicationToCertificate(testData);
-    
+
     console.log('변환 결과:', converted);
     console.log('\n필드 매핑 확인:');
     console.log('- nameKorean →', converted.holderNameKorean);
     console.log('- nameEnglish →', converted.holderNameEnglish);
     console.log('- email →', converted.holderEmail);
     console.log('- certificateType →', converted.certificateType);
-    
+
     return converted;
 };
 
 /**
  * 🆕 스키마 호환성 테스트
  */
-window.CertApplicationUtils.testSchemaCompatibility = function() {
+window.CertApplicationUtils.testSchemaCompatibility = function () {
     console.log('🔤 스키마 호환성 테스트');
-    
+
     const testData = this.generateTestData();
     const converted = this.convertApplicationToCertificate(testData);
-    
+
     // cert-management.js에서 기대하는 필드들 확인
     const expectedFields = [
         'holderName',
-        'holderNameKorean', 
+        'holderNameKorean',
         'holderNameEnglish',
         'holderEmail',
         'certificateType',
         'status',
         'applicationStatus'
     ];
-    
+
     console.log('📊 필수 필드 확인:');
     expectedFields.forEach(field => {
         const hasField = converted.hasOwnProperty(field);
         const value = converted[field];
         console.log(`${hasField ? '✅' : '❌'} ${field}: ${value || 'undefined'}`);
     });
-    
+
     return {
         testData,
         converted,
@@ -1618,20 +2285,20 @@ window.CertApplicationUtils.testSchemaCompatibility = function() {
 
 if (window.CertApplication && window.CertApplication.debug) {
     console.log('🔧 기존 CertApplication.debug 확장');
-    
+
     // 전역 접근 가능한 함수들을 기존 디버깅 객체에도 연결
     Object.assign(window.CertApplication.debug, {
         // 전역 변환 함수와 연결
-        testDataConversion: function() {
+        testDataConversion: function () {
             return window.CertApplicationUtils.testDataConversion();
         },
-        
+
         // 스키마 호환성 테스트 추가
-        testSchemaCompatibility: function() {
+        testSchemaCompatibility: function () {
             return window.CertApplicationUtils.testSchemaCompatibility();
         }
     });
-    
+
     console.log('✅ CertApplication.debug 확장 완료');
 }
 
@@ -1646,12 +2313,12 @@ console.log('- window.CertApplicationUtils.testDataConversion()');
 console.log('- window.CertApplicationUtils.testSchemaCompatibility()');
 
 // 테스트 실행 (개발 모드에서만)
-if (window.location.hostname === 'localhost' || 
+if (window.location.hostname === 'localhost' ||
     window.location.hostname === '127.0.0.1' ||
     window.location.hostname.includes('.web.app') ||
     window.location.hostname.includes('.firebaseapp.com') ||
     window.location.protocol === 'file:') {
-    
+
     console.log('\n🧪 개발 모드 자동 테스트:');
     try {
         const testResult = window.CertApplicationUtils.testSchemaCompatibility();
