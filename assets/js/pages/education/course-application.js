@@ -700,15 +700,23 @@ async function loadCoursePricing(course) {
     try {
         const pricing = course.pricing || {};
 
+        // 🔧 수정: 0 값도 유효한 값으로 처리하도록 변경
         pricingData = {
-            education: pricing.education || course.educationPrice || course.price || 150000,
-            certificate: pricing.certificate || course.certificatePrice || 50000,
-            material: pricing.material || course.materialPrice || 30000,
+            education: pricing.education !== undefined ? pricing.education :
+                (course.educationPrice !== undefined ? course.educationPrice :
+                    (course.price !== undefined ? course.price : 150000)),
+
+            certificate: pricing.certificate !== undefined ? pricing.certificate :
+                (course.certificatePrice !== undefined ? course.certificatePrice : 50000),
+
+            material: pricing.material !== undefined ? pricing.material :
+                (course.materialPrice !== undefined ? course.materialPrice : 30000),
+
             packageDiscount: pricing.packageDiscount !== undefined ? pricing.packageDiscount : 0,
             materialRequired: pricing.materialRequired || false
         };
 
-        console.log('🔧 Firebase에서 로드된 가격 정보:', {
+        console.log('🔧 Firebaseから로드된 가격 정보:', {
             originalPricing: pricing,
             finalPricingData: pricingData
         });
@@ -718,7 +726,13 @@ async function loadCoursePricing(course) {
         updateMaterialRequirement();
     } catch (error) {
         console.error('❌ 가격 정보 로드 오류:', error);
-        pricingData = { education: 150000, certificate: 50000, material: 30000, packageDiscount: 10, materialRequired: false };
+        pricingData = {
+            education: 150000,
+            certificate: 50000,
+            material: 30000,
+            packageDiscount: 10,
+            materialRequired: false
+        };
         updateApplicationOptionPrices();
         updatePricingDisplay();
         showWarningMessage('가격 정보를 불러오는 중 오류가 발생했습니다. 기본 가격을 표시합니다.');
@@ -3559,7 +3573,7 @@ function buildTossPaymentData(applicationData) {
 
     // 🔧 결제 항목별 금액 구성 (면세 계산용) - 한 번만!
     const paymentItems = buildPaymentItems(applicationData);
-    
+
     // 🆕 면세 금액 미리 계산
     let taxFreeAmount = 0;
     if (window.paymentService && paymentItems) {
