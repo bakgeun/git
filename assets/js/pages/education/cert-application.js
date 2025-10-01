@@ -517,6 +517,25 @@ window.CertApplication = window.CertApplication || {};
         }
 
         uploadedPhotoFile = file;
+
+        // 🔧 드래그앤드롭으로 받은 파일을 실제 input 요소에 할당
+        const photoFileInput = document.getElementById('photo-file');
+        if (photoFileInput) {
+            // DataTransfer 객체를 사용하여 input에 파일 할당
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            photoFileInput.files = dataTransfer.files;
+
+            // 에러 상태 제거
+            const photoUploadZone = document.getElementById('photo-upload-zone');
+            if (photoUploadZone) {
+                photoUploadZone.classList.remove('error');
+            }
+
+            // 필드 에러 메시지 제거
+            clearFieldError(photoFileInput);
+        }
+
         const reader = new FileReader();
         reader.onload = function (e) {
             showPhotoPreview(file, e.target.result);
@@ -606,13 +625,13 @@ window.CertApplication = window.CertApplication || {};
                 }
 
                 // 🔧 MODIFIED: 두 컬렉션에 저장 (연동을 위해)
-                const saveResults = await saveToMultipleCollections(certificateData);
+                const saveResults = await saveApplicationData(certificateData);
 
                 if (saveResults.success) {
                     console.log('신청 데이터 저장 완료');
                     updateSubmitButtonState(submitButton, 'success');
                     showSuccessMessage('자격증 발급 신청이 완료되었습니다!');
-                    handleApplicationSuccess(certificateData);
+                    handleApplicationSuccess(certificateData, saveResults);
                 } else {
                     throw new Error(saveResults.error || '신청 저장에 실패했습니다.');
                 }
@@ -1025,7 +1044,7 @@ window.CertApplication = window.CertApplication || {};
 
         if (!uploadedPhotoFile) {
             const photoFileInput = document.getElementById('photo-file');
-            if (photoFileInput) {
+            if (photoFileInput && (!uploadedPhotoFile || !photoFileInput.files || photoFileInput.files.length === 0)) {
                 showFieldError(photoFileInput, '증명사진을 업로드해주세요.');
                 isValid = false;
             }
@@ -1100,10 +1119,11 @@ window.CertApplication = window.CertApplication || {};
             const storagePath = `certificate-photos/${applicationId}/${fileName}`;
 
             const metadata = {
+                contentType: file.type, // 명시적 contentType 설정
                 customMetadata: {
                     applicationId: applicationId,
                     uploadType: 'certificate_photo',
-                    originalName: file.name
+                    uploadedBy: currentUser ? currentUser.uid : 'unknown'
                 }
             };
 

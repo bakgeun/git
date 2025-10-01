@@ -15,7 +15,7 @@
          * @param {object} metadata - 파일 메타데이터 (선택적)
          * @returns {Promise} - 업로드 결과 프로미스
          */
-         uploadFile: async function (file, path, metadata = {}) {
+        uploadFile: async function (file, path, metadata = {}) {
             try {
                 // Firebase가 초기화되어 있는지 확인
                 if (!window.dhcFirebase || !window.dhcFirebase.storage) {
@@ -54,17 +54,29 @@
                     };
                 }
 
-                // 기본 메타데이터 추가
+                // 🔧 수정: customMetadata를 올바르게 병합
                 const defaultMetadata = {
-                    contentType: file.type,
+                    contentType: file.type || 'application/octet-stream',
                     customMetadata: {
                         originalName: file.name,
                         uploadedAt: new Date().toISOString()
                     }
                 };
 
-                // 사용자 지정 메타데이터 병합
-                const mergedMetadata = { ...defaultMetadata, ...metadata };
+                // 사용자 지정 메타데이터가 있으면 병합
+                if (metadata.customMetadata) {
+                    defaultMetadata.customMetadata = {
+                        ...defaultMetadata.customMetadata,
+                        ...metadata.customMetadata
+                    };
+                }
+
+                // 나머지 메타데이터 속성 병합 (customMetadata 제외)
+                const { customMetadata, ...otherMetadata } = metadata;
+                const mergedMetadata = {
+                    ...defaultMetadata,
+                    ...otherMetadata
+                };
 
                 // 스토리지 경로 참조 생성
                 const storageRef = window.dhcFirebase.storage.ref(path);

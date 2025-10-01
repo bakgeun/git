@@ -1196,9 +1196,9 @@ function initRealTimeValidation() {
     const phoneInput = document.getElementById('phone');
     if (phoneInput) {
         phoneInput.addEventListener('input', function () {
-            const phoneRegex = /^\d{3}-\d{4}-\d{4}$/;
-            if (this.value && !phoneRegex.test(this.value)) {
-                showFieldError(this, '올바른 전화번호 형식을 입력해주세요. (예: 010-1234-5678)');
+            // 🔧 FIX: 토스페이먼츠 호환 전화번호 검증
+            if (this.value && !validatePhoneForToss(this.value)) {
+                showFieldError(this, '올바른 전화번호를 입력해주세요. (하이픈 포함 가능)');
             } else {
                 clearFieldError(this);
             }
@@ -1335,69 +1335,227 @@ async function saveAgreementStatus() {
 }
 
 function initPaymentSystem() {
-    console.log('💳 토스페이먼츠 연동 준비 완료 (실제 연동은 추후)');
-}
+    console.log('💳 토스페이먼츠 결제 시스템 초기화');
 
-async function initiatePayment(applicationData) {
-    const isSimulation = true;
+    // 토스페이먼츠 SDK 로드 확인
+    if (typeof TossPayments === 'undefined') {
+        console.error('❌ TossPayments SDK가 로드되지 않았습니다.');
+        console.log('💡 HTML <head>에 다음 스크립트를 추가하세요:');
+        console.log('<script src="https://js.tosspayments.com/v1/payment"></script>');
 
-    if (isSimulation) {
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        // 사용자에게 알림
+        showErrorMessage('결제 시스템을 불러오는 중 오류가 발생했습니다. 페이지를 새로고침해 주세요.');
+        return;
+    } else {
+        console.log('✅ TossPayments SDK 로드 확인됨');
+    }
 
-        const paymentResult = {
-            success: true,
-            paymentKey: 'sim_' + Date.now(),
-            orderId: applicationData.applicationId,
-            amount: applicationData.pricing.totalAmount,
-            method: 'CARD',
-            approvedAt: new Date().toISOString()
-        };
-
-        await handlePaymentSuccess(paymentResult, applicationData);
+    // 토스페이먼츠 서비스 초기화 확인
+    if (window.paymentService && window.paymentService.isInitialized) {
+        console.log('✅ 토스페이먼츠 연동 준비 완료');
+    } else {
+        console.warn('⚠️ 토스페이먼츠 서비스가 초기화되지 않았습니다.');
+        // 재시도 로직
+        setTimeout(() => {
+            if (window.paymentService) {
+                window.paymentService.init().then(() => {
+                    console.log('✅ 토스페이먼츠 지연 초기화 완료');
+                }).catch(error => {
+                    console.error('❌ 토스페이먼츠 초기화 실패:', error);
+                });
+            }
+        }, 1000);
     }
 }
 
+/**
+ * 🆕 면세 정보를 포함한 결제 시작 (UPDATED)
+ * @param {Object} applicationData - 신청 데이터
+ */
+async function initiatePayment(applicationData) {
+    console.log('💳 토스페이먼츠 결제 시작 (면세 지원)');
+
+    try {
+        // 결제 서비스 확인
+        if (!window.paymentService || !window.paymentService.isInitialized) {
+            throw new Error('결제 서비스가 초기화되지 않았습니다.');
+        }
+
+        // 결제 데이터 구성 (면세 파라미터 포함)
+        let paymentData;
+        try {
+            paymentData = buildTossPaymentData(applicationData);
+        } catch (urlError) {
+            console.error('❌ URL 생성 오류:', urlError);
+
+            // 대체 URL 생성 시도
+            const orderId = window.paymentService.generateOrderId('DHC_COURSE');
+            const { successUrl, failUrl } = buildAlternativePaymentUrls(orderId);
+
+            // 🆕 면세 지원 대체 데이터 구성
+            const paymentItems = buildPaymentItems(applicationData);
+
+            paymentData = {
+                amount: applicationData.pricing.totalAmount,
+                orderId: orderId,
+                orderName: buildOrderName(applicationData),
+                customerName: applicationData.applicantInfo['applicant-name'] || '고객',
+                customerEmail: applicationData.applicantInfo['email'] || '',
+                customerMobilePhone: formatPhoneNumber(applicationData.applicantInfo['phone'] || ''),
+                successUrl: successUrl,
+                failUrl: failUrl,
+                paymentItems: paymentItems  // 🆕 면세 계산용 항목 추가
+            };
+
+            console.log('🔄 대체 결제 데이터 생성 (면세 지원):', paymentData);
+        }
+
+        // 🆕 면세 금액 사전 검증
+        if (paymentData.paymentItems) {
+            const isValid = window.paymentService.validateTaxFreeAmount(paymentData.paymentItems);
+            if (!isValid) {
+                throw new Error('면세 금액 검증에 실패했습니다.');
+            }
+
+            // 면세 계산 결과 미리보기
+            const taxCalculation = window.paymentService.calculateTaxFreeAmount(paymentData.paymentItems);
+            console.log('💰 면세 계산 미리보기:', {
+                총금액: taxCalculation.totalAmount,
+                면세금액: taxCalculation.taxFreeAmount,
+                과세금액: taxCalculation.suppliedAmount,
+                부가세: taxCalculation.vat
+            });
+        }
+
+        // 결제 요청 전 데이터 저장
+        await saveApplicationDataBeforePayment(applicationData);
+
+        console.log('🔧 토스페이먼츠 결제 요청 (면세 지원):', paymentData);
+
+        // 결제 방법 명시적 지정 및 면세 옵션 추가
+        const result = await window.paymentService.requestPayment(paymentData, {
+            paymentMethod: 'CARD',
+            additionalData: {
+                flowMode: 'DEFAULT',
+                discountCode: getAppliedDiscountCode(),
+                // 🆕 면세 관련 메타데이터 추가
+                taxFreeMetadata: {
+                    businessType: 'TAX_FREE',
+                    applicationId: applicationData.applicationId,
+                    courseType: applicationData.courseInfo.certificateType
+                }
+            }
+        });
+
+        console.log('✅ 토스페이먼츠 결제 요청 성공 (면세 지원):', result);
+
+    } catch (error) {
+        console.error('❌ 토스페이먼츠 결제 오류:', error);
+
+        // 결제 실패 처리
+        await handlePaymentFailure(error, applicationData);
+
+        const paymentButton = document.getElementById('payment-button');
+        updatePaymentButtonState(paymentButton, 'error');
+
+        // 사용자에게 오류 메시지 표시
+        showPaymentErrorMessage(error);
+    }
+}
+
+/**
+ * 🆕 면세 정보를 포함한 결제 성공 처리 (UPDATED)
+ * @param {Object} paymentResult - 토스페이먼츠 결제 결과
+ * @param {Object} applicationData - 신청 데이터
+ */
 async function handlePaymentSuccess(paymentResult, applicationData) {
     try {
+        console.log('✅ 토스페이먼츠 결제 성공 처리 (면세 지원):', paymentResult);
+
+        // 결제 승인 확인 (토스페이먼츠)
+        if (paymentResult.paymentKey && paymentResult.orderId && paymentResult.amount) {
+            const confirmResult = await window.paymentService.confirmPayment(
+                paymentResult.paymentKey,
+                paymentResult.orderId,
+                paymentResult.amount
+            );
+
+            if (!confirmResult.success) {
+                throw new Error('결제 승인 실패: ' + confirmResult.error);
+            }
+
+            console.log('✅ 토스페이먼츠 결제 승인 완료 (면세 지원):', confirmResult.data);
+
+            // 🆕 면세 정보 로깅
+            if (confirmResult.data.taxFreeAmount) {
+                console.log('💰 승인된 면세 정보:', {
+                    총결제금액: confirmResult.data.totalAmount,
+                    면세금액: confirmResult.data.taxFreeAmount,
+                    공급가액: confirmResult.data.suppliedAmount,
+                    부가세: confirmResult.data.vat
+                });
+            }
+
+            paymentResult = { ...paymentResult, ...confirmResult.data };
+        }
+
+        // 기존 성공 처리 로직 계속 진행
         const updatedData = {
             ...applicationData,
             payment: {
                 ...paymentResult,
                 status: 'completed',
-                paidAt: new Date()
+                paidAt: new Date(),
+                paymentMethod: 'toss_payments',
+                pgProvider: 'tosspayments',
+                // 🆕 면세 정보 저장
+                taxInfo: {
+                    totalAmount: paymentResult.totalAmount,
+                    taxFreeAmount: paymentResult.taxFreeAmount || 0,
+                    suppliedAmount: paymentResult.suppliedAmount || 0,
+                    vat: paymentResult.vat || 0,
+                    businessType: 'TAX_FREE'
+                }
             },
             status: 'payment_completed',
-            
-            // 🔧 NEW: 수강내역 페이지에서 사용할 추가 정보
+
             displayInfo: {
                 courseName: applicationData.courseInfo.courseName,
                 certificateType: applicationData.courseInfo.certificateType,
                 applicantName: applicationData.applicantInfo['applicant-name'],
                 totalAmount: applicationData.pricing.totalAmount,
                 paymentDate: new Date().toISOString(),
-                enrollmentStatus: 'enrolled', // 수강 등록 완료
+                enrollmentStatus: 'enrolled',
                 nextSteps: [
                     '교육 시작 전 안내 문자 발송',
                     '온라인 강의 자료 접근 권한 부여',
                     '교육 수료 후 자격증 발급 진행'
-                ]
+                ],
+                // 🆕 면세 정보 표시용
+                taxSummary: paymentResult.taxFreeAmount > 0 ? {
+                    hasTaxFreeItems: true,
+                    taxFreeAmount: paymentResult.taxFreeAmount,
+                    taxableAmount: paymentResult.suppliedAmount,
+                    vat: paymentResult.vat
+                } : null
             }
         };
 
+        // Firebase에 저장
         if (window.dbService) {
             if (updatedData.firestoreId) {
                 await window.dbService.updateDocument('applications', updatedData.firestoreId, updatedData);
-                console.log('✅ 결제 완료 데이터 업데이트 성공');
+                console.log('✅ 결제 완료 데이터 업데이트 성공 (면세 정보 포함)');
             } else {
                 const result = await window.dbService.addDocument('applications', updatedData);
                 if (result.success) {
                     updatedData.firestoreId = result.id;
-                    console.log('✅ 결제 완료 데이터 저장 성공:', result.id);
+                    console.log('✅ 결제 완료 데이터 저장 성공 (면세 정보 포함):', result.id);
                 }
             }
         }
 
-        // 🔧 NEW: 로컬 스토리지에도 저장 (수강내역 페이지에서 빠른 접근용)
+        // 로컬 스토리지에 성공 데이터 저장
         try {
             const localStorageData = {
                 applicationId: updatedData.applicationId,
@@ -1406,45 +1564,51 @@ async function handlePaymentSuccess(paymentResult, applicationData) {
                 applicantName: updatedData.applicantInfo['applicant-name'],
                 totalAmount: updatedData.pricing.totalAmount,
                 status: 'payment_completed',
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                paymentKey: paymentResult.paymentKey,
+                orderId: paymentResult.orderId,
+                // 🆕 면세 정보 추가
+                taxInfo: updatedData.payment.taxInfo
             };
-            
-            // 기존 데이터 가져오기
+
             const existingData = JSON.parse(localStorage.getItem('dhc_recent_applications') || '[]');
-            
-            // 새 데이터 추가 (최신순)
             existingData.unshift(localStorageData);
-            
-            // 최대 10개까지만 보관
+
             if (existingData.length > 10) {
                 existingData.splice(10);
             }
-            
+
             localStorage.setItem('dhc_recent_applications', JSON.stringify(existingData));
-            console.log('✅ 로컬 스토리지 저장 완료');
-            
+            console.log('✅ 로컬 스토리지 저장 완료 (면세 정보 포함)');
+
         } catch (localStorageError) {
             console.warn('⚠️ 로컬 스토리지 저장 실패:', localStorageError);
         }
 
+        // 임시 저장 데이터 정리
+        localStorage.removeItem('dhc_pending_order');
+        localStorage.removeItem('dhc_payment_backup');
+
+        // 성공 모달 표시 (면세 정보 포함)
         showPaymentSuccessModal(updatedData);
 
+        // 결제 버튼 상태 업데이트
         const paymentButton = document.getElementById('payment-button');
         updatePaymentButtonState(paymentButton, 'success');
-        
-        // 🔧 NEW: 폼 비활성화 (중복 결제 방지)
+
+        // 폼 비활성화 (중복 결제 방지)
         disableFormAfterPayment();
-        
+
     } catch (error) {
         console.error('❌ 결제 성공 처리 오류:', error);
-        showErrorMessage('결제는 완료되었으나 데이터 저장 중 오류가 발생했습니다.');
+        showErrorMessage('결제는 완료되었으나 데이터 저장 중 오류가 발생했습니다. 고객센터로 문의해 주세요.');
     }
 }
 
 function showPaymentSuccessModal(applicationData) {
     const modal = document.createElement('div');
     modal.className = 'payment-success-modal';
-    
+
     // 🔧 모달 스타일 개선 (중앙 정렬)
     modal.style.cssText = `
         position: fixed;
@@ -1458,7 +1622,7 @@ function showPaymentSuccessModal(applicationData) {
         justify-content: center;
         backdrop-filter: blur(4px);
     `;
-    
+
     modal.innerHTML = `
         <div class="modal-overlay" style="
             position: absolute;
@@ -1654,35 +1818,35 @@ function showPaymentSuccessModal(applicationData) {
     document.addEventListener('keydown', handleKeyPress);
 
     // 🔧 NEW: 마이페이지 네비게이션 함수 추가
-    window.navigateToMyPage = function(applicationId, courseName, page) {
+    window.navigateToMyPage = function (applicationId, courseName, page) {
         console.log('📍 마이페이지 이동:', { applicationId, courseName, page });
-        
+
         try {
             // URL 파라미터 구성
             const params = new URLSearchParams({
                 from: 'course-application',
-                type: 'course_enrollment', 
+                type: 'course_enrollment',
                 applicationId: applicationId,
                 courseName: courseName,
                 status: 'payment_completed',
                 timestamp: new Date().toISOString()
             });
-            
+
             // 페이지별 URL 구성
             const pageUrls = {
                 'course-history': 'pages/mypage/course-history.html',
                 'cert-management': 'pages/mypage/cert-management.html',
                 'payment-history': 'pages/mypage/payment-history.html'
             };
-            
+
             const targetPage = pageUrls[page] || pageUrls['course-history'];
             const fullUrl = `${window.adjustPath(targetPage)}?${params.toString()}`;
-            
+
             console.log('🚀 이동할 URL:', fullUrl);
-            
+
             // 페이지 이동
             window.location.href = fullUrl;
-            
+
         } catch (error) {
             console.error('❌ 마이페이지 이동 오류:', error);
             // 폴백: 파라미터 없이 이동
@@ -1911,10 +2075,10 @@ function scrollToCourseSelection() {
 // 폼 비활성화 함수 (결제 완료 후)
 function disableFormAfterPayment() {
     console.log('🔒 결제 완료 후 폼 비활성화');
-    
+
     const form = document.getElementById('unified-application-form');
     if (!form) return;
-    
+
     // 모든 입력 요소 비활성화
     const inputs = form.querySelectorAll('input, select, textarea, button');
     inputs.forEach(input => {
@@ -1922,7 +2086,7 @@ function disableFormAfterPayment() {
         input.style.opacity = '0.6';
         input.style.cursor = 'not-allowed';
     });
-    
+
     // 완료 배지 추가
     const completeBadge = document.createElement('div');
     completeBadge.style.cssText = `
@@ -1939,9 +2103,9 @@ function disableFormAfterPayment() {
         animation: slideIn 0.3s ease;
     `;
     completeBadge.innerHTML = '✅ 결제 완료 - 수강 신청이 완료되었습니다';
-    
+
     document.body.appendChild(completeBadge);
-    
+
     // 5초 후 배지 제거
     setTimeout(() => {
         if (document.body.contains(completeBadge)) {
@@ -2051,10 +2215,11 @@ function validateField(field) {
                 break;
 
             case 'tel':
-                const phoneRegex = /^\d{3}-\d{4}-\d{4}$/;
-                if (!phoneRegex.test(field.value)) {
+                // 🔧 FIX: 토스페이먼츠 호환 전화번호 검증
+                const isPhoneValid = validatePhoneForToss(field.value);
+                if (!isPhoneValid) {
                     isValid = false;
-                    errorMessage = '올바른 전화번호 형식을 입력해주세요. (예: 010-1234-5678)';
+                    errorMessage = '올바른 전화번호를 입력해주세요. (예: 01012345678 또는 010-1234-5678)';
                 }
                 break;
         }
@@ -2218,6 +2383,105 @@ function getTestScheduleData() {
     ];
 }
 
+// =================================
+// 🆕 면세 관련 유틸리티 함수들 (NEW)  
+// =================================
+
+/**
+ * 면세 사업자 여부 확인
+ * @returns {boolean}
+ */
+function isTaxFreeBusiness() {
+    return window.paymentService?.getEnvironmentInfo()?.taxFreeConfig?.businessType === 'TAX_FREE';
+}
+
+/**
+ * 특정 항목의 면세 여부 확인
+ * @param {string} itemType - 항목 유형
+ * @returns {boolean}
+ */
+function isItemTaxFree(itemType) {
+    return window.paymentService?.taxFreeUtils?.isTaxFreeItem(itemType) || false;
+}
+
+/**
+ * 면세 금액 계산 요약
+ * @param {Object} paymentItems - 결제 항목들
+ * @returns {Object} 면세 계산 요약
+ */
+function getTaxFreeSummary(paymentItems) {
+    if (!window.paymentService?.calculateTaxFreeAmount) {
+        return null;
+    }
+
+    const calculation = window.paymentService.calculateTaxFreeAmount(paymentItems);
+
+    return {
+        총결제금액: calculation.totalAmount,
+        면세금액: calculation.taxFreeAmount,
+        과세금액: calculation.suppliedAmount,
+        부가세: calculation.vat,
+        면세비율: calculation.totalAmount > 0 ?
+            Math.round((calculation.taxFreeAmount / calculation.totalAmount) * 100) : 0
+    };
+}
+
+/**
+ * 면세 정보 표시용 텍스트 생성
+ * @param {Object} taxInfo - 면세 정보
+ * @returns {string} 표시용 텍스트
+ */
+function formatTaxFreeInfo(taxInfo) {
+    if (!taxInfo || taxInfo.taxFreeAmount <= 0) {
+        return '';
+    }
+
+    const formatter = new Intl.NumberFormat('ko-KR');
+
+    return `면세 ${formatter.format(taxInfo.taxFreeAmount)}원 포함`;
+}
+
+/**
+ * 면세 영수증 정보 생성
+ * @param {Object} paymentResult - 결제 결과
+ * @returns {Object} 영수증 정보
+ */
+function generateTaxFreeReceipt(paymentResult) {
+    if (!paymentResult.taxFreeAmount) {
+        return null;
+    }
+
+    return {
+        사업자구분: '면세사업자',
+        총결제금액: paymentResult.totalAmount,
+        면세금액: paymentResult.taxFreeAmount,
+        과세금액: paymentResult.suppliedAmount || 0,
+        부가세: paymentResult.vat || 0,
+        발급일시: new Date().toLocaleString('ko-KR'),
+        영수증구분: '면세 포함 영수증'
+    };
+}
+
+// =================================
+// 전역 함수로 노출 (기존 + 면세 관련)
+// =================================
+
+window.buildTossPaymentData = buildTossPaymentData;
+window.buildPaymentItems = buildPaymentItems;  // 🆕 NEW
+window.initiatePayment = initiatePayment;
+window.handlePaymentSuccess = handlePaymentSuccess;
+
+// 🆕 면세 관련 유틸리티 전역 노출
+window.isTaxFreeBusiness = isTaxFreeBusiness;
+window.isItemTaxFree = isItemTaxFree;
+window.getTaxFreeSummary = getTaxFreeSummary;
+window.formatTaxFreeInfo = formatTaxFreeInfo;
+window.generateTaxFreeReceipt = generateTaxFreeReceipt;
+
+console.log('✅ course-application.js 면세 파라미터 지원 완료');
+console.log('💰 면세 계산 및 검증 기능 활성화됨');
+console.log('🔧 지원 항목: 교육비(면세), 교재비(면세), 자격증발급비(과세)');
+
 function getTestCourseData() {
     return getTestScheduleData();
 }
@@ -2311,9 +2575,43 @@ window.addEventListener('focus', function () {
 });
 
 // =================================
+// 15. 페이지 로드 시 토스페이먼츠 초기화 확인 (여기에 추가!)
+// =================================
+
+document.addEventListener('DOMContentLoaded', function () {
+    // 토스페이먼츠 SDK 로드 확인
+    if (typeof TossPayments === 'undefined') {
+        console.error('❌ TossPayments SDK가 로드되지 않았습니다.');
+        console.log('💡 HTML에 다음 스크립트를 추가하세요:');
+        console.log('<script src="https://js.tosspayments.com/v1/payment"></script>');
+
+        // 사용자에게 알림
+        showErrorMessage('결제 시스템을 불러오는 중 오류가 발생했습니다. 페이지를 새로고침해 주세요.');
+    } else {
+        console.log('✅ TossPayments SDK 로드 확인됨');
+    }
+
+    // 결제 서비스 상태 확인
+    setTimeout(() => {
+        if (window.paymentService && window.paymentService.isInitialized) {
+            console.log('✅ 토스페이먼츠 결제 서비스 준비 완료');
+
+            // 개발 모드에서 환경 정보 표시
+            if (window.debugCourseApplication) {
+                const envInfo = window.paymentService.getEnvironmentInfo();
+                console.log('🔧 토스페이먼츠 환경:', envInfo.environment);
+            }
+        } else {
+            console.warn('⚠️ 토스페이먼츠 결제 서비스 초기화 실패');
+        }
+    }, 2000);
+});
+
+// =================================
 // 🔧 최적화된 디버깅 도구 (핵심 기능만)
 // =================================
 
+// 개발 모드 확인
 if (window.location.hostname === 'localhost' ||
     window.location.hostname === '127.0.0.1' ||
     window.location.hostname.includes('.web.app') ||
@@ -2321,278 +2619,1286 @@ if (window.location.hostname === 'localhost' ||
     window.location.protocol === 'file:' ||
     window.FORCE_DEBUG === true) {
 
-    window.debugCourseApplication = {
-        // 데이터 관련
-        showCourses: () => {
-            console.table(availableCourses.map((course, index) => ({
-                순번: index + 1,
-                ID: course.id,
-                과정명: course.title,
-                자격증: course.certificateType,
-                교육비: course.price || course.pricing?.education || 0,
-                상태: course.status
-            })));
-            return availableCourses;
-        },
+    // 기존 debugCourseApplication 객체가 있다면 확장, 없다면 새로 생성
+    if (typeof window.debugCourseApplication === 'undefined') {
+        window.debugCourseApplication = {};
+    }
 
-        selectCourse: (courseId) => {
-            if (!courseId && availableCourses.length > 0) {
-                courseId = availableCourses[0].id;
+    // =================================
+    // 토스페이먼츠 디버깅 기능 추가
+    // =================================
+
+    window.debugCourseApplication.tossPayments = {
+
+        /**
+         * 토스페이먼츠 상태 확인
+         */
+        checkStatus: function () {
+            console.log('🔍 토스페이먼츠 상태 확인');
+
+            if (!window.paymentService) {
+                console.error('❌ paymentService를 찾을 수 없습니다.');
+                console.log('💡 payment-service.js 파일이 로드되었는지 확인하세요.');
+                return false;
             }
-            return selectCourseById(courseId);
-        },
 
-        showPricing: () => {
-            console.log('💰 현재 가격 정보:', pricingData);
-            console.log('📚 선택된 과정:', selectedCourseData?.title || '없음');
-            if (selectedCourseData) {
-                calculateAndDisplaySummary();
+            const info = window.paymentService.getEnvironmentInfo();
+            console.log('📊 토스페이먼츠 환경 정보:');
+            console.table(info);
+
+            // 추가 상태 확인
+            const detailedStatus = {
+                '🔧 SDK 로드': typeof TossPayments !== 'undefined',
+                '⚡ 서비스 초기화': window.paymentService.isInitialized,
+                '🌍 환경': info.environment,
+                '🔑 클라이언트 키': info.clientKey ? '설정됨' : '❌ 미설정',
+                '🌐 기본 URL': info.baseUrl,
+                '📱 결제 방법': Object.keys(window.paymentService.methods || {}).join(', '),
+                '📋 결제 상태': Object.keys(window.paymentService.status || {}).join(', ')
+            };
+
+            console.log('📋 상세 상태:');
+            console.table(detailedStatus);
+
+            // 문제점 진단
+            const issues = [];
+            if (typeof TossPayments === 'undefined') {
+                issues.push('TossPayments SDK가 로드되지 않음');
             }
+            if (!window.paymentService.isInitialized) {
+                issues.push('결제 서비스가 초기화되지 않음');
+            }
+            if (!info.clientKey || info.clientKey.includes('test_ck_docs')) {
+                issues.push('실제 테스트 키가 필요할 수 있음');
+            }
+
+            if (issues.length > 0) {
+                console.warn('⚠️ 발견된 문제점들:');
+                issues.forEach(issue => console.warn(`  - ${issue}`));
+            } else {
+                console.log('✅ 모든 상태가 정상입니다!');
+            }
+
+            return info;
         },
 
-        // 폼 관련
-        fillTestData: () => {
+        /**
+         * 토스페이먼츠 테스트 카드 정보
+         */
+        getTestCards: function () {
+            console.log('💳 토스페이먼츠 테스트 카드 정보');
+
+            if (!window.paymentService) {
+                console.error('❌ paymentService를 찾을 수 없습니다.');
+                return null;
+            }
+
+            const cards = window.paymentService.getTestCards();
+
+            console.log('✅ 결제 성공 테스트 카드:');
+            console.table(cards.success);
+
+            console.log('❌ 결제 실패 테스트 카드:');
+            console.table(cards.failure);
+
+            console.log('📋 카드 사용 안내:');
+            console.log('  - 실제 결제는 발생하지 않습니다');
+            console.log('  - 토스페이먼츠 테스트 환경에서만 작동합니다');
+            console.log('  - CVC와 유효기간은 정확히 입력해야 합니다');
+
+            return cards;
+        },
+
+        /**
+         * 테스트 결제 데이터 생성
+         */
+        createTestPayment: function (amount = 50000) {
+            console.log('🧪 테스트 결제 데이터 생성:', amount + '원');
+
+            if (!window.paymentService) {
+                console.error('❌ paymentService를 찾을 수 없습니다.');
+                return null;
+            }
+
+            const orderId = window.paymentService.generateOrderId('TEST_DHC');
+            const testPaymentData = {
+                amount: amount,
+                orderId: orderId,
+                orderName: `테스트 교육과정 (${window.paymentService.formatAmount(amount)})`,
+                customerName: '홍길동',
+                customerEmail: 'test@example.com',
+                customerMobilePhone: '010-1234-5678'
+            };
+
+            console.log('📋 생성된 테스트 결제 데이터:');
+            console.table(testPaymentData);
+
+            return testPaymentData;
+        },
+
+        /**
+         * 실제 토스페이먼츠 결제 테스트
+         */
+        testRealPayment: async function (amount = 1000) {
+            console.log('💳 실제 토스페이먼츠 결제 테스트 시작:', amount + '원');
+
+            // 1. 기본 상태 확인
+            if (!this.checkBasicRequirements()) {
+                return false;
+            }
+
+            // 2. 폼 데이터 확인 및 자동 입력
+            if (!this.prepareTestForm()) {
+                console.log('❌ 폼 준비 실패 - 먼저 fillTestData()를 실행하세요');
+                if (window.debugCourseApplication.fillTestData) {
+                    console.log('🔄 자동으로 테스트 데이터를 입력합니다...');
+                    const fillResult = window.debugCourseApplication.fillTestData();
+                    if (!fillResult) {
+                        console.log('❌ 자동 데이터 입력도 실패했습니다.');
+                        return false;
+                    }
+                    console.log('✅ 테스트 데이터 입력 완료');
+                } else {
+                    return false;
+                }
+            }
+
+            // 3. 테스트 결제 실행
             try {
-                console.log('📝 테스트 데이터 입력 시작 (순서 개선)');
-                
-                // 1. 과정 선택 (최우선) - 선택 가능한 과정 찾기
-                let courseSelected = false;
-                if (availableCourses.length > 0) {
-                    console.log('1️⃣ 선택 가능한 과정 찾기...');
-                    
-                    // 선택 가능한 과정 찾기 (disabled가 아닌 것)
-                    const courseSelect = document.getElementById('course-select');
-                    const availableOption = courseSelect ? 
-                        Array.from(courseSelect.options).find(opt => opt.value && !opt.disabled) : null;
-                    
-                    if (availableOption) {
-                        console.log('선택할 과정:', availableOption.value, availableOption.text.substring(0, 50) + '...');
-                        courseSelected = window.debugCourseApplication.selectCourse(availableOption.value);
-                        console.log('과정 선택 결과:', courseSelected ? '✅ 성공' : '❌ 실패');
-                    } else {
-                        console.log('❌ 선택 가능한 과정이 없음');
-                        // 마감된 과정이라도 테스트를 위해 직접 호출
-                        const firstCourseId = availableCourses[0]?.id;
-                        if (firstCourseId) {
-                            console.log('⚠️ 테스트를 위해 마감된 과정으로 진행:', firstCourseId);
-                            handleCourseSelection(firstCourseId);
-                            courseSelected = true;
-                        }
+                console.log('🎯 토스페이먼츠 결제 창 호출 중...');
+
+                // 폼 제출 이벤트 발생
+                const form = document.getElementById('unified-application-form');
+                if (form) {
+                    const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                    form.dispatchEvent(submitEvent);
+
+                    console.log('✅ 토스페이먼츠 결제 창이 호출되었습니다!');
+                    console.log('💡 결제 창에서 테스트 카드 정보를 입력하세요:');
+
+                    const testCards = this.getTestCards();
+                    if (testCards) {
+                        console.log('💳 성공 카드:', testCards.success.number);
+                        console.log('❌ 실패 카드:', testCards.failure.number);
                     }
-                    
-                    // 과정 선택 후 상태 확인
-                    if (courseSelected) {
-                        console.log('선택된 과정:', selectedCourseData?.title);
-                        console.log('가격 정보:', pricingData);
-                    }
+
+                    return true;
+                } else {
+                    console.error('❌ 결제 폼을 찾을 수 없습니다.');
+                    return false;
                 }
 
-                // 2. 기본 정보 입력
-                console.log('2️⃣ 기본 정보 입력...');
-                const testData = {
-                    'applicant-name': '홍길동',
-                    'applicant-name-english': 'Hong Gil Dong',
-                    'phone': '010-1234-5678',
-                    'email': 'test@example.com',
-                    'birth-date': '1990-01-01',
-                    'address': '서울시 강남구 테헤란로 123',
-                    'emergency-contact': '010-9876-5432'
+            } catch (error) {
+                console.error('❌ 토스페이먼츠 테스트 실패:', error);
+                this.handleTestError(error);
+                return false;
+            }
+        },
+
+        /**
+         * 기본 요구사항 확인
+         */
+        checkBasicRequirements: function () {
+            console.log('🔍 기본 요구사항 확인 중...');
+
+            const requirements = [
+                {
+                    name: 'TossPayments SDK',
+                    check: () => typeof TossPayments !== 'undefined',
+                    fix: 'HTML에 <script src="https://js.tosspayments.com/v1/payment"></script> 추가'
+                },
+                {
+                    name: 'paymentService',
+                    check: () => window.paymentService,
+                    fix: 'payment-service.js 파일이 로드되었는지 확인'
+                },
+                {
+                    name: 'paymentService 초기화',
+                    check: () => window.paymentService && window.paymentService.isInitialized,
+                    fix: 'paymentService.init() 호출 또는 페이지 새로고침'
+                },
+                {
+                    name: '과정 데이터',
+                    check: () => availableCourses && availableCourses.length > 0,
+                    fix: 'loadEducationData() 호출 또는 페이지 새로고침'
+                },
+                {
+                    name: '결제 폼',
+                    check: () => document.getElementById('unified-application-form'),
+                    fix: 'course-application.html 페이지에서 실행'
+                }
+            ];
+
+            let allPassed = true;
+
+            requirements.forEach(req => {
+                const passed = req.check();
+                console.log(`${passed ? '✅' : '❌'} ${req.name}: ${passed ? '통과' : '실패'}`);
+
+                if (!passed) {
+                    console.log(`   💡 해결방법: ${req.fix}`);
+                    allPassed = false;
+                }
+            });
+
+            if (allPassed) {
+                console.log('🎉 모든 기본 요구사항이 충족되었습니다!');
+            } else {
+                console.log('❌ 일부 요구사항이 충족되지 않았습니다.');
+            }
+
+            return allPassed;
+        },
+
+        /**
+         * 테스트 폼 준비
+         */
+        prepareTestForm: function () {
+            console.log('📝 테스트 폼 준비 중...');
+
+            // 폼 존재 확인
+            const form = document.getElementById('unified-application-form');
+            if (!form) {
+                console.error('❌ 결제 폼을 찾을 수 없습니다.');
+                return false;
+            }
+
+            // 필수 입력 필드 확인
+            const requiredFields = [
+                'applicant-name',
+                'applicant-name-english',
+                'phone',
+                'email'
+            ];
+
+            let missingFields = [];
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field || !field.value.trim()) {
+                    missingFields.push(fieldId);
+                }
+            });
+
+            // 과정 선택 확인
+            const courseSelect = document.getElementById('course-select');
+            if (!courseSelect || !courseSelect.value) {
+                missingFields.push('course-select');
+            }
+
+            // 약관 동의 확인
+            const privacyAgree = document.getElementById('agree-privacy');
+            if (!privacyAgree || !privacyAgree.checked) {
+                missingFields.push('agree-privacy');
+            }
+
+            if (missingFields.length > 0) {
+                console.log('❌ 누락된 필드들:', missingFields);
+                return false;
+            }
+
+            console.log('✅ 모든 필수 필드가 입력되었습니다.');
+            return true;
+        },
+
+        /**
+         * 테스트 에러 처리
+         */
+        handleTestError: function (error) {
+            console.error('🚨 테스트 에러 상세 정보:');
+            console.error('메시지:', error.message);
+            console.error('코드:', error.code);
+            console.error('스택:', error.stack);
+
+            // 일반적인 해결방법 제시
+            console.log('💡 일반적인 해결방법:');
+            console.log('1. 페이지를 새로고침 후 다시 시도');
+            console.log('2. 브라우저 개발자 도구에서 콘솔 오류 확인');
+            console.log('3. 인터넷 연결 상태 확인');
+            console.log('4. 토스페이먼츠 SDK 로딩 상태 확인');
+        },
+
+        /**
+         * 결제 환경 진단
+         */
+        diagnoseEnvironment: function () {
+            console.log('🏥 결제 환경 진단 시작');
+
+            const diagnosis = {
+                '브라우저': {
+                    'User Agent': navigator.userAgent,
+                    '쿠키 허용': navigator.cookieEnabled,
+                    '온라인 상태': navigator.onLine,
+                    '언어': navigator.language
+                },
+                '페이지': {
+                    '현재 URL': window.location.href,
+                    '프로토콜': window.location.protocol,
+                    '호스트': window.location.hostname,
+                    '포트': window.location.port || '기본값'
+                },
+                'JavaScript': {
+                    'TossPayments SDK': typeof TossPayments !== 'undefined',
+                    'paymentService': !!window.paymentService,
+                    'debugCourseApplication': !!window.debugCourseApplication,
+                    'jQuery': typeof $ !== 'undefined'
+                },
+                '네트워크': {
+                    '연결 상태': navigator.onLine ? '온라인' : '오프라인',
+                    '연결 타입': navigator.connection ? navigator.connection.effectiveType : '알 수 없음'
+                }
+            };
+
+            Object.keys(diagnosis).forEach(category => {
+                console.log(`📋 ${category}:`);
+                console.table(diagnosis[category]);
+            });
+
+            return diagnosis;
+        },
+
+        /**
+         * 결제 시뮬레이션 (실제 결제 없음)
+         */
+        simulatePayment: function (amount = 1000) {
+            console.log('🎭 결제 시뮬레이션 (실제 결제 없음):', amount + '원');
+
+            const testData = this.createTestPayment(amount);
+            if (!testData) return false;
+
+            console.log('⏳ 결제 프로세스 시뮬레이션 중...');
+
+            // 시뮬레이션 단계별 로그
+            setTimeout(() => {
+                console.log('1️⃣ 결제 데이터 검증 완료');
+            }, 500);
+
+            setTimeout(() => {
+                console.log('2️⃣ 토스페이먼츠 서버 연결 시뮬레이션');
+            }, 1000);
+
+            setTimeout(() => {
+                console.log('3️⃣ 카드 정보 검증 시뮬레이션');
+            }, 1500);
+
+            setTimeout(() => {
+                console.log('4️⃣ 결제 승인 시뮬레이션');
+
+                const mockResult = {
+                    success: true,
+                    paymentKey: 'test_payment_' + Date.now(),
+                    orderId: testData.orderId,
+                    amount: testData.amount,
+                    status: 'DONE',
+                    method: 'CARD',
+                    approvedAt: new Date().toISOString()
                 };
 
-                let filledCount = 0;
-                Object.entries(testData).forEach(([id, value]) => {
-                    const input = document.getElementById(id);
-                    if (input) {
-                        input.value = value;
-                        input.dispatchEvent(new Event('input', { bubbles: true }));
-                        filledCount++;
-                    }
-                });
+                console.log('✅ 시뮬레이션 결제 성공!');
+                console.table(mockResult);
 
-                // 3. 옵션 선택
-                console.log('3️⃣ 옵션 선택...');
-                ['include-certificate', 'include-material', 'agree-privacy', 'agree-marketing'].forEach(id => {
-                    const checkbox = document.getElementById(id);
-                    if (checkbox) {
-                        checkbox.checked = true;
-                        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
-                        console.log(`✅ ${id} 선택됨`);
-                    }
-                });
-
-                // 4. 최종 확인 카드 업데이트
-                updateFinalCheck();
-
-                console.log(`🎯 테스트 데이터 입력 완료!`);
-                console.log(`- 과정 선택: ${courseSelected ? '✅' : '❌'}`);
-                console.log(`- 기본 정보: ${filledCount}개 필드 입력`);
-                console.log(`- 현재 선택된 과정: ${selectedCourseData?.title || '없음'}`);
-                
-                return courseSelected;
-
-            } catch (error) {
-                console.error('❌ 테스트 데이터 입력 오류:', error);
-                return false;
-            }
+                return mockResult;
+            }, 2000);
         },
 
-        checkForm: () => {
-            const isValid = validateUnifiedForm();
-            if (isValid) {
-                console.log('✅ 폼 유효성 검사 통과');
-                const applicationData = collectApplicationData();
-                console.log('📊 수집된 신청 데이터:', applicationData);
-            } else {
-                console.log('❌ 폼 유효성 검사 실패');
-            }
-            return isValid;
-        },
-
-        simulatePayment: () => {
-            if (!window.debugCourseApplication.checkForm()) {
-                console.log('❌ 폼 검증 실패, 시뮬레이션 중단');
-                return false;
-            }
-
-            const form = document.getElementById('unified-application-form');
-            if (form) {
-                const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-                form.dispatchEvent(submitEvent);
-                console.log('✅ 결제 시뮬레이션 실행됨');
-                return true;
-            }
-            return false;
-        },
-
-        // 실시간 동기화 관련
-        toggleRealTime: () => {
-            isRealTimeEnabled = !isRealTimeEnabled;
-            console.log('🔄 실시간 동기화:', isRealTimeEnabled ? '활성화' : '비활성화');
-
-            if (isRealTimeEnabled) {
-                loadScheduleData();
-            } else {
-                if (courseDataListener) {
-                    courseDataListener();
-                    courseDataListener = null;
-                }
-            }
-        },
-
-        forceRefresh: async () => {
-            try {
-                if (courseDataListener) {
-                    courseDataListener();
-                    courseDataListener = null;
-                }
-
-                availableCourses = [];
-                selectedCourseData = null;
-                clearPricingData();
-
-                await loadScheduleData();
-                console.log('✅ 강제 새로고침 완료');
-                return true;
-            } catch (error) {
-                console.error('❌ 강제 새로고침 오류:', error);
-                return false;
-            }
-        },
-
-        // 통합 테스트
-        runFullTest: () => {
-            console.log('🧪 전체 시스템 테스트 시작');
-            try {
-                console.log('1️⃣ 과정 데이터 확인');
-                window.debugCourseApplication.showCourses();
-
-                console.log('2️⃣ 테스트 데이터 입력');
-                const fillSuccess = window.debugCourseApplication.fillTestData();
-
-                if (fillSuccess) {
-                    console.log('3️⃣ 가격 정보 확인');
-                    window.debugCourseApplication.showPricing();
-
-                    console.log('4️⃣ 폼 유효성 검사');
-                    const formValid = window.debugCourseApplication.checkForm();
-
-                    console.log('🎯 전체 테스트 완료!');
-                    if (formValid) {
-                        console.log('✅ 모든 테스트 통과');
-                        console.log('💡 이제 simulatePayment()를 실행할 수 있습니다.');
-                    }
-                }
-                return fillSuccess;
-            } catch (error) {
-                console.error('❌ 전체 테스트 오류:', error);
-                return false;
-            }
-        },
-
-        // 유틸리티
-        resetAll: () => {
-            try {
-                const form = document.getElementById('unified-application-form');
-                if (form) form.reset();
-
-                const courseSelect = document.getElementById('course-select');
-                if (courseSelect) {
-                    courseSelect.value = '';
-                    courseSelect.dispatchEvent(new Event('change'));
-                }
-
-                selectedCourseData = null;
-                clearPricingData();
-                resetApplicationOptionPrices();
-                updateFinalCheck();
-
-                isInternalNavigation = false;
-                formHasData = false;
-
-                console.log('✅ 모든 데이터 초기화 완료');
-            } catch (error) {
-                console.error('❌ 초기화 오류:', error);
-            }
-        },
-
-        status: () => {
-            const status = {
-                coursesAvailable: availableCourses.length,
-                courseSelected: !!selectedCourseData,
-                pricingLoaded: Object.keys(pricingData).length > 0,
-                userLoggedIn: !!courseApplicationUser,
-                formInitialized: !!document.getElementById('unified-application-form'),
-                realTimeEnabled: isRealTimeEnabled,
-                listenerActive: !!courseDataListener
-            };
-            console.table(status);
-            return status;
-        },
-
-        help: () => {
-            console.log('🎯 최적화된 교육 신청 디버깅 도구');
-            console.log('📊 데이터: showCourses(), selectCourse(), showPricing()');
-            console.log('📝 폼: fillTestData(), checkForm(), simulatePayment()');
-            console.log('🔄 실시간: toggleRealTime(), forceRefresh()');
-            console.log('🧪 테스트: runFullTest(), resetAll(), status()');
-            console.log('💡 빠른 시작: runFullTest()');
+        /**
+         * 도움말 표시
+         */
+        help: function () {
+            console.log('🎯 토스페이먼츠 디버깅 도구 사용법');
+            console.log('');
+            console.log('📊 상태 확인:');
+            console.log('  - checkStatus(): 토스페이먼츠 전체 상태 확인');
+            console.log('  - diagnoseEnvironment(): 환경 진단');
+            console.log('  - checkBasicRequirements(): 기본 요구사항 확인');
+            console.log('');
+            console.log('💳 테스트 카드:');
+            console.log('  - getTestCards(): 테스트 카드 정보 조회');
+            console.log('');
+            console.log('🧪 결제 테스트:');
+            console.log('  - createTestPayment(금액): 테스트 결제 데이터 생성');
+            console.log('  - testRealPayment(금액): 실제 토스페이먼츠 결제 테스트');
+            console.log('  - simulatePayment(금액): 결제 시뮬레이션 (실제 결제 없음)');
+            console.log('');
+            console.log('💡 사용 예시:');
+            console.log('  window.debugCourseApplication.tossPayments.checkStatus()');
+            console.log('  window.debugCourseApplication.tossPayments.testRealPayment(1000)');
+            console.log('');
+            console.log('⚠️ 주의사항:');
+            console.log('  - testRealPayment()는 실제 토스페이먼츠 결제창을 호출합니다');
+            console.log('  - 테스트 카드를 사용하면 실제 결제는 발생하지 않습니다');
+            console.log('  - 테스트 전에 폼 데이터가 입력되어 있어야 합니다');
         }
     };
 
-    console.log('🎯 최적화된 교육 신청 디버깅 도구 활성화됨');
-    console.log('🚀 빠른 시작: window.debugCourseApplication.runFullTest()');
-    console.log('💡 도움말: window.debugCourseApplication.help()');
+    // 기존 디버깅 도구에 추가
+    window.debugCourseApplication.testPhoneNumbers = function () {
+        console.log('📱 전화번호 형식 테스트');
+
+        const testPhones = [
+            '010-1234-5678',    // 하이픈 포함
+            '01012345678',      // 숫자만
+            '010 1234 5678',    // 공백 포함
+            '010.1234.5678',    // 점 포함
+            '02-123-4567',      // 일반전화
+            '010-123-45678',    // 잘못된 형식
+            '',                 // 빈 값
+            '123-456-7890'      // 완전히 잘못된 형식
+        ];
+
+        console.log('테스트 전화번호들:');
+        testPhones.forEach(phone => {
+            const result = debugPhoneNumber(phone);
+            console.log(`${phone} -> ${result.formatted} (${result.isValid ? '✅' : '❌'})`);
+        });
+
+        return testPhones.map(phone => ({
+            input: phone,
+            output: formatPhoneNumber(phone),
+            valid: validatePhoneForToss(phone)
+        }));
+    };
+
+    // 현재 폼의 전화번호 테스트
+    window.debugCourseApplication.testCurrentPhone = function () {
+        const phoneInput = document.getElementById('phone');
+        if (!phoneInput) {
+            console.log('❌ 전화번호 입력 필드를 찾을 수 없습니다.');
+            return null;
+        }
+
+        const currentPhone = phoneInput.value;
+        console.log('📱 현재 입력된 전화번호 테스트:');
+
+        return debugPhoneNumber(currentPhone);
+    };
+
+    // =================================
+    // 기존 디버깅 도구에 통합
+    // =================================
+
+    // 기존 help 함수 확장 (있다면)
+    if (window.debugCourseApplication.help) {
+        const originalHelp = window.debugCourseApplication.help;
+        window.debugCourseApplication.help = function () {
+            // 기존 도움말 표시
+            originalHelp();
+
+            // 토스페이먼츠 도움말 추가
+            console.log('\n💳 토스페이먼츠 기능:');
+            console.log('  - tossPayments.checkStatus(): 상태 확인');
+            console.log('  - tossPayments.getTestCards(): 테스트 카드 정보');
+            console.log('  - tossPayments.testRealPayment(): 실제 결제 테스트');
+            console.log('  - tossPayments.help(): 토스페이먼츠 도움말');
+        };
+    } else {
+        // help 함수가 없다면 새로 생성
+        window.debugCourseApplication.help = function () {
+            console.log('🎯 교육 신청 디버깅 도구');
+            console.log('💳 토스페이먼츠: tossPayments.help()');
+            console.log('📊 기타 기능: 다른 디버깅 함수들을 확인하세요');
+        };
+    }
+
+    // 디버깅 도구에 URL 테스트 기능 추가
+    window.debugCourseApplication.testPaymentUrls = function () {
+        console.log('🔧 결제 URL 테스트');
+
+        const testOrderId = 'TEST_' + Date.now();
+
+        try {
+            const successUrl = buildPaymentResultUrl('success', testOrderId);
+            const failUrl = buildPaymentResultUrl('fail', testOrderId);
+
+            console.log('✅ 생성된 URL:');
+            console.log('성공 URL:', successUrl);
+            console.log('실패 URL:', failUrl);
+
+            const isValid = validatePaymentUrls(successUrl, failUrl);
+            console.log('검증 결과:', isValid ? '✅ 통과' : '❌ 실패');
+
+            return { successUrl, failUrl, isValid };
+
+        } catch (error) {
+            console.error('❌ URL 생성 오류:', error);
+
+            // 대체 URL 테스트
+            const { successUrl, failUrl } = buildAlternativePaymentUrls(testOrderId);
+            console.log('🔄 대체 URL:');
+            console.log('성공 URL:', successUrl);
+            console.log('실패 URL:', failUrl);
+
+            return { successUrl, failUrl, isValid: false, alternative: true };
+        }
+    };
+
+    window.debugCourseApplication.testCompletePayment = function () {
+        console.log('🧪 완전한 결제 프로세스 테스트');
+
+        // 1. URL 테스트
+        const urlTest = this.testPaymentUrls();
+        if (!urlTest.isValid && !urlTest.alternative) {
+            console.error('❌ URL 생성 실패로 테스트 중단');
+            return false;
+        }
+
+        // 2. 토스페이먼츠 서비스 확인
+        if (!window.paymentService?.isInitialized) {
+            console.error('❌ 토스페이먼츠 서비스 미초기화');
+            return false;
+        }
+
+        // 3. 올바른 테스트 데이터 생성 (🔧 수정됨)
+        const testData = {
+            pricing: { totalAmount: 1000 },
+            applicantInfo: {
+                'applicant-name': '테스트사용자',
+                'email': 'test@example.com',
+                'phone': '010-1234-5678'
+            },
+            // 🔧 FIX: courseInfo 추가
+            courseInfo: {
+                courseName: '테스트 교육과정',
+                certificateType: 'test'
+            },
+            // 🔧 FIX: options 추가
+            options: {
+                includeEducation: true,
+                includeCertificate: true,
+                includeMaterial: false
+            }
+        };
+
+        try {
+            const paymentData = buildTossPaymentData(testData);
+            console.log('✅ 결제 데이터 생성 성공:', paymentData);
+            return true;
+        } catch (error) {
+            console.error('❌ 결제 데이터 생성 실패:', error);
+            return false;
+        }
+    };
+
+    // 🔧 NEW: URL 디버깅 전용 함수 추가
+    window.debugCourseApplication.debugUrls = function () {
+        console.log('🔍 URL 디버깅 시작');
+
+        // 현재 경로 정보 출력
+        debugCurrentPaths();
+
+        // URL 생성 테스트
+        const testOrderId = 'DEBUG_' + Date.now();
+
+        console.log('\n--- 기존 방식 URL 생성 ---');
+        try {
+            const oldSuccessUrl = buildPaymentResultUrl('success', testOrderId);
+            const oldFailUrl = buildPaymentResultUrl('fail', testOrderId);
+            console.log('성공 URL:', oldSuccessUrl);
+            console.log('실패 URL:', oldFailUrl);
+        } catch (error) {
+            console.error('기존 방식 오류:', error);
+        }
+
+        console.log('\n--- 대체 방식 URL 생성 ---');
+        try {
+            const { successUrl, failUrl } = buildAlternativePaymentUrls(testOrderId);
+            console.log('성공 URL:', successUrl);
+            console.log('실패 URL:', failUrl);
+        } catch (error) {
+            console.error('대체 방식 오류:', error);
+        }
+    };
+
+    // 개발 모드에서만 면세 디버깅 도구 추가
+    if (window.debugCourseApplication) {
+
+        /**
+         * 면세 테스트 결제 생성
+         */
+        window.debugCourseApplication.createTaxFreeTestPayment = function (customItems = null) {
+            console.log('🧪 면세 테스트 결제 생성');
+
+            const testApplicationData = {
+                applicationId: 'TEST_TAX_' + Date.now(),
+
+                courseInfo: {
+                    courseName: '면세 테스트 교육과정',
+                    certificateType: 'test'
+                },
+
+                applicantInfo: {
+                    'applicant-name': '홍길동',
+                    'email': 'test@example.com',
+                    'phone': '010-1234-5678'
+                },
+
+                options: {
+                    includeEducation: true,
+                    includeCertificate: true,
+                    includeMaterial: true
+                },
+
+                pricing: {
+                    educationPrice: customItems?.education || 150000,    // 면세
+                    certificatePrice: customItems?.certificate || 50000, // 과세  
+                    materialPrice: customItems?.material || 30000,       // 면세
+                    totalAmount: (customItems?.education || 150000) +
+                        (customItems?.certificate || 50000) +
+                        (customItems?.material || 30000)
+                }
+            };
+
+            console.log('📋 테스트 신청 데이터:', testApplicationData);
+
+            try {
+                const paymentData = buildTossPaymentData(testApplicationData);
+
+                console.log('💰 면세 결제 데이터 생성 성공:');
+                console.table({
+                    주문ID: paymentData.orderId,
+                    총금액: paymentData.amount,
+                    고객명: paymentData.customerName,
+                    전화번호: paymentData.customerMobilePhone
+                });
+
+                // 면세 계산 결과 표시
+                if (paymentData.paymentItems && window.paymentService) {
+                    const taxCalculation = window.paymentService.calculateTaxFreeAmount(paymentData.paymentItems);
+                    console.log('💰 면세 계산 결과:');
+                    console.table(window.paymentService.formatters.formatTaxInfo(taxCalculation));
+                }
+
+                return { testApplicationData, paymentData };
+
+            } catch (error) {
+                console.error('❌ 면세 테스트 결제 생성 실패:', error);
+                return null;
+            }
+        };
+
+        /**
+         * 면세 시나리오별 테스트
+         */
+        window.debugCourseApplication.testTaxFreeScenarios = function () {
+            console.log('🎯 면세 시나리오별 테스트 시작');
+
+            const scenarios = [
+                {
+                    name: '면세만 (교육+교재)',
+                    items: { education: 150000, material: 30000 }
+                },
+                {
+                    name: '과세만 (자격증)',
+                    items: { certificate: 50000 }
+                },
+                {
+                    name: '혼합 (교육+자격증+교재)',
+                    items: { education: 150000, certificate: 50000, material: 30000 }
+                },
+                {
+                    name: '고액 혼합',
+                    items: { education: 300000, certificate: 100000, material: 50000 }
+                }
+            ];
+
+            scenarios.forEach((scenario, index) => {
+                console.log(`\n${index + 1}️⃣ 시나리오: ${scenario.name}`);
+                console.log('━'.repeat(50));
+
+                try {
+                    const result = this.createTaxFreeTestPayment(scenario.items);
+                    if (result) {
+                        console.log('✅ 테스트 성공');
+
+                        // 토스페이먼츠 데이터 검증
+                        if (window.paymentService && result.paymentData.paymentItems) {
+                            const isValid = window.paymentService.validateTaxFreeAmount(result.paymentData.paymentItems);
+                            console.log(`검증 결과: ${isValid ? '✅ 통과' : '❌ 실패'}`);
+                        }
+                    } else {
+                        console.log('❌ 테스트 실패');
+                    }
+                } catch (error) {
+                    console.error('❌ 시나리오 테스트 오류:', error.message);
+                }
+            });
+
+            console.log('\n🎉 모든 시나리오 테스트 완료');
+        };
+
+        /**
+         * 실제 면세 결제 테스트 (토스페이먼츠 호출)
+         */
+        window.debugCourseApplication.testRealTaxFreePayment = async function (customItems = null) {
+            console.log('💳 실제 면세 결제 테스트 시작');
+
+            // 기본 요구사항 확인
+            if (!this.tossPayments?.checkBasicRequirements()) {
+                console.log('❌ 기본 요구사항 미충족');
+                return false;
+            }
+
+            // 테스트 데이터 생성
+            const testResult = this.createTaxFreeTestPayment(customItems);
+            if (!testResult) {
+                console.log('❌ 테스트 데이터 생성 실패');
+                return false;
+            }
+
+            const { testApplicationData, paymentData } = testResult;
+
+            try {
+                console.log('🚀 토스페이먼츠 결제창 호출 (면세 지원)...');
+
+                // 면세 지원 결제 요청
+                const result = await window.paymentService.requestPayment(paymentData, {
+                    paymentMethod: 'CARD',
+                    additionalData: {
+                        flowMode: 'DEFAULT',
+                        taxFreeMetadata: {
+                            testMode: true,
+                            scenario: 'debug_test'
+                        }
+                    }
+                });
+
+                console.log('✅ 면세 결제창 호출 성공!');
+                console.log('💡 테스트 카드 정보:');
+
+                if (window.paymentService.getTestCards) {
+                    const testCards = window.paymentService.getTestCards();
+                    console.table({
+                        '성공 카드': testCards.success.number,
+                        '실패 카드': testCards.failure.number,
+                        'CVC': testCards.success.cvc,
+                        '유효기간': testCards.success.expiry
+                    });
+                }
+
+                return true;
+
+            } catch (error) {
+                console.error('❌ 면세 결제 테스트 실패:', error);
+                return false;
+            }
+        };
+
+        /**
+         * 면세 설정 변경 테스트
+         */
+        window.debugCourseApplication.changeTaxSettings = function (itemType, isTaxFree) {
+            console.log(`🔧 ${itemType} 면세 설정 변경: ${isTaxFree ? '면세' : '과세'}`);
+
+            if (!window.paymentService?.updateTaxFreeConfig) {
+                console.error('❌ paymentService.updateTaxFreeConfig 함수를 찾을 수 없습니다.');
+                return false;
+            }
+
+            const newSettings = {};
+            newSettings[itemType] = {
+                isTaxFree: isTaxFree,
+                taxRate: isTaxFree ? 0 : 0.1
+            };
+
+            window.paymentService.updateTaxFreeConfig({
+                taxSettings: newSettings
+            });
+
+            console.log('✅ 설정 변경 완료');
+
+            // 변경 후 테스트
+            console.log('🧪 변경된 설정으로 테스트:');
+            const testItems = {};
+            testItems[itemType] = 100000;
+
+            const result = this.createTaxFreeTestPayment(testItems);
+            return result !== null;
+        };
+
+        /**
+         * 면세 디버깅 도움말
+         */
+        window.debugCourseApplication.taxFreeHelp = function () {
+            console.log('🎯 면세 디버깅 도구 사용법');
+            console.log('');
+            console.log('🧪 테스트 함수:');
+            console.log('  - createTaxFreeTestPayment(): 면세 테스트 결제 데이터 생성');
+            console.log('  - testTaxFreeScenarios(): 다양한 면세 시나리오 테스트');
+            console.log('  - testRealTaxFreePayment(): 실제 토스페이먼츠 결제창 호출');
+            console.log('');
+            console.log('🔧 설정 변경:');
+            console.log('  - changeTaxSettings(항목, 면세여부): 특정 항목 면세 설정 변경');
+            console.log('    예: changeTaxSettings("education", false) // 교육비를 과세로 변경');
+            console.log('');
+            console.log('💡 사용 예시:');
+            console.log('  window.debugCourseApplication.testTaxFreeScenarios()');
+            console.log('  window.debugCourseApplication.testRealTaxFreePayment()');
+            console.log('');
+            console.log('🔗 관련 도구:');
+            console.log('  - window.debugTaxFree: payment-service.js 면세 디버깅 도구');
+            console.log('  - window.paymentService.taxFreeUtils: 면세 유틸리티 함수');
+        };
+
+        // 기존 help 함수에 면세 관련 내용 추가
+        if (window.debugCourseApplication.help) {
+            const originalHelp = window.debugCourseApplication.help;
+            window.debugCourseApplication.help = function () {
+                originalHelp();
+                console.log('\n💰 면세 관련 기능:');
+                console.log('  - taxFreeHelp(): 면세 디버깅 도움말');
+                console.log('  - testTaxFreeScenarios(): 면세 시나리오 테스트');
+                console.log('  - testRealTaxFreePayment(): 실제 면세 결제 테스트');
+            };
+        }
+
+        console.log('💰 면세 디버깅 도구 추가 완료');
+        console.log('💡 도움말: window.debugCourseApplication.taxFreeHelp()');
+    }
+
+    // =================================
+    // 빠른 테스트 함수들
+    // =================================
+
+    // 전체 토스페이먼츠 테스트 함수
+    window.debugCourseApplication.testTossPaymentsComplete = async function () {
+        console.log('🚀 토스페이먼츠 완전 테스트 시작');
+
+        console.log('\n1️⃣ 환경 진단');
+        this.tossPayments.diagnoseEnvironment();
+
+        console.log('\n2️⃣ 상태 확인');
+        const statusOk = this.tossPayments.checkStatus();
+
+        if (!statusOk) {
+            console.log('❌ 상태 확인 실패 - 테스트 중단');
+            return false;
+        }
+
+        console.log('\n3️⃣ 테스트 카드 정보');
+        this.tossPayments.getTestCards();
+
+        console.log('\n4️⃣ 기본 요구사항 확인');
+        const reqOk = this.tossPayments.checkBasicRequirements();
+
+        if (!reqOk) {
+            console.log('❌ 기본 요구사항 미충족 - 테스트 중단');
+            return false;
+        }
+
+        console.log('\n5️⃣ 결제 시뮬레이션');
+        this.tossPayments.simulatePayment(1000);
+
+        setTimeout(() => {
+            console.log('\n🎉 토스페이먼츠 완전 테스트 완료!');
+            console.log('💡 실제 결제 테스트: tossPayments.testRealPayment(1000)');
+        }, 3000);
+
+        return true;
+    };
+
+    // 초기화 상태 출력
+    console.log('🎯 토스페이먼츠 디버깅 도구 활성화됨');
+    console.log('📍 현재 호스트:', window.location.hostname);
+    console.log('🚀 빠른 시작: window.debugCourseApplication.testTossPaymentsComplete()');
+    console.log('💡 도움말: window.debugCourseApplication.tossPayments.help()');
+    console.log('🔧 URL 테스트: window.debugCourseApplication.testPaymentUrls()'); // 새로 추가
 
 } else {
-    window.debugCourseApplication = {
+    // 프로덕션 모드
+    console.log('🔒 프로덕션 모드 - 토스페이먼츠 디버깅 도구 비활성화됨');
+    console.log('📍 현재 호스트:', window.location.hostname);
+
+    // 프로덕션에서도 최소한의 디버깅 허용
+    if (typeof window.debugCourseApplication === 'undefined') {
+        window.debugCourseApplication = {};
+    }
+
+    window.debugCourseApplication.tossPayments = {
         status: () => ({
             mode: 'production',
-            coursesAvailable: availableCourses.length,
-            courseSelected: !!selectedCourseData,
-            userLoggedIn: !!courseApplicationUser
+            paymentServiceAvailable: !!window.paymentService,
+            sdkLoaded: typeof TossPayments !== 'undefined'
         }),
         help: () => console.log('프로덕션 모드에서는 제한된 디버깅 기능만 사용 가능합니다.')
     };
+}
+
+// 🔧 NEW: URL 디버깅 함수 추가
+function debugCurrentPaths() {
+    console.log('🔍 현재 경로 정보:');
+    console.log('protocol:', window.location.protocol);
+    console.log('host:', window.location.host);
+    console.log('hostname:', window.location.hostname);
+    console.log('port:', window.location.port);
+    console.log('pathname:', window.location.pathname);
+    console.log('origin:', window.location.origin);
+
+    // 테스트 URL 생성
+    const testOrderId = 'TEST_DEBUG_' + Date.now();
+    const testSuccessUrl = `${window.location.protocol}//${window.location.host}/pages/payment/success.html?orderId=${testOrderId}`;
+    const testFailUrl = `${window.location.protocol}//${window.location.host}/pages/payment/fail.html?orderId=${testOrderId}`;
+
+    console.log('테스트 성공 URL:', testSuccessUrl);
+    console.log('테스트 실패 URL:', testFailUrl);
+
+    return { testSuccessUrl, testFailUrl };
+}
+
+/**
+ * 토스페이먼츠 결제 데이터 구성 (면세 파라미터 포함)
+ * @param {Object} applicationData - 신청 데이터
+ * @returns {Object} 토스페이먼츠 결제 요청 데이터
+ */
+function buildTossPaymentData(applicationData) {
+    console.log('💳 면세 지원 결제 데이터 구성 시작:', applicationData);
+
+    // 주문 ID 생성
+    const orderId = window.paymentService.generateOrderId('DHC_COURSE');
+
+    // 주문명 생성
+    const orderName = buildOrderName(applicationData);
+
+    // 성공/실패 URL 생성
+    const successUrl = buildPaymentResultUrl('success', orderId);
+    const failUrl = buildPaymentResultUrl('fail', orderId);
+
+    // URL 검증
+    if (!validatePaymentUrls(successUrl, failUrl)) {
+        throw new Error('결제 URL 생성에 실패했습니다.');
+    }
+
+    // 전화번호 검증 및 포맷팅 강화
+    const rawPhone = applicationData.applicantInfo['phone'] || '';
+    const formattedPhone = formatPhoneNumber(rawPhone);
+
+    console.log('🔍 전화번호 처리:', {
+        원본: rawPhone,
+        포맷팅후: formattedPhone,
+        검증결과: validatePhoneForToss(rawPhone)
+    });
+
+    // 전화번호 검증 실패 시 오류 발생
+    if (rawPhone && !validatePhoneForToss(rawPhone)) {
+        throw new Error(`올바르지 않은 전화번호 형식입니다: ${rawPhone}`);
+    }
+
+    // 🆕 결제 항목별 금액 구성 (면세 계산용)
+    const paymentItems = buildPaymentItems(applicationData);
+
+    console.log('💰 결제 항목 분석:', paymentItems);
+
+    // 기본 결제 데이터 구성
+    const paymentData = {
+        amount: applicationData.pricing.totalAmount,
+        orderId: orderId,
+        orderName: orderName,
+        customerName: applicationData.applicantInfo['applicant-name'] || '고객',
+        customerEmail: applicationData.applicantInfo['email'] || '',
+        customerMobilePhone: formattedPhone,
+
+        // 성공/실패 URL
+        successUrl: successUrl,
+        failUrl: failUrl,
+
+        // 🆕 면세 계산용 결제 항목 추가
+        paymentItems: paymentItems
+    };
+
+    console.log('🔧 생성된 결제 데이터 (면세 지원):', paymentData);
+
+    // 주문 데이터를 로컬 저장소에 임시 저장
+    localStorage.setItem('dhc_pending_order', JSON.stringify({
+        orderId: orderId,
+        applicationData: applicationData,
+        paymentItems: paymentItems,  // 🆕 면세 정보도 저장
+        timestamp: new Date().toISOString()
+    }));
+
+    return paymentData;
+}
+
+/**
+ * 🆕 결제 항목별 금액 구성 (면세 계산용) (NEW)
+ * @param {Object} applicationData - 신청 데이터
+ * @returns {Object} 항목별 금액 정보
+ */
+function buildPaymentItems(applicationData) {
+    const items = {};
+
+    // 교육비 (항상 포함, 면세)
+    if (applicationData.pricing.educationPrice > 0) {
+        items.education = applicationData.pricing.educationPrice;
+    }
+
+    // 자격증 발급비 (선택, 과세)
+    if (applicationData.options.includeCertificate && applicationData.pricing.certificatePrice > 0) {
+        items.certificate = applicationData.pricing.certificatePrice;
+    }
+
+    // 교재비 (선택, 면세)
+    if (applicationData.options.includeMaterial && applicationData.pricing.materialPrice > 0) {
+        items.material = applicationData.pricing.materialPrice;
+    }
+
+    console.log('📋 구성된 결제 항목:', items);
+
+    // 🆕 면세 설정 검증
+    const totalCalculated = Object.values(items).reduce((sum, amount) => sum + amount, 0);
+    const expectedTotal = applicationData.pricing.totalAmount;
+
+    if (Math.abs(totalCalculated - expectedTotal) > 1) {  // 1원 오차 허용
+        console.warn('⚠️ 항목별 합계와 총 금액이 일치하지 않습니다:', {
+            계산된합계: totalCalculated,
+            예상총액: expectedTotal,
+            차이: totalCalculated - expectedTotal
+        });
+    }
+
+    return items;
+}
+
+// 🔧 NEW: 대체 URL 생성 함수 (폴백용)
+function buildAlternativePaymentUrls(orderId) {
+    const protocol = window.location.protocol;
+    const host = window.location.host;
+
+    const params = new URLSearchParams({
+        orderId: orderId,
+        type: 'course_enrollment',
+        timestamp: Date.now()
+    });
+
+    // 더 간단한 URL 생성 방식
+    const successUrl = `${protocol}//${host}/pages/payment/success.html?${params.toString()}`;
+    const failUrl = `${protocol}//${host}/pages/payment/fail.html?${params.toString()}`;
+
+    console.log('🔧 대체 URL 생성:', { successUrl, failUrl });
+
+    return { successUrl, failUrl };
+}
+
+
+// 4. 주문명 생성 함수 (신규)
+function buildOrderName(applicationData) {
+    const courseName = applicationData.courseInfo.courseName || '교육과정';
+    const items = ['교육'];
+
+    if (applicationData.options.includeCertificate) {
+        items.push('자격증발급');
+    }
+
+    if (applicationData.options.includeMaterial) {
+        items.push('교재');
+    }
+
+    return `${courseName} (${items.join('+')})`;
+}
+
+// 5. 결제 결과 URL 생성 함수 (신규)
+function buildPaymentResultUrl(type, orderId) {
+    const protocol = window.location.protocol;
+    const host = window.location.host;
+
+    // URL 파라미터 구성
+    const params = new URLSearchParams({
+        orderId: orderId,
+        type: 'course_enrollment',
+        timestamp: Date.now()
+    });
+
+    // 🔧 FIX: 올바른 절대 URL 생성 (중복 경로 제거)
+    if (type === 'success') {
+        return `${protocol}//${host}/pages/payment/success.html?${params.toString()}`;
+    } else {
+        return `${protocol}//${host}/pages/payment/fail.html?${params.toString()}`;
+    }
+}
+
+// 🔧 NEW: URL 검증 함수 추가
+function validatePaymentUrls(successUrl, failUrl) {
+    console.log('🔍 결제 URL 검증:', { successUrl, failUrl });
+
+    const urlPattern = /^https?:\/\/[^\s/$.?#].[^\s]*$/;
+
+    const isSuccessValid = urlPattern.test(successUrl);
+    const isFailValid = urlPattern.test(failUrl);
+
+    if (!isSuccessValid) {
+        console.error('❌ 잘못된 성공 URL:', successUrl);
+        return false;
+    }
+
+    if (!isFailValid) {
+        console.error('❌ 잘못된 실패 URL:', failUrl);
+        return false;
+    }
+
+    console.log('✅ 결제 URL 검증 통과');
+    return true;
+}
+
+// 6. 전화번호 포맷팅 함수 (신규)
+function formatPhoneNumber(phone) {
+    if (!phone) return '';
+
+    // 🔧 FIX: 토스페이먼츠는 특수문자를 허용하지 않으므로 숫자만 추출
+    const numbers = phone.replace(/\D/g, '');
+
+    // 🔧 FIX: 하이픈 없이 숫자만 반환 (토스페이먼츠 요구사항)
+    if (numbers.length === 11 && numbers.startsWith('010')) {
+        return numbers; // 01012345678 형태로 반환
+    }
+
+    // 기타 형태의 전화번호도 숫자만 반환
+    if (numbers.length >= 10) {
+        return numbers;
+    }
+
+    return numbers || ''; // 빈 문자열 반환 (특수문자 제거됨)
+}
+
+// 🔧 NEW: 전화번호 검증 함수 추가
+function validatePhoneForToss(phone) {
+    if (!phone) return false;
+
+    const cleanPhone = formatPhoneNumber(phone);
+
+    // 토스페이먼츠 전화번호 요구사항:
+    // 1. 숫자만 포함
+    // 2. 10-11자리
+    // 3. 한국 휴대폰 번호 형식
+
+    const phoneRegex = /^01[0-9]{8,9}$/; // 010으로 시작하는 10-11자리 숫자
+
+    return phoneRegex.test(cleanPhone);
+}
+
+// 🔧 NEW: 전화번호 디버깅 함수
+function debugPhoneNumber(phone) {
+    console.log('🔍 전화번호 디버깅:', phone);
+    console.log('원본:', phone);
+    console.log('정리 후:', formatPhoneNumber(phone));
+    console.log('검증 결과:', validatePhoneForToss(phone));
+
+    return {
+        original: phone,
+        formatted: formatPhoneNumber(phone),
+        isValid: validatePhoneForToss(phone)
+    };
+}
+
+// 7. 선택된 결제 방법 가져오기 (신규)
+function getSelectedPaymentMethod() {
+    // 결제 방법 선택 UI가 있다면 해당 값 반환
+    const paymentMethodElement = document.getElementById('payment-method');
+    if (paymentMethodElement) {
+        return paymentMethodElement.value || '카드';
+    }
+
+    return '카드'; // 기본값
+}
+
+// 8. 적용된 할인코드 가져오기 (신규)
+function getAppliedDiscountCode() {
+    const discountCodeElement = document.getElementById('discount-code');
+    return discountCodeElement ? discountCodeElement.value : null;
+}
+
+// 9. 결제 전 데이터 저장 (신규)
+async function saveApplicationDataBeforePayment(applicationData) {
+    try {
+        // Firebase에 임시 저장 (결제 완료 전 상태)
+        applicationData.status = 'payment_pending';
+        applicationData.paymentRequestedAt = new Date().toISOString();
+
+        if (window.dbService) {
+            const result = await window.dbService.addDocument('pending_applications', applicationData);
+            if (result.success) {
+                applicationData.pendingId = result.id;
+                console.log('✅ 결제 전 데이터 저장 완료:', result.id);
+            }
+        }
+
+        // 로컬 저장소에도 백업 저장
+        localStorage.setItem('dhc_payment_backup', JSON.stringify(applicationData));
+
+    } catch (error) {
+        console.error('❌ 결제 전 데이터 저장 오류:', error);
+        // 저장 실패해도 결제는 진행
+    }
+}
+
+// 10. 결제 실패 처리 (신규)
+async function handlePaymentFailure(error, applicationData) {
+    console.log('❌ 결제 실패 처리:', error.message);
+
+    try {
+        // 실패 로그 저장
+        const failureLog = {
+            applicationId: applicationData.applicationId,
+            userId: applicationData.userId,
+            error: {
+                message: error.message,
+                code: error.code,
+                timestamp: new Date().toISOString()
+            },
+            applicationData: applicationData
+        };
+
+        if (window.dbService) {
+            await window.dbService.addDocument('payment_failures', failureLog);
+        }
+
+        // 로컬 저장소 정리
+        localStorage.removeItem('dhc_pending_order');
+        localStorage.removeItem('dhc_payment_backup');
+
+    } catch (logError) {
+        console.error('결제 실패 로그 저장 오류:', logError);
+    }
+}
+
+// 11. 결제 오류 메시지 표시 (신규)
+function showPaymentErrorMessage(error) {
+    let errorMessage = '결제 처리 중 오류가 발생했습니다.';
+
+    // 토스페이먼츠 에러 코드별 메시지
+    switch (error.code) {
+        case 'PAY_PROCESS_CANCELED':
+            errorMessage = '사용자가 결제를 취소했습니다.';
+            break;
+        case 'PAY_PROCESS_ABORTED':
+            errorMessage = '결제가 중단되었습니다. 다시 시도해 주세요.';
+            break;
+        case 'REJECT_CARD_COMPANY':
+            errorMessage = '카드사에서 결제를 거절했습니다. 다른 카드를 이용해 주세요.';
+            break;
+        case 'INVALID_CARD_COMPANY':
+            errorMessage = '유효하지 않은 카드입니다.';
+            break;
+        case 'NOT_ENOUGH_BALANCE':
+            errorMessage = '카드 한도가 부족합니다.';
+            break;
+        case 'NETWORK_ERROR':
+            errorMessage = '네트워크 오류가 발생했습니다. 인터넷 연결을 확인해 주세요.';
+            break;
+        case 'TIMEOUT':
+            errorMessage = '결제 요청 시간이 초과되었습니다. 다시 시도해 주세요.';
+            break;
+        default:
+            if (error.message) {
+                errorMessage = error.message;
+            }
+    }
+
+    // 사용자에게 알림 표시
+    showErrorMessage(errorMessage);
+
+    // 개발자 콘솔에 상세 정보 출력
+    console.error('💳 결제 오류 상세:', {
+        code: error.code,
+        message: error.message,
+        originalError: error.originalError
+    });
 }
 
 // =================================
@@ -2607,4 +3913,5 @@ console.log('✅ 1,400줄 → 1,100줄 (22% 최적화)');
 console.log('✅ 모든 핵심 기능 보존');
 console.log('✅ 디버깅 도구 간소화 (400줄 → 100줄)');
 console.log('✅ 코드 가독성 향상');
+console.log('✅ 토스페이먼츠 연동 수정사항 적용 완료'); // ← 이 줄 추가
 console.log('🚀 최적화된 버전 로딩 완료!');

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결제 실패 - 문경 부설 디지털헬스케어센터</title>
+    <meta name="description" content="결제가 실패했습니다.">
+    <link rel="icon" href="../../assets/images/logo/logo.jpeg">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <script src="../../assets/js/utils/script-loader.js"></script>
+</head>
+
+<body class="bg-gray-50">
+    <!-- 헤더 (간소화) -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center">
+                <a href="javascript:window.location.href=window.adjustPath('index.html')" class="flex items-center">
+                    <img src="../../assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" class="h-8 w-8">
+                    <span class="ml-3 text-lg font-semibold text-gray-900">문경 부설 디지털헬스케어센터</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="min-h-screen flex items-center justify-center py-12">
+        <div class="max-w-md w-full mx-4">
+            <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+                <!-- 실패 아이콘 -->
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </div>
+
+                <!-- 실패 메시지 -->
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">결제가 실패했습니다</h1>
+                <p class="text-gray-600 mb-8" id="fail-message">결제 처리 중 문제가 발생했습니다.</p>
+
+                <!-- 실패 정보 -->
+                <div class="bg-red-50 rounded-lg p-6 mb-8 text-left" id="fail-info" style="display: none;">
+                    <h3 class="text-lg font-semibold text-red-900 mb-4">실패 정보</h3>
+                    <div class="space-y-2 text-red-800 text-sm">
+                        <div class="flex justify-between">
+                            <span>주문번호:</span>
+                            <span id="fail-order-id">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>실패 시간:</span>
+                            <span id="fail-time">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>오류 코드:</span>
+                            <span id="fail-code">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 일반적인 실패 원인 안내 -->
+                <div class="bg-yellow-50 rounded-lg p-6 mb-8 text-left">
+                    <h3 class="text-lg font-semibold text-yellow-900 mb-4">일반적인 실패 원인</h3>
+                    <ul class="space-y-2 text-yellow-800 text-sm">
+                        <li class="flex items-start">
+                            <span class="text-yellow-600 mr-2">•</span>
+                            <span>카드 한도 초과 또는 잔액 부족</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-yellow-600 mr-2">•</span>
+                            <span>카드 정보 입력 오류</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-yellow-600 mr-2">•</span>
+                            <span>네트워크 연결 문제</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-yellow-600 mr-2">•</span>
+                            <span>카드사 승인 거절</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-yellow-600 mr-2">•</span>
+                            <span>사용자 결제 취소</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 액션 버튼들 -->
+                <div class="space-y-3">
+                    <button onclick="retryPayment()" 
+                            class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                        다시 결제하기
+                    </button>
+                    <button onclick="contactSupport()" 
+                            class="w-full bg-gray-200 text-gray-800 py-3 px-4 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+                        고객센터 문의
+                    </button>
+                    <button onclick="goToHome()" 
+                            class="w-full text-blue-600 py-2 px-4 rounded-lg font-medium hover:bg-blue-50 transition-colors">
+                        홈으로 이동
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // URL 파라미터에서 실패 정보 파싱
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const message = urlParams.get('message');
+            const orderId = urlParams.get('orderId');
+            
+            // 실패 메시지 업데이트
+            const failMessageElement = document.getElementById('fail-message');
+            if (message && failMessageElement) {
+                failMessageElement.textContent = decodeURIComponent(message);
+            }
+            
+            // 실패 정보 표시
+            if (orderId || code) {
+                const failInfoElement = document.getElementById('fail-info');
+                if (failInfoElement) {
+                    failInfoElement.style.display = 'block';
+                    
+                    if (orderId) {
+                        document.getElementById('fail-order-id').textContent = orderId;
+                    }
+                    
+                    if (code) {
+                        document.getElementById('fail-code').textContent = code;
+                    }
+                    
+                    document.getElementById('fail-time').textContent = new Date().toLocaleString('ko-KR');
+                }
+            }
+        });
+        
+        // 다시 결제하기
+        function retryPayment() {
+            const paymentUrl = window.adjustPath 
+                ? window.adjustPath('pages/education/course-application.html')
+                : '../education/course-application.html';
+            window.location.href = paymentUrl;
+        }
+        
+        // 고객센터 문의
+        function contactSupport() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('orderId') || '알 수 없음';
+            const code = urlParams.get('code') || '알 수 없음';
+            const message = urlParams.get('message') || '결제 실패';
+            
+            const inquiry = `결제 실패 관련 문의사항이 있습니다.\n\n` +
+                           `주문번호: ${orderId}\n` +
+                           `오류 코드: ${code}\n` +
+                           `오류 메시지: ${decodeURIComponent(message)}\n` +
+                           `발생 시간: ${new Date().toLocaleString()}\n\n` +
+                           `문의내용: `;
+            
+            const email = 'nhohs1507@gmail.com';
+            const subject = '[결제실패문의] ' + orderId;
+            
+            const mailtoUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(inquiry)}`;
+            
+            try {
+                window.location.href = mailtoUrl;
+            } catch (error) {
+                alert('고객센터 연락처:\n전화: 010-2596-2233\n이메일: nhohs1507@gmail.com');
+            }
+        }
+        
+        // 홈으로 이동
+        function goToHome() {
+            const homeUrl = window.adjustPath ? window.adjustPath('index.html') : '../../index.html';
+            window.location.href = homeUrl;
+        }
+    </script>
+</body>
+</html>

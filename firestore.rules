@@ -27,21 +27,22 @@ service cloud.firestore {
     match /users/{userId} {
       // 읽기: 본인의 문서 또는 관리자
       allow read: if isOwner(userId) || isAdmin();
-      
-      // 생성: 인증된 사용자가 본인의 문서 생성
-      allow create: if isAuthenticated() && 
+  
+    // 생성: 관리자는 모든 사용자 문서 생성 가능, 일반 사용자는 본인 문서만
+    allow create: if isAdmin() || 
+      (isAuthenticated() && 
         request.auth.uid == userId &&
-        request.auth.token.email_verified == true;
-      
-      // 업데이트: 본인의 문서 또는 관리자
-      allow update: if (isOwner(userId) || isAdmin()) &&
-        // 사용자는 자신의 userType을 변경할 수 없음 (관리자만 가능)
-        (!request.auth.uid == userId || 
-         !('userType' in request.resource.data) || 
-         request.resource.data.userType == resource.data.userType);
-      
-      // 삭제: 관리자만 가능
-      allow delete: if isAdmin();
+        request.auth.token.email_verified == true);
+  
+    // 업데이트: 본인의 문서 또는 관리자
+    allow update: if (isOwner(userId) || isAdmin()) &&
+      // 사용자는 자신의 userType을 변경할 수 없음 (관리자만 가능)
+      (!request.auth.uid == userId || 
+       !('userType' in request.resource.data) || 
+       request.resource.data.userType == resource.data.userType);
+
+    // 삭제: 관리자만 가능
+    allow delete: if isAdmin();
     }
     
     // 🔧 FIXED: 사용자 약관 동의 컬렉션 규칙 (간소화)
@@ -180,6 +181,36 @@ service cloud.firestore {
       
       // 삭제: 관리자만
       allow delete: if isAdmin();
+    }
+    
+    // 🔧 NEW: 결제 대기 중인 신청 컬렉션 규칙 추가
+    match /pending_applications/{applicationId} {
+      // 읽기: 본인의 신청서 또는 관리자
+      allow read: if isAuthenticated() && 
+        (resource.data.userId == request.auth.uid || isAdmin());
+      
+      // 생성: 인증된 사용자라면 누구나 생성 가능
+      allow create: if isAuthenticated();
+      
+      // 업데이트: 본인의 신청서 또는 관리자
+      allow update: if isAuthenticated() && 
+        (resource.data.userId == request.auth.uid || isAdmin());
+      
+      // 삭제: 관리자만
+      allow delete: if isAdmin();
+    }
+    
+    // 🔧 NEW: 결제 실패 로그 컬렉션 규칙 추가
+    match /payment_failures/{failureId} {
+      // 읽기: 본인의 실패 로그 또는 관리자
+      allow read: if isAuthenticated() && 
+        (resource.data.userId == request.auth.uid || isAdmin());
+      
+      // 생성: 인증된 사용자라면 누구나 생성 가능
+      allow create: if isAuthenticated();
+      
+      // 업데이트, 삭제: 관리자만
+      allow update, delete: if isAdmin();
     }
     
     // 수강신청 컬렉션 규칙

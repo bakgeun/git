@@ -41,7 +41,7 @@ digital-healthcare-center/
 │   │
 │   ├── education/            # 교육 과정 관련 페이지들 (간소화)
 │   │   ├── course-application.html # 교육 신청 + 결제 통합 ✓
-│   │   ├── cert-application.html # 자격증 신청 + 결제 통합 ✓
+│   │   ├── cert-application.html # 자격증 신청
 │   │   └── instructors.html  # 강사 소개 ✓
 │   │
 │   ├── board/                # 게시판 관련 페이지들
@@ -68,6 +68,10 @@ digital-healthcare-center/
 │   │   ├── course-history.html # 수강 내역 ✓
 │   │   ├── cert-management.html # 자격증 관리 (발급+갱신 통합) ✓✨
 │   │   └── payment-history.html # 결제 내역 ✓
+│   │
+│   ├── payment/
+│   │   ├── fail.html
+│   │   └── success.html                
 │   │
 │   └── admin/                # 관리자 페이지들
 │       ├── dashboard.html    # 대시보드 ✓
@@ -131,6 +135,7 @@ digital-healthcare-center/
 │   │   │   ├── db-service.js     # 데이터베이스 관련 서비스 ✓
 │   │   │   ├── storage-service.js # 스토리지 관련 서비스 ✓
 │   │   │   ├── api-service.js    # 기타 API 호출 서비스 ✓
+│   │   │   ├── payment-service.js    # 결제 서비스 ✓
 │   │   │   └── local-auth-override.js # 로컬 테스트용 인증 오버라이드 ✓
 │   │   │
 │   │   ├── utils/            # 유틸리티 함수
@@ -152,6 +157,7 @@ digital-healthcare-center/
 │   │       ├── home.js       # 홈페이지 스크립트 ✓
 │   │       ├── certificate.js # 자격증 페이지 공통 기능 ✓
 │   │       ├── education/  # 교육 페이지 개별 스크립트 (간소화)
+│   │       │   ├── course-application.js  # 교육 신청 통합결제 페이지 스크립트 ✓
 │   │       │   ├── cert-application.js # 자격증 신청 페이지 스크립트 ✓
 │   │       │   └── instructors.js # 강사소개 페이지 스크립트 ✓
 │   │       ├── board.js      # 게시판 페이지 스크립트 ✓

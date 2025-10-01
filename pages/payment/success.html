@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결제 완료 - 문경 부설 디지털헬스케어센터</title>
+    <meta name="description" content="결제가 성공적으로 완료되었습니다.">
+    <link rel="icon" href="../../assets/images/logo/logo.jpeg">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <!-- 토스페이먼츠 SDK -->
+    <script src="https://js.tosspayments.com/v1/payment-widget"></script>
+    <!-- 경로 헬퍼 스크립트 -->
+    <script src="../../assets/js/utils/script-loader.js"></script>
+</head>
+
+<body class="bg-gray-50">
+    <!-- 헤더 (간소화) -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center">
+                <a href="javascript:window.location.href=window.adjustPath('index.html')" class="flex items-center">
+                    <img src="../../assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" class="h-8 w-8">
+                    <span class="ml-3 text-lg font-semibold text-gray-900">문경 부설 디지털헬스케어센터</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="min-h-screen flex items-center justify-center py-12">
+        <div class="max-w-md w-full mx-4">
+            <!-- 로딩 상태 -->
+            <div id="loading-container" class="text-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <h2 class="text-xl font-semibold text-gray-900 mb-2">결제 확인 중입니다</h2>
+                <p class="text-gray-600">잠시만 기다려 주세요...</p>
+            </div>
+
+            <!-- 성공 결과 -->
+            <div id="success-container" class="hidden">
+                <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+                    <!-- 성공 아이콘 -->
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+
+                    <!-- 성공 메시지 -->
+                    <h1 class="text-2xl font-bold text-gray-900 mb-2">결제가 완료되었습니다!</h1>
+                    <p class="text-gray-600 mb-8">교육 신청이 성공적으로 처리되었습니다.</p>
+
+                    <!-- 결제 정보 -->
+                    <div class="bg-gray-50 rounded-lg p-6 mb-8 text-left">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">결제 정보</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">주문번호</span>
+                                <span class="font-medium" id="order-id">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">교육과정</span>
+                                <span class="font-medium" id="course-name">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">신청자</span>
+                                <span class="font-medium" id="customer-name">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">결제금액</span>
+                                <span class="font-bold text-lg text-green-600" id="payment-amount">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">결제방법</span>
+                                <span class="font-medium" id="payment-method">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">결제일시</span>
+                                <span class="font-medium" id="payment-date">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 다음 단계 안내 -->
+                    <div class="bg-blue-50 rounded-lg p-6 mb-8 text-left">
+                        <h3 class="text-lg font-semibold text-blue-900 mb-4">다음 단계</h3>
+                        <ul class="space-y-2 text-blue-800">
+                            <li class="flex items-start">
+                                <span class="text-blue-600 mr-2">📧</span>
+                                <span>신청 확인 이메일이 발송됩니다</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-600 mr-2">📱</span>
+                                <span>교육 시작 전 안내 문자를 보내드립니다</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-600 mr-2">🎓</span>
+                                <span>교육 수료 후 자격증 발급이 진행됩니다</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- 액션 버튼들 -->
+                    <div class="space-y-3">
+                        <button onclick="goToMyPage()" 
+                                class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                            수강 내역 확인
+                        </button>
+                        <button onclick="downloadReceipt()" 
+                                class="w-full bg-gray-200 text-gray-800 py-3 px-4 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+                            영수증 다운로드
+                        </button>
+                        <button onclick="goToHome()" 
+                                class="w-full text-blue-600 py-2 px-4 rounded-lg font-medium hover:bg-blue-50 transition-colors">
+                            홈으로 이동
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 오류 결과 -->
+            <div id="error-container" class="hidden">
+                <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+                    <!-- 오류 아이콘 -->
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </div>
+
+                    <!-- 오류 메시지 -->
+                    <h1 class="text-2xl font-bold text-gray-900 mb-2">결제 확인 실패</h1>
+                    <p class="text-gray-600 mb-8" id="error-message">결제 확인 중 오류가 발생했습니다.</p>
+
+                    <!-- 액션 버튼들 -->
+                    <div class="space-y-3">
+                        <button onclick="contactSupport()" 
+                                class="w-full bg-red-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-red-700 transition-colors">
+                            고객센터 문의
+                        </button>
+                        <button onclick="goToPaymentPage()" 
+                                class="w-full bg-gray-200 text-gray-800 py-3 px-4 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+                            결제 페이지로 돌아가기
+                        </button>
+                        <button onclick="goToHome()" 
+                                class="w-full text-blue-600 py-2 px-4 rounded-lg font-medium hover:bg-blue-50 transition-colors">
+                            홈으로 이동
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase SDK 템플릿 -->
+    <script id="firebase-sdk-template" type="text/template">
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
+        <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
+        <script src="{basePath}assets/js/services/auth-service.js"><\/script>
+        <script src="{basePath}assets/js/services/db-service.js"><\/script>
+        <script src="{basePath}assets/js/services/payment-service.js"><\/script>
+        <script src="{basePath}assets/js/utils/formatters.js"><\/script>
+    </script>
+
+    <!-- 추가 스크립트 템플릿 -->
+    <script id="additional-scripts-template" type="text/template">
+        <script src="{basePath}assets/js/pages/payment/success.js"><\/script>
+    </script>
+</body>
+</html>
