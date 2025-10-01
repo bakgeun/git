@@ -53,8 +53,20 @@ async function confirmPayment(paymentKey, orderId, amount) {
             await waitForPaymentService();
         }
         
-        // 토스페이먼츠 결제 승인 요청
-        const confirmResult = await window.paymentService.confirmPayment(paymentKey, orderId, amount);
+        // ✅ URL 파라미터에서 면세 금액 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        const taxFreeAmountParam = urlParams.get('taxFreeAmount');
+        const taxFreeAmount = taxFreeAmountParam ? parseInt(taxFreeAmountParam) : null;
+        
+        console.log('💰 면세 금액 확인:', taxFreeAmount);
+        
+        // ✅ 토스페이먼츠 결제 승인 요청 (면세 금액 포함)
+        const confirmResult = await window.paymentService.confirmPayment(
+            paymentKey, 
+            orderId, 
+            amount,
+            taxFreeAmount  // 면세 금액 전달
+        );
         
         if (confirmResult.success) {
             console.log('✅ 결제 승인 성공:', confirmResult.data);

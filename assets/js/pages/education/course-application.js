@@ -3557,9 +3557,25 @@ function buildTossPaymentData(applicationData) {
     // 주문명 생성
     const orderName = buildOrderName(applicationData);
 
-    // 성공/실패 URL 생성
-    const successUrl = buildPaymentResultUrl('success', orderId);
-    const failUrl = buildPaymentResultUrl('fail', orderId);
+    // 🔧 결제 항목별 금액 구성 (면세 계산용) - 한 번만!
+    const paymentItems = buildPaymentItems(applicationData);
+    
+    // 🆕 면세 금액 미리 계산
+    let taxFreeAmount = 0;
+    if (window.paymentService && paymentItems) {
+        try {
+            const taxCalculation = window.paymentService.calculateTaxFreeAmount(paymentItems);
+            taxFreeAmount = taxCalculation.taxFreeAmount || 0;
+            console.log('💰 계산된 면세 금액:', taxFreeAmount);
+        } catch (error) {
+            console.warn('⚠️ 면세 금액 계산 실패:', error);
+            taxFreeAmount = 0;
+        }
+    }
+
+    // 🆕 성공/실패 URL 생성 (면세 금액 포함)
+    const successUrl = buildPaymentResultUrl('success', orderId, taxFreeAmount);
+    const failUrl = buildPaymentResultUrl('fail', orderId, taxFreeAmount);
 
     // URL 검증
     if (!validatePaymentUrls(successUrl, failUrl)) {
@@ -3581,11 +3597,6 @@ function buildTossPaymentData(applicationData) {
         throw new Error(`올바르지 않은 전화번호 형식입니다: ${rawPhone}`);
     }
 
-    // 🆕 결제 항목별 금액 구성 (면세 계산용)
-    const paymentItems = buildPaymentItems(applicationData);
-
-    console.log('💰 결제 항목 분석:', paymentItems);
-
     // 기본 결제 데이터 구성
     const paymentData = {
         amount: applicationData.pricing.totalAmount,
@@ -3599,7 +3610,7 @@ function buildTossPaymentData(applicationData) {
         successUrl: successUrl,
         failUrl: failUrl,
 
-        // 🆕 면세 계산용 결제 항목 추가
+        // 🆕 면세 계산용 결제 항목 추가 (이미 위에서 생성했으므로 재사용)
         paymentItems: paymentItems
     };
 
@@ -3609,7 +3620,8 @@ function buildTossPaymentData(applicationData) {
     localStorage.setItem('dhc_pending_order', JSON.stringify({
         orderId: orderId,
         applicationData: applicationData,
-        paymentItems: paymentItems,  // 🆕 면세 정보도 저장
+        paymentItems: paymentItems,
+        taxFreeAmount: taxFreeAmount,  // 면세 금액도 저장
         timestamp: new Date().toISOString()
     }));
 
@@ -3693,8 +3705,14 @@ function buildOrderName(applicationData) {
     return `${courseName} (${items.join('+')})`;
 }
 
-// 5. 결제 결과 URL 생성 함수 (신규)
-function buildPaymentResultUrl(type, orderId) {
+/**
+ * 🆕 결제 결과 URL 생성 (면세 금액 파라미터 포함)
+ * @param {string} type - 'success' 또는 'fail'
+ * @param {string} orderId - 주문 ID
+ * @param {number} taxFreeAmount - 면세 금액 (선택)
+ * @returns {string} 결제 결과 페이지 URL
+ */
+function buildPaymentResultUrl(type, orderId, taxFreeAmount = null) {
     const protocol = window.location.protocol;
     const host = window.location.host;
 
@@ -3705,7 +3723,13 @@ function buildPaymentResultUrl(type, orderId) {
         timestamp: Date.now()
     });
 
-    // 🔧 FIX: 올바른 절대 URL 생성 (중복 경로 제거)
+    // 🆕 면세 금액이 있으면 파라미터에 추가
+    if (taxFreeAmount && taxFreeAmount > 0) {
+        params.set('taxFreeAmount', taxFreeAmount);
+        console.log('💰 successUrl에 면세 금액 추가:', taxFreeAmount);
+    }
+
+    // 올바른 절대 URL 생성 (중복 경로 제거)
     if (type === 'success') {
         return `${protocol}//${host}/pages/payment/success.html?${params.toString()}`;
     } else {
