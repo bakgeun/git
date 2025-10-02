@@ -896,44 +896,49 @@ Object.assign(window.certManager, {
                 try {
                     console.log('🔥 Firebase에서 자격증 및 신청 데이터 로드');
 
-                    // 1. 발급된 자격증 조회
-                    let certQuery = window.dhcFirebase.db.collection('certificates')
-                        .where('certificateType', '==', this.currentCertType)
-                        .where('status', '!=', 'pending');
+                    // 📌 수정: certificates 컬렉션에서 모든 데이터 조회
+                    let certQuery = window.dhcFirebase.db.collection('certificates');
 
-                    const statusFilter = document.getElementById('filter-status')?.value;
-                    if (statusFilter && statusFilter !== 'pending') {
-                        certQuery = certQuery.where('status', '==', statusFilter);
+                    // certificateType 필터 적용
+                    if (this.currentCertType) {
+                        certQuery = certQuery.where('certificateType', '==', this.currentCertType);
                     }
 
                     const certSnapshot = await certQuery.get();
+
                     certSnapshot.forEach(doc => {
                         const data = doc.data();
-                        if (!data.isApplication && data.status !== 'pending') {
-                            certificates.push({ id: doc.id, ...data });
-                        }
+                        certificates.push({ id: doc.id, ...data });
                     });
 
-                    // 2. 신청 대기 데이터 조회
-                    if (!statusFilter || statusFilter === 'pending') {
-                        applications = await this.loadApplicationData();
-                    }
+                    // 📌 수정: 발급 완료/대기 분리
+                    const issuedCerts = certificates.filter(c => c.isIssued === true);
+                    const pendingApps = certificates.filter(c =>
+                        c.isIssued === false && c.needsApproval === true
+                    );
 
-                    console.log(`📊 로드 결과: 발급된 자격증 ${certificates.length}개, 신청 대기 ${applications.length}개`);
+                    console.log(`📊 로드 결과: 발급 완료 ${issuedCerts.length}개, 발급 대기 ${pendingApps.length}개`);
+
+                    // 상태 필터 적용
+                    const statusFilter = document.getElementById('filter-status')?.value;
+                    if (statusFilter === 'issued') {
+                        certificates = issuedCerts;
+                    } else if (statusFilter === 'pending') {
+                        certificates = pendingApps;
+                    }
+                    // statusFilter가 없거나 'all'이면 모든 데이터 표시
 
                 } catch (error) {
                     console.error('Firebase 데이터 조회 오류:', error);
                     certificates = this.getMockCertificates();
-                    applications = this.getMockApplicationData();
                 }
             } else {
                 console.log('Firebase 미연결, 테스트 데이터 사용');
                 certificates = this.getMockCertificates();
-                applications = this.getMockApplicationData();
             }
 
-            // 데이터 통합
-            const integratedCertificates = this.integrateApplicationData(certificates, applications);
+            // 데이터 통합 (이미 certificates에 모든 데이터가 있으므로 그대로 사용)
+            const integratedCertificates = certificates;
 
             // 검색 필터 적용
             const filteredCertificates = this.applySearchFilters(integratedCertificates);
@@ -945,7 +950,7 @@ Object.assign(window.certManager, {
             // 테이블 업데이트
             this.updateCertificateTable(paginatedCertificates);
 
-            console.log('✅ 통합 자격증 목록 로드 완료');
+            console.log('✅ 자격증 목록 로드 완료:', filteredCertificates.length + '개');
 
         } catch (error) {
             console.error('자격증 데이터 로드 오류:', error);
@@ -2782,88 +2787,128 @@ Object.assign(window.certManager, {
         const expiryDate = this.formatDateSafe(cert.expiryDate) || '-';
         const createdAt = this.formatDate(cert.createdAt, true) || '-';
         const updatedAt = this.formatDate(cert.updatedAt, true) || '-';
-        const status = safeGetValue(cert, 'status') || 'active';
         const remarks = safeGetValue(cert, 'remarks') || '-';
 
+        // 🔧 수정: 올바른 상태 필드 사용
+        let displayStatus = 'active';
+        let statusText = '유효';
+        let statusClass = 'green';
+
+        // 발급 대기 중인 신청서인 경우
+        if (cert.isIssued === false && cert.needsApproval === true) {
+            if (cert.applicationStatus === 'pending_review') {
+                displayStatus = 'pending_review';
+                statusText = '검토 대기';
+                statusClass = 'yellow';
+            } else if (cert.applicationStatus === 'submitted') {
+                displayStatus = 'submitted';
+                statusText = '신청 접수';
+                statusClass = 'blue';
+            } else {
+                displayStatus = 'pending';
+                statusText = '처리 중';
+                statusClass = 'blue';
+            }
+        }
+        // 발급 완료된 경우
+        else if (cert.isIssued === true) {
+            const certStatus = safeGetValue(cert, 'status') || 'active';
+            displayStatus = certStatus;
+
+            if (certStatus === 'active') {
+                statusText = '유효';
+                statusClass = 'green';
+            } else if (certStatus === 'expired') {
+                statusText = '만료';
+                statusClass = 'red';
+            } else if (certStatus === 'revoked') {
+                statusText = '취소';
+                statusClass = 'gray';
+            } else if (certStatus === 'suspended') {
+                statusText = '정지';
+                statusClass = 'yellow';
+            }
+        }
+
         modalContent.innerHTML = `
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <h4 class="font-medium text-gray-700">자격증 번호</h4>
-                    <p class="text-gray-900">${certNumber}</p>
-                </div>
-                <div>
-                    <h4 class="font-medium text-gray-700">자격증 종류</h4>
-                    <p class="text-gray-900">${certType}</p>
-                </div>
-            </div>
-            
+        <div class="grid grid-cols-2 gap-4">
             <div>
-                <h4 class="font-medium text-gray-700">수료자 정보</h4>
-                <div class="space-y-1">
-                    <p><span class="font-medium">한글명:</span> ${holderNameKorean}</p>
-                    <p><span class="font-medium">영문명:</span> ${holderNameEnglish}</p>
-                    <p><span class="font-medium">이메일:</span> ${holderEmail}</p>
-                </div>
+                <h4 class="font-medium text-gray-700">자격증 번호</h4>
+                <p class="text-gray-900">${certNumber}</p>
             </div>
-            
             <div>
-                <h4 class="font-medium text-gray-700">교육 과정</h4>
-                <p class="text-gray-900">${courseName}</p>
+                <h4 class="font-medium text-gray-700">자격증 종류</h4>
+                <p class="text-gray-900">${certType}</p>
             </div>
-            
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <h4 class="font-medium text-gray-700">발급일</h4>
-                    <p class="text-gray-900">${issueDate}</p>
-                </div>
-                <div>
-                    <h4 class="font-medium text-gray-700">만료일</h4>
-                    <p class="text-gray-900">${expiryDate}</p>
-                </div>
+        </div>
+        
+        <div>
+            <h4 class="font-medium text-gray-700">수료자 정보</h4>
+            <div class="space-y-1">
+                <p><span class="font-medium">한글명:</span> ${holderNameKorean}</p>
+                <p><span class="font-medium">영문명:</span> ${holderNameEnglish}</p>
+                <p><span class="font-medium">이메일:</span> ${holderEmail}</p>
             </div>
-            
+        </div>
+        
+        <div>
+            <h4 class="font-medium text-gray-700">교육 과정</h4>
+            <p class="text-gray-900">${courseName}</p>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
             <div>
-                <h4 class="font-medium text-gray-700">상태</h4>
-                <p>
-                    <span class="px-2 py-1 rounded-full text-xs 
-                        ${status === 'active' ? 'bg-green-100 text-green-800' :
-                status === 'expired' ? 'bg-red-100 text-red-800' :
-                    'bg-yellow-100 text-yellow-800'}">
-                        ${this.getStatusText(status)}
-                    </span>
-                </p>
+                <h4 class="font-medium text-gray-700">발급일</h4>
+                <p class="text-gray-900">${issueDate}</p>
             </div>
-            
             <div>
-                <h4 class="font-medium text-gray-700">비고</h4>
-                <p class="text-gray-900 whitespace-pre-wrap">${remarks}</p>
+                <h4 class="font-medium text-gray-700">만료일</h4>
+                <p class="text-gray-900">${expiryDate}</p>
             </div>
-            
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <h4 class="font-medium text-gray-700">등록일시</h4>
-                    <p class="text-gray-900">${createdAt}</p>
-                </div>
-                <div>
-                    <h4 class="font-medium text-gray-700">수정일시</h4>
-                    <p class="text-gray-900">${updatedAt}</p>
-                </div>
+        </div>
+        
+        <div>
+            <h4 class="font-medium text-gray-700">상태</h4>
+            <p>
+                <span class="px-2 py-1 rounded-full text-xs 
+                    bg-${statusClass}-100 text-${statusClass}-800 font-medium">
+                    ${statusText}
+                </span>
+            </p>
+        </div>
+        
+        <div>
+            <h4 class="font-medium text-gray-700">비고</h4>
+            <p class="text-gray-900 whitespace-pre-wrap">${remarks}</p>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <h4 class="font-medium text-gray-700">등록일시</h4>
+                <p class="text-gray-900">${createdAt}</p>
             </div>
-            
-            <div class="mt-4 pt-4 border-t border-gray-200">
-                <h4 class="font-medium text-gray-700">자격증 PDF 다운로드</h4>
-                <div class="flex space-x-3 mt-2">
-                    <button onclick="certManager.downloadCertPdf('${cert.id}', 'ko'); certManager.closeModalById('cert-detail-modal');" 
-                        class="admin-btn admin-btn-secondary">
-                        한글 PDF (${holderNameKorean})
-                    </button>
-                    <button onclick="certManager.downloadCertPdf('${cert.id}', 'en'); certManager.closeModalById('cert-detail-modal');" 
-                        class="admin-btn admin-btn-primary">
-                        영문 PDF (${holderNameEnglish})
-                    </button>
-                </div>
+            <div>
+                <h4 class="font-medium text-gray-700">수정일시</h4>
+                <p class="text-gray-900">${updatedAt}</p>
             </div>
-        `;
+        </div>
+        
+        ${cert.isIssued === true ? `
+        <div class="mt-4 pt-4 border-t border-gray-200">
+            <h4 class="font-medium text-gray-700">자격증 PDF 다운로드</h4>
+            <div class="flex space-x-3 mt-2">
+                <button onclick="certManager.downloadCertPdf('${cert.id}', 'ko'); certManager.closeModalById('cert-detail-modal');" 
+                    class="admin-btn admin-btn-secondary">
+                    한글 PDF (${holderNameKorean})
+                </button>
+                <button onclick="certManager.downloadCertPdf('${cert.id}', 'en'); certManager.closeModalById('cert-detail-modal');" 
+                    class="admin-btn admin-btn-primary">
+                    영문 PDF (${holderNameEnglish})
+                </button>
+            </div>
+        </div>
+        ` : ''}
+    `;
 
         const modal = document.getElementById('cert-detail-modal');
         if (modal) {
@@ -3040,16 +3085,75 @@ Object.assign(window.certManager, {
         try {
             window.adminAuth?.showNotification('신청을 승인하고 자격증을 발급하는 중...', 'info');
 
-            // 테스트 모드: 시뮬레이션
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            const firebaseStatus = checkFirebaseConnection();
 
-            window.adminAuth?.showNotification('신청이 승인되었고 자격증이 발급되었습니다.', 'success');
+            if (!firebaseStatus.connected || !window.dhcFirebase) {
+                throw new Error('Firebase 연결이 필요합니다.');
+            }
 
-            // 목록 새로고침
-            this.loadCertificatesData();
+            console.log('🔥 Firebase를 통한 실제 승인 처리 시작');
+
+            // 1. 신청 데이터 조회
+            const appDoc = await window.dhcFirebase.db.collection('certificates').doc(applicationId).get();
+
+            if (!appDoc.exists) {
+                throw new Error('신청서를 찾을 수 없습니다.');
+            }
+
+            const appData = appDoc.data();
+            console.log('📋 신청 데이터 조회 완료:', appData);
+
+            // 2. 자격증 번호 생성
+            const certNumber = await this.generateCertificateNumber();
+            console.log('🔢 자격증 번호 생성:', certNumber);
+
+            // 3. 발급일/만료일 계산
+            const now = new Date();
+            const expiryDate = new Date(now);
+            expiryDate.setFullYear(expiryDate.getFullYear() + 3);
+
+            // 4. 업데이트할 데이터 준비
+            const updateData = {
+                // 상태 업데이트
+                isIssued: true,
+                needsApproval: false,
+                applicationStatus: 'approved',
+                status: 'active',
+
+                // 자격증 정보 추가
+                certificateNumber: certNumber,
+                issueDate: window.dhcFirebase.firebase.firestore.Timestamp.fromDate(now),
+                expiryDate: window.dhcFirebase.firebase.firestore.Timestamp.fromDate(expiryDate),
+
+                // 메타 정보
+                approvedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp(),
+                approvedBy: 'admin',
+                updatedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp(),
+
+                // 비고
+                remarks: `[${new Date().toLocaleString('ko-KR')}] 관리자 승인 및 발급 완료`
+            };
+
+            console.log('📝 업데이트 데이터:', updateData);
+
+            // 5. Firebase 업데이트 실행
+            await window.dhcFirebase.db.collection('certificates').doc(applicationId).update(updateData);
+
+            console.log('✅ Firebase 업데이트 완료');
+
+            window.adminAuth?.showNotification(
+                `신청이 승인되었고 자격증이 발급되었습니다. (자격증 번호: ${certNumber})`,
+                'success'
+            );
+
+            // 6. 목록 새로고침
+            console.log('🔄 목록 새로고침 시작');
+            await this.loadCertificatesData();
+            console.log('✅ 목록 새로고침 완료');
 
         } catch (error) {
             console.error('❌ 신청 승인 오류:', error);
+            console.error('오류 상세:', error.stack);
             window.adminAuth?.showNotification(`신청 승인 중 오류: ${error.message}`, 'error');
         }
     },
@@ -4382,11 +4486,11 @@ Object.assign(window.certManager, {
         this.filteredRenewalApplicants.forEach(applicant => {
             const createdDate = new Date(applicant.createdAt.seconds * 1000);
             const expiryDate = applicant.expiryDate ? new Date(applicant.expiryDate.seconds * 1000) : null;
-            
+
             const statusBadge = this.getRenewalStatusBadge(applicant.status);
             const educationTypeName = this.getEducationTypeName(applicant.educationType);
             const deliveryMethodName = this.getDeliveryMethodName(applicant.deliveryMethod);
-            
+
             // 만료 임박 표시
             const isUrgent = applicant.daysUntilExpiry <= 7;
             const urgentClass = isUrgent ? 'bg-red-50 border-l-4 border-red-400' : '';
@@ -4515,7 +4619,7 @@ Object.assign(window.certManager, {
         try {
             // 신청 정보 찾기
             let renewal = this.filteredRenewalApplicants.find(r => r.id === renewalId);
-            
+
             if (!renewal) {
                 window.adminAuth?.showNotification('갱신 신청 정보를 찾을 수 없습니다.', 'error');
                 return;
@@ -4588,8 +4692,8 @@ Object.assign(window.certManager, {
                 <div>
                     <h4 class="font-medium text-gray-700">만료일</h4>
                     <p class="text-gray-900">${expiryDate ? expiryDate.toLocaleDateString('ko-KR') : '-'}</p>
-                    ${renewal.daysUntilExpiry <= 7 ? 
-                        '<p class="text-red-600 text-sm font-bold">🚨 만료 임박!</p>' : ''}
+                    ${renewal.daysUntilExpiry <= 7 ?
+                '<p class="text-red-600 text-sm font-bold">🚨 만료 임박!</p>' : ''}
                 </div>
             </div>
             
@@ -4763,7 +4867,7 @@ Object.assign(window.certManager, {
         const statusFilter = document.getElementById('renewal-filter-status')?.value || '';
 
         this.filteredRenewalApplicants = this.renewalApplicants.filter(applicant => {
-            const nameMatch = !nameFilter || 
+            const nameMatch = !nameFilter ||
                 applicant.holderName.toLowerCase().includes(nameFilter) ||
                 applicant.holderEmail.toLowerCase().includes(nameFilter);
 
@@ -4824,23 +4928,23 @@ if (!window.certManager.modalStates) {
 // 3. 갱신 관리 함수들이 없다면 추가
 if (!window.certManager.showRenewalManagementModal) {
     console.log('🔧 갱신 관리 함수들 추가');
-    
+
     // 갱신 관리 모달 열기 함수
-    window.certManager.showRenewalManagementModal = function() {
+    window.certManager.showRenewalManagementModal = function () {
         console.log('📋 갱신 신청자 관리 모달 열기');
-        
+
         const modal = document.getElementById('renewal-management-modal');
         console.log('모달 요소:', modal);
-        
+
         if (modal) {
             console.log('✅ 모달 요소 발견, 모달 열기 중...');
-            
+
             // 다른 모달들 닫기
             this.closeOtherModals('renewal-management-modal');
-            
+
             // 모달 상태 업데이트
             this.modalStates['renewal-management-modal'] = true;
-            
+
             // 모달 표시
             modal.classList.remove('hidden');
             modal.style.display = 'flex';
@@ -4853,7 +4957,7 @@ if (!window.certManager.showRenewalManagementModal) {
             modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
             modal.style.alignItems = 'center';
             modal.style.justifyContent = 'center';
-            
+
             document.body.classList.add('modal-open');
             document.body.style.overflow = 'hidden';
 
@@ -4870,7 +4974,7 @@ if (!window.certManager.showRenewalManagementModal) {
                 console.warn('loadRenewalApplicants 함수가 없습니다. 테스트 데이터로 대체합니다.');
                 this.loadTestRenewalData();
             }
-            
+
             console.log('✅ 갱신 관리 모달 열기 완료');
         } else {
             console.error('❌ renewal-management-modal 요소를 찾을 수 없습니다!');
@@ -4879,16 +4983,16 @@ if (!window.certManager.showRenewalManagementModal) {
     };
 
     // 갱신 관리 모달 닫기 함수
-    window.certManager.closeRenewalManagementModal = function() {
+    window.certManager.closeRenewalManagementModal = function () {
         console.log('🔒 갱신 관리 모달 닫기');
-        
+
         const modal = document.getElementById('renewal-management-modal');
         if (modal) {
             modal.classList.add('hidden');
             modal.style.display = 'none';
             document.body.classList.remove('modal-open');
             document.body.style.overflow = '';
-            
+
             if (this.modalStates) {
                 this.modalStates['renewal-management-modal'] = false;
             }
@@ -4896,9 +5000,9 @@ if (!window.certManager.showRenewalManagementModal) {
     };
 
     // 테스트 데이터 로드 함수
-    window.certManager.loadTestRenewalData = function() {
+    window.certManager.loadTestRenewalData = function () {
         console.log('🧪 테스트 갱신 데이터 로드');
-        
+
         const tableBody = document.getElementById('renewal-applicants-tbody');
         if (tableBody) {
             tableBody.innerHTML = `
@@ -4982,22 +5086,22 @@ if (!window.certManager.showRenewalManagementModal) {
                     </td>
                 </tr>
             `;
-            
+
             // 카운트 업데이트
             const countElement = document.getElementById('renewal-applicants-count');
             if (countElement) {
                 countElement.textContent = '총 2명 (테스트 데이터)';
             }
-            
+
             console.log('✅ 테스트 갱신 데이터 로드 완료');
         }
     };
 
     // closeOtherModals 함수가 없다면 간단한 버전 추가
     if (!window.certManager.closeOtherModals) {
-        window.certManager.closeOtherModals = function(excludeModalId) {
+        window.certManager.closeOtherModals = function (excludeModalId) {
             console.log('🔒 다른 모달들 닫기 (제외:', excludeModalId, ')');
-            
+
             // 모든 모달 닫기
             const modals = document.querySelectorAll('.cert-modal');
             modals.forEach(modal => {
@@ -5011,7 +5115,7 @@ if (!window.certManager.showRenewalManagementModal) {
 
     // getCertTypeName 함수가 없다면 추가
     if (!window.certManager.getCertTypeName) {
-        window.certManager.getCertTypeName = function(type) {
+        window.certManager.getCertTypeName = function (type) {
             const types = {
                 'health-exercise': '건강운동처방사',
                 'rehabilitation': '운동재활전문가',
@@ -5026,7 +5130,7 @@ if (!window.certManager.showRenewalManagementModal) {
 }
 
 // 4. 전역 함수로도 접근 가능하게 만들기 (디버깅용)
-window.showRenewalManagementModal = function() {
+window.showRenewalManagementModal = function () {
     console.log('🔧 전역 함수로 갱신 관리 모달 열기');
     if (window.certManager && window.certManager.showRenewalManagementModal) {
         window.certManager.showRenewalManagementModal();
@@ -5038,7 +5142,7 @@ window.showRenewalManagementModal = function() {
 
 // 5. 디버깅 도구
 window.debugRenewalModal = {
-    checkModal: function() {
+    checkModal: function () {
         const modal = document.getElementById('renewal-management-modal');
         console.log('갱신 관리 모달 요소:', modal);
         console.log('certManager 객체:', window.certManager);
@@ -5049,8 +5153,8 @@ window.debugRenewalModal = {
             function: !!(window.certManager?.showRenewalManagementModal)
         };
     },
-    
-    testOpen: function() {
+
+    testOpen: function () {
         console.log('🧪 갱신 모달 테스트 열기');
         if (window.certManager?.showRenewalManagementModal) {
             window.certManager.showRenewalManagementModal();
@@ -5058,8 +5162,8 @@ window.debugRenewalModal = {
             console.error('함수를 찾을 수 없습니다!');
         }
     },
-    
-    forceOpen: function() {
+
+    forceOpen: function () {
         console.log('🔧 강제로 갱신 모달 열기');
         const modal = document.getElementById('renewal-management-modal');
         if (modal) {
