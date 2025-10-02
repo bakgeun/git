@@ -5,7 +5,7 @@
 
 // Firebase 설정 정보 (실제 프로젝트 정보로 수정)
 const firebaseConfig = {
-  apiKey: "AIzaSyCnQBH5MxaFhraVPCk7awHOLO8j5C6Lw0A", // ⚠️ 실제 API 키로 변경 필요
+  apiKey: "AIzaSyCnQBH5MxaFhraVPCk7awHOLO8j5C6Lw0A",
   authDomain: "digital-healthcare-cente-2204b.firebaseapp.com",
   projectId: "digital-healthcare-cente-2204b",
   storageBucket: "digital-healthcare-cente-2204b.firebasestorage.app",
@@ -40,7 +40,7 @@ if (firebase.analytics && typeof firebase.analytics === 'function') {
     firebase.analytics();
     console.log("✅ Firebase Analytics 초기화 성공");
   } catch (error) {
-    console.error("❌ Firebase Analytics 초기화 오류:", error);
+    console.error("❌ Firebase Analytics 초기化 오류:", error);
   }
 }
 
@@ -61,15 +61,22 @@ window.dhcFirebase = {
     return firebase.auth().currentUser;
   },
   
-  // 🔧 추가: Firebase 연결 상태 확인 함수
+  // 🔧 수정: Firebase 연결 상태 확인 함수
   isConnected: function() {
-    return firebase.apps.length > 0 && this.auth && this.db;
+    try {
+      return firebase.apps.length > 0 && 
+             typeof this.auth !== 'undefined' && 
+             typeof this.db !== 'undefined';
+    } catch (error) {
+      console.error('Firebase 연결 상태 확인 오류:', error);
+      return false;
+    }
   }
 };
 
 console.log("✅ Firebase dhcFirebase 객체 생성 완료");
 
-// 🔧 Firebase 연결 테스트
+// 🔧 Firebase 연결 테스트 (오류 처리 개선)
 try {
   if (window.dhcFirebase.isConnected()) {
     console.log("✅ Firebase 서비스 연결 상태:");
