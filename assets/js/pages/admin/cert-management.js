@@ -2911,11 +2911,14 @@ Object.assign(window.certManager, {
         const holderEmail = safeGetValue(cert, 'holderEmail') ||
             safeGetValue(cert, 'email') || 'unknown@example.com';
 
+        // 🆕 연락처 정보
+        const holderPhone = safeGetValue(cert, 'holderPhone') ||
+            safeGetValue(cert, 'phone') || '-';
+
         const certType = this.getCertTypeName(safeGetValue(cert, 'certificateType') || this.currentCertType);
 
-        // 🔧 FIXED: 교육과정명 가져오기
+        // 교육과정명
         let courseName = safeGetValue(cert, 'courseName') || safeGetValue(cert, 'course');
-
         if (!courseName || courseName === '-') {
             const certTypeName = this.getCertTypeName(cert.certificateType || this.currentCertType);
             const year = cert.createdAt ?
@@ -2924,7 +2927,7 @@ Object.assign(window.certManager, {
             courseName = `${year}년 ${certTypeName} 전문교육과정`;
         }
 
-        // 🔧 FIXED: 날짜 필드 가져오기 (신청서는 courseCompletionDate 사용)
+        // 날짜 정보
         const issueDate = this.formatDateSafe(cert.issueDate) ||
             this.formatDateSafe(cert.courseCompletionDate) ||
             '대기 중';
@@ -2936,12 +2939,27 @@ Object.assign(window.certManager, {
         const updatedAt = this.formatDate(cert.updatedAt, true) || '-';
         const remarks = safeGetValue(cert, 'remarks') || '-';
 
-        // 🔧 FIXED: 상태 처리
+        // 🆕 주소 정보
+        const deliveryAddress = safeGetValue(cert, 'deliveryAddress') || '-';
+        const postalCode = safeGetValue(cert, 'postalCode') || '';
+        const basicAddress = safeGetValue(cert, 'basicAddress') || '';
+        const detailAddress = safeGetValue(cert, 'detailAddress') || '';
+
+        // 전체 주소 구성
+        let fullAddress = deliveryAddress;
+        if (fullAddress === '-' && postalCode && basicAddress) {
+            fullAddress = `(${postalCode}) ${basicAddress}${detailAddress ? ' ' + detailAddress : ''}`;
+        }
+
+        // 🆕 증명사진 정보
+        const photoUrl = safeGetValue(cert, 'photoUrl') || '';
+        const photoFileName = safeGetValue(cert, 'photoFileName') || '';
+
+        // 상태 처리
         let displayStatus = 'active';
         let statusText = '유효';
         let statusClass = 'green';
 
-        // 발급 대기 중인 신청서인 경우
         if (cert.isIssued === false && cert.needsApproval === true) {
             if (cert.applicationStatus === 'pending_review') {
                 displayStatus = 'pending_review';
@@ -2956,9 +2974,7 @@ Object.assign(window.certManager, {
                 statusText = '처리 중';
                 statusClass = 'blue';
             }
-        }
-        // 발급 완료된 경우
-        else if (cert.isIssued === true) {
+        } else if (cert.isIssued === true) {
             const certStatus = safeGetValue(cert, 'status') || 'active';
             displayStatus = certStatus;
 
@@ -2977,6 +2993,7 @@ Object.assign(window.certManager, {
             }
         }
 
+        // 🆕 모달 콘텐츠 생성 (연락처, 주소, 사진 포함)
         modalContent.innerHTML = `
         <div class="grid grid-cols-2 gap-4">
             <div>
@@ -2995,8 +3012,35 @@ Object.assign(window.certManager, {
                 <p><span class="font-medium">한글명:</span> ${holderNameKorean}</p>
                 <p><span class="font-medium">영문명:</span> ${holderNameEnglish}</p>
                 <p><span class="font-medium">이메일:</span> ${holderEmail}</p>
+                <p><span class="font-medium">📞 연락처:</span> ${holderPhone}</p>
             </div>
         </div>
+        
+        ${fullAddress !== '-' ? `
+        <div>
+            <h4 class="font-medium text-gray-700">📮 배송 주소</h4>
+            <div class="space-y-1">
+                <p class="text-gray-900">${fullAddress}</p>
+                ${postalCode ? `<p class="text-sm text-gray-600">우편번호: ${postalCode}</p>` : ''}
+            </div>
+        </div>
+        ` : ''}
+        
+        ${photoUrl ? `
+        <div>
+            <h4 class="font-medium text-gray-700">📷 증명사진</h4>
+            <div class="mt-2">
+                <img src="${photoUrl}" 
+                     alt="증명사진" 
+                     class="w-32 h-40 object-cover border-2 border-gray-300 rounded"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div style="display:none;" class="text-sm text-gray-500">
+                    이미지를 불러올 수 없습니다.
+                    ${photoFileName ? `<br>파일명: ${photoFileName}` : ''}
+                </div>
+            </div>
+        </div>
+        ` : ''}
         
         <div>
             <h4 class="font-medium text-gray-700">교육 과정</h4>
@@ -3066,7 +3110,7 @@ Object.assign(window.certManager, {
             this.ensureModalEvents();
         }
 
-        console.log('✅ 자격증 상세 정보 모달 표시 완료');
+        console.log('✅ 자격증 상세 정보 모달 표시 완료 (연락처, 주소, 사진 포함)');
     },
 
     // =================================

@@ -4,7 +4,7 @@
  */
 
 // 즉시 실행 함수 표현식(IIFE)을 사용하여 전역 네임스페이스 오염 방지
-(function() {
+(function () {
     // authService 네임스페이스 생성
     window.authService = {
         /**
@@ -15,17 +15,17 @@
          * @param {object} userData - 추가 사용자 정보 (이름, 전화번호 등)
          * @returns {Promise} - 회원가입 결과 프로미스
          */
-        signUp: async function(email, password, userData) {
+        signUp: async function (email, password, userData) {
             console.log('📝 회원가입 시작:', email);
-            
+
             try {
                 // Firebase Auth를 사용하여 사용자 생성
                 console.log('🔐 Firebase Auth 계정 생성 중...');
                 const userCredential = await window.dhcFirebase.auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
-                
+
                 console.log('✅ Firebase Auth 계정 생성 성공:', user.uid);
-                
+
                 // Firestore에 추가 사용자 정보 저장 (개선된 버전)
                 const userDoc = {
                     email: email,
@@ -44,19 +44,19 @@
                     createdAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp(),
                     updatedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
                 };
-                
+
                 console.log('💾 Firestore에 사용자 데이터 저장 중...', userDoc);
-                
+
                 // Firestore에 사용자 문서 생성
                 await window.dhcFirebase.db.collection('users').doc(user.uid).set(userDoc);
-                
+
                 console.log('✅ Firestore 사용자 데이터 저장 완료');
-                
+
                 return { success: true, user: user };
-                
+
             } catch (error) {
                 console.error("❌ 회원가입 오류:", error);
-                
+
                 // Firebase Auth 계정은 생성되었지만 Firestore 저장이 실패한 경우
                 // 생성된 Auth 계정을 정리
                 if (error.code && error.code.includes('firestore') && userCredential?.user) {
@@ -68,11 +68,11 @@
                         console.error('❌ Auth 계정 정리 실패:', deleteError);
                     }
                 }
-                
+
                 return { success: false, error: error };
             }
         },
-        
+
         /**
          * 이메일/비밀번호로 로그인
          * 
@@ -81,7 +81,7 @@
          * @param {boolean} rememberMe - 로그인 상태 유지 여부
          * @returns {Promise} - 로그인 결과 프로미스
          */
-        signIn: async function(email, password, rememberMe = false) {
+        signIn: async function (email, password, rememberMe = false) {
             try {
                 // 로그인 상태 유지 설정
                 if (rememberMe) {
@@ -89,11 +89,11 @@
                 } else {
                     await window.dhcFirebase.auth.setPersistence(window.dhcFirebase.firebase.auth.Auth.Persistence.SESSION);
                 }
-                
+
                 // 로그인 시도
                 const userCredential = await window.dhcFirebase.auth.signInWithEmailAndPassword(email, password);
                 const user = userCredential.user;
-                
+
                 // 마지막 로그인 시간 업데이트
                 try {
                     await window.dhcFirebase.db.collection('users').doc(user.uid).update({
@@ -104,35 +104,35 @@
                     console.warn('⚠️ 마지막 로그인 시간 업데이트 실패:', updateError);
                     // 로그인은 성공했으므로 계속 진행
                 }
-                
+
                 return { success: true, user: user };
             } catch (error) {
                 console.error("로그인 오류:", error);
                 return { success: false, error: error };
             }
         },
-        
+
         /**
          * Google 계정으로 로그인 (개선된 버전)
          * 
          * @returns {Promise} - 로그인 결과 프로미스
          */
-        signInWithGoogle: async function() {
+        signInWithGoogle: async function () {
             console.log('🔵 Google 로그인 시작');
-            
+
             try {
                 const provider = new window.dhcFirebase.firebase.auth.GoogleAuthProvider();
                 const userCredential = await window.dhcFirebase.auth.signInWithPopup(provider);
                 const user = userCredential.user;
-                
+
                 console.log('✅ Google 로그인 성공:', user.email);
-                
+
                 // 사용자가 처음 Google 로그인하는 경우 Firestore에 기본 정보 저장
                 const userDoc = await window.dhcFirebase.db.collection('users').doc(user.uid).get();
-                
+
                 if (!userDoc.exists) {
                     console.log('👤 신규 Google 사용자, Firestore에 데이터 저장');
-                    
+
                     const newUserDoc = {
                         email: user.email,
                         displayName: user.displayName || '',
@@ -145,31 +145,31 @@
                         updatedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp(),
                         lastLogin: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
                     };
-                    
+
                     await window.dhcFirebase.db.collection('users').doc(user.uid).set(newUserDoc);
                     console.log('✅ 신규 Google 사용자 데이터 저장 완료');
                 } else {
                     console.log('👤 기존 Google 사용자, 로그인 시간만 업데이트');
-                    
+
                     // 기존 사용자인 경우 마지막 로그인 시간만 업데이트
                     await window.dhcFirebase.db.collection('users').doc(user.uid).update({
                         lastLogin: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
                     });
                 }
-                
+
                 return { success: true, user: user };
             } catch (error) {
                 console.error("Google 로그인 오류:", error);
                 return { success: false, error: error };
             }
         },
-        
+
         /**
          * 사용자 로그아웃
          * 
          * @returns {Promise} - 로그아웃 결과 프로미스
          */
-        signOut: async function() {
+        signOut: async function () {
             try {
                 await window.dhcFirebase.auth.signOut();
                 return { success: true };
@@ -178,14 +178,14 @@
                 return { success: false, error: error };
             }
         },
-        
+
         /**
          * 비밀번호 재설정 이메일 전송
          * 
          * @param {string} email - 사용자 이메일
          * @returns {Promise} - 이메일 전송 결과 프로미스
          */
-        resetPassword: async function(email) {
+        resetPassword: async function (email) {
             try {
                 await window.dhcFirebase.auth.sendPasswordResetEmail(email);
                 return { success: true };
@@ -194,31 +194,31 @@
                 return { success: false, error: error };
             }
         },
-        
+
         /**
          * 현재 로그인한 사용자 정보 가져오기
          * 
          * @returns {Object|null} - 로그인한 사용자 정보 또는 null
          */
-        getCurrentUser: function() {
+        getCurrentUser: function () {
             return window.dhcFirebase.auth.currentUser;
         },
-        
+
         /**
          * 현재 로그인한 사용자의 상세 정보 가져오기 (Firestore 데이터 포함)
          * 
          * @returns {Promise} - 사용자 상세 정보를 포함한 프로미스
          */
-        getCurrentUserDetails: async function() {
+        getCurrentUserDetails: async function () {
             const user = window.dhcFirebase.auth.currentUser;
-            
+
             if (!user) {
                 return null;
             }
-            
+
             try {
                 const userDoc = await window.dhcFirebase.db.collection('users').doc(user.uid).get();
-                
+
                 if (userDoc.exists) {
                     return {
                         ...user,
@@ -232,20 +232,20 @@
                 return user;
             }
         },
-        
+
         /**
          * 사용자 프로필 정보 업데이트
          * 
          * @param {object} profileData - 업데이트할 프로필 정보
          * @returns {Promise} - 업데이트 결과 프로미스
          */
-        updateProfile: async function(profileData) {
+        updateProfile: async function (profileData) {
             const user = window.dhcFirebase.auth.currentUser;
-            
+
             if (!user) {
                 return { success: false, error: { message: "로그인이 필요합니다." } };
             }
-            
+
             try {
                 // Firebase Auth 프로필 업데이트 (displayName, photoURL만 가능)
                 if (profileData.displayName || profileData.photoURL) {
@@ -254,25 +254,26 @@
                         photoURL: profileData.photoURL
                     });
                 }
-                
+
                 // 이메일 변경이 있는 경우
                 if (profileData.email && profileData.email !== user.email) {
                     await user.updateEmail(profileData.email);
                 }
-                
-                // Firestore에 추가 정보 저장
-                await window.dhcFirebase.db.collection('users').doc(user.uid).update({
+
+                // ⭐ 중요: Firestore에 추가 정보 저장 - set({merge: true}) 사용
+                // 문서가 없으면 생성하고, 있으면 업데이트
+                await window.dhcFirebase.db.collection('users').doc(user.uid).set({
                     ...profileData,
                     updatedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
+                }, { merge: true }); // ⭐ merge: true 옵션 추가
+
                 return { success: true };
             } catch (error) {
                 console.error("프로필 업데이트 오류:", error);
                 return { success: false, error: error };
             }
         },
-        
+
         /**
          * 비밀번호 변경
          * 
@@ -280,82 +281,82 @@
          * @param {string} newPassword - 새 비밀번호
          * @returns {Promise} - 비밀번호 변경 결과 프로미스
          */
-        changePassword: async function(currentPassword, newPassword) {
+        changePassword: async function (currentPassword, newPassword) {
             const user = window.dhcFirebase.auth.currentUser;
-            
+
             if (!user) {
                 return { success: false, error: { message: "로그인이 필요합니다." } };
             }
-            
+
             try {
                 // 현재 비밀번호 확인을 위한 재인증
                 const credential = window.dhcFirebase.firebase.auth.EmailAuthProvider.credential(
                     user.email,
                     currentPassword
                 );
-                
+
                 await user.reauthenticateWithCredential(credential);
-                
+
                 // 비밀번호 변경
                 await user.updatePassword(newPassword);
-                
+
                 return { success: true };
             } catch (error) {
                 console.error("비밀번호 변경 오류:", error);
                 return { success: false, error: error };
             }
         },
-        
+
         /**
          * 사용자 계정 삭제
          * 
          * @param {string} password - 현재 비밀번호 (재인증 용)
          * @returns {Promise} - 계정 삭제 결과 프로미스
          */
-        deleteAccount: async function(password) {
+        deleteAccount: async function (password) {
             const user = window.dhcFirebase.auth.currentUser;
-            
+
             if (!user) {
                 return { success: false, error: { message: "로그인이 필요합니다." } };
             }
-            
+
             try {
                 // 재인증
                 const credential = window.dhcFirebase.firebase.auth.EmailAuthProvider.credential(
                     user.email,
                     password
                 );
-                
+
                 await user.reauthenticateWithCredential(credential);
-                
+
                 // Firestore 사용자 문서 삭제
                 await window.dhcFirebase.db.collection('users').doc(user.uid).delete();
-                
+
                 // Firebase Auth 계정 삭제
                 await user.delete();
-                
+
                 return { success: true };
             } catch (error) {
                 console.error("계정 삭제 오류:", error);
                 return { success: false, error: error };
             }
         },
-        
+
         /**
          * 사용자 역할 확인 (관리자 여부 등) - 개선된 버전
          * 
          * @returns {Promise} - 사용자 역할 정보를 포함한 프로미스
          */
-        checkUserRole: async function() {
+        checkUserRole: async function () {
             const user = window.dhcFirebase.auth.currentUser;
-            
+
             if (!user) {
                 return { isAdmin: false, userType: null, status: null };
             }
-            
+
             try {
                 const userDoc = await window.dhcFirebase.db.collection('users').doc(user.uid).get();
-                
+
                 if (userDoc.exists) {
                     const userData = userDoc.data();
                     return {
@@ -375,13 +376,13 @@
     };
 
     // 인증 상태 감지 함수 등록 (개선된 버전)
-    window.dhcFirebase.onAuthStateChanged(function(user) {
+    window.dhcFirebase.onAuthStateChanged(function (user) {
         if (user) {
             console.log('🔐 사용자 로그인 상태 감지:', user.email);
         } else {
             console.log('🔐 사용자 로그아웃 상태 감지');
         }
-        
+
         // 인증 상태 변경 시 이벤트 디스패치
         const event = new CustomEvent('authStateChanged', { detail: { user } });
         document.dispatchEvent(event);
