@@ -95,15 +95,45 @@ async function loadCertificatePhoto(photoUrl) {
     if (!photoUrl) return createPlaceholderPhoto();
 
     try {
+        console.log('📸 사진 로드 시작:', photoUrl);
+        
+        // Base64 이미지인 경우
         if (photoUrl.startsWith('data:image/')) {
+            console.log('📸 Base64 이미지 감지');
             return processBase64Image(photoUrl);
         }
 
+        // 🔧 NEW: Firebase Storage URL인 경우 - SDK를 통해 Blob으로 다운로드
+        if (photoUrl.includes('firebasestorage.googleapis.com')) {
+            console.log('📸 Firebase Storage에서 이미지 다운로드 중...');
+            return await loadFirebaseStorageImage(photoUrl);
+        }
+
+        // 일반 외부 URL인 경우
+        console.log('📸 외부 URL에서 이미지 로드 중...');
+        
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.crossOrigin = 'anonymous';
-            img.onload = () => resolve(processImageToTarget(img));
-            img.onerror = () => reject(new Error('사진 로드 실패'));
+            
+            img.onload = () => {
+                console.log('✅ 이미지 로드 성공:', img.naturalWidth, 'x', img.naturalHeight);
+                resolve(processImageToTarget(img));
+            };
+            
+            img.onerror = (error) => {
+                console.error('❌ 이미지 로드 실패:', error);
+                console.log('📸 플레이스홀더로 대체');
+                resolve(createPlaceholderPhoto());
+            };
+            
+            setTimeout(() => {
+                if (!img.complete) {
+                    console.warn('⚠️ 이미지 로드 타임아웃');
+                    resolve(createPlaceholderPhoto());
+                }
+            }, 5000);
+            
             img.src = photoUrl;
         });
     } catch (error) {
@@ -112,36 +142,129 @@ async function loadCertificatePhoto(photoUrl) {
     }
 }
 
-function processImageToTarget(img) {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const targetWidth = 120;
-    const targetHeight = 160;
-
-    canvas.width = targetWidth;
-    canvas.height = targetHeight;
-
-    const aspectRatio = img.naturalWidth / img.naturalHeight;
-    const targetAspectRatio = targetWidth / targetHeight;
-
-    let sx = 0, sy = 0, sWidth = img.naturalWidth, sHeight = img.naturalHeight;
-
-    if (aspectRatio > targetAspectRatio) {
-        sWidth = img.naturalHeight * targetAspectRatio;
-        sx = (img.naturalWidth - sWidth) / 2;
-    } else {
-        sHeight = img.naturalWidth / targetAspectRatio;
-        sy = (img.naturalHeight - sHeight) / 2;
+// 🆕 NEW: Firebase Storage에서 이미지를 Blob으로 다운로드하는 함수
+async function loadFirebaseStorageImage(photoUrl) {
+    try {
+        // URL에서 Storage 경로 추출
+        const url = new URL(photoUrl);
+        const pathMatch = url.pathname.match(/\/o\/(.+)/);
+        
+        if (!pathMatch) {
+            throw new Error('유효하지 않은 Storage URL');
+        }
+        
+        // URL 디코딩 (쿼리 파라미터 제거)
+        let storagePath = decodeURIComponent(pathMatch[1]);
+        
+        // 쿼리 파라미터가 포함되어 있으면 제거
+        if (storagePath.includes('?')) {
+            storagePath = storagePath.split('?')[0];
+        }
+        
+        console.log('📁 Storage 경로:', storagePath);
+        
+        // Firebase Storage Reference 생성
+        const storageRef = window.dhcFirebase.storage.ref(storagePath);
+        
+        // 🔧 FIXED: getDownloadURL()로 인증된 URL을 얻고, XMLHttpRequest로 다운로드
+        console.log('📥 Firebase Storage에서 다운로드 URL 가져오는 중...');
+        const downloadURL = await storageRef.getDownloadURL();
+        
+        console.log('📥 인증된 URL로 이미지 다운로드 중...');
+        
+        // XMLHttpRequest를 사용하여 Blob 다운로드 (CORS 우회)
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.responseType = 'blob';
+            
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const blob = xhr.response;
+                    console.log('✅ Blob 다운로드 완료:', blob.size, 'bytes');
+                    
+                    // Blob을 Base64로 변환
+                    const reader = new FileReader();
+                    
+                    reader.onload = () => {
+                        const base64Data = reader.result;
+                        console.log('✅ Base64 변환 완료');
+                        
+                        // Base64 이미지를 처리
+                        const img = new Image();
+                        img.onload = () => {
+                            console.log('✅ 이미지 처리 완료:', img.width, 'x', img.height);
+                            resolve(processImageToTarget(img));
+                        };
+                        img.onerror = () => {
+                            console.error('❌ Base64 이미지 로드 실패');
+                            resolve(createPlaceholderPhoto());
+                        };
+                        img.src = base64Data;
+                    };
+                    
+                    reader.onerror = () => {
+                        console.error('❌ Blob → Base64 변환 실패');
+                        resolve(createPlaceholderPhoto());
+                    };
+                    
+                    reader.readAsDataURL(blob);
+                } else {
+                    console.error('❌ HTTP 오류:', xhr.status);
+                    resolve(createPlaceholderPhoto());
+                }
+            };
+            
+            xhr.onerror = () => {
+                console.error('❌ XMLHttpRequest 오류');
+                resolve(createPlaceholderPhoto());
+            };
+            
+            xhr.open('GET', downloadURL);
+            xhr.send();
+        });
+        
+    } catch (error) {
+        console.error('❌ Firebase Storage 이미지 로드 실패:', error);
+        return createPlaceholderPhoto();
     }
+}
 
-    ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
+function processImageToTarget(img) {
+    try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const targetWidth = 120;
+        const targetHeight = 160;
 
-    return {
-        dataUrl: canvas.toDataURL('image/jpeg', 0.8),
-        width: targetWidth,
-        height: targetHeight,
-        isPhoto: true
-    };
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+
+        // 종횡비 유지하면서 크롭
+        const aspectRatio = img.naturalWidth / img.naturalHeight;
+        const targetAspectRatio = targetWidth / targetHeight;
+
+        let sx = 0, sy = 0, sWidth = img.naturalWidth, sHeight = img.naturalHeight;
+
+        if (aspectRatio > targetAspectRatio) {
+            sWidth = img.naturalHeight * targetAspectRatio;
+            sx = (img.naturalWidth - sWidth) / 2;
+        } else {
+            sHeight = img.naturalWidth / targetAspectRatio;
+            sy = (img.naturalHeight - sHeight) / 2;
+        }
+
+        ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
+
+        return {
+            dataUrl: canvas.toDataURL('image/jpeg', 0.9),
+            width: targetWidth,
+            height: targetHeight,
+            isPhoto: true
+        };
+    } catch (error) {
+        console.error('❌ 이미지 처리 실패:', error);
+        return createPlaceholderPhoto();
+    }
 }
 
 function processBase64Image(photoUrl) {
@@ -160,13 +283,16 @@ function createPlaceholderPhoto() {
     canvas.width = 120;
     canvas.height = 160;
 
+    // 배경
     ctx.fillStyle = '#f8fafc';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // 테두리
     ctx.strokeStyle = '#64748b';
     ctx.lineWidth = 2;
     ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
 
+    // 텍스트
     ctx.fillStyle = '#64748b';
     ctx.font = '14px Arial';
     ctx.textAlign = 'center';
@@ -2758,7 +2884,7 @@ Object.assign(window.certManager, {
             return;
         }
 
-        // 안전한 데이터 추출
+        // 🔧 안전한 데이터 추출
         const safeGetValue = (obj, path, defaultValue = '-') => {
             try {
                 return path.split('.').reduce((current, key) => current?.[key], obj) || defaultValue;
@@ -2782,14 +2908,31 @@ Object.assign(window.certManager, {
             safeGetValue(cert, 'email') || 'unknown@example.com';
 
         const certType = this.getCertTypeName(safeGetValue(cert, 'certificateType') || this.currentCertType);
-        const courseName = safeGetValue(cert, 'courseName') || safeGetValue(cert, 'course') || '-';
-        const issueDate = this.formatDateSafe(cert.issueDate) || '-';
-        const expiryDate = this.formatDateSafe(cert.expiryDate) || '-';
+
+        // 🔧 FIXED: 교육과정명 가져오기
+        let courseName = safeGetValue(cert, 'courseName') || safeGetValue(cert, 'course');
+
+        if (!courseName || courseName === '-') {
+            const certTypeName = this.getCertTypeName(cert.certificateType || this.currentCertType);
+            const year = cert.createdAt ?
+                (cert.createdAt.seconds ? new Date(cert.createdAt.seconds * 1000).getFullYear() : new Date(cert.createdAt).getFullYear()) :
+                new Date().getFullYear();
+            courseName = `${year}년 ${certTypeName} 전문교육과정`;
+        }
+
+        // 🔧 FIXED: 날짜 필드 가져오기 (신청서는 courseCompletionDate 사용)
+        const issueDate = this.formatDateSafe(cert.issueDate) ||
+            this.formatDateSafe(cert.courseCompletionDate) ||
+            '대기 중';
+
+        const expiryDate = this.formatDateSafe(cert.expiryDate) ||
+            '대기 중';
+
         const createdAt = this.formatDate(cert.createdAt, true) || '-';
         const updatedAt = this.formatDate(cert.updatedAt, true) || '-';
         const remarks = safeGetValue(cert, 'remarks') || '-';
 
-        // 🔧 수정: 올바른 상태 필드 사용
+        // 🔧 FIXED: 상태 처리
         let displayStatus = 'active';
         let statusText = '유효';
         let statusClass = 'green';
@@ -2858,7 +3001,7 @@ Object.assign(window.certManager, {
         
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <h4 class="font-medium text-gray-700">발급일</h4>
+                <h4 class="font-medium text-gray-700">발급일 / 수료일</h4>
                 <p class="text-gray-900">${issueDate}</p>
             </div>
             <div>
