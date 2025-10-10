@@ -96,7 +96,7 @@ async function loadCertificatePhoto(photoUrl) {
 
     try {
         console.log('📸 사진 로드 시작:', photoUrl);
-        
+
         // Base64 이미지인 경우
         if (photoUrl.startsWith('data:image/')) {
             console.log('📸 Base64 이미지 감지');
@@ -111,29 +111,29 @@ async function loadCertificatePhoto(photoUrl) {
 
         // 일반 외부 URL인 경우
         console.log('📸 외부 URL에서 이미지 로드 중...');
-        
+
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.crossOrigin = 'anonymous';
-            
+
             img.onload = () => {
                 console.log('✅ 이미지 로드 성공:', img.naturalWidth, 'x', img.naturalHeight);
                 resolve(processImageToTarget(img));
             };
-            
+
             img.onerror = (error) => {
                 console.error('❌ 이미지 로드 실패:', error);
                 console.log('📸 플레이스홀더로 대체');
                 resolve(createPlaceholderPhoto());
             };
-            
+
             setTimeout(() => {
                 if (!img.complete) {
                     console.warn('⚠️ 이미지 로드 타임아웃');
                     resolve(createPlaceholderPhoto());
                 }
             }, 5000);
-            
+
             img.src = photoUrl;
         });
     } catch (error) {
@@ -148,47 +148,47 @@ async function loadFirebaseStorageImage(photoUrl) {
         // URL에서 Storage 경로 추출
         const url = new URL(photoUrl);
         const pathMatch = url.pathname.match(/\/o\/(.+)/);
-        
+
         if (!pathMatch) {
             throw new Error('유효하지 않은 Storage URL');
         }
-        
+
         // URL 디코딩 (쿼리 파라미터 제거)
         let storagePath = decodeURIComponent(pathMatch[1]);
-        
+
         // 쿼리 파라미터가 포함되어 있으면 제거
         if (storagePath.includes('?')) {
             storagePath = storagePath.split('?')[0];
         }
-        
+
         console.log('📁 Storage 경로:', storagePath);
-        
+
         // Firebase Storage Reference 생성
         const storageRef = window.dhcFirebase.storage.ref(storagePath);
-        
+
         // 🔧 FIXED: getDownloadURL()로 인증된 URL을 얻고, XMLHttpRequest로 다운로드
         console.log('📥 Firebase Storage에서 다운로드 URL 가져오는 중...');
         const downloadURL = await storageRef.getDownloadURL();
-        
+
         console.log('📥 인증된 URL로 이미지 다운로드 중...');
-        
+
         // XMLHttpRequest를 사용하여 Blob 다운로드 (CORS 우회)
         return new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
             xhr.responseType = 'blob';
-            
-            xhr.onload = function() {
+
+            xhr.onload = function () {
                 if (xhr.status === 200) {
                     const blob = xhr.response;
                     console.log('✅ Blob 다운로드 완료:', blob.size, 'bytes');
-                    
+
                     // Blob을 Base64로 변환
                     const reader = new FileReader();
-                    
+
                     reader.onload = () => {
                         const base64Data = reader.result;
                         console.log('✅ Base64 변환 완료');
-                        
+
                         // Base64 이미지를 처리
                         const img = new Image();
                         img.onload = () => {
@@ -201,28 +201,28 @@ async function loadFirebaseStorageImage(photoUrl) {
                         };
                         img.src = base64Data;
                     };
-                    
+
                     reader.onerror = () => {
                         console.error('❌ Blob → Base64 변환 실패');
                         resolve(createPlaceholderPhoto());
                     };
-                    
+
                     reader.readAsDataURL(blob);
                 } else {
                     console.error('❌ HTTP 오류:', xhr.status);
                     resolve(createPlaceholderPhoto());
                 }
             };
-            
+
             xhr.onerror = () => {
                 console.error('❌ XMLHttpRequest 오류');
                 resolve(createPlaceholderPhoto());
             };
-            
+
             xhr.open('GET', downloadURL);
             xhr.send();
         });
-        
+
     } catch (error) {
         console.error('❌ Firebase Storage 이미지 로드 실패:', error);
         return createPlaceholderPhoto();
@@ -1330,6 +1330,10 @@ Object.assign(window.certManager, {
                         <button onclick="certManager.revokeCertificate('${cert.id}')" 
                             class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600">취소</button>
                     ` : ''}
+                    <!-- 🆕 삭제 버튼 추가 -->
+                    <button onclick="certManager.deleteCertificate('${cert.id}')"
+                        class="px-2 py-1 bg-gray-700 text-white rounded text-xs hover:bg-gray-900" 
+                        title="자격증 삭제">🗑️</button>
                 </div>
             `;
         }
@@ -3205,6 +3209,156 @@ Object.assign(window.certManager, {
         } catch (error) {
             console.error('자격증 취소 오류:', error);
             window.adminAuth?.showNotification('자격증 취소 중 오류가 발생했습니다.', 'error');
+        }
+    },
+
+    // =================================
+    // 🗑️ 자격증 삭제 (🆕 여기에 추가!)
+    // =================================
+
+    /**
+     * 자격증 삭제 확인 및 처리
+     */
+    deleteCertificate(certId) {
+        console.log('🗑️ 자격증 삭제 요청:', certId);
+
+        // 2단계 확인
+        const firstConfirm = confirm('⚠️ 정말로 이 자격증을 삭제하시겠습니까?\n\n삭제된 데이터는 복구할 수 없습니다.');
+
+        if (!firstConfirm) {
+            console.log('❌ 삭제 취소됨 (1단계)');
+            return;
+        }
+
+        const secondConfirm = confirm('🚨 최종 확인\n\n이 작업은 되돌릴 수 없습니다.\n정말로 삭제하시겠습니까?');
+
+        if (!secondConfirm) {
+            console.log('❌ 삭제 취소됨 (2단계)');
+            return;
+        }
+
+        this.handleDeleteCertificate(certId);
+    },
+
+    /**
+     * 자격증 삭제 실행
+     */
+    async handleDeleteCertificate(certId) {
+        try {
+            console.log('🗑️ 자격증 삭제 시작:', certId);
+
+            window.adminAuth?.showNotification('자격증을 삭제하는 중...', 'info');
+
+            const firebaseStatus = checkFirebaseConnection();
+
+            if (firebaseStatus.connected && window.dhcFirebase) {
+                console.log('🔥 Firebase에서 자격증 삭제 중...');
+
+                // 1. 자격증 문서 가져오기
+                const docRef = window.dhcFirebase.db.collection('certificates').doc(certId);
+                const docSnap = await docRef.get();
+
+                if (!docSnap.exists) {
+                    throw new Error('자격증을 찾을 수 없습니다.');
+                }
+
+                const certData = docSnap.data();
+
+                // 2. Storage에서 사진 삭제 (있는 경우)
+                if (certData.photoUrl && window.storageService) {
+                    try {
+                        console.log('📸 증명사진 삭제 중...');
+
+                        // photoUrl에서 Storage 경로 추출
+                        const url = new URL(certData.photoUrl);
+                        const pathMatch = url.pathname.match(/\/o\/(.+)/);
+
+                        if (pathMatch) {
+                            let storagePath = decodeURIComponent(pathMatch[1]);
+                            if (storagePath.includes('?')) {
+                                storagePath = storagePath.split('?')[0];
+                            }
+
+                            await window.storageService.deleteFile(storagePath);
+                            console.log('✅ 증명사진 삭제 완료');
+                        }
+                    } catch (photoError) {
+                        console.warn('⚠️ 증명사진 삭제 실패 (계속 진행):', photoError);
+                    }
+                }
+
+                // 3. Firestore에서 자격증 문서 삭제
+                await docRef.delete();
+
+                console.log('✅ 자격증 삭제 완료');
+                window.adminAuth?.showNotification('자격증이 성공적으로 삭제되었습니다.', 'success');
+
+            } else {
+                // 테스트 모드
+                console.log('🔧 테스트 모드: 자격증 삭제 시뮬레이션');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                window.adminAuth?.showNotification('자격증이 삭제되었습니다. (테스트 모드)', 'success');
+            }
+
+            // 목록 새로고침
+            this.loadCertificatesData();
+
+        } catch (error) {
+            console.error('❌ 자격증 삭제 오류:', error);
+            window.adminAuth?.showNotification('자격증 삭제 중 오류가 발생했습니다: ' + error.message, 'error');
+        }
+    },
+
+    /**
+     * 선택된 자격증 일괄 삭제
+     */
+    async deleteSelectedCertificates() {
+        const selectedCheckboxes = document.querySelectorAll('.cert-checkbox:checked');
+
+        if (selectedCheckboxes.length === 0) {
+            window.adminAuth?.showNotification('삭제할 자격증을 선택해주세요.', 'warning');
+            return;
+        }
+
+        const confirmMessage = `선택된 ${selectedCheckboxes.length}개의 자격증을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`;
+
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+
+        const finalConfirm = confirm(`🚨 최종 확인\n\n${selectedCheckboxes.length}개의 자격증이 영구적으로 삭제됩니다.\n정말로 진행하시겠습니까?`);
+
+        if (!finalConfirm) {
+            return;
+        }
+
+        try {
+            window.adminAuth?.showNotification(`${selectedCheckboxes.length}개의 자격증을 삭제하는 중...`, 'info');
+
+            let successCount = 0;
+            let failCount = 0;
+
+            for (const checkbox of selectedCheckboxes) {
+                const certId = checkbox.dataset.id;
+
+                try {
+                    await this.handleDeleteCertificate(certId);
+                    successCount++;
+                } catch (error) {
+                    console.error(`자격증 ${certId} 삭제 실패:`, error);
+                    failCount++;
+                }
+            }
+
+            const message = `삭제 완료: 성공 ${successCount}개, 실패 ${failCount}개`;
+            window.adminAuth?.showNotification(message, failCount > 0 ? 'warning' : 'success');
+
+            // 목록 새로고침
+            this.loadCertificatesData();
+
+        } catch (error) {
+            console.error('일괄 삭제 오류:', error);
+            window.adminAuth?.showNotification('일괄 삭제 중 오류가 발생했습니다.', 'error');
         }
     },
 

@@ -161,9 +161,13 @@ service cloud.firestore {
       // 읽기: 본인의 자격증 또는 관리자
       allow read: if isAuthenticated() && 
         (resource.data.userId == request.auth.uid || isAdmin());
-      
-      // 생성, 업데이트, 삭제: 관리자만
-      allow create, update, delete: if isAdmin();
+
+      // 🔧 수정: 생성은 인증된 사용자도 가능 (자신의 신청만)
+      allow create: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid;
+
+      // 업데이트, 삭제: 관리자만
+      allow update, delete: if isAdmin();  
     }
 
     // 🔧 FIXED: 신청서 컬렉션 규칙 (대폭 간소화)
