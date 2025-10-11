@@ -2889,3 +2889,41 @@
 .content-card:last-child .card-subtitle {
     color: #991b1b;
 }
+
+/* 주소 검색 버튼 스타일 */
+#address-search-btn {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    white-space: nowrap;
+}
+
+#address-search-btn:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+/* 읽기 전용 필드 스타일 */
+input[readonly] {
+    background-color: #f9fafb;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 640px) {
+    .flex.gap-2 {
+        flex-direction: column;
+    }
+    
+    #address-search-btn {
+        width: 100%;
+    }
+}

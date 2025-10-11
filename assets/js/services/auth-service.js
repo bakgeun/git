@@ -8,7 +8,8 @@
     // authService 네임스페이스 생성
     window.authService = {
         /**
-         * 이메일/비밀번호로 회원가입
+         * 이메일/비밀번호로 회원가입 (⭐ 수정 버전)
+         * ⭐ Firebase Auth 프로필 업데이트 추가로 displayName 저장 문제 해결
          * 
          * @param {string} email - 사용자 이메일
          * @param {string} password - 사용자 비밀번호
@@ -19,14 +20,28 @@
             console.log('📝 회원가입 시작:', email);
 
             try {
-                // Firebase Auth를 사용하여 사용자 생성
+                // 1. Firebase Auth를 사용하여 사용자 생성
                 console.log('🔐 Firebase Auth 계정 생성 중...');
                 const userCredential = await window.dhcFirebase.auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
 
                 console.log('✅ Firebase Auth 계정 생성 성공:', user.uid);
 
-                // Firestore에 추가 사용자 정보 저장 (개선된 버전)
+                // ⭐ 2. Firebase Auth 프로필 업데이트 (새로 추가된 부분)
+                try {
+                    await user.updateProfile({
+                        displayName: userData.displayName || '',
+                        photoURL: userData.photoURL || null
+                    });
+                    console.log('✅ Firebase Auth 프로필 업데이트 완료:', {
+                        displayName: userData.displayName
+                    });
+                } catch (profileError) {
+                    console.warn('⚠️ Firebase Auth 프로필 업데이트 실패:', profileError);
+                    // 프로필 업데이트 실패해도 계속 진행 (Firestore 저장이 더 중요)
+                }
+
+                // 3. Firestore에 추가 사용자 정보 저장 (기존 코드)
                 const userDoc = {
                     email: email,
                     displayName: userData.displayName || '',
@@ -34,6 +49,12 @@
                     address: userData.address || '',
                     birthdate: userData.birthdate || '',
                     gender: userData.gender || '',
+
+                    // ⭐ 추가: 주소 분리 필드
+                    postalCode: userData.postalCode || '',
+                    addressBasic: userData.addressBasic || '',
+                    addressDetail: userData.addressDetail || '',
+
                     userType: 'student', // 기본 사용자 유형
                     status: 'active',    // ⭐ 중요: 활성 상태로 설정
                     marketingConsent: userData.marketingConsent || false,
@@ -45,31 +66,47 @@
                     updatedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                console.log('💾 Firestore에 사용자 데이터 저장 중...', userDoc);
+                console.log('💾 Firestore에 사용자 데이터 저장 중...', {
+                    email: userDoc.email,
+                    displayName: userDoc.displayName,
+                    phoneNumber: userDoc.phoneNumber
+                });
 
-                // Firestore에 사용자 문서 생성
+                // 4. Firestore에 사용자 문서 생성
                 await window.dhcFirebase.db.collection('users').doc(user.uid).set(userDoc);
 
                 console.log('✅ Firestore 사용자 데이터 저장 완료');
 
-                return { success: true, user: user };
+                // 5. 성공 결과 반환
+                return {
+                    success: true,
+                    user: user,
+                    message: '회원가입이 완료되었습니다.'
+                };
 
             } catch (error) {
                 console.error("❌ 회원가입 오류:", error);
 
                 // Firebase Auth 계정은 생성되었지만 Firestore 저장이 실패한 경우
                 // 생성된 Auth 계정을 정리
-                if (error.code && error.code.includes('firestore') && userCredential?.user) {
-                    try {
-                        console.log('🔄 Firestore 저장 실패로 인한 Auth 계정 정리...');
-                        await userCredential.user.delete();
-                        console.log('✅ Auth 계정 정리 완료');
-                    } catch (deleteError) {
-                        console.error('❌ Auth 계정 정리 실패:', deleteError);
+                if (error.code && error.code.includes('firestore')) {
+                    // userCredential이 정의되어 있는지 확인
+                    if (typeof userCredential !== 'undefined' && userCredential?.user) {
+                        try {
+                            console.log('🔄 Firestore 저장 실패로 인한 Auth 계정 정리...');
+                            await userCredential.user.delete();
+                            console.log('✅ Auth 계정 정리 완료');
+                        } catch (deleteError) {
+                            console.error('❌ Auth 계정 정리 실패:', deleteError);
+                        }
                     }
                 }
 
-                return { success: false, error: error };
+                return {
+                    success: false,
+                    error: error,
+                    message: '회원가입 중 오류가 발생했습니다.'
+                };
             }
         },
 

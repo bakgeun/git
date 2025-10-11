@@ -495,11 +495,12 @@
     }
 
     /**
-     * 🚀 사용자 프로필 정보 로드
+     * 🚀 사용자 프로필 정보 로드 (수정 버전)
+     * ⭐ Firestore 데이터를 우선적으로 사용하여 이름과 전화번호 표시 문제 해결
      */
     async function loadUserProfile() {
         try {
-            console.log('🔄 사용자 프로필 정보 로딩 시작');
+            console.log('📄 사용자 프로필 정보 로딩 시작');
 
             // 1. Firebase Auth에서 현재 사용자 가져오기
             currentUser = window.authService ? window.authService.getCurrentUser() : null;
@@ -529,27 +530,44 @@
                 console.log('⚠️ Firebase 서비스 미연결 - Auth 데이터만 사용');
             }
 
-            // 3. 통합된 사용자 프로필 구성
+            // 3. 통합된 사용자 프로필 구성 (⭐ 수정된 부분)
             userProfile = {
                 // Firebase Auth 기본 정보
                 uid: currentUser.uid,
                 email: currentUser.email,
-                displayName: currentUser.displayName,
+
+                // ⭐ 수정: Firestore의 displayName을 우선 사용, Auth는 폴백
+                displayName: firestoreData.displayName ||
+                    currentUser.displayName ||
+                    extractNameFromEmail(currentUser.email),
+
                 photoURL: currentUser.photoURL,
                 emailVerified: currentUser.emailVerified,
 
-                // Firestore 추가 정보 (있는 경우)
+                // ⭐ 수정: Firestore에서 전화번호 가져오기 (Auth에는 없음)
                 phoneNumber: firestoreData.phoneNumber || '',
+
+                // Firestore 추가 정보 (있는 경우)
                 birthdate: firestoreData.birthdate || '',
                 address: firestoreData.address || '',
                 gender: firestoreData.gender || '',
+
+                // ⭐ 추가: 주소 분리 필드
+                postalCode: firestoreData.postalCode || '',
+                addressBasic: firestoreData.addressBasic || '',
+                addressDetail: firestoreData.addressDetail || '',
 
                 // 생성/수정 시간
                 createdAt: firestoreData.createdAt || null,
                 updatedAt: firestoreData.updatedAt || null
             };
 
-            console.log('✅ 통합 사용자 프로필 구성 완료:', userProfile);
+            console.log('✅ 통합 사용자 프로필 구성 완료:', {
+                email: userProfile.email,
+                displayName: userProfile.displayName,
+                phoneNumber: userProfile.phoneNumber,
+                hasFirestoreData: Object.keys(firestoreData).length > 0
+            });
 
             // 4. 폼에 데이터 채우기
             await populateUserInfo(userProfile);
@@ -627,12 +645,28 @@
                 console.log('✅ 생년월일 필드 설정:', userData.birthdate);
             }
 
-            // 주소 필드
-            const addressField = document.getElementById('address');
-            if (addressField) {
-                addressField.value = userData.address || '';
-                console.log('✅ 주소 필드 설정:', userData.address);
+            // 🆕 주소 필드 (분리된 필드로 설정)
+            const postalCodeField = document.getElementById('postal-code');
+            const addressBasicField = document.getElementById('address-basic');
+            const addressDetailField = document.getElementById('address-detail');
+
+            if (postalCodeField && userData.postalCode) {
+                postalCodeField.value = userData.postalCode;
+                console.log('✅ 우편번호 필드 설정:', userData.postalCode);
             }
+
+            if (addressBasicField && userData.addressBasic) {
+                addressBasicField.value = userData.addressBasic;
+                console.log('✅ 기본주소 필드 설정:', userData.addressBasic);
+            }
+
+            if (addressDetailField && userData.addressDetail) {
+                addressDetailField.value = userData.addressDetail;
+                console.log('✅ 상세주소 필드 설정:', userData.addressDetail);
+            }
+
+            // 전체 주소 업데이트
+            updateFullAddress();
 
             // 성별 라디오 버튼
             if (userData.gender) {
@@ -652,19 +686,115 @@
     }
 
     /**
+     * 주소 검색 시스템 초기화
+     */
+    function initAddressSearch() {
+        console.log('🏠 주소 검색 시스템 초기화');
+
+        const addressSearchBtn = document.getElementById('address-search-btn');
+        if (!addressSearchBtn) {
+            console.warn('⚠️ 주소 검색 버튼을 찾을 수 없습니다.');
+            return;
+        }
+
+        // 주소 검색 버튼 클릭 이벤트
+        addressSearchBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            openAddressSearch();
+        });
+
+        // 상세 주소 입력 시 전체 주소 업데이트
+        const addressDetailInput = document.getElementById('address-detail');
+        if (addressDetailInput) {
+            addressDetailInput.addEventListener('input', updateFullAddress);
+        }
+
+        console.log('✅ 주소 검색 시스템 초기화 완료');
+    }
+
+    /**
+     * Daum 우편번호 API 열기
+     */
+    function openAddressSearch() {
+        console.log('🔍 Daum 우편번호 검색 실행');
+
+        // Daum API 로드 확인
+        if (typeof daum === 'undefined' || !daum.Postcode) {
+            showNotification('주소 검색 서비스를 준비 중입니다. 잠시 후 다시 시도해주세요.', 'error');
+            console.error('❌ Daum Postcode API가 로드되지 않았습니다.');
+            return;
+        }
+
+        try {
+            new daum.Postcode({
+                oncomplete: function (data) {
+                    console.log('✅ 주소 선택 완료:', data);
+
+                    // 우편번호와 기본 주소 입력
+                    const postalCodeInput = document.getElementById('postal-code');
+                    const addressBasicInput = document.getElementById('address-basic');
+                    const addressDetailInput = document.getElementById('address-detail');
+
+                    if (postalCodeInput) postalCodeInput.value = data.zonecode;
+                    if (addressBasicInput) addressBasicInput.value = data.address;
+
+                    // 상세 주소 입력 필드로 포커스 이동
+                    if (addressDetailInput) {
+                        addressDetailInput.focus();
+                    }
+
+                    // 전체 주소 업데이트
+                    updateFullAddress();
+
+                    // 성공 메시지 표시
+                    showNotification('주소가 입력되었습니다. 상세 주소를 입력해주세요.', 'success');
+                }
+            }).open();
+
+        } catch (error) {
+            console.error('❌ 주소 검색 실행 오류:', error);
+            showNotification('주소 검색을 실행할 수 없습니다.', 'error');
+        }
+    }
+
+    /**
+     * 전체 주소 업데이트
+     */
+    function updateFullAddress() {
+        const postalCode = document.getElementById('postal-code')?.value || '';
+        const basicAddress = document.getElementById('address-basic')?.value || '';
+        const detailAddress = document.getElementById('address-detail')?.value || '';
+
+        // 전체 주소 조합
+        let fullAddress = '';
+        if (postalCode && basicAddress) {
+            fullAddress = `(${postalCode}) ${basicAddress}`;
+            if (detailAddress) {
+                fullAddress += ` ${detailAddress}`;
+            }
+        }
+
+        // hidden 필드에 전체 주소 저장 (서버 전송용)
+        const fullAddressInput = document.getElementById('address-full');
+        if (fullAddressInput) {
+            fullAddressInput.value = fullAddress;
+        }
+
+        console.log('📮 전체 주소 업데이트:', fullAddress);
+    }
+
+    /**
      * 이벤트 리스너 설정
      */
     function setupEventListeners() {
         try {
-            console.log('🔄 이벤트 리스너 설정 시작');
+            console.log('📄 이벤트 리스너 설정 시작');
 
             // 개인정보 수정 폼 제출
             const personalInfoForm = document.getElementById('personal-info-form');
             if (personalInfoForm) {
-                // 기존 이벤트 리스너 제거
                 personalInfoForm.replaceWith(personalInfoForm.cloneNode(true));
                 const newPersonalInfoForm = document.getElementById('personal-info-form');
-
                 newPersonalInfoForm.addEventListener('submit', handlePersonalInfoSubmit);
                 console.log('✅ 개인정보 수정 폼 이벤트 설정');
             }
@@ -672,13 +802,14 @@
             // 비밀번호 변경 폼 제출
             const passwordForm = document.getElementById('password-change-form');
             if (passwordForm) {
-                // 기존 이벤트 리스너 제거
                 passwordForm.replaceWith(passwordForm.cloneNode(true));
                 const newPasswordForm = document.getElementById('password-change-form');
-
                 newPasswordForm.addEventListener('submit', handlePasswordChange);
                 console.log('✅ 비밀번호 변경 폼 이벤트 설정');
             }
+
+            // 🆕 주소 검색 시스템 초기화
+            initAddressSearch();
 
             console.log('✅ 모든 이벤트 리스너 설정 완료');
 
@@ -702,8 +833,13 @@
                 displayName: formData.get('name'),
                 phoneNumber: formData.get('phone'),
                 birthdate: formData.get('birthdate'),
-                address: formData.get('address'),
-                gender: formData.get('gender')
+                gender: formData.get('gender'),
+
+                // 🆕 주소 정보 (분리 저장)
+                postalCode: formData.get('postal-code') || '',
+                addressBasic: formData.get('address-basic') || '',
+                addressDetail: formData.get('address-detail') || '',
+                address: formData.get('address') || '' // 전체 주소 (호환성)
             };
 
             console.log('📋 수집된 폼 데이터:', userData);

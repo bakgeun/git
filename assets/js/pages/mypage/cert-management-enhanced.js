@@ -2034,7 +2034,7 @@
     /**
      * 데이터 새로고침
      */
-    async function refreshData() {
+    async function refreshData(showToast = false) {  // 👈 매개변수 추가
         try {
             showLoadingState(true);
 
@@ -2048,7 +2048,10 @@
             renderProgressList();
             checkRenewalNeeded();
 
-            showNotification('데이터가 새로고침되었습니다.', 'success');
+            // 👇 조건부로만 Toast 표시
+            if (showToast) {
+                showNotification('데이터가 새로고침되었습니다.', 'success');
+            }
         } catch (error) {
             console.error('데이터 새로고침 오류:', error);
             showNotification('데이터 새로고침 중 오류가 발생했습니다.', 'error');
@@ -2128,18 +2131,20 @@
         // Ctrl+R로 데이터 새로고침
         if (event.ctrlKey && event.key === 'r') {
             event.preventDefault();
-            refreshData();
+            refreshData(true); // 👈 수동 새로고침일 때만 Toast 표시
         }
     });
 
     /**
      * 페이지 가시성 변경 처리
      */
+    /*
     document.addEventListener('visibilitychange', function () {
         if (!document.hidden) {
             setTimeout(refreshData, 1000);
         }
     });
+    */
 
     /**
      * 전역 오류 처리
@@ -2225,7 +2230,7 @@
             updateRenewalProgress,
             updateProcessSteps,
             showNotification,
-            
+
             // Firebase 연동 테스트용 함수들
             testFirebaseConnection: async function () {
                 try {
@@ -2343,7 +2348,7 @@
                 if (btn) {
                     console.log('버튼 onclick:', btn.onclick);
                 }
-                
+
                 console.log('전역 함수들:');
                 console.log('- window.findRenewalAddress:', typeof window.findRenewalAddress);
                 console.log('- window.handleAddressSearch:', typeof window.handleAddressSearch);
