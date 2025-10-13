@@ -665,11 +665,23 @@
             }
 
             // 사용자 정보 수집 (개선된 버전)
+            // 사용자 정보 수집 (개선된 버전)
             const email = emailInput.value.trim();
             const password = passwordInput.value;
+
+            // 🔍 디버깅: 전화번호 입력값 확인
+            const phoneValue = phoneInput.value;
+            const phoneNumberClean = phoneValue.replace(/[^0-9]/g, '');
+
+            console.log('🔍 디버깅 - 전화번호 수집:', {
+                원본값: phoneValue,
+                정제된값: phoneNumberClean,
+                길이: phoneNumberClean.length
+            });
+
             const userData = {
                 displayName: nameInput.value.trim(),
-                phoneNumber: phoneInput.value.replace(/[^0-9]/g, ''), // 하이픈 제거
+                phoneNumber: phoneNumberClean, // 하이픈 제거
                 marketingConsent: termsMarketingCheckbox.checked,
                 termsAgreedAt: new Date(),
                 // 추가 메타데이터
@@ -678,7 +690,8 @@
                 registrationIP: null // 실제 서비스에서는 서버에서 설정
             };
 
-            console.log('🔄 회원가입 요청:', { email, userData });
+            console.log('📄 회원가입 요청:', { email, userData });
+            console.log('🔍 최종 전화번호:', userData.phoneNumber);
 
             // 회원가입 시도
             const result = await window.authService.signUp(email, password, userData);
@@ -1159,15 +1172,9 @@
         init();
     }
 
-    // Firebase 인증 상태 변경 리스너
-    if (window.dhcFirebase) {
-        window.dhcFirebase.onAuthStateChanged(function (user) {
-            if (user) {
-                console.log('👤 사용자 로그인 감지, 리디렉션');
-                window.location.href = window.adjustPath('index.html');
-            }
-        });
-    }
+    // ✅ 회원가입 페이지에서는 즉시 리다이렉션하지 않음
+    // handleEmailPasswordSignup 함수에서 명시적으로 처리
+    console.log('📋 회원가입 페이지: 자동 리다이렉션 비활성화');
 
     // 전역 에러 처리
     window.addEventListener('error', function (e) {
