@@ -553,8 +553,7 @@ window.userManager = {
             return window.dhcFirebase &&
                 window.dhcFirebase.db &&
                 window.dbService &&
-                window.dhcFirebase.auth &&
-                window.dhcFirebase.auth.currentUser;
+                window.dhcFirebase.auth;
         } catch (error) {
             console.log('Firebase 가용성 확인 오류:', error);
             return false;
@@ -648,7 +647,14 @@ window.userManager = {
             let users = [];
 
             if (this.isFirebaseAvailable()) {
-                // 1. Firebase Auth의 모든 사용자 가져오기 (Admin SDK가 없으므로 Firestore에서)
+                // ✅ 인증 상태 확인 (선택사항)
+                const currentUser = window.dhcFirebase.getCurrentUser();
+                if (!currentUser) {
+                    console.log('⚠️ 아직 인증되지 않음, 인증 완료 대기 중...');
+                    return;
+                }
+
+                // 1. Firestore에서 사용자 목록 조회
                 const firestoreResult = await window.dbService.getDocuments('users', {
                     orderBy: { field: 'createdAt', direction: 'desc' },
                     limit: this.pageSize

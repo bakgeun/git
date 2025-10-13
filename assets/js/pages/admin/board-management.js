@@ -377,19 +377,19 @@ window.boardManager = {
 // 🎯 핵심 수정: 폼 데이터 가져오기 함수 개선 (첨부파일 강화)
 // =================================
 
-window.boardManager.getFormData = function() {
+window.boardManager.getFormData = function () {
     try {
         console.log('📋 폼 데이터 수집 시작 (첨부파일 개선)');
-        
+
         const titleInput = document.getElementById('post-title');
         const categorySelect = document.getElementById('post-category');
-        
+
         if (!titleInput || !categorySelect) {
             throw new Error('필수 폼 요소를 찾을 수 없습니다.');
         }
-        
+
         let content = '';
-        
+
         // WYSIWYG 에디터에서 내용 가져오기
         if (this.wysiwygEditor && typeof this.wysiwygEditor.getContent === 'function') {
             content = this.wysiwygEditor.getContent();
@@ -402,29 +402,29 @@ window.boardManager.getFormData = function() {
                 console.log('📝 Hidden textarea에서 내용 로드:', content.length, '자');
             }
         }
-        
+
         // 🎯 첨부파일 정보 수집 (개선된 방식)
         let attachments = [];
-        
+
         console.log('📎 첨부파일 수집 시작...');
-        
+
         // 1순위: WYSIWYG 에디터의 uploadedFiles 배열 사용
         if (this.wysiwygEditor && this.wysiwygEditor.uploadedFiles && Array.isArray(this.wysiwygEditor.uploadedFiles)) {
             console.log('📎 WYSIWYG 에디터에서 첨부파일 확인:', this.wysiwygEditor.uploadedFiles.length, '개');
-            
+
             // 유효한 파일만 필터링
             const validFiles = this.wysiwygEditor.uploadedFiles.filter(file => {
-                const isValid = file && 
-                               typeof file.name === 'string' && file.name.trim() !== '' &&
-                               typeof file.url === 'string' && file.url.trim() !== '';
-                
+                const isValid = file &&
+                    typeof file.name === 'string' && file.name.trim() !== '' &&
+                    typeof file.url === 'string' && file.url.trim() !== '';
+
                 if (!isValid) {
                     console.warn('⚠️ 유효하지 않은 첨부파일 발견:', file);
                 }
-                
+
                 return isValid;
             });
-            
+
             attachments = validFiles.map(file => ({
                 name: file.name.trim(),
                 url: file.url.trim(),
@@ -433,27 +433,27 @@ window.boardManager.getFormData = function() {
                 path: file.path || '',
                 existing: !!file.existing // 기존 파일 여부
             }));
-            
+
             console.log('📎 WYSIWYG 에디터에서 유효한 첨부파일:', attachments.length, '개');
         }
-        
+
         // 2순위: DOM에서 직접 수집 (폴백)
         if (attachments.length === 0) {
             console.log('📎 DOM에서 첨부파일 수집 시도...');
-            
+
             const uploadedFileElements = document.querySelectorAll('#uploaded-files .uploaded-file');
             console.log('📎 DOM에서 발견된 파일 요소:', uploadedFileElements.length, '개');
-            
+
             const domFiles = Array.from(uploadedFileElements)
                 .map(element => {
                     const nameElement = element.querySelector('.file-name');
                     const url = element.dataset.url;
-                    
+
                     if (!nameElement || !url) {
                         console.warn('⚠️ DOM 요소에서 파일 정보 누락:', element);
                         return null;
                     }
-                    
+
                     return {
                         name: nameElement.textContent.trim(),
                         url: url.trim(),
@@ -464,15 +464,15 @@ window.boardManager.getFormData = function() {
                     };
                 })
                 .filter(file => file !== null);
-            
+
             attachments = domFiles;
             console.log('📎 DOM에서 수집된 첨부파일:', attachments.length, '개');
         }
-        
+
         // 3순위: hidden input에서 수집 (추가 폴백)
         if (attachments.length === 0) {
             console.log('📎 Hidden input에서 첨부파일 수집 시도...');
-            
+
             const fileDataInput = document.getElementById('uploaded-files-data');
             if (fileDataInput && fileDataInput.value) {
                 try {
@@ -486,7 +486,7 @@ window.boardManager.getFormData = function() {
                 }
             }
         }
-        
+
         // 최종 첨부파일 정보 로그
         console.log('📎 최종 수집된 첨부파일:', attachments.length, '개');
         if (attachments.length > 0) {
@@ -500,7 +500,7 @@ window.boardManager.getFormData = function() {
                 });
             });
         }
-        
+
         // 기본 데이터 구성
         const formData = {
             title: (titleInput.value || '').trim(),
@@ -508,10 +508,10 @@ window.boardManager.getFormData = function() {
             category: categorySelect.value || '',
             status: 'published'
         };
-        
+
         // 🎯 첨부파일이 있을 때만 추가 (중요: 빈 배열도 명시적으로 포함)
         formData.attachments = attachments;
-        
+
         // undefined 값 제거 및 유효성 검사
         const cleanedData = {};
         for (const [key, value] of Object.entries(formData)) {
@@ -519,7 +519,7 @@ window.boardManager.getFormData = function() {
                 cleanedData[key] = value;
             }
         }
-        
+
         console.log('📋 최종 폼 데이터 요약:', {
             title: cleanedData.title,
             category: cleanedData.category,
@@ -527,16 +527,16 @@ window.boardManager.getFormData = function() {
             attachmentsCount: cleanedData.attachments?.length || 0,
             status: cleanedData.status
         });
-        
+
         // 🎯 중요: 첨부파일 정보가 있으면 상세 로그
         if (cleanedData.attachments && cleanedData.attachments.length > 0) {
             console.log('✅ 첨부파일 정보가 폼 데이터에 포함됨');
         } else {
             console.log('ℹ️ 첨부파일 없음');
         }
-        
+
         return cleanedData;
-        
+
     } catch (error) {
         console.error('❌ 폼 데이터 가져오기 오류:', error);
         return null;
@@ -547,12 +547,12 @@ window.boardManager.getFormData = function() {
 // 🎯 핵심 수정: 게시글 데이터 로드 함수 개선 (첨부파일 강화)
 // =================================
 
-window.boardManager.loadPostData = async function(postId) {
+window.boardManager.loadPostData = async function (postId) {
     console.log('📊 게시글 데이터 로드 시작 (첨부파일 개선):', postId);
 
     try {
         let postData = null;
-        
+
         // 🎯 디버그/테스트 게시글인 경우 테스트 데이터 우선 조회
         if (postId.startsWith('debug-test-post-') || postId.startsWith('test-') || postId.startsWith('local-post-')) {
             console.log('🧪 테스트 게시글 감지, 테스트 데이터에서 우선 조회');
@@ -598,7 +598,7 @@ window.boardManager.loadPostData = async function(postId) {
     }
 };
 
-window.boardManager.loadPostFromTestData = function(postId) {
+window.boardManager.loadPostFromTestData = function (postId) {
     console.log('🧪 테스트 데이터에서 게시글 로드 (첨부파일 개선):', postId);
 
     // 1. 메모리에 저장된 게시글 확인 (우선순위 높음)
@@ -698,7 +698,7 @@ window.boardManager.loadPostFromTestData = function(postId) {
 // 🎯 핵심 수정: 모달에 데이터 채우기 함수 개선 (첨부파일 강화)
 // =================================
 
-window.boardManager.populateModalWithData = async function(postData) {
+window.boardManager.populateModalWithData = async function (postData) {
     console.log('📝 모달에 데이터 채우기 시작 (첨부파일 개선)');
     console.log('📎 처리할 첨부파일:', postData.attachments?.length || 0, '개');
 
@@ -738,7 +738,7 @@ window.boardManager.populateModalWithData = async function(postData) {
         // 🎯 첨부파일 정보 표시 (개선된 로직)
         if (postData.attachments && Array.isArray(postData.attachments) && postData.attachments.length > 0) {
             console.log('📎 첨부파일 표시 시작:', postData.attachments.length, '개');
-            
+
             // 각 첨부파일 정보 로그
             postData.attachments.forEach((file, index) => {
                 console.log(`📎 첨부파일 ${index + 1}:`, {
@@ -748,19 +748,19 @@ window.boardManager.populateModalWithData = async function(postData) {
                     hasUrl: !!file.url
                 });
             });
-            
+
             // 첨부파일 표시 함수 호출
             this.displayExistingAttachments(postData.attachments);
             console.log('✅ 첨부파일 표시 완료');
         } else {
             console.log('ℹ️ 표시할 첨부파일이 없음');
-            
+
             // 첨부파일이 없는 경우 기존 파일 목록 초기화
             const uploadedFilesContainer = document.getElementById('uploaded-files');
             if (uploadedFilesContainer) {
                 uploadedFilesContainer.innerHTML = '';
             }
-            
+
             // WYSIWYG 에디터의 uploadedFiles 배열 초기화
             if (this.wysiwygEditor) {
                 this.wysiwygEditor.uploadedFiles = [];
@@ -779,7 +779,7 @@ window.boardManager.populateModalWithData = async function(postData) {
 // 🎯 핵심 수정: 기존 첨부파일 표시 함수 개선
 // =================================
 
-window.boardManager.displayExistingAttachments = function(attachments) {
+window.boardManager.displayExistingAttachments = function (attachments) {
     console.log('📎 기존 첨부파일 표시 (개선됨):', attachments.length, '개');
 
     const uploadedFilesContainer = document.getElementById('uploaded-files');
@@ -794,14 +794,14 @@ window.boardManager.displayExistingAttachments = function(attachments) {
 
     // 유효한 첨부파일만 필터링
     const validAttachments = attachments.filter(attachment => {
-        const isValid = attachment && 
-                       typeof attachment.name === 'string' && attachment.name.trim() !== '' &&
-                       typeof attachment.url === 'string' && attachment.url.trim() !== '';
-        
+        const isValid = attachment &&
+            typeof attachment.name === 'string' && attachment.name.trim() !== '' &&
+            typeof attachment.url === 'string' && attachment.url.trim() !== '';
+
         if (!isValid) {
             console.warn('⚠️ 유효하지 않은 첨부파일 제외:', attachment);
         }
-        
+
         return isValid;
     });
 
@@ -826,7 +826,7 @@ window.boardManager.displayExistingAttachments = function(attachments) {
         `;
 
         uploadedFilesContainer.appendChild(fileElement);
-        
+
         console.log(`📎 첨부파일 ${index + 1} 표시 완료:`, {
             id: fileId,
             name: attachment.name,
@@ -845,9 +845,9 @@ window.boardManager.displayExistingAttachments = function(attachments) {
             path: attachment.path || '',
             existing: true
         }));
-        
+
         console.log('✅ WYSIWYG 에디터 uploadedFiles 배열 업데이트:', this.wysiwygEditor.uploadedFiles.length, '개');
-        
+
         // 🎯 폼 데이터 동기화 호출
         if (typeof this.wysiwygEditor.syncUploadedFilesToForm === 'function') {
             this.wysiwygEditor.syncUploadedFilesToForm();
@@ -864,7 +864,7 @@ window.boardManager.displayExistingAttachments = function(attachments) {
 // 나머지 기존 함수들 (전체 포함)
 // =================================
 
-window.boardManager.getFileIcon = function(mimeType) {
+window.boardManager.getFileIcon = function (mimeType) {
     if (mimeType.startsWith('image/')) return '🖼️';
     if (mimeType.includes('pdf')) return '📄';
     if (mimeType.includes('word')) return '📝';
@@ -873,7 +873,7 @@ window.boardManager.getFileIcon = function(mimeType) {
     return '📎';
 };
 
-window.boardManager.removeExistingFile = function(fileId) {
+window.boardManager.removeExistingFile = function (fileId) {
     console.log('🗑️ 기존 첨부파일 제거:', fileId);
 
     const fileElement = document.getElementById(fileId);
@@ -891,7 +891,7 @@ window.boardManager.removeExistingFile = function(fileId) {
     this.showNotification('첨부파일이 제거되었습니다.', 'info');
 };
 
-window.boardManager.setFormEditable = function(editable) {
+window.boardManager.setFormEditable = function (editable) {
     console.log('✏️ 폼 편집 가능 상태 설정:', editable);
 
     // 기본 입력 필드들
@@ -945,7 +945,7 @@ window.boardManager.setFormEditable = function(editable) {
     }
 };
 
-window.boardManager.setupModeButtons = function(mode) {
+window.boardManager.setupModeButtons = function (mode) {
     console.log('🔘 모드 버튼 설정:', mode);
 
     // 기존 액션 버튼 영역 찾기
@@ -993,7 +993,7 @@ window.boardManager.setupModeButtons = function(mode) {
     formActions.innerHTML = buttonsHtml;
 };
 
-window.boardManager.switchToEditMode = function() {
+window.boardManager.switchToEditMode = function () {
     console.log('✏️ 수정 모드로 전환');
 
     this.currentModalMode = 'edit';
@@ -1020,7 +1020,7 @@ window.boardManager.switchToEditMode = function() {
     this.showNotification('수정 모드로 전환되었습니다.', 'info');
 };
 
-window.boardManager.switchToViewMode = function() {
+window.boardManager.switchToViewMode = function () {
     console.log('👁️ 보기 모드로 전환');
 
     // 현재 모달 모드 변경
@@ -1108,7 +1108,7 @@ window.boardManager.switchToViewMode = function() {
     }
 };
 
-window.boardManager.displayModal = function(modal) {
+window.boardManager.displayModal = function (modal) {
     console.log('🖼️ 모달 표시');
 
     modal.classList.remove('hidden');
@@ -1124,7 +1124,7 @@ window.boardManager.displayModal = function(modal) {
     }, 200);
 };
 
-window.boardManager.initializeWysiwygEditor = function() {
+window.boardManager.initializeWysiwygEditor = function () {
     console.log('🎨 WYSIWYG 에디터 모달 초기화');
 
     return new Promise((resolve) => {
@@ -1148,7 +1148,7 @@ window.boardManager.initializeWysiwygEditor = function() {
     });
 };
 
-window.boardManager.showBasicTextareaFallback = function() {
+window.boardManager.showBasicTextareaFallback = function () {
     console.log('🔄 기본 textarea 폴백 모드');
 
     const wysiwygEditor = document.getElementById('wysiwyg-editor');
@@ -1165,9 +1165,9 @@ window.boardManager.showBasicTextareaFallback = function() {
     }
 };
 
-window.boardManager.showModalLoading = function(show) {
+window.boardManager.showModalLoading = function (show) {
     let overlay = document.getElementById('modal-loading-overlay');
-    
+
     if (show) {
         if (!overlay) {
             overlay = document.createElement('div');
@@ -1189,9 +1189,9 @@ window.boardManager.showModalLoading = function(show) {
     }
 };
 
-window.boardManager.showNotification = function(message, type = 'info') {
+window.boardManager.showNotification = function (message, type = 'info') {
     console.log(`📢 알림 (${type}):`, message);
-    
+
     // Toast 알림 시스템 사용
     if (typeof showToast === 'function') {
         showToast(message, type);
@@ -1203,13 +1203,13 @@ window.boardManager.showNotification = function(message, type = 'info') {
     }
 };
 
-window.boardManager.formatFileSize = function(bytes) {
+window.boardManager.formatFileSize = function (bytes) {
     if (bytes === 0) return '0 Bytes';
-    
+
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
+
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
@@ -1217,28 +1217,28 @@ window.boardManager.formatFileSize = function(bytes) {
 // 게시글 처리 함수들
 // =================================
 
-window.boardManager.handleCreatePost = async function(event) {
+window.boardManager.handleCreatePost = async function (event) {
     event.preventDefault();
-    
+
     try {
         console.log('📝 게시글 생성 처리 시작 (첨부파일 개선)');
-        
+
         const formData = this.getFormData();
         if (!formData) {
             this.showNotification('폼 데이터를 가져올 수 없습니다.', 'error');
             return;
         }
-        
+
         // 유효성 검사
         if (!this.validatePostData(formData)) {
             return;
         }
-        
+
         // 🎯 첨부파일 정보 추가 검증
         console.log('📎 저장 전 첨부파일 검증...');
         if (formData.attachments && formData.attachments.length > 0) {
             console.log('✅ 첨부파일 정보 확인됨:', formData.attachments.length, '개');
-            
+
             // 각 첨부파일의 유효성 재검증
             const validAttachments = formData.attachments.filter(file => {
                 const isValid = file.name && file.url;
@@ -1247,14 +1247,14 @@ window.boardManager.handleCreatePost = async function(event) {
                 }
                 return isValid;
             });
-            
+
             formData.attachments = validAttachments;
             console.log('📎 최종 유효한 첨부파일:', formData.attachments.length, '개');
         } else {
             console.log('ℹ️ 첨부파일 없이 저장');
             formData.attachments = []; // 명시적으로 빈 배열 설정
         }
-        
+
         // 저장 처리
         let postId;
         if (this.isFirebaseConnected) {
@@ -1265,125 +1265,125 @@ window.boardManager.handleCreatePost = async function(event) {
             postId = 'local-post-' + Date.now();
             this.addTestPostToMemory(formData, postId);
         }
-        
+
         console.log('✅ 게시글 생성 완료:', postId);
         console.log('📎 저장된 첨부파일 수:', formData.attachments?.length || 0);
-        
+
         this.showNotification('게시글이 성공적으로 등록되었습니다.', 'success');
-        
+
         // 모달 닫기 및 목록 새로고침
         this.closePostModal();
         this.loadBoardData();
-        
+
     } catch (error) {
         console.error('❌ 게시글 생성 처리 오류:', error);
         this.showNotification('게시글 등록 중 오류가 발생했습니다: ' + error.message, 'error');
     }
 };
 
-window.boardManager.handleUpdatePost = async function(event, postId) {
+window.boardManager.handleUpdatePost = async function (event, postId) {
     event.preventDefault();
-    
+
     try {
         console.log('✏️ 게시글 수정 처리 시작 (첨부파일 개선):', postId);
-        
+
         const formData = this.getFormData();
         if (!formData) {
             this.showNotification('폼 데이터를 가져올 수 없습니다.', 'error');
             return;
         }
-        
+
         // 유효성 검사
         if (!this.validatePostData(formData)) {
             return;
         }
-        
+
         // 🎯 테스트 게시글인지 확인
-        const isTestPost = postId.startsWith('debug-test-post-') || 
-                          postId.startsWith('test-') || 
-                          postId.startsWith('local-post-');
-        
+        const isTestPost = postId.startsWith('debug-test-post-') ||
+            postId.startsWith('test-') ||
+            postId.startsWith('local-post-');
+
         if (isTestPost) {
             console.log('🧪 테스트 게시글 수정 - 메모리 처리');
             this.updateTestPostInMemory(postId, formData);
-            
+
             console.log('✅ 테스트 게시글 수정 완료 (메모리)');
             console.log('📎 수정된 첨부파일 수:', formData.attachments?.length || 0);
             this.showNotification('테스트 게시글이 성공적으로 수정되었습니다.', 'success');
-            
+
         } else if (this.isFirebaseConnected) {
             console.log('🔥 Firebase 게시글 수정');
-            
+
             try {
                 await this.updatePostInFirebase(postId, formData);
-                
+
                 console.log('✅ Firebase 게시글 수정 완료');
                 console.log('📎 수정된 첨부파일 수:', formData.attachments?.length || 0);
                 this.showNotification('게시글이 성공적으로 수정되었습니다.', 'success');
-                
+
             } catch (firebaseError) {
                 console.error('❌ Firebase 수정 실패:', firebaseError);
-                
+
                 // Firebase 실패 시 테스트 데이터로 폴백
                 console.log('🔄 Firebase 실패, 테스트 데이터로 폴백 처리');
                 this.updateTestPostInMemory(postId, formData);
-                
+
                 this.showNotification('Firebase 연결 오류로 로컬에 임시 저장되었습니다.', 'warning');
             }
-            
+
         } else {
             console.log('🧪 오프라인 모드 - 테스트 데이터 수정');
             this.updateTestPostInMemory(postId, formData);
-            
+
             console.log('✅ 오프라인 게시글 수정 완료');
             console.log('📎 수정된 첨부파일 수:', formData.attachments?.length || 0);
             this.showNotification('게시글이 로컬에 저장되었습니다.', 'success');
         }
-        
+
         // 🎯 수정 완료 후 모달 닫기
         this.closePostModal();
-        
+
         // 목록 새로고침 (실제 게시글만)
         if (!isTestPost) {
             this.loadBoardData();
         }
-        
+
     } catch (error) {
         console.error('❌ 게시글 수정 처리 오류:', error);
         this.showNotification('게시글 수정 중 오류가 발생했습니다: ' + error.message, 'error');
     }
 };
 
-window.boardManager.validatePostData = function(formData) {
+window.boardManager.validatePostData = function (formData) {
     if (!formData.title) {
         this.showNotification('제목을 입력해주세요.', 'error');
         return false;
     }
-    
+
     if (!formData.content) {
         this.showNotification('내용을 입력해주세요.', 'error');
         return false;
     }
-    
+
     if (!formData.category) {
         this.showNotification('카테고리를 선택해주세요.', 'error');
         return false;
     }
-    
+
     return true;
 };
 
-window.boardManager.viewPost = function(postId) {
+window.boardManager.viewPost = function (postId) {
     console.log('👁️ 게시글 상세보기:', postId);
     this.showPostModal('view', postId);
 };
 
-window.boardManager.editPost = function(postId) {
+window.boardManager.editPost = function (postId) {
     console.log('✏️ 게시글 수정:', postId);
     this.showPostModal('edit', postId);
 };
 
-window.boardManager.deletePost = function(postId) {
+window.boardManager.deletePost = function (postId) {
     console.log('🗑️ 게시글 삭제:', postId);
 
     if (confirm('정말로 이 게시글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
@@ -1391,7 +1391,7 @@ window.boardManager.deletePost = function(postId) {
     }
 };
 
-window.boardManager.handleDeletePost = async function(postId) {
+window.boardManager.handleDeletePost = async function (postId) {
     try {
         console.log('🗑️ 게시글 삭제 처리 시작:', postId);
 
@@ -1436,30 +1436,30 @@ window.boardManager.handleDeletePost = async function(postId) {
     }
 };
 
-window.boardManager.closePostModal = function() {
+window.boardManager.closePostModal = function () {
     console.log('✖️ 게시글 모달 닫기');
-    
+
     const modal = document.getElementById('post-modal');
     if (modal) {
         modal.classList.add('hidden');
     }
-    
+
     // 모달 상태 초기화
     this.currentModalMode = null;
     this.currentPostData = null;
-    
+
     // 폼 초기화
     const form = document.getElementById('post-form');
     if (form) {
         form.reset();
         form.removeAttribute('data-post-id');
     }
-    
+
     // WYSIWYG 에디터 클리어
     if (this.wysiwygEditor && typeof this.wysiwygEditor.clear === 'function') {
         this.wysiwygEditor.clear();
     }
-    
+
     // 업로드된 파일 목록 클리어
     const uploadedFilesContainer = document.getElementById('uploaded-files');
     if (uploadedFilesContainer) {
@@ -1471,7 +1471,7 @@ window.boardManager.closePostModal = function() {
 // Firebase 연동 함수들
 // =================================
 
-window.boardManager.saveToFirebase = async function(postData) {
+window.boardManager.saveToFirebase = async function (postData) {
     console.log('💾 Firebase에 게시글 저장 시작 (첨부파일 개선)');
     console.log('📎 저장할 첨부파일:', postData.attachments?.length || 0, '개');
 
@@ -1514,7 +1514,7 @@ window.boardManager.saveToFirebase = async function(postData) {
                     path: file.path || '',
                     uploadedAt: new Date().toISOString()
                 }));
-            
+
             console.log('📎 Firebase 저장용 첨부파일 처리:', processedAttachments.length, '개');
         }
 
@@ -1578,7 +1578,7 @@ window.boardManager.saveToFirebase = async function(postData) {
     }
 };
 
-window.boardManager.loadPostFromFirebase = async function(postId) {
+window.boardManager.loadPostFromFirebase = async function (postId) {
     console.log('🔥 Firebase에서 게시글 로드 (첨부파일 개선):', postId);
 
     const collectionMap = {
@@ -1616,7 +1616,7 @@ window.boardManager.loadPostFromFirebase = async function(postId) {
         console.log('📎 Firebase 첨부파일 상세 정보:');
         postData.attachments.forEach((file, index) => {
             console.log(`📎 ${index + 1}. ${file.name} (${file.type})`);
-            
+
             // 필수 필드 검증
             if (!file.name || !file.url) {
                 console.warn(`⚠️ 첨부파일 ${index + 1}에 필수 정보 누락:`, file);
@@ -1631,36 +1631,36 @@ window.boardManager.loadPostFromFirebase = async function(postId) {
     return postData;
 };
 
-window.boardManager.updatePostInFirebase = async function(postId, formData) {
+window.boardManager.updatePostInFirebase = async function (postId, formData) {
     console.log('🔥 Firebase에서 게시글 수정 (첨부파일 개선):', postId);
     console.log('📎 수정할 첨부파일:', formData.attachments?.length || 0, '개');
-    
+
     const collectionMap = {
         'notice': 'notices',
         'column': 'columns',
         'materials': 'materials',
         'videos': 'videos'
     };
-    
+
     const collectionName = collectionMap[this.currentBoardType] || 'notices';
-    
+
     if (!window.dhcFirebase || !window.dhcFirebase.db) {
         throw new Error('Firebase가 초기화되지 않았습니다.');
     }
-    
+
     // 🎯 안전한 업데이트 데이터 구성 (첨부파일 포함)
     const updateData = {};
-    
+
     // 필수 필드들
     if (formData.title !== undefined) updateData.title = formData.title;
     if (formData.content !== undefined) updateData.content = formData.content;
     if (formData.category !== undefined) updateData.category = formData.category;
     if (formData.status !== undefined) updateData.status = formData.status;
-    
+
     // 🎯 첨부파일 필드 (중요: undefined가 아닌 경우 항상 포함)
     if (formData.attachments !== undefined) {
         // 첨부파일 데이터 정제
-        const processedAttachments = Array.isArray(formData.attachments) 
+        const processedAttachments = Array.isArray(formData.attachments)
             ? formData.attachments
                 .filter(file => file && file.name && file.url) // 유효한 파일만
                 .map(file => ({
@@ -1672,14 +1672,14 @@ window.boardManager.updatePostInFirebase = async function(postId, formData) {
                     updatedAt: new Date().toISOString()
                 }))
             : [];
-        
+
         updateData.attachments = processedAttachments;
         console.log('📎 Firebase 업데이트용 첨부파일 처리:', processedAttachments.length, '개');
     }
-    
+
     // 시스템 필드
     updateData.updatedAt = window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp();
-    
+
     console.log('🔥 Firebase 업데이트 데이터:', {
         title: updateData.title,
         category: updateData.category,
@@ -1687,24 +1687,24 @@ window.boardManager.updatePostInFirebase = async function(postId, formData) {
         attachmentsCount: updateData.attachments?.length || 0,
         hasAttachments: updateData.attachments !== undefined
     });
-    
+
     try {
         await window.dhcFirebase.db.collection(collectionName).doc(postId).update(updateData);
         console.log('✅ Firebase 수정 완료');
-        
+
         // 🎯 첨부파일 업데이트 결과 로그
         if (updateData.attachments !== undefined) {
             console.log('📎 Firebase에 업데이트된 첨부파일 수:', updateData.attachments.length);
         }
-        
+
     } catch (error) {
         console.error('❌ Firebase 수정 실패:', error);
-        
+
         // 에러 상세 정보 로그
         console.error('업데이트 시도 데이터:', updateData);
         console.error('컬렉션명:', collectionName);
         console.error('문서 ID:', postId);
-        
+
         throw error;
     }
 };
@@ -1713,10 +1713,10 @@ window.boardManager.updatePostInFirebase = async function(postId, formData) {
 // 테스트 데이터 관련 함수들
 // =================================
 
-window.boardManager.addTestPostToMemory = function(postData, postId) {
+window.boardManager.addTestPostToMemory = function (postData, postId) {
     console.log('🧪 테스트 게시글을 메모리에 추가 (첨부파일 개선):', postId);
     console.log('📎 추가할 첨부파일 수:', postData.attachments?.length || 0);
-    
+
     if (!window.testBoardPosts) {
         window.testBoardPosts = {};
     }
@@ -1742,10 +1742,10 @@ window.boardManager.addTestPostToMemory = function(postData, postId) {
     };
 
     window.testBoardPosts[this.currentBoardType].unshift(newPost);
-    
+
     console.log('✅ 테스트 게시글이 메모리에 추가됨:', newPost.title);
     console.log('📎 메모리에 저장된 첨부파일:', newPost.attachments?.length || 0, '개');
-    
+
     // 🎯 첨부파일 정보 상세 로그
     if (newPost.attachments && newPost.attachments.length > 0) {
         newPost.attachments.forEach((file, index) => {
@@ -1758,15 +1758,15 @@ window.boardManager.addTestPostToMemory = function(postData, postId) {
     }
 };
 
-window.boardManager.updateTestPostInMemory = function(postId, formData) {
+window.boardManager.updateTestPostInMemory = function (postId, formData) {
     console.log('🧪 메모리에서 테스트 게시글 수정 (첨부파일 개선):', postId);
     console.log('📎 수정할 첨부파일 수:', formData.attachments?.length || 0);
-    
+
     try {
         // 현재 게시판의 테스트 데이터에서 수정
         if (window.testBoardPosts && window.testBoardPosts[this.currentBoardType]) {
             const postIndex = window.testBoardPosts[this.currentBoardType].findIndex(post => post.id === postId);
-            
+
             if (postIndex !== -1) {
                 // 🎯 기존 데이터와 새 데이터 병합 (첨부파일 포함)
                 const updatedPost = {
@@ -1776,22 +1776,22 @@ window.boardManager.updateTestPostInMemory = function(postId, formData) {
                     attachments: formData.attachments || [],
                     updatedAt: new Date()
                 };
-                
+
                 window.testBoardPosts[this.currentBoardType][postIndex] = updatedPost;
-                
+
                 console.log('✅ 현재 게시판에서 게시글 수정 완료');
                 console.log('📎 수정된 첨부파일:', updatedPost.attachments.length, '개');
-                
+
                 return true;
             }
         }
-        
+
         // 전체 테스트 데이터에서 검색 후 수정
         if (window.testBoardPosts) {
             for (const boardType in window.testBoardPosts) {
                 const posts = window.testBoardPosts[boardType];
                 const postIndex = posts.findIndex(post => post.id === postId);
-                
+
                 if (postIndex !== -1) {
                     // 🎯 첨부파일 정보 포함하여 수정
                     const updatedPost = {
@@ -1800,26 +1800,26 @@ window.boardManager.updateTestPostInMemory = function(postId, formData) {
                         attachments: formData.attachments || [],
                         updatedAt: new Date()
                     };
-                    
+
                     posts[postIndex] = updatedPost;
-                    
+
                     console.log(`✅ ${boardType} 게시판에서 게시글 수정 완료`);
                     console.log('📎 수정된 첨부파일:', updatedPost.attachments.length, '개');
                     return true;
                 }
             }
         }
-        
+
         // 게시글을 찾지 못한 경우 새로 생성
         console.log('⚠️ 게시글을 찾지 못해 새로 생성:', postId);
-        
+
         if (!window.testBoardPosts) {
             window.testBoardPosts = {};
         }
         if (!window.testBoardPosts[this.currentBoardType]) {
             window.testBoardPosts[this.currentBoardType] = [];
         }
-        
+
         const newPost = {
             id: postId,
             ...formData,
@@ -1831,20 +1831,20 @@ window.boardManager.updateTestPostInMemory = function(postId, formData) {
             createdAt: new Date(),
             updatedAt: new Date()
         };
-        
+
         window.testBoardPosts[this.currentBoardType].unshift(newPost);
         console.log('✅ 새 테스트 게시글 생성 완료');
         console.log('📎 생성된 첨부파일:', newPost.attachments.length, '개');
-        
+
         return true;
-        
+
     } catch (error) {
         console.error('❌ 테스트 게시글 수정 실패:', error);
         return false;
     }
 };
 
-window.boardManager.generateDefaultTestData = function() {
+window.boardManager.generateDefaultTestData = function () {
     const testPosts = [];
     const currentDate = new Date();
 
@@ -1893,17 +1893,17 @@ window.boardManager.generateDefaultTestData = function() {
     }
 
     console.log(`🧪 기본 테스트 데이터 ${testPosts.length}개 생성 완료`);
-    
+
     // 첨부파일 포함 게시글 수 로그
-    const postsWithAttachments = testPosts.filter(post => 
+    const postsWithAttachments = testPosts.filter(post =>
         post.attachments && post.attachments.length > 0
     );
     console.log(`📎 첨부파일 포함 게시글: ${postsWithAttachments.length}개`);
-    
+
     return testPosts;
 };
 
-window.boardManager.getTestData = function() {
+window.boardManager.getTestData = function () {
     console.log('🧪 테스트 데이터 생성 중...');
 
     // 메모리에 저장된 게시글이 있는지 확인
@@ -1923,7 +1923,7 @@ window.boardManager.getTestData = function() {
     return this.generateDefaultTestData();
 };
 
-window.boardManager.getTestCategory = function() {
+window.boardManager.getTestCategory = function () {
     const categories = this.getCategoriesByBoardType(this.currentBoardType);
     const categoryKeys = Object.keys(categories);
     return categoryKeys[Math.floor(Math.random() * categoryKeys.length)];
@@ -1933,7 +1933,7 @@ window.boardManager.getTestCategory = function() {
 // 게시판 관련 함수들
 // =================================
 
-window.boardManager.initBoardTabs = function() {
+window.boardManager.initBoardTabs = function () {
     console.log('📋 게시판 탭 초기화');
 
     const boardTabs = document.querySelectorAll('.board-tab');
@@ -1944,7 +1944,7 @@ window.boardManager.initBoardTabs = function() {
     }
 };
 
-window.boardManager.updateTabUI = function(boardType) {
+window.boardManager.updateTabUI = function (boardType) {
     console.log('📋 탭 UI 업데이트:', boardType);
 
     const tabs = document.querySelectorAll('.board-tab');
@@ -1965,13 +1965,13 @@ window.boardManager.updateTabUI = function(boardType) {
     }
 };
 
-window.boardManager.registerTabEvents = function() {
+window.boardManager.registerTabEvents = function () {
     const boardTabs = document.querySelectorAll('.board-tab');
     const self = this;
 
     boardTabs.forEach(tab => {
         tab.removeEventListener('click', tab._clickHandler);
-        tab._clickHandler = function(e) {
+        tab._clickHandler = function (e) {
             e.preventDefault();
             const boardType = this.getAttribute('data-board');
             if (boardType) {
@@ -1982,37 +1982,37 @@ window.boardManager.registerTabEvents = function() {
     });
 };
 
-window.boardManager.switchBoard = function(boardType) {
+window.boardManager.switchBoard = function (boardType) {
     console.log(`🔄 게시판 전환: ${this.currentBoardType} → ${boardType}`);
-    
+
     if (this.currentBoardType === boardType) {
         console.log('동일한 게시판이므로 전환하지 않음');
         return;
     }
-    
+
     this.currentBoardType = boardType;
     this.currentPage = 1;
     this.lastDoc = null;
-    
+
     // 탭 UI 업데이트
     this.updateTabUI(boardType);
-    
+
     // 검색 조건 초기화
     this.resetSearchInputs();
-    
+
     // 데이터 로드
     this.loadBoardData();
 };
 
-window.boardManager.resetSearchInputs = function() {
+window.boardManager.resetSearchInputs = function () {
     const searchType = document.getElementById('search-type');
     const searchKeyword = document.getElementById('search-keyword');
-    
+
     if (searchType) searchType.value = 'title';
     if (searchKeyword) searchKeyword.value = '';
 };
 
-window.boardManager.getBoardTypeName = function(boardType) {
+window.boardManager.getBoardTypeName = function (boardType) {
     switch (boardType) {
         case 'notice': return '공지사항';
         case 'column': return '칼럼';
@@ -2022,7 +2022,7 @@ window.boardManager.getBoardTypeName = function(boardType) {
     }
 };
 
-window.boardManager.getCategoriesByBoardType = function(boardType) {
+window.boardManager.getCategoriesByBoardType = function (boardType) {
     switch (boardType) {
         case 'notice':
             return {
@@ -2057,7 +2057,7 @@ window.boardManager.getCategoriesByBoardType = function(boardType) {
     }
 };
 
-window.boardManager.setupCategoryOptions = function(selectElement) {
+window.boardManager.setupCategoryOptions = function (selectElement) {
     if (!selectElement) return;
 
     selectElement.innerHTML = '';
@@ -2081,20 +2081,20 @@ window.boardManager.setupCategoryOptions = function(selectElement) {
 // 데이터 로드 및 표시 함수들
 // =================================
 
-window.boardManager.loadBoardDataWithRetry = async function(retryCount = 0) {
+window.boardManager.loadBoardDataWithRetry = async function (retryCount = 0) {
     const maxRetries = 3;
-    
+
     try {
         console.log(`📊 게시판 데이터 로드 시도 ${retryCount + 1}/${maxRetries + 1}`);
         await this.loadBoardData();
-        
+
     } catch (error) {
         console.error(`❌ 게시판 데이터 로드 실패 (시도 ${retryCount + 1}):`, error);
-        
+
         if (retryCount < maxRetries) {
             const delay = (retryCount + 1) * 1000; // 1초, 2초, 3초 지연
             console.log(`🔄 ${delay}ms 후 재시도...`);
-            
+
             setTimeout(() => {
                 this.loadBoardDataWithRetry(retryCount + 1);
             }, delay);
@@ -2105,19 +2105,19 @@ window.boardManager.loadBoardDataWithRetry = async function(retryCount = 0) {
     }
 };
 
-window.boardManager.loadBoardData = async function() {
+window.boardManager.loadBoardData = async function () {
     try {
         console.log(`📊 게시판 데이터 로드: ${this.currentBoardType}`);
-        
+
         this.showLoadingState();
-        
+
         let posts = [];
         let totalCount = 0;
-        
+
         // 검색 조건 가져오기
         const searchType = document.getElementById('search-type')?.value || 'title';
         const searchKeyword = document.getElementById('search-keyword')?.value?.trim() || '';
-        
+
         if (this.isFirebaseConnected) {
             // Firebase에서 데이터 로드
             const result = await this.loadBoardDataFromFirebase(searchType, searchKeyword);
@@ -2126,97 +2126,115 @@ window.boardManager.loadBoardData = async function() {
         } else {
             // 테스트 데이터 로드
             const allPosts = this.getTestData();
-            
+
             // 검색 필터링
             if (searchKeyword) {
                 posts = this.filterPosts(allPosts, searchType, searchKeyword);
             } else {
                 posts = allPosts;
             }
-            
+
             totalCount = posts.length;
-            
+
             // 페이지네이션 적용
             const startIndex = (this.currentPage - 1) * this.pageSize;
             const endIndex = startIndex + this.pageSize;
             posts = posts.slice(startIndex, endIndex);
         }
-        
+
         console.log(`📊 로드된 게시글: ${posts.length}개 (전체: ${totalCount}개)`);
-        
+
         // UI 업데이트
         this.updateBoardList(posts);
-        
+
         // 페이지네이션 업데이트
         const totalPages = Math.ceil(totalCount / this.pageSize);
         this.updatePagination(totalPages);
-        
+
         // 검색 결과 메시지 업데이트
         this.updateSearchResultMessage(totalCount, searchKeyword);
-        
+
     } catch (error) {
         console.error('❌ 게시판 데이터 로드 오류:', error);
         this.showErrorMessage('게시판 데이터를 불러오는 중 오류가 발생했습니다: ' + error.message);
     }
 };
 
-window.boardManager.loadBoardDataFromFirebase = async function(searchType, searchKeyword) {
+window.boardManager.loadBoardDataFromFirebase = async function (searchType, searchKeyword) {
     console.log('🔥 Firebase에서 데이터 로드');
-    
+
     const collectionMap = {
         'notice': 'notices',
-        'column': 'columns', 
+        'column': 'columns',
         'materials': 'materials',
         'videos': 'videos'
     };
-    
+
     const collectionName = collectionMap[this.currentBoardType] || 'notices';
-    
+
     if (!window.dhcFirebase || !window.dhcFirebase.db) {
         throw new Error('Firebase가 초기화되지 않았습니다.');
     }
-    
-    let query = window.dhcFirebase.db.collection(collectionName);
-    
-    // 기본 정렬 (최신순)
-    query = query.orderBy('createdAt', 'desc');
-    
-    // 페이지네이션 적용
-    if (this.lastDoc && this.currentPage > 1) {
-        query = query.startAfter(this.lastDoc);
-    }
-    
-    query = query.limit(this.pageSize);
-    
-    const snapshot = await query.get();
-    
-    const posts = [];
-    snapshot.forEach(doc => {
-        posts.push({
-            id: doc.id,
-            ...doc.data()
-        });
-    });
-    
-    // 마지막 문서 저장 (페이지네이션용)
-    this.lastDoc = snapshot.docs[snapshot.docs.length - 1];
-    
-    // 검색 필터링 (클라이언트 사이드)
-    let filteredPosts = posts;
+
+    // 🎯 1단계: 전체 게시글 수 조회 (검색 조건 적용)
+    let countQuery = window.dhcFirebase.db.collection(collectionName);
+
+    // 검색 조건이 있으면 적용 (주의: Firestore는 클라이언트 필터링 필요)
+    let allDocs = [];
     if (searchKeyword) {
-        filteredPosts = this.filterPosts(posts, searchType, searchKeyword);
+        // 전체 문서를 가져와서 클라이언트에서 필터링
+        const allSnapshot = await countQuery.get();
+        allDocs = [];
+        allSnapshot.forEach(doc => {
+            const data = { id: doc.id, ...doc.data() };
+            // 검색 조건 적용
+            let matches = false;
+            switch (searchType) {
+                case 'title':
+                    matches = data.title && data.title.toLowerCase().includes(searchKeyword.toLowerCase());
+                    break;
+                case 'content':
+                    matches = data.content && data.content.toLowerCase().includes(searchKeyword.toLowerCase());
+                    break;
+                case 'author':
+                    const author = (data.author || data.authorName || '').toLowerCase();
+                    matches = author.includes(searchKeyword.toLowerCase());
+                    break;
+            }
+            if (matches) {
+                allDocs.push(data);
+            }
+        });
+    } else {
+        // 검색 조건이 없으면 전체 개수만 조회
+        const countSnapshot = await countQuery.get();
+        allDocs = countSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     }
-    
-    // 전체 개수는 대략적으로 계산 (실제로는 별도 쿼리 필요)
-    const totalCount = filteredPosts.length;
-    
+
+    const totalCount = allDocs.length;
+
+    // 🎯 2단계: 페이지네이션 적용하여 현재 페이지 데이터만 가져오기
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+
+    // 날짜순 정렬
+    allDocs.sort((a, b) => {
+        const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
+        const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
+        return dateB - dateA; // 최신순
+    });
+
+    const posts = allDocs.slice(startIndex, endIndex);
+
+    console.log(`📊 전체: ${totalCount}개, 현재 페이지: ${posts.length}개`);
+
     return {
-        posts: filteredPosts,
+        posts: posts,
         totalCount: totalCount
     };
 };
 
-window.boardManager.filterPosts = function(posts, searchType, searchKeyword) {
+window.boardManager.filterPosts = function (posts, searchType, searchKeyword) {
     const searchLower = searchKeyword.toLowerCase();
 
     return posts.filter(post => {
@@ -2234,10 +2252,10 @@ window.boardManager.filterPosts = function(posts, searchType, searchKeyword) {
     });
 };
 
-window.boardManager.updateSearchResultMessage = function(totalCount, searchKeyword) {
+window.boardManager.updateSearchResultMessage = function (totalCount, searchKeyword) {
     const searchResultElement = document.getElementById('search-result-message');
     if (!searchResultElement) return;
-    
+
     if (searchKeyword) {
         searchResultElement.innerHTML = `
             <div class="text-sm text-gray-600 mb-4">
@@ -2253,7 +2271,7 @@ window.boardManager.updateSearchResultMessage = function(totalCount, searchKeywo
     }
 };
 
-window.boardManager.showLoadingState = function() {
+window.boardManager.showLoadingState = function () {
     const tableBody = document.querySelector('#board-table tbody');
     if (tableBody) {
         tableBody.innerHTML = `
@@ -2267,7 +2285,7 @@ window.boardManager.showLoadingState = function() {
     }
 };
 
-window.boardManager.showErrorMessage = function(message) {
+window.boardManager.showErrorMessage = function (message) {
     const tableBody = document.querySelector('#board-table tbody');
     if (tableBody) {
         tableBody.innerHTML = `
@@ -2293,7 +2311,7 @@ window.boardManager.showErrorMessage = function(message) {
 // 게시글 목록 표시 및 이벤트 처리
 // =================================
 
-window.boardManager.updateBoardList = function(posts) {
+window.boardManager.updateBoardList = function (posts) {
     const tableBody = document.querySelector('#board-table tbody');
     if (!tableBody) {
         console.error('게시글 목록 테이블을 찾을 수 없습니다.');
@@ -2403,12 +2421,12 @@ window.boardManager.updateBoardList = function(posts) {
     this.registerTableEvents();
 };
 
-window.boardManager.registerTableEvents = function() {
+window.boardManager.registerTableEvents = function () {
     const self = this;
 
     // 게시글 보기 버튼
     document.querySelectorAll('.view-post').forEach(btn => {
-        btn.addEventListener('click', function(e) {
+        btn.addEventListener('click', function (e) {
             e.preventDefault();
             const postId = this.getAttribute('data-id');
             self.viewPost(postId);
@@ -2417,7 +2435,7 @@ window.boardManager.registerTableEvents = function() {
 
     // 게시글 수정 버튼
     document.querySelectorAll('.edit-post').forEach(btn => {
-        btn.addEventListener('click', function(e) {
+        btn.addEventListener('click', function (e) {
             e.preventDefault();
             const postId = this.getAttribute('data-id');
             self.editPost(postId);
@@ -2426,7 +2444,7 @@ window.boardManager.registerTableEvents = function() {
 
     // 게시글 삭제 버튼
     document.querySelectorAll('.delete-post').forEach(btn => {
-        btn.addEventListener('click', function(e) {
+        btn.addEventListener('click', function (e) {
             e.preventDefault();
             const postId = this.getAttribute('data-id');
             self.deletePost(postId);
@@ -2434,7 +2452,7 @@ window.boardManager.registerTableEvents = function() {
     });
 };
 
-window.boardManager.getStatusInfo = function(status) {
+window.boardManager.getStatusInfo = function (status) {
     const statusMap = {
         'published': { text: '게시', class: 'status-active' },
         'draft': { text: '임시저장', class: 'status-inactive' },
@@ -2449,7 +2467,7 @@ window.boardManager.getStatusInfo = function(status) {
 // 페이지네이션 및 검색
 // =================================
 
-window.boardManager.updatePagination = function(totalPages) {
+window.boardManager.updatePagination = function (totalPages) {
     const paginationContainer = document.getElementById('board-pagination');
     if (!paginationContainer) return;
 
@@ -2506,7 +2524,7 @@ window.boardManager.updatePagination = function(totalPages) {
     paginationContainer.innerHTML = html;
 };
 
-window.boardManager.changePage = function(page) {
+window.boardManager.changePage = function (page) {
     if (page < 1) return;
 
     console.log(`📄 페이지 변경: ${this.currentPage} → ${page}`);
@@ -2514,7 +2532,7 @@ window.boardManager.changePage = function(page) {
     this.loadBoardData();
 };
 
-window.boardManager.search = function() {
+window.boardManager.search = function () {
     console.log('🔍 게시글 검색 실행');
 
     this.currentPage = 1;
@@ -2522,7 +2540,7 @@ window.boardManager.search = function() {
     this.loadBoardData();
 };
 
-window.boardManager.resetSearch = function() {
+window.boardManager.resetSearch = function () {
     console.log('🔄 검색 초기화');
 
     const searchType = document.getElementById('search-type');
@@ -2536,37 +2554,37 @@ window.boardManager.resetSearch = function() {
     this.loadBoardData();
 };
 
-window.boardManager.registerSearchEvents = function() {
+window.boardManager.registerSearchEvents = function () {
     console.log('🔍 검색 이벤트 등록');
-    
+
     const searchButton = document.getElementById('search-button');
     const resetButton = document.getElementById('reset-search');
     const searchKeyword = document.getElementById('search-keyword');
-    
+
     if (searchButton) {
         const self = this;
         searchButton.removeEventListener('click', searchButton._clickHandler);
-        searchButton._clickHandler = function(e) {
+        searchButton._clickHandler = function (e) {
             e.preventDefault();
             self.search();
         };
         searchButton.addEventListener('click', searchButton._clickHandler);
     }
-    
+
     if (resetButton) {
         const self = this;
         resetButton.removeEventListener('click', resetButton._clickHandler);
-        resetButton._clickHandler = function(e) {
+        resetButton._clickHandler = function (e) {
             e.preventDefault();
             self.resetSearch();
         };
         resetButton.addEventListener('click', resetButton._clickHandler);
     }
-    
+
     if (searchKeyword) {
         const self = this;
         searchKeyword.removeEventListener('keypress', searchKeyword._keypressHandler);
-        searchKeyword._keypressHandler = function(e) {
+        searchKeyword._keypressHandler = function (e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 self.search();
@@ -2580,13 +2598,13 @@ window.boardManager.registerSearchEvents = function() {
 // 모달 및 폼 이벤트 처리
 // =================================
 
-window.boardManager.registerModalEvents = function() {
+window.boardManager.registerModalEvents = function () {
     const self = this;
 
     document.querySelectorAll('button[onclick="boardManager.closePostModal()"]').forEach(btn => {
         btn.removeAttribute('onclick');
         btn.removeEventListener('click', btn._clickHandler);
-        btn._clickHandler = function(e) {
+        btn._clickHandler = function (e) {
             e.preventDefault();
             self.closePostModal();
         };
@@ -2594,7 +2612,7 @@ window.boardManager.registerModalEvents = function() {
     });
 };
 
-window.boardManager.registerFormEvents = function() {
+window.boardManager.registerFormEvents = function () {
     const postForm = document.getElementById('post-form');
     if (postForm) {
         const self = this;
@@ -2621,7 +2639,7 @@ window.boardManager.registerFormEvents = function() {
 // 유틸리티 함수들
 // =================================
 
-window.boardManager.forceReloadBoardData = async function() {
+window.boardManager.forceReloadBoardData = async function () {
     try {
         console.log('🔄 강제 데이터 새로고침 시작');
 
@@ -2650,7 +2668,7 @@ window.boardManager.forceReloadBoardData = async function() {
 /**
  * 게시판 관리 페이지 초기화 함수 - 상세보기/수정 통합 구현 + 첨부파일 완전 지원
  */
-window.initBoardManagement = async function() {
+window.initBoardManagement = async function () {
     try {
         console.log('📋 게시판 관리 페이지 초기화 시작 - 상세보기/수정 통합 + 첨부파일 완전 지원');
 
@@ -2713,7 +2731,7 @@ window.initBoardManagement = async function() {
 // DOM 로드 및 이벤트 처리
 // =================================
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('🌐 게시판 관리 페이지 DOMContentLoaded - 상세보기/수정 통합 + 첨부파일 완전 지원');
 
     if (!window.boardManager) {
@@ -2724,7 +2742,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ window.boardManager 확인됨 - 상세보기/수정 통합 + 첨부파일 완전 지원');
 });
 
-window.addEventListener('load', function() {
+window.addEventListener('load', function () {
     console.log('🌐 게시판 관리 페이지 load 이벤트 - 상세보기/수정 통합 + 첨부파일 완전 지원');
 
     setTimeout(() => {
@@ -2750,12 +2768,12 @@ window.addEventListener('load', function() {
 // =================================
 
 // 페이지 로드 후 WysiwygEditor 확장
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     setTimeout(() => {
         if (typeof window.WysiwygEditor !== 'undefined') {
             // 기존 syncUploadedFilesToForm 함수 개선
             const originalSync = window.WysiwygEditor.syncUploadedFilesToForm;
-            window.WysiwygEditor.syncUploadedFilesToForm = function() {
+            window.WysiwygEditor.syncUploadedFilesToForm = function () {
                 console.log('🔄 업로드된 파일을 폼에 동기화 (개선됨):', this.uploadedFiles?.length || 0, '개');
 
                 // 상세 파일 정보 로그
@@ -2783,7 +2801,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     fileDataInput.type = 'hidden';
                     fileDataInput.id = 'uploaded-files-data';
                     fileDataInput.name = 'uploadedFilesData';
-                    
+
                     const form = document.getElementById('post-form');
                     if (form) {
                         form.appendChild(fileDataInput);
@@ -2806,12 +2824,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // 파일 업로드 완료 후 동기화 자동 호출 보장
             const originalHandleFileUpload = window.WysiwygEditor.handleFileUpload;
             if (originalHandleFileUpload) {
-                window.WysiwygEditor.handleFileUpload = async function(files) {
+                window.WysiwygEditor.handleFileUpload = async function (files) {
                     console.log('📎 파일 업로드 핸들링 시작 (동기화 개선):', files.length, '개');
-                    
+
                     // 원본 함수 호출
                     await originalHandleFileUpload.call(this, files);
-                    
+
                     // 🎯 업로드 완료 후 자동 동기화
                     setTimeout(() => {
                         this.syncUploadedFilesToForm();
@@ -2837,7 +2855,7 @@ if (window.location.hostname === 'localhost' ||
     window.FORCE_DEBUG === true) {
 
     window.debugBoardManagement = {
-        help: function() {
+        help: function () {
             console.log('📋 게시판 관리 디버깅 도구 사용법 - 상세보기/수정 통합 + 첨부파일 완전 지원');
             console.log('\n🔧 의존성 관리:');
             console.log('- testDependencies() : 유틸리티 의존성 확인');
@@ -2871,14 +2889,14 @@ if (window.location.hostname === 'localhost' ||
             console.log('\n🚀 빠른 테스트: testAttachmentFlow() 또는 runFullTest()');
         },
 
-        testAttachmentFlow: async function() {
+        testAttachmentFlow: async function () {
             console.log('🔄 전체 첨부파일 플로우 테스트 시작');
 
             try {
                 // 1단계: 첨부파일 포함 게시글 생성
                 console.log('1️⃣ 첨부파일 포함 테스트 게시글 생성...');
                 const postId = await this.createTestPostWithAttachments();
-                
+
                 if (!postId) {
                     console.error('❌ 테스트 게시글 생성 실패');
                     return;
@@ -2893,7 +2911,7 @@ if (window.location.hostname === 'localhost' ||
                     setTimeout(() => {
                         console.log('3️⃣ 수정 모드로 전환하려면 모달의 "수정" 버튼을 클릭하거나');
                         console.log(`   다음 명령을 실행하세요: testEditWithAttachments("${postId}")`);
-                        
+
                     }, 5000);
                 }, 2000);
 
@@ -2905,7 +2923,7 @@ if (window.location.hostname === 'localhost' ||
             }
         },
 
-        createTestPostWithAttachments: async function() {
+        createTestPostWithAttachments: async function () {
             console.log('📝 첨부파일 포함 테스트 게시글 생성');
 
             if (!window.boardManager || !window.boardManager.initialized) {
@@ -2985,7 +3003,7 @@ if (window.location.hostname === 'localhost' ||
             return postId;
         },
 
-        testViewWithAttachments: function(postId) {
+        testViewWithAttachments: function (postId) {
             if (!postId) {
                 console.log('사용법: testViewWithAttachments("post-id")');
                 console.log('먼저 createTestPostWithAttachments()를 실행하세요.');
@@ -2996,7 +3014,7 @@ if (window.location.hostname === 'localhost' ||
 
             if (window.boardManager) {
                 window.boardManager.viewPost(postId);
-                
+
                 setTimeout(() => {
                     console.log('📎 상세보기 모달에서 확인할 항목들:');
                     console.log('✅ 첨부파일 목록이 표시되는가?');
@@ -3008,7 +3026,7 @@ if (window.location.hostname === 'localhost' ||
                     // DOM 확인
                     const uploadedFiles = document.querySelectorAll('#uploaded-files .uploaded-file');
                     console.log(`📊 실제 표시된 첨부파일: ${uploadedFiles.length}개`);
-                    
+
                     if (uploadedFiles.length === 0) {
                         console.error('❌ 첨부파일이 표시되지 않았습니다!');
                         console.log('🔍 문제 진단을 위해 다음을 실행하세요:');
@@ -3018,7 +3036,7 @@ if (window.location.hostname === 'localhost' ||
             }
         },
 
-        testEditWithAttachments: function(postId) {
+        testEditWithAttachments: function (postId) {
             if (!postId) {
                 console.log('사용법: testEditWithAttachments("post-id")');
                 return;
@@ -3028,7 +3046,7 @@ if (window.location.hostname === 'localhost' ||
 
             if (window.boardManager) {
                 window.boardManager.editPost(postId);
-                
+
                 setTimeout(() => {
                     console.log('📎 수정 모달에서 확인할 항목들:');
                     console.log('✅ 기존 첨부파일이 로드되어 표시되는가?');
@@ -3045,7 +3063,7 @@ if (window.location.hostname === 'localhost' ||
                     // DOM 확인
                     const uploadedFiles = document.querySelectorAll('#uploaded-files .uploaded-file');
                     console.log(`📊 DOM 표시된 첨부파일: ${uploadedFiles.length}개`);
-                    
+
                     if (uploadedFiles.length === 0) {
                         console.error('❌ 수정 모드에서 첨부파일이 로드되지 않았습니다!');
                     }
@@ -3053,7 +3071,7 @@ if (window.location.hostname === 'localhost' ||
             }
         },
 
-        diagnoseProblem: function() {
+        diagnoseProblem: function () {
             console.log('🔍 첨부파일 표시 문제 진단 시작');
 
             // 현재 모달 상태 확인
@@ -3070,11 +3088,11 @@ if (window.location.hostname === 'localhost' ||
             if (window.boardManager) {
                 console.log('📊 현재 모달 모드:', window.boardManager.currentModalMode);
                 console.log('📊 현재 게시글 데이터 있음:', !!window.boardManager.currentPostData);
-                
+
                 if (window.boardManager.currentPostData) {
                     const attachments = window.boardManager.currentPostData.attachments;
                     console.log('📎 로드된 게시글 첨부파일:', attachments?.length || 0, '개');
-                    
+
                     if (attachments && attachments.length > 0) {
                         attachments.forEach((file, index) => {
                             console.log(`📎 게시글 파일 ${index + 1}:`, {
@@ -3096,11 +3114,11 @@ if (window.location.hostname === 'localhost' ||
             // DOM 요소 확인
             const uploadedFilesContainer = document.getElementById('uploaded-files');
             console.log('📊 첨부파일 컨테이너 존재:', !!uploadedFilesContainer);
-            
+
             if (uploadedFilesContainer) {
                 const fileElements = uploadedFilesContainer.querySelectorAll('.uploaded-file');
                 console.log('📊 DOM 첨부파일 요소:', fileElements.length, '개');
-                
+
                 if (fileElements.length > 0) {
                     fileElements.forEach((element, index) => {
                         console.log(`📎 DOM 파일 ${index + 1}:`, {

@@ -232,7 +232,7 @@ console.log('=== board.js 파일 로드 시작 ===');
         // 샘플 데이터 로드 (Firebase 연동 전 사용)
         function loadSampleData() {
             console.log('샘플 데이터 로드');
-            
+
             const sampleNotices = [
                 {
                     id: 1,
@@ -253,16 +253,16 @@ console.log('=== board.js 파일 로드 시작 ===');
                     attachments: []
                 }
             ];
-            
+
             displayPosts(sampleNotices, true);
             updateTotalCountSample(sampleNotices.length);
         }
 
         // 게시글 목록 가져오기
+        // loadPosts 함수의 try-catch 부분 수정
         async function loadPosts(reset = false) {
-            console.log(`게시글 로드: reset=${reset}`);
+            console.log(`게시글 로드: reset=${reset}, currentPage=${currentPage}`);
 
-            // 게시판 타입에 따른 올바른 tbody ID 가져오기
             const listId = getElementId(boardType, 'list');
             const tbody = document.getElementById(listId);
             if (!tbody) {
@@ -295,11 +295,8 @@ console.log('=== board.js 파일 로드 시작 ===');
 
                 let result;
                 if (searchQuery) {
-                    // 검색 쿼리가 있는 경우
-                    console.log(`검색 실행: ${searchQuery}`);
                     result = await dbService.searchDocuments(collection, 'title', searchQuery, options);
                 } else {
-                    // 일반 페이지네이션
                     result = await dbService.getPaginatedDocuments(collection, options, lastDoc);
                 }
 
@@ -310,13 +307,17 @@ console.log('=== board.js 파일 로드 시작 ===');
                     updatePagination();
                 } else {
                     console.error('게시글 로드 실패:', result.error);
-                    // Firebase 연동 실패 시 샘플 데이터 사용
                     loadSampleData();
                 }
             } catch (error) {
                 console.error('게시글 로드 중 오류:', error);
-                // 오류 발생 시 샘플 데이터 사용
                 loadSampleData();
+            } finally {
+                // ⭐ 추가: 혹시 모를 경우를 대비해 로딩 제거
+                const loadingRow = tbody.querySelector('.loading-row');
+                if (loadingRow) {
+                    loadingRow.remove();
+                }
             }
         }
 
@@ -341,24 +342,30 @@ console.log('=== board.js 파일 로드 시작 ===');
             const tbody = document.getElementById(listId);
             if (!tbody) return;
 
+            // ⭐ 로딩 행 제거 (항상 실행)
+            const loadingRow = tbody.querySelector('.loading-row');
+            if (loadingRow) {
+                loadingRow.remove();
+            }
+
             if (reset) {
                 tbody.innerHTML = '';
             }
 
             if (posts.length === 0 && reset) {
                 tbody.innerHTML = `
-                    <tr class="no-results">
-                        <td colspan="6" class="text-center py-12">
-                            <div class="icon">
-                                <svg class="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-2">검색 결과가 없습니다</h3>
-                            <p class="text-gray-500">다른 검색어로 다시 시도해 보세요.</p>
-                        </td>
-                    </tr>
-                `;
+            <tr class="no-results">
+                <td colspan="6" class="text-center py-12">
+                    <div class="icon">
+                        <svg class="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">검색 결과가 없습니다</h3>
+                    <p class="text-gray-500">다른 검색어로 다시 시도해 보세요.</p>
+                </td>
+            </tr>
+        `;
                 return;
             }
 
@@ -372,29 +379,29 @@ console.log('=== board.js 파일 로드 시작 ===');
                 row.onclick = () => goToDetail(post.id);
 
                 // 첨부파일 아이콘
-                const attachmentIcon = (post.attachments && post.attachments.length > 0) ? 
+                const attachmentIcon = (post.attachments && post.attachments.length > 0) ?
                     '<svg class="attachment-icon inline ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>' : '';
 
                 // 비디오 아이콘 (videos 게시판만)
-                const videoIcon = (boardType === 'videos') ? 
+                const videoIcon = (boardType === 'videos') ?
                     '<svg class="attachment-icon inline ml-1 w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>' : '';
 
                 row.innerHTML = `
-                    <td class="col-number">${number}</td>
-                    <td class="col-category">
-                        <span class="category-badge ${post.category}">
-                            ${categoryText}
-                        </span>
-                    </td>
-                    <td class="col-title">
-                        <span class="post-title-link">
-                            ${post.title}${attachmentIcon}${videoIcon}
-                        </span>
-                    </td>
-                    <td class="col-author hide-mobile">${getAuthorName(post)}</td>
-                    <td class="col-date hide-mobile">${date}</td>
-                    <td class="col-views hide-mobile">${post.views || 0}</td>
-                `;
+            <td class="col-number">${number}</td>
+            <td class="col-category">
+                <span class="category-badge ${post.category}">
+                    ${categoryText}
+                </span>
+            </td>
+            <td class="col-title">
+                <span class="post-title-link">
+                    ${post.title}${attachmentIcon}${videoIcon}
+                </span>
+            </td>
+            <td class="col-author hide-mobile">${getAuthorName(post)}</td>
+            <td class="col-date hide-mobile">${date}</td>
+            <td class="col-views hide-mobile">${post.views || 0}</td>
+        `;
                 tbody.appendChild(row);
             });
         }
@@ -412,15 +419,15 @@ console.log('=== board.js 파일 로드 시작 ===');
             const baseUrl = window.adjustPath ? window.adjustPath('pages/board/notice/view.html') : 'view.html';
             const boardPath = {
                 'notice': 'pages/board/notice/view.html',
-                'column': 'pages/board/column/view.html', 
+                'column': 'pages/board/column/view.html',
                 'materials': 'pages/board/materials/view.html',
                 'videos': 'pages/board/videos/view.html'
             };
-            
-            const viewUrl = window.adjustPath ? 
-                window.adjustPath(boardPath[boardType] || 'pages/board/notice/view.html') : 
+
+            const viewUrl = window.adjustPath ?
+                window.adjustPath(boardPath[boardType] || 'pages/board/notice/view.html') :
                 'view.html';
-            
+
             window.location.href = `${viewUrl}?id=${postId}`;
         }
 
@@ -446,7 +453,8 @@ console.log('=== board.js 파일 로드 시작 ===');
                 prevButton.innerHTML = '이전';
                 prevButton.onclick = () => {
                     currentPage--;
-                    loadPosts();
+                    lastDoc = null; // ⭐ 추가
+                    loadPosts(true); // ⭐ reset=true로 변경
                 };
                 pagination.appendChild(prevButton);
             }
@@ -464,7 +472,7 @@ console.log('=== board.js 파일 로드 시작 ===');
                 nextButton.innerHTML = '다음';
                 nextButton.onclick = () => {
                     currentPage++;
-                    loadPosts();
+                    loadPosts(false); // ⭐ reset=false 명시 (다음 페이지는 lastDoc 유지)
                 };
                 pagination.appendChild(nextButton);
             }
@@ -510,7 +518,7 @@ console.log('=== board.js 파일 로드 시작 ===');
         // 글쓰기 버튼 숨김 (기존 코드 비활성화)
         function hideWriteButton() {
             console.log('글쓰기 버튼 숨김');
-            
+
             const writeButton = document.getElementById('write-button');
             if (writeButton) {
                 writeButton.style.display = 'none';
@@ -545,7 +553,7 @@ console.log('=== board.js 파일 로드 시작 ===');
         console.log('목록 페이지 초기화 시작');
         setupSearch();
         hideWriteButton(); // 글쓰기 버튼 숨김 (기존 checkWritePermission 대체)
-        
+
         // Firebase 연동 시도, 실패시 샘플 데이터 사용
         try {
             loadPosts(true);
@@ -596,7 +604,7 @@ console.log('=== board.js 파일 로드 시작 ===');
                     }
                 ]
             };
-            
+
             displayPost(samplePost);
         }
 
@@ -632,7 +640,7 @@ console.log('=== board.js 파일 로드 시작 ===');
         // 관리자 버튼 숨김 (기존 코드 비활성화)
         function hideAdminButtons() {
             console.log('관리자 버튼 숨김');
-            
+
             const adminButtons = document.getElementById('admin-buttons');
             if (adminButtons) {
                 adminButtons.style.display = 'none';
