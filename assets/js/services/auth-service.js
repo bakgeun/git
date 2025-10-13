@@ -18,6 +18,7 @@
          */
         signUp: async function (email, password, userData) {
             console.log('📝 회원가입 시작:', email);
+            console.log('📝 사용자 데이터:', userData);
 
             try {
                 // 1. Firebase Auth를 사용하여 사용자 생성
