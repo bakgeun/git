@@ -273,27 +273,61 @@ window.CertApplication = window.CertApplication || {};
     }
 
     function fillUserData(userData) {
-        console.log('📝 사용자 데이터로 폼 채우기:', userData);
+        console.log('📋 사용자 데이터로 폼 채우기:', userData);
+
+        // 🔧 수정: 필드명 매핑 (signup.js와 일치하도록)
         const fieldMappings = {
             'name-korean': userData.name || userData.displayName || userData.firstName,
             'name-english': userData.nameEnglish || userData.englishName,
-            'phone': userData.phone || userData.phoneNumber,
-            'birth-date': userData.birthDate || userData.dateOfBirth,
-            'email': userData.email
+            'email': userData.email,
+
+            // ✅ 수정 1: 생년월일 필드명 통일
+            'birth-date': userData.birthdate || userData.birthDate || userData.dateOfBirth,
+
+            // ✅ 수정 2: 전화번호 포맷팅 적용
+            'phone': window.formatters
+                ? window.formatters.formatPhoneNumber(userData.phoneNumber || userData.phone)
+                : (userData.phone || userData.phoneNumber)
         };
 
-        if (userData.address) {
-            const postalCode = document.getElementById('postal-code');
-            const addressBasic = document.getElementById('address-basic');
-            if (postalCode && !postalCode.value && userData.postalCode) {
-                postalCode.value = userData.postalCode;
+        // ✅ 수정 3: 주소 정보 분리 처리
+        if (userData.postalCode || userData.addressBasic || userData.address) {
+            const postalCodeInput = document.getElementById('postal-code');
+            const addressBasicInput = document.getElementById('address-basic');
+            const addressDetailInput = document.getElementById('address-detail');
+
+            // 우편번호
+            if (postalCodeInput && !postalCodeInput.value && userData.postalCode) {
+                postalCodeInput.value = userData.postalCode;
             }
-            if (addressBasic && !addressBasic.value) {
-                addressBasic.value = userData.address;
+
+            // 기본 주소 (addressBasic 우선, 없으면 address 파싱 시도)
+            if (addressBasicInput && !addressBasicInput.value) {
+                if (userData.addressBasic) {
+                    // ✅ 분리된 기본 주소가 있으면 사용
+                    addressBasicInput.value = userData.addressBasic;
+                } else if (userData.address) {
+                    // ✅ 전체 주소만 있으면 파싱 시도
+                    const parsedAddress = parseFullAddress(userData.address);
+                    addressBasicInput.value = parsedAddress.basicAddress;
+
+                    // 상세주소도 함께 채우기
+                    if (addressDetailInput && !addressDetailInput.value && parsedAddress.detailAddress) {
+                        addressDetailInput.value = parsedAddress.detailAddress;
+                    }
+                }
             }
+
+            // 상세 주소
+            if (addressDetailInput && !addressDetailInput.value && userData.addressDetail) {
+                addressDetailInput.value = userData.addressDetail;
+            }
+
+            // 전체 주소 업데이트
             updateFullAddress();
         }
 
+        // 기존 필드 자동 입력
         let filledCount = 0;
         Object.keys(fieldMappings).forEach(fieldId => {
             const input = document.getElementById(fieldId);
@@ -307,6 +341,34 @@ window.CertApplication = window.CertApplication || {};
             console.log(`✅ 총 ${filledCount}개 필드 자동 기입 완료`);
             updateSummary();
         }
+    }
+
+    /**
+     * 🆕 전체 주소를 기본주소와 상세주소로 파싱
+     * @param {string} fullAddress - 전체 주소 (예: "(06234) 서울특별시 강남구 테헤란로 123 456호")
+     * @returns {Object} { basicAddress, detailAddress }
+     */
+    function parseFullAddress(fullAddress) {
+        if (!fullAddress) {
+            return { basicAddress: '', detailAddress: '' };
+        }
+
+        // 우편번호 제거 (예: "(06234) " 제거)
+        let cleaned = fullAddress.replace(/^\(\d{5}\)\s*/, '');
+
+        // 마지막 숫자+단위 패턴을 상세주소로 간주
+        // 예: "123호", "456동 789호", "1층" 등
+        const detailPattern = /\s+(\d+(?:동|층|호|실|관|빌딩|타워|층)?(?:\s*\d+(?:호|실))?)\s*$/;
+        const match = cleaned.match(detailPattern);
+
+        if (match) {
+            const detailAddress = match[1].trim();
+            const basicAddress = cleaned.substring(0, match.index).trim();
+            return { basicAddress, detailAddress };
+        }
+
+        // 패턴이 안 맞으면 전체를 기본주소로
+        return { basicAddress: cleaned, detailAddress: '' };
     }
 
     // =================================
