@@ -984,24 +984,72 @@
      * 🚀 회원 탈퇴 처리 (테스트에서 확인된 작동 로직)
      */
     async function handleAccountDelete() {
+        console.log('🗑️ 회원탈퇴 버튼 클릭됨');
+
+        // 1단계: 첫 번째 확인
+        if (!confirm('정말로 회원 탈퇴를 하시겠습니까?\n\n탈퇴 시 삭제되는 정보:\n• 개인정보 및 계정 정보\n• 수강 내역 및 진행 중인 강의\n• 자격증 정보\n• 결제 내역\n\n⚠️ 탈퇴 후 30일간 데이터가 보관되며, 이후 영구적으로 삭제됩니다.')) {
+            console.log('❌ 회원탈퇴 취소됨 (1차 확인)');
+            return;
+        }
+
+        console.log('✅ 1차 확인 통과');
+
+        // 2단계: 비밀번호 입력
+        const password = prompt('회원 탈퇴를 진행하려면 현재 비밀번호를 입력해주세요:');
+
+        if (!password) {
+            console.log('❌ 비밀번호 미입력으로 취소됨');
+            window.mypageHelpers.showNotification('비밀번호를 입력해야 회원 탈퇴가 가능합니다.', 'error');
+            return;
+        }
+
+        console.log('✅ 비밀번호 입력됨');
+
+        // 3단계: 최종 확인
+        if (!confirm('⚠️ 최종 확인\n\n정말로 탈퇴하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) {
+            console.log('❌ 회원탈퇴 취소됨 (최종 확인)');
+            return;
+        }
+
+        console.log('✅ 최종 확인 통과, 계정 삭제 시작');
+
         try {
-            console.log('🔄 회원 탈퇴 처리 시작');
+            // 계정 삭제 실행
+            console.log('🔄 authService.deleteAccount 호출 중...');
+            const result = await window.authService.deleteAccount(password);
 
-            // 1단계: 탈퇴 의사 확인
-            const confirmed = confirm(`⚠️ 정말로 회원 탈퇴를 진행하시겠습니까?\n\n탈퇴 시 삭제되는 정보:\n• 개인 정보 및 프로필\n• 수강 이력 및 학습 진도\n• 자격증 발급 내역\n• 결제 내역\n\n❗ 탈퇴 후에는 복구가 불가능합니다.`);
+            console.log('📊 계정 삭제 결과:', result);
 
-            if (confirmed) {
-                // 2단계: 비밀번호 확인
-                const password = prompt('회원 탈퇴를 위해 현재 비밀번호를 입력해주세요:');
+            if (result.success) {
+                console.log('✅ 회원 탈퇴 성공');
+                alert('회원 탈퇴가 완료되었습니다.\n그동안 이용해주셔서 감사합니다.');
 
-                if (password) {
-                    await executeAccountDeletion(password);
-                }
+                // 로그인 페이지로 이동
+                console.log('🔄 로그인 페이지로 리다이렉션...');
+                window.location.href = window.adjustPath('pages/auth/login.html');
+            } else {
+                throw new Error(result.error.message || '회원 탈퇴 실패');
             }
-
         } catch (error) {
             console.error('❌ 회원 탈퇴 오류:', error);
-            showNotification('회원 탈퇴 처리 중 오류가 발생했습니다.', 'error');
+            console.error('❌ 오류 상세:', {
+                code: error.code,
+                message: error.message,
+                stack: error.stack
+            });
+
+            let errorMessage = '회원 탈퇴 중 오류가 발생했습니다.';
+
+            if (error.code === 'auth/wrong-password') {
+                errorMessage = '비밀번호가 올바르지 않습니다.';
+            } else if (error.code === 'auth/requires-recent-login') {
+                errorMessage = '보안을 위해 다시 로그인해주세요.';
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+
+            alert(errorMessage);
+            window.mypageHelpers.showNotification(errorMessage, 'error');
         }
     }
 

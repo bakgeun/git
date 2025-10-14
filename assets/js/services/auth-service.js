@@ -367,10 +367,47 @@
 
                 await user.reauthenticateWithCredential(credential);
 
-                // Firestore 사용자 문서 삭제
-                await window.dhcFirebase.db.collection('users').doc(user.uid).delete();
+                // Firestore 사용자 문서를 소프트 삭제 (실제 삭제 대신 상태 변경)
+                await window.dhcFirebase.db.collection('users').doc(user.uid).update({
+                    deletedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'deleted',
+                    deletedEmail: user.email, // 삭제된 이메일 보관
+                    updatedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
+                });
 
-                // Firebase Auth 계정 삭제
+                // 사용자의 관련 데이터도 소프트 삭제 처리
+                const batch = window.dhcFirebase.db.batch();
+
+                // 수강신청 소프트 삭제
+                const enrollmentsSnapshot = await window.dhcFirebase.db
+                    .collection('enrollments')
+                    .where('userId', '==', user.uid)
+                    .get();
+
+                enrollmentsSnapshot.forEach(doc => {
+                    batch.update(doc.ref, {
+                        status: 'deleted',
+                        deletedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+
+                // 자격증 소프트 삭제
+                const certificatesSnapshot = await window.dhcFirebase.db
+                    .collection('certificates')
+                    .where('userId', '==', user.uid)
+                    .get();
+
+                certificatesSnapshot.forEach(doc => {
+                    batch.update(doc.ref, {
+                        status: 'deleted',
+                        deletedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+
+                // 배치 커밋
+                await batch.commit();
+
+                // Firebase Auth 계정 삭제 (마지막 단계)
                 await user.delete();
 
                 return { success: true };

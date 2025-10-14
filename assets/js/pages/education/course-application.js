@@ -2004,7 +2004,8 @@ function fillUserData(userData) {
         'applicant-name': userData.name || userData.displayName || userData.firstName,
         'applicant-name-english': userData.nameEnglish || userData.englishName,
         'phone': userData.phone || userData.phoneNumber,
-        'birth-date': userData.birthDate || userData.dateOfBirth,
+        // ⭐ 수정: birthdate 추가 (소문자 'd')
+        'birth-date': userData.birthdate || userData.birthDate || userData.dateOfBirth,
         'address': userData.address || userData.streetAddress,
         'emergency-contact': userData.emergencyContact || userData.emergencyPhone
     };

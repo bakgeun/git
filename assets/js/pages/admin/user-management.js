@@ -572,30 +572,60 @@ window.userManager = {
 
             if (this.isFirebaseAvailable()) {
                 try {
-                    const totalResult = await window.dbService.countDocuments('users');
-                    if (totalResult.success) {
-                        totalUsers = totalResult.count;
-                    }
-
-                    const activeResult = await window.dbService.countDocuments('users', {
-                        where: [{ field: 'status', operator: '==', value: 'active' }]
+                    // ✅ 모든 사용자 가져오기 (한 번만 조회)
+                    const allUsersResult = await window.dbService.getDocuments('users', {
+                        limit: 1000  // 최대 1000명까지 조회
                     });
-                    if (activeResult.success) {
-                        activeUsers = activeResult.count;
-                    }
 
-                    const instructorResult = await window.dbService.countDocuments('users', {
-                        where: [{ field: 'userType', operator: '==', value: 'instructor' }]
-                    });
-                    if (instructorResult.success) {
-                        instructorUsers = instructorResult.count;
-                    }
+                    if (allUsersResult.success && allUsersResult.data) {
+                        const users = allUsersResult.data;
 
-                    const suspendedResult = await window.dbService.countDocuments('users', {
-                        where: [{ field: 'status', operator: '==', value: 'suspended' }]
-                    });
-                    if (suspendedResult.success) {
-                        suspendedUsers = suspendedResult.count;
+                        console.log('📊 전체 사용자 조회:', users.length, '명');
+
+                        // JavaScript로 필터링 (인덱스 불필요)
+                        users.forEach(user => {
+                            const status = user.status || 'active';
+                            const userType = user.userType || 'student';
+
+                            console.log(`사용자: ${user.email}, 상태: ${status}, 유형: ${userType}`);
+
+                            // 탈퇴한 사용자 제외
+                            if (status === 'deleted') {
+                                console.log(`  ⏭️ 탈퇴 사용자 제외: ${user.email}`);
+                                return;
+                            }
+
+                            // 전체 회원 (탈퇴자 제외, 관리자 포함)
+                            totalUsers++;
+
+                            // 활성 회원 (관리자 제외)
+                            if (status === 'active' && userType !== 'admin') {
+                                activeUsers++;
+                                console.log(`  ✅ 활성 회원: ${user.email}`);
+                            } else if (status === 'active' && userType === 'admin') {
+                                console.log(`  ⏭️ 관리자 제외: ${user.email}`);
+                            }
+
+                            // 강사 (탈퇴자 제외)
+                            if (userType === 'instructor') {
+                                instructorUsers++;
+                                console.log(`  👨‍🏫 강사: ${user.email}`);
+                            }
+
+                            // 정지 회원
+                            if (status === 'suspended') {
+                                suspendedUsers++;
+                                console.log(`  ⛔ 정지: ${user.email}`);
+                            }
+                        });
+
+                        console.log('📊 통계 계산 완료:', {
+                            전체DB사용자: users.length,
+                            전체회원_탈퇴제외: totalUsers,
+                            활성회원_관리자제외: activeUsers,
+                            강사: instructorUsers,
+                            정지: suspendedUsers
+                        });
                     }
                 } catch (error) {
                     console.error('Firebase 통계 조회 오류:', error);
@@ -605,13 +635,13 @@ window.userManager = {
                 }
             }
 
-            // UI 업데이트 (🔧 전역 유틸리티 사용)
+            // UI 업데이트
             this.updateStatElement('total-users-count', totalUsers);
             this.updateStatElement('active-users-count', activeUsers);
             this.updateStatElement('instructor-users-count', instructorUsers);
             this.updateStatElement('suspended-users-count', suspendedUsers);
 
-            console.log('통계 업데이트 완료:', { totalUsers, activeUsers, instructorUsers, suspendedUsers });
+            console.log('✅ 통계 UI 업데이트 완료:', { totalUsers, activeUsers, instructorUsers, suspendedUsers });
 
         } catch (error) {
             console.error('회원 통계 업데이트 오류:', error);
@@ -946,13 +976,14 @@ window.userManager = {
     },
 
     /**
- * 🎯 상태 정보 가져오기 (개선된 버전)
- */
+     * 🎯 상태 정보 가져오기 (개선된 버전)
+     */
     getStatusInfo: function (status) {
         const statusMap = {
             'active': { text: '활성', class: 'status-active' },
             'inactive': { text: '비활성', class: 'status-inactive' },
-            'suspended': { text: '정지', class: 'status-suspended' }
+            'suspended': { text: '정지', class: 'status-suspended' },
+            'deleted': { text: '탈퇴', class: 'status-deleted' }  // ⬅️ 이 줄 추가!
         };
         return statusMap[status] || { text: '알 수 없음', class: 'status-inactive' };
     },
@@ -1523,12 +1554,12 @@ window.userManager = {
         try {
             if (!window.dbService) return;
 
+            // ✅ 실제로 사용 중인 컬렉션만 삭제
             const deletePromises = [
                 this.deleteUserCollection('enrollments', userId),
                 this.deleteUserCollection('certificates', userId),
-                this.deleteUserCollection('payments', userId),
-                this.deleteUserCollection('posts', userId),
-                this.deleteUserCollection('comments', userId)
+                this.deleteUserCollection('payments', userId)
+                // posts와 comments는 현재 사용하지 않으므로 제거
             ];
 
             await Promise.allSettled(deletePromises);
@@ -1597,6 +1628,82 @@ window.userManager = {
         this.lastDoc = null;
 
         this.loadUsers();
+    },
+
+    /**
+     * 회원 영구 삭제 (Firestore에서 완전히 제거)
+     */
+    permanentDeleteUser: function (userId) {
+        if (!confirm('⚠️ 경고: 이 작업은 되돌릴 수 없습니다!\n\n정말로 이 회원의 데이터를 영구적으로 삭제하시겠습니까?\n\n삭제되는 데이터:\n• 사용자 정보 (Firestore)\n• 수강 내역\n• 자격증 정보\n• 결제 내역')) {
+            return;
+        }
+
+        this.handlePermanentDeleteUser(userId);
+    },
+
+    /**
+     * 회원 영구 삭제 처리
+     */
+    handlePermanentDeleteUser: async function (userId) {
+        try {
+            console.log('🗑️ 영구 삭제 시작:', userId);
+
+            if (!this.isFirebaseAvailable()) {
+                if (window.adminAuth && window.adminAuth.showNotification) {
+                    window.adminAuth.showNotification('데이터베이스에 연결할 수 없습니다.', 'error');
+                }
+                return;
+            }
+
+            const batch = window.dhcFirebase.db.batch();
+
+            const userRef = window.dhcFirebase.db.collection('users').doc(userId);
+            batch.delete(userRef);
+
+            const enrollmentsSnapshot = await window.dhcFirebase.db
+                .collection('enrollments')
+                .where('userId', '==', userId)
+                .get();
+
+            enrollmentsSnapshot.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+
+            const certificatesSnapshot = await window.dhcFirebase.db
+                .collection('certificates')
+                .where('userId', '==', userId)
+                .get();
+
+            certificatesSnapshot.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+
+            const paymentsSnapshot = await window.dhcFirebase.db
+                .collection('payments')
+                .where('userId', '==', userId)
+                .get();
+
+            paymentsSnapshot.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+
+            await batch.commit();
+
+            console.log('✅ 영구 삭제 완료:', userId);
+
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('회원 데이터가 영구적으로 삭제되었습니다.', 'success');
+            }
+
+            this.loadUsers();
+            this.updateUserStats();
+        } catch (error) {
+            console.error('❌ 영구 삭제 오류:', error);
+
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('영구 삭제 중 오류가 발생했습니다.', 'error');
+            }
+        }
     }
 };
 
