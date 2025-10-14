@@ -33,18 +33,18 @@ service cloud.firestore {
                      (!resource.data.keys().hasAny(['status']) || 
                       resource.data.status != 'deleted')) || 
                      isAdmin();
-      
-      // 생성: 인증된 사용자가 본인의 문서 생성 (✅ 이메일 인증 조건 제거!)
-      allow create: if isAuthenticated() && request.auth.uid == userId;
-      
+  
+      // 🔧 생성: 본인이 자신의 문서 생성 OR 관리자가 모든 문서 생성
+      allow create: if (isAuthenticated() && request.auth.uid == userId) || isAdmin();
+  
       // 업데이트: 본인 또는 관리자 (userType은 관리자만 변경 가능)
       allow update: if (isOwner(userId) || isAdmin()) &&
         (isAdmin() || 
          !('userType' in request.resource.data) || 
          request.resource.data.userType == resource.data.userType);
-      
-      // 삭제: 관리자만 가능
-      allow delete: if isAdmin();
+  
+       // 삭제: 관리자만 가능
+       allow delete: if isAdmin();
     }
     
     // ===================================
