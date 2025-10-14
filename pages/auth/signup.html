@@ -250,7 +250,7 @@
                     <p class="text-gray-600 mt-2">디지털헬스케어센터 서비스 이용을 위한 회원가입을 진행합니다.</p>
                 </div>
 
-                <!-- 알림 메시지 (필요 시 표시) -->
+                <!-- 알림 메시지 -->
                 <div id="notification" class="mb-6 hidden">
                     <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
                         <div class="flex items-start">
@@ -269,40 +269,34 @@
                     </div>
                 </div>
 
-                <!-- 회원가입 폼 (검증 UI 추가) -->
+                <!-- 회원가입 폼 -->
                 <form id="signup-form" class="space-y-6">
-                    <!-- 이메일 입력 (검증 UI 추가) -->
+                    <!-- 이메일 -->
                     <div class="field-validation">
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
                         <div class="relative">
                             <input type="email" id="email" name="email" required placeholder="이메일 주소를 입력하세요"
                                 class="form-input">
-                            <!-- 검증 아이콘 -->
                             <div id="email-validation-icon" class="validation-icon">
-                                <!-- 성공 아이콘 -->
                                 <svg class="success-icon" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd"
                                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                         clip-rule="evenodd" />
                                 </svg>
-                                <!-- 오류 아이콘 -->
                                 <svg class="error-icon" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd"
                                         d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                                         clip-rule="evenodd" />
                                 </svg>
-                                <!-- 로딩 아이콘 -->
                                 <svg class="loading-icon" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z" />
                                 </svg>
                             </div>
                         </div>
-                        <div id="email-validation-message" class="validation-message">
-                            이메일은 로그인 아이디로 사용됩니다.
-                        </div>
+                        <div id="email-validation-message" class="validation-message">이메일은 로그인 아이디로 사용됩니다.</div>
                     </div>
 
-                    <!-- 비밀번호 입력 (검증 UI 추가) -->
+                    <!-- 비밀번호 -->
                     <div class="field-validation">
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
                         <div class="relative">
@@ -321,18 +315,12 @@
                                 </svg>
                             </div>
                         </div>
-                        <div id="password-validation-message" class="validation-message">
-                            8자 이상, 문자와 숫자를 포함해야 합니다.
-                        </div>
-
-                        <!-- 비밀번호 강도 표시 -->
+                        <div id="password-validation-message" class="validation-message">8자 이상, 문자와 숫자를 포함해야 합니다.</div>
                         <div id="password-strength" class="password-strength" style="display: none;">
                             <div class="password-strength-bar">
                                 <div id="password-strength-fill" class="password-strength-fill"></div>
                             </div>
                             <div id="password-strength-text" class="password-strength-text">비밀번호 강도</div>
-
-                            <!-- 비밀번호 요구사항 체크리스트 -->
                             <div class="password-requirements">
                                 <ul>
                                     <li id="length-check" class="invalid">
@@ -364,7 +352,7 @@
                         </div>
                     </div>
 
-                    <!-- 비밀번호 확인 입력 (검증 UI 추가) -->
+                    <!-- 비밀번호 확인 -->
                     <div class="field-validation">
                         <label for="password-confirm" class="block text-sm font-medium text-gray-700 mb-1">비밀번호
                             확인</label>
@@ -384,12 +372,11 @@
                                 </svg>
                             </div>
                         </div>
-                        <div id="password-confirm-validation-message" class="validation-message">
-                            위에서 입력한 비밀번호와 동일하게 입력하세요.
-                        </div>
+                        <div id="password-confirm-validation-message" class="validation-message">위에서 입력한 비밀번호와 동일하게
+                            입력하세요.</div>
                     </div>
 
-                    <!-- 이름 입력 (검증 UI 추가) -->
+                    <!-- 이름 -->
                     <div class="field-validation">
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-1">이름</label>
                         <div class="relative">
@@ -408,12 +395,10 @@
                                 </svg>
                             </div>
                         </div>
-                        <div id="name-validation-message" class="validation-message">
-                            한글 이름을 입력하세요.
-                        </div>
+                        <div id="name-validation-message" class="validation-message">한글 이름을 입력하세요.</div>
                     </div>
 
-                    <!-- 휴대폰 번호 입력 (검증 UI 추가) -->
+                    <!-- 휴대폰 번호 -->
                     <div class="field-validation">
                         <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">휴대폰 번호</label>
                         <div class="relative">
@@ -432,9 +417,59 @@
                                 </svg>
                             </div>
                         </div>
-                        <div id="phone-validation-message" class="validation-message">
-                            휴대폰 번호를 입력하면 자동으로 하이픈(-)이 추가됩니다.
+                        <div id="phone-validation-message" class="validation-message">휴대폰 번호를 입력하면 자동으로 하이픈(-)이 추가됩니다.
                         </div>
+                    </div>
+
+                    <!-- 🆕 생년월일 -->
+                    <div class="field-validation">
+                        <label for="birthdate" class="block text-sm font-medium text-gray-700 mb-1">생년월일</label>
+                        <input type="date" id="birthdate" name="birthdate" class="form-input">
+                        <p class="text-sm text-gray-600 mt-1">선택사항입니다.</p>
+                    </div>
+
+                    <!-- 🆕 성별 -->
+                    <div class="field-validation">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">성별</label>
+                        <div class="flex space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="gender" value="male" class="form-radio">
+                                <span class="ml-2">남성</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="gender" value="female" class="form-radio">
+                                <span class="ml-2">여성</span>
+                            </label>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">선택사항입니다.</p>
+                    </div>
+
+                    <!-- 🆕 주소 -->
+                    <div class="field-validation">
+                        <label for="address" class="block text-sm font-medium text-gray-700 mb-1">주소</label>
+
+                        <!-- 우편번호 + 검색 버튼 -->
+                        <div class="flex gap-2 mb-2">
+                            <input type="text" id="postal-code" name="postal-code" class="form-input flex-1"
+                                placeholder="우편번호" readonly>
+                            <button type="button" id="address-search-btn"
+                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors">
+                                주소 검색
+                            </button>
+                        </div>
+
+                        <!-- 기본 주소 -->
+                        <input type="text" id="address-basic" name="address-basic" class="form-input mb-2"
+                            placeholder="기본 주소" readonly>
+
+                        <!-- 상세 주소 -->
+                        <input type="text" id="address-detail" name="address-detail" class="form-input mb-2"
+                            placeholder="상세 주소 (동, 호수 등)">
+
+                        <!-- 전체 주소 (hidden, 서버 전송용) -->
+                        <input type="hidden" id="address-full" name="address">
+
+                        <p class="text-sm text-gray-600 mt-1">주소 검색 버튼을 클릭하여 주소를 입력하세요. (선택사항)</p>
                     </div>
 
                     <!-- 약관 동의 -->
@@ -494,6 +529,7 @@
                     </div>
                 </form>
 
+                <!-- Google 회원가입 섹션 (기존과 동일) -->
                 <div class="mt-6">
                     <div class="relative">
                         <div class="absolute inset-0 flex items-center">
@@ -875,6 +911,9 @@
         <script src="{basePath}assets/js/pages/auth/signup.js"><\/script>
         <script src="{basePath}assets/js/main.js"><\/script>
     </script>
+
+    <!-- 🆕 Daum 우편번호 API -->
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </body>
 
 </html>
