@@ -1110,6 +1110,12 @@
         const createdDate = new Date(app.createdAt.seconds * 1000);
         const progress = app.progress || 0;
 
+        // 🔧 수정: certName과 certificateName 둘 다 체크
+        const certName = app.certName || app.certificateName || app.certType || '자격증';
+
+        // 🔧 추가: certType이 있는 경우 한글명으로 변환
+        const displayCertName = certName === app.certType ? getCertificateTypeName(certName) : certName;
+
         let statusIcon = '';
         let actionButton = '';
 
@@ -1119,7 +1125,7 @@
                 actionButton = `<button onclick="goToPayment('${app.id}')" class="btn btn-sm btn-primary">결제하기</button>`;
                 break;
             case 'under_review':
-                statusIcon = '📝';
+                statusIcon = '🔍';
                 break;
             case 'processing':
                 statusIcon = '⚙️';
@@ -1143,31 +1149,31 @@
         };
 
         return `
-            <div class="progress-card ${statusClass}">
-                <div class="progress-header">
-                    <div class="progress-info">
-                        <h4 class="progress-title">${app.certName} ${typeText}</h4>
-                        <p class="progress-date">신청일: ${formatDate(createdDate)}</p>
-                    </div>
-                    <div class="progress-status">
-                        <span class="status-icon">${statusIcon}</span>
-                        <span class="status-text">${statusText}</span>
-                    </div>
+        <div class="progress-card ${statusClass}">
+            <div class="progress-header">
+                <div class="progress-info">
+                    <h4 class="progress-title">${displayCertName} ${typeText}</h4>
+                    <p class="progress-date">신청일: ${formatDate(createdDate)}</p>
                 </div>
-                
-                <div class="progress-visual mt-3">
-                    <div class="progress-track">
-                        <div class="progress-fill" style="width: ${progress}%"></div>
-                    </div>
-                    <div class="progress-text">
-                        <span>진행률</span>
-                        <span>${progress}%</span>
-                    </div>
+                <div class="progress-status">
+                    <span class="status-icon">${statusIcon}</span>
+                    <span class="status-text">${statusText}</span>
                 </div>
-                
-                ${actionButton ? `<div class="progress-actions mt-3">${actionButton}</div>` : ''}
             </div>
-        `;
+            
+            <div class="progress-visual mt-3">
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: ${progress}%"></div>
+                </div>
+                <div class="progress-text">
+                    <span>진행률</span>
+                    <span>${progress}%</span>
+                </div>
+            </div>
+            
+            ${actionButton ? `<div class="progress-actions mt-3">${actionButton}</div>` : ''}
+        </div>
+    `;
     }
 
     /**
@@ -2125,6 +2131,19 @@
     // =================================
 
     /**
+     * 자격증 타입을 한글명으로 변환
+     */
+    function getCertificateTypeName(type) {
+        const typeNames = {
+            'health-exercise': '건강운동처방사',
+            'rehabilitation': '운동재활전문가',
+            'pilates': '필라테스 전문가',
+            'recreation': '레크리에이션지도자'
+        };
+        return typeNames[type] || type || '알 수 없음';
+    }
+
+    /**
      * 로딩 상태 표시
      */
     function showLoadingState(show) {
@@ -2592,13 +2611,13 @@
     // =================================
     // 🆕 IIFE 내부에서 직접 초기화
     // =================================
-    
+
     /**
      * 안전한 초기화 실행
      */
     function safeInitialize() {
         console.log('🔧 IIFE 내부 - 안전한 초기화 함수 실행');
-        
+
         // DOM 준비 확인
         if (document.readyState === 'loading') {
             console.log('⏳ DOM 로딩 중, DOMContentLoaded 대기');
@@ -2611,7 +2630,7 @@
             setTimeout(initializePage, 100);
         }
     }
-    
+
     // 초기화 실행
     safeInitialize();
 

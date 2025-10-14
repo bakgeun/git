@@ -674,6 +674,10 @@ window.CertApplication = window.CertApplication || {};
             certificateName: getCertificateTypeName(formData.get('cert-type')),
             certificateNumber: null, // 관리자가 발급 시 생성
 
+            // 🔧 추가: 호환성을 위한 중복 필드
+            certType: formData.get('cert-type') || '',
+            certName: getCertificateTypeName(formData.get('cert-type')), // ← 이 필드 추가!
+
             // 교육 정보
             courseCompletionDate: formData.get('course-completion-date') || '',
             examPassDate: formData.get('exam-pass-date') || '',
@@ -1090,7 +1094,11 @@ window.CertApplication = window.CertApplication || {};
                 'pilates': '필라테스 전문가',
                 'recreation': '레크리에이션지도자'
             };
-            const selectedCert = certNames[certTypeSelect.value] || '자격증을 선택해주세요';
+
+            // 🔧 수정: 값이 없을 때 기본 메시지 표시
+            const selectedValue = certTypeSelect.value;
+            const selectedCert = selectedValue ? certNames[selectedValue] : '자격증을 선택해주세요';
+
             summaryCertName.textContent = selectedCert;
         }
 
