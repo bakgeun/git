@@ -123,37 +123,101 @@
     // =================================
 
     /**
-     * 페이지 초기화
+     * 페이지 초기화 (Firebase 인증 대기 포함)
      */
     async function initializePage() {
+        console.log('=== 🚀 자격증 관리 페이지 초기화 시작 ===');
+
         try {
-            // 인증 상태 확인
-            if (!window.mypageHelpers.checkAuthState()) {
+            // 🆕 1. Firebase 인증 준비 대기
+            console.log('⏳ Firebase 인증 서비스 준비 대기 중...');
+
+            if (!window.authService) {
+                console.error('❌ authService를 찾을 수 없습니다.');
+                showNotification('인증 서비스를 초기화하는 중입니다. 잠시 후 다시 시도해주세요.', 'error');
+                setTimeout(initializePage, 500); // 0.5초 후 재시도
                 return;
             }
 
-            // 로딩 상태 표시
+            // 🆕 2. Firebase onAuthStateChanged 리스너로 사용자 대기
+            const waitForAuth = new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => {
+                    reject(new Error('인증 타임아웃'));
+                }, 5000); // 5초 타임아웃
+
+                window.dhcFirebase.onAuthStateChanged((user) => {
+                    clearTimeout(timeout);
+                    resolve(user);
+                });
+            });
+
+            console.log('⏳ 사용자 인증 상태 확인 중...');
+            const user = await waitForAuth;
+
+            if (!user) {
+                console.log('❌ 로그인되지 않은 사용자, 로그인 페이지로 이동');
+                setTimeout(() => {
+                    window.location.href = window.adjustPath('pages/auth/login.html');
+                }, 1000);
+                return;
+            }
+
+            console.log('✅ 사용자 인증 확인:', user.email);
+
+            // 🆕 3. 로딩 상태 표시
             showLoadingState(true);
 
-            // 데이터 로드
+            // 🆕 4. 데이터 로드
+            console.log('📊 데이터 로드 시작...');
             await Promise.all([
                 loadCertificates(),
-                loadApplications()
+                loadApplications() // 🔧 수정된 통합 조회 버전 사용
             ]);
 
-            // UI 업데이트
+            console.log('✅ 데이터 로드 완료');
+            console.log('  - certificates:', certificates.length + '개');
+            console.log('  - applications:', applications.length + '개');
+
+            // 🆕 5. URL 파라미터 처리
+            const urlParams = new URLSearchParams(window.location.search);
+            const from = urlParams.get('from');
+            const applicationId = urlParams.get('applicationId');
+
+            if (from === 'cert-application' && applicationId) {
+                console.log('✅ 자격증 신청 완료 후 리다이렉트됨:', applicationId);
+                showNotification('자격증 발급 신청이 완료되었습니다!', 'success');
+
+                // 🔧 추가 동기화 (1초 후)
+                setTimeout(async () => {
+                    console.log('🔄 추가 데이터 동기화...');
+                    await loadApplications();
+                    updateDashboard();
+                    renderProgressList();
+                    console.log('✅ 추가 동기화 완료');
+                }, 1000);
+            }
+
+            // 🆕 6. UI 업데이트
+            console.log('🎨 UI 업데이트 시작...');
             updateDashboard();
             renderOwnedCertificates();
             renderProgressList();
             checkRenewalNeeded();
             initializeRenewalProcess();
 
-            // 이벤트 리스너 설정
+            // 🆕 7. 이벤트 리스너 설정
             setupEventListeners();
 
+            console.log('=== ✅ 자격증 관리 페이지 초기화 완료 ===');
+
         } catch (error) {
-            console.error('페이지 초기화 오류:', error);
-            showNotification('페이지 초기화 중 오류가 발생했습니다.', 'error');
+            console.error('❌ 페이지 초기화 오류:', error);
+
+            if (error.message === '인증 타임아웃') {
+                showNotification('인증 확인 중 시간이 초과되었습니다. 페이지를 새로고침해주세요.', 'error');
+            } else {
+                showNotification('페이지 초기화 중 오류가 발생했습니다.', 'error');
+            }
         } finally {
             showLoadingState(false);
         }
@@ -216,58 +280,126 @@
     }
 
     /**
-     * 신청 내역 로드
+     * 신청 내역 로드 (certificates + applications 통합)
+     * 🆕 두 컬렉션 통합 조회로 수정
      */
     async function loadApplications() {
         try {
             const user = window.authService.getCurrentUser();
 
             if (!user) {
-                console.warn('사용자가 로그인되지 않았습니다.');
+                console.warn('⚠️ 사용자가 로그인되지 않았습니다.');
                 applications = [];
+                window.applications = applications;
                 return;
             }
 
-            console.log('신청 내역 로드 시작:', user.uid);
+            console.log('📋 신청 내역 로드 시작 (통합 조회):', user.uid);
 
-            const result = await window.dbService.getDocuments('applications', {
-                where: { field: 'userId', operator: '==', value: user.uid },
-                limit: 50
-            });
-
-            if (result.success) {
-                const sortedApplications = result.data.sort((a, b) => {
-                    const dateA = new Date(a.createdAt || a.timestamp || 0);
-                    const dateB = new Date(b.createdAt || b.timestamp || 0);
-                    return dateB - dateA;
+            // 1. applications 컬렉션 조회
+            let applicationsData = [];
+            try {
+                const appResult = await window.dbService.getDocuments('applications', {
+                    where: { field: 'userId', operator: '==', value: user.uid },
+                    limit: 50
                 });
 
-                applications = sortedApplications;
-                window.applications = applications;
-                console.log('신청 내역 로드 성공:', applications.length + '개');
-            } else {
-                console.error('신청 내역 조회 실패:', result.error);
-                applications = [];
-
-                if (result.error && typeof result.error === 'object' &&
-                    (result.error.message?.includes('index') || result.error.code === 'failed-precondition')) {
-                    console.log('📋 인덱스 오류 - 빈 배열 반환');
-                    return;
+                if (appResult.success && appResult.data) {
+                    applicationsData = appResult.data;
+                    console.log('  ✅ applications 컬렉션:', applicationsData.length + '개');
+                } else {
+                    console.log('  ⚠️ applications 컬렉션 조회 결과 없음');
                 }
+            } catch (appError) {
+                console.warn('  ⚠️ applications 컬렉션 조회 오류:', appError.message);
+            }
 
-                if (!result.error.includes('permission') && !result.error.includes('Missing')) {
-                    showNotification('신청 내역을 불러오는 중 오류가 발생했습니다.', 'error');
+            // 2. certificates 컬렉션에서 신청 상태 데이터 조회
+            let certificatesApplicationData = [];
+            try {
+                const certResult = await window.dbService.getDocuments('certificates', {
+                    where: { field: 'userId', operator: '==', value: user.uid },
+                    limit: 50
+                });
+
+                if (certResult.success && certResult.data) {
+                    // 신청 진행 중인 상태만 필터링
+                    certificatesApplicationData = certResult.data.filter(cert => {
+                        const status = cert.status || cert.applicationStatus || '';
+                        const isApplicationStatus = [
+                            'pending',
+                            'submitted',
+                            'pending_review',
+                            'document_submitted',
+                            'under_review',
+                            'payment_pending',
+                            'processing'
+                        ].includes(status.toLowerCase());
+
+                        // 발급되지 않은 것만 (신청 중인 것)
+                        const notIssued = !cert.isIssued && !cert.certificateNumber;
+
+                        return isApplicationStatus || notIssued;
+                    });
+                    console.log('  ✅ certificates 컬렉션 (신청중):', certificatesApplicationData.length + '개');
                 }
+            } catch (certError) {
+                console.warn('  ⚠️ certificates 컬렉션 조회 오류:', certError.message);
+            }
+
+            // 3. 두 컬렉션 데이터 병합 (중복 제거)
+            const mergedData = [...applicationsData];
+
+            certificatesApplicationData.forEach(certApp => {
+                const isDuplicate = applicationsData.some(app =>
+                    (app.id && app.id === certApp.id) ||
+                    (app.applicationId && app.applicationId === certApp.applicationId) ||
+                    (certApp.applicationDocId && app.id === certApp.applicationDocId)
+                );
+
+                if (!isDuplicate) {
+                    mergedData.push(certApp);
+                }
+            });
+
+            // 4. 날짜순 정렬 (최신순)
+            const sortedApplications = mergedData.sort((a, b) => {
+                const getTimestamp = (item) => {
+                    if (item.createdAt) {
+                        return item.createdAt.seconds ? item.createdAt.seconds * 1000 : new Date(item.createdAt).getTime();
+                    }
+                    if (item.timestamp) {
+                        return item.timestamp.seconds ? item.timestamp.seconds * 1000 : new Date(item.timestamp).getTime();
+                    }
+                    return 0;
+                };
+
+                return getTimestamp(b) - getTimestamp(a);
+            });
+
+            applications = sortedApplications;
+            window.applications = applications;
+
+            console.log('✅ 통합 신청 내역 로드 완료:', applications.length + '개');
+            console.log('  📊 상세:');
+            console.log('    - applications 컬렉션:', applicationsData.length + '개');
+            console.log('    - certificates 컬렉션 (신청중):', certificatesApplicationData.length + '개');
+            console.log('    - 병합 후 총:', applications.length + '개');
+
+            // 디버깅용 데이터 출력
+            if (applications.length > 0) {
+                console.log('  📋 최신 신청:', {
+                    id: applications[0].id || applications[0].applicationId,
+                    name: applications[0].certificateName || applications[0].certName,
+                    status: applications[0].status || applications[0].applicationStatus,
+                    date: new Date(applications[0].createdAt || applications[0].timestamp).toLocaleString('ko-KR')
+                });
             }
 
         } catch (error) {
-            console.error('신청 내역 로드 오류:', error);
+            console.error('❌ 신청 내역 로드 오류:', error);
             applications = [];
-
-            if (error.message?.includes('index') || error.code === 'failed-precondition') {
-                console.log('📋 Firestore 인덱스가 필요합니다. 현재는 빈 배열을 반환합니다.');
-                return;
-            }
+            window.applications = applications;
         }
     }
 
@@ -796,9 +928,20 @@
      */
     function updateDashboard() {
         const totalCerts = certificates.length;
-        const pendingApps = applications.filter(app =>
-            ['under_review', 'payment_pending', 'processing'].includes(app.status)
-        ).length;
+
+        // 🔧 개선: 더 많은 상태 조건 체크
+        const pendingApps = applications.filter(app => {
+            const status = (app.status || app.applicationStatus || '').toLowerCase();
+            return [
+                'pending',
+                'submitted',
+                'under_review',
+                'payment_pending',
+                'processing',
+                'pending_review',
+                'document_submitted'
+            ].includes(status);
+        }).length;
 
         const today = new Date();
         const expiringCerts = certificates.filter(cert => {
@@ -824,6 +967,15 @@
         if (pendingAppsEl) pendingAppsEl.textContent = pendingApps;
         if (expiringCertsEl) expiringCertsEl.textContent = expiringCerts;
         if (validCertsEl) validCertsEl.textContent = validCerts;
+
+        // 🆕 디버깅 로그 추가
+        console.log('📊 대시보드 업데이트:', {
+            totalCerts,
+            pendingApps,
+            expiringCerts,
+            validCerts,
+            applicationsCount: applications.length
+        });
     }
 
     /**
@@ -2436,6 +2588,32 @@
 
     console.log('✅ 자격증 관리 페이지 스크립트 로드 완료 - 정리된 버전');
     console.log('🎉 동적 갱신 비용 시스템 및 주소찾기 기능 완성!');
+
+    // =================================
+    // 🆕 IIFE 내부에서 직접 초기화
+    // =================================
+    
+    /**
+     * 안전한 초기화 실행
+     */
+    function safeInitialize() {
+        console.log('🔧 IIFE 내부 - 안전한 초기화 함수 실행');
+        
+        // DOM 준비 확인
+        if (document.readyState === 'loading') {
+            console.log('⏳ DOM 로딩 중, DOMContentLoaded 대기');
+            document.addEventListener('DOMContentLoaded', () => {
+                console.log('✅ DOMContentLoaded 이벤트 발생');
+                setTimeout(initializePage, 100);
+            });
+        } else {
+            console.log('✅ DOM 이미 준비됨, 즉시 초기화');
+            setTimeout(initializePage, 100);
+        }
+    }
+    
+    // 초기화 실행
+    safeInitialize();
 
 })(); // IIFE 끝
 

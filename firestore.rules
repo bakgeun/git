@@ -103,15 +103,27 @@ service cloud.firestore {
       allow read: if isAuthenticated() && 
         ((resource.data.userId == request.auth.uid && 
           (!resource.data.keys().hasAny(['status']) || 
-           resource.data.status != 'deleted')) || 
+            resource.data.status != 'deleted')) || 
          isAdmin());
-      
-      // 생성: 관리자만
-      allow create: if isAdmin();
-      
+
+      // 🔧 개선된 생성 규칙
+      allow create: if isAdmin() || 
+        (isAuthenticated() && 
+         request.resource.data.userId == request.auth.uid &&
+         // 신청 상태로만 생성 가능
+         (request.resource.data.status == 'pending' || 
+          request.resource.data.status == 'submitted') &&
+         // 발급 관련 필드는 없거나 false여야 함
+         (!request.resource.data.keys().hasAny(['isIssued']) || 
+          request.resource.data.isIssued == false) &&
+         // 자격증 번호는 없어야 함 (관리자가 발급 시 생성)
+         (!request.resource.data.keys().hasAny(['certificateNumber']) || 
+          request.resource.data.certificateNumber == null ||
+          request.resource.data.certificateNumber.matches('CERT_.*|PENDING.*')));
+  
       // 업데이트: 관리자만
       allow update: if isAdmin();
-      
+  
       // 삭제: 관리자만
       allow delete: if isAdmin();
     }

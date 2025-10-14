@@ -1157,25 +1157,21 @@ window.CertApplication = window.CertApplication || {};
      */
     function handleApplicationSuccess(applicationData, saveResult) {
         console.log('🎉 개선된 신청 완료 처리');
-        console.log('저장 결과:', saveResult);
 
         try {
-            // 1. 사용자에게 성공 메시지 표시
+            // 성공 모달 표시
             showEnhancedSuccessModal(applicationData, saveResult);
 
-            // 2. 폼 비활성화
+            // 폼 비활성화
             disableFormAfterSubmission();
 
-            // 3. 🔧 리다이렉션 계획 (사용자 상태에 따라)
+            // 🆕 리다이렉트 타이밍 증가 (1초 → 3초)
             setTimeout(() => {
                 handlePostSubmissionRedirection(applicationData, saveResult);
-            }, 5000);
-
-            // 4. 🔧 관리자 알림 (향후 구현)
-            // scheduleAdminNotification(saveResult.certificateId);
+            }, 3000); // 5000 → 3000으로 변경
 
         } catch (error) {
-            console.error('❌ 신청 완료 처리 오류:', error);
+            console.error('⚠️ 신청 완료 처리 오류:', error);
             showErrorMessage('신청은 완료되었으나 일부 후속 처리에서 오류가 발생했습니다.');
         }
     }
