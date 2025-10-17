@@ -684,10 +684,10 @@ window.userManager = {
                     return;
                 }
 
-                // 1. Firestore에서 사용자 목록 조회
+                // 1. Firestore에서 사용자 목록 조회 (✅ limit 제거)
                 const firestoreResult = await window.dbService.getDocuments('users', {
-                    orderBy: { field: 'createdAt', direction: 'desc' },
-                    limit: this.pageSize
+                    orderBy: { field: 'createdAt', direction: 'desc' }
+                    // ✅ limit 제거 - 전체 사용자 조회
                 });
 
                 if (firestoreResult.success) {
@@ -698,10 +698,10 @@ window.userManager = {
                 // 2. Firebase Auth 사용자 중 Firestore에 없는 사용자 동기화
                 await this.syncMissingUsers();
 
-                // 3. 동기화 후 다시 조회
+                // 3. 동기화 후 다시 조회 (✅ limit 제거)
                 const syncedResult = await window.dbService.getDocuments('users', {
-                    orderBy: { field: 'createdAt', direction: 'desc' },
-                    limit: this.pageSize
+                    orderBy: { field: 'createdAt', direction: 'desc' }
+                    // ✅ limit 제거 - 전체 사용자 조회
                 });
 
                 if (syncedResult.success) {
@@ -725,6 +725,11 @@ window.userManager = {
             console.log('최종 로드된 사용자 수:', this.currentUsers.length);
 
             this.updateUserList(users);
+
+            // ✅ 페이지네이션 업데이트 추가
+            const totalPages = Math.ceil(users.length / this.pageSize);
+            console.log('📄 총 페이지 수:', totalPages);
+            this.updatePagination(totalPages);
 
         } catch (error) {
             console.error('회원 목록 로드 오류:', error);
@@ -878,17 +883,24 @@ window.userManager = {
             return;
         }
 
+        // ✅ 현재 페이지의 사용자만 추출
+        const startIndex = (this.currentPage - 1) * this.pageSize;
+        const endIndex = startIndex + this.pageSize;
+        const pageUsers = users.slice(startIndex, endIndex);
+
         let html = '';
 
-        users.forEach((user, index) => {
-            // 🔧 전역 유틸리티 사용하여 날짜 포맷팅
+        pageUsers.forEach((user, index) => {
+            // 전역 번호 계산 (전체 목록에서의 순번)
+            const userNumber = startIndex + index + 1;
+
+            // 📧 전역 유틸리티 사용하여 날짜 포맷팅
             const createdAt = user.createdAt ?
                 (typeof user.createdAt.toDate === 'function' ?
                     window.formatters.formatDate(user.createdAt.toDate()) :
                     user.createdAt) :
                 '-';
 
-            const userNumber = index + 1 + ((this.currentPage - 1) * this.pageSize);
             const displayName = user.displayName || '미설정';
             const email = user.email || '';
             const userType = user.userType || 'student';
