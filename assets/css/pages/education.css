@@ -5119,46 +5119,6 @@ input[type="tel"] {
 }
 
 /* ==============================================
-   69. 다크 모드 대응 (선택적)
-   ============================================== */
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --edu-gray-50: #1f2937;
-        --edu-gray-100: #374151;
-        --edu-gray-200: #4b5563;
-        --edu-gray-300: #6b7280;
-        --edu-gray-800: #f9fafb;
-        --edu-gray-900: #ffffff;
-    }
-    
-    .photo-upload-zone {
-        background: linear-gradient(145deg, #374151 0%, #1f2937 100%);
-        border-color: #4b5563;
-    }
-    
-    .form-input,
-    .form-select,
-    .form-textarea {
-        background: #374151;
-        border-color: #4b5563;
-        color: #f9fafb;
-    }
-    
-    .form-input::placeholder,
-    .form-textarea::placeholder {
-        color: #9ca3af;
-    }
-    
-    .edu-card,
-    .application-form-card,
-    .certificate-form-card {
-        background: #1f2937;
-        color: #f9fafb;
-    }
-}
-
-/* ==============================================
    70. 성능 최적화
    ============================================== */
 
