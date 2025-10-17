@@ -471,12 +471,20 @@ window.userManager = {
     pendingStatusChange: null,
     currentUsers: [],
 
+    // ✅ 캐시 매니저 인스턴스 (간단해짐!)
+    cacheManager: null,
+
     /**
      * 초기화 함수
      */
     init: async function () {
         try {
             console.log('회원 관리자 초기화 시작');
+
+            // ✅ 캐시 매니저 초기화
+            this.cacheManager = window.CacheManagerFactory.getInstance('users', {
+                cacheExpiry: 5 * 60 * 1000 // 5분
+            });
 
             // 관리자 정보 표시
             if (window.adminAuth && typeof window.adminAuth.displayAdminInfo === 'function') {
@@ -486,21 +494,79 @@ window.userManager = {
             // 이벤트 리스너 등록
             this.registerEventListeners();
 
-            // 회원 목록 로드
-            await this.loadUsers();
+            // ✅ 병렬 처리로 속도 향상
+            const [users] = await Promise.all([
+                this.getAllUsers(),  // 사용자 로드
+            ]);
 
-            // 통계 정보 업데이트
+            // UI 업데이트 (순차 처리)
+            this.currentUsers = users;
+            this.updateUserList(users);
+
+            const totalPages = Math.ceil(users.length / this.pageSize);
+            this.updatePagination(totalPages);
+
+            // 통계는 같은 데이터로 계산
             await this.updateUserStats();
 
-            console.log('회원 관리자 초기화 완료');
+            console.log('✅ 회원 관리자 초기화 완료');
             return true;
         } catch (error) {
             console.error('회원 관리자 초기화 오류:', error);
-            if (window.adminAuth && window.adminAuth.showNotification) {
-                window.adminAuth.showNotification('초기화 중 오류가 발생했습니다.', 'error');
-            }
             return false;
         }
+    },
+
+    /**
+     * 전체 사용자 가져오기 (캐시 사용)
+     */
+    getAllUsers: async function (forceRefresh = false) {
+        return await this.cacheManager.getData(async () => {
+            const result = await window.dbService.getDocuments('users', {
+                orderBy: { field: 'createdAt', direction: 'desc' }
+            });
+
+            if (result.success) {
+                // 관리자 제외
+                return result.data.filter(user => user.userType !== 'admin');
+            }
+            return [];
+        }, forceRefresh);
+    },
+
+    /**
+     * 클라이언트 측에서 필터 적용
+     */
+    applyClientSideFilters: function (users) {
+        const searchKeyword = document.getElementById('search-keyword')?.value.trim().toLowerCase();
+        const userType = document.getElementById('filter-role')?.value;
+        const status = document.getElementById('filter-status')?.value;
+
+        let filtered = users.filter(user => {
+            // 검색어 필터
+            if (searchKeyword) {
+                const name = (user.displayName || '').toLowerCase();
+                const email = (user.email || '').toLowerCase();
+                if (!name.includes(searchKeyword) && !email.includes(searchKeyword)) {
+                    return false;
+                }
+            }
+
+            // 회원 유형 필터
+            if (userType && user.userType !== userType) {
+                return false;
+            }
+
+            // 상태 필터
+            if (status && user.status !== status) {
+                return false;
+            }
+
+            return true;
+        });
+
+        console.log('🔍 필터 적용: 전체', users.length, '명 → 필터링', filtered.length, '명');
+        return filtered;
     },
 
     /**
@@ -565,83 +631,29 @@ window.userManager = {
      */
     updateUserStats: async function () {
         try {
+            const users = await this.getAllUsers();
+
             let totalUsers = 0;
             let activeUsers = 0;
             let instructorUsers = 0;
             let suspendedUsers = 0;
 
-            if (this.isFirebaseAvailable()) {
-                try {
-                    // ✅ 모든 사용자 가져오기 (한 번만 조회)
-                    const allUsersResult = await window.dbService.getDocuments('users', {
-                        limit: 1000  // 최대 1000명까지 조회
-                    });
+            users.forEach(user => {
+                const status = user.status || 'active';
+                const userType = user.userType || 'student';
 
-                    if (allUsersResult.success && allUsersResult.data) {
-                        const users = allUsersResult.data;
+                if (status === 'deleted') return;
 
-                        console.log('📊 전체 사용자 조회:', users.length, '명');
+                totalUsers++;
+                if (status === 'active') activeUsers++;
+                if (userType === 'instructor') instructorUsers++;
+                if (status === 'suspended') suspendedUsers++;
+            });
 
-                        // JavaScript로 필터링 (인덱스 불필요)
-                        users.forEach(user => {
-                            const status = user.status || 'active';
-                            const userType = user.userType || 'student';
-
-                            console.log(`사용자: ${user.email}, 상태: ${status}, 유형: ${userType}`);
-
-                            // 탈퇴한 사용자 제외
-                            if (status === 'deleted') {
-                                console.log(`  ⏭️ 탈퇴 사용자 제외: ${user.email}`);
-                                return;
-                            }
-
-                            // 전체 회원 (탈퇴자 제외, 관리자 포함)
-                            totalUsers++;
-
-                            // 활성 회원 (관리자 제외)
-                            if (status === 'active' && userType !== 'admin') {
-                                activeUsers++;
-                                console.log(`  ✅ 활성 회원: ${user.email}`);
-                            } else if (status === 'active' && userType === 'admin') {
-                                console.log(`  ⏭️ 관리자 제외: ${user.email}`);
-                            }
-
-                            // 강사 (탈퇴자 제외)
-                            if (userType === 'instructor') {
-                                instructorUsers++;
-                                console.log(`  👨‍🏫 강사: ${user.email}`);
-                            }
-
-                            // 정지 회원
-                            if (status === 'suspended') {
-                                suspendedUsers++;
-                                console.log(`  ⛔ 정지: ${user.email}`);
-                            }
-                        });
-
-                        console.log('📊 통계 계산 완료:', {
-                            전체DB사용자: users.length,
-                            전체회원_탈퇴제외: totalUsers,
-                            활성회원_관리자제외: activeUsers,
-                            강사: instructorUsers,
-                            정지: suspendedUsers
-                        });
-                    }
-                } catch (error) {
-                    console.error('Firebase 통계 조회 오류:', error);
-                    if (window.adminAuth && window.adminAuth.showNotification) {
-                        window.adminAuth.showNotification('통계 조회 중 오류가 발생했습니다.', 'error');
-                    }
-                }
-            }
-
-            // UI 업데이트
             this.updateStatElement('total-users-count', totalUsers);
             this.updateStatElement('active-users-count', activeUsers);
             this.updateStatElement('instructor-users-count', instructorUsers);
             this.updateStatElement('suspended-users-count', suspendedUsers);
-
-            console.log('✅ 통계 UI 업데이트 완료:', { totalUsers, activeUsers, instructorUsers, suspendedUsers });
 
         } catch (error) {
             console.error('회원 통계 업데이트 오류:', error);
@@ -663,83 +675,37 @@ window.userManager = {
      * 회원 목록 로드
      */
     loadUsers: async function () {
-        console.log('회원 목록 로드 시작 - Firebase Auth와 Firestore 동기화');
+        console.log('📋 회원 목록 로드 시작');
 
-        document.getElementById('user-list').innerHTML = `
-        <tr>
-            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
-                데이터를 불러오는 중입니다...
-            </td>
-        </tr>
-    `;
+        const userList = document.getElementById('user-list');
+        userList.innerHTML = `
+            <tr>
+                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                    데이터를 불러오는 중입니다...
+                </td>
+            </tr>
+        `;
 
         try {
-            let users = [];
+            const allUsers = await this.getAllUsers();
+            const filteredUsers = this.applyClientSideFilters(allUsers);
 
-            if (this.isFirebaseAvailable()) {
-                // ✅ 인증 상태 확인 (선택사항)
-                const currentUser = window.dhcFirebase.getCurrentUser();
-                if (!currentUser) {
-                    console.log('⚠️ 아직 인증되지 않음, 인증 완료 대기 중...');
-                    return;
-                }
+            this.currentUsers = filteredUsers;
 
-                // 1. Firestore에서 사용자 목록 조회 (✅ limit 제거)
-                const firestoreResult = await window.dbService.getDocuments('users', {
-                    orderBy: { field: 'createdAt', direction: 'desc' }
-                    // ✅ limit 제거 - 전체 사용자 조회
-                });
+            this.updateUserList(filteredUsers);
 
-                if (firestoreResult.success) {
-                    users = firestoreResult.data;
-                    console.log('Firestore에서 조회된 사용자:', users.length);
-                }
-
-                // 2. Firebase Auth 사용자 중 Firestore에 없는 사용자 동기화
-                await this.syncMissingUsers();
-
-                // 3. 동기화 후 다시 조회 (✅ limit 제거)
-                const syncedResult = await window.dbService.getDocuments('users', {
-                    orderBy: { field: 'createdAt', direction: 'desc' }
-                    // ✅ limit 제거 - 전체 사용자 조회
-                });
-
-                if (syncedResult.success) {
-                    users = syncedResult.data;
-                    console.log('동기화 후 사용자 수:', users.length);
-                }
-
-            } else {
-                console.log('Firebase를 사용할 수 없습니다.');
-                document.getElementById('user-list').innerHTML = `
-                <tr>
-                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">
-                        데이터베이스에 연결할 수 없습니다.
-                    </td>
-                </tr>
-            `;
-                return;
-            }
-
-            this.currentUsers = users;
-            console.log('최종 로드된 사용자 수:', this.currentUsers.length);
-
-            this.updateUserList(users);
-
-            // ✅ 페이지네이션 업데이트 추가
-            const totalPages = Math.ceil(users.length / this.pageSize);
-            console.log('📄 총 페이지 수:', totalPages);
+            const totalPages = Math.ceil(filteredUsers.length / this.pageSize);
             this.updatePagination(totalPages);
 
         } catch (error) {
             console.error('회원 목록 로드 오류:', error);
-            document.getElementById('user-list').innerHTML = `
-            <tr>
-                <td colspan="7" class="px-6 py-4 text-center text-red-500">
-                    데이터 로드 중 오류가 발생했습니다.
-                </td>
-            </tr>
-        `;
+            userList.innerHTML = `
+                <tr>
+                    <td colspan="7" class="px-6 py-4 text-center text-red-500">
+                        데이터 로드 중 오류가 발생했습니다.
+                    </td>
+                </tr>
+            `;
         }
     },
 
@@ -1136,6 +1102,9 @@ window.userManager = {
                 });
 
                 if (result.success) {
+                    // ✅ 캐시 무효화 추가
+                    this.invalidateCache();
+
                     if (window.adminAuth && window.adminAuth.showNotification) {
                         window.adminAuth.showNotification('권한이 성공적으로 변경되었습니다.', 'success');
                     }
@@ -1177,6 +1146,9 @@ window.userManager = {
                 });
 
                 if (result.success) {
+                    // ✅ 캐시 무효화 추가
+                    this.invalidateCache();
+
                     if (window.adminAuth && window.adminAuth.showNotification) {
                         window.adminAuth.showNotification('상태가 성공적으로 변경되었습니다.', 'success');
                     }
@@ -1303,10 +1275,13 @@ window.userManager = {
      * 페이지 변경
      */
     changePage: function (page) {
-        if (page < 1) return;
+        const totalPages = Math.ceil(this.currentUsers.length / this.pageSize);
+
+        if (page < 1 || page > totalPages) return;
 
         this.currentPage = page;
-        this.loadUsers();
+        this.updateUserList(this.currentUsers);
+        this.updatePagination(totalPages);
     },
 
     /**
@@ -1448,41 +1423,31 @@ window.userManager = {
                 const updateData = {
                     displayName: name,
                     userType: role,
-                    status: status
+                    status: status,
+                    updatedAt: new Date()
                 };
 
-                try {
-                    const result = await window.dbService.updateDocument('users', userId, updateData);
+                const result = await window.dbService.updateDocument('users', userId, updateData);
 
-                    if (result.success) {
-                        if (window.adminAuth && window.adminAuth.showNotification) {
-                            window.adminAuth.showNotification('회원 정보가 성공적으로 수정되었습니다.', 'success');
-                        }
-                        this.closeUserModal();
-                        this.loadUsers();
-                        this.updateUserStats();
-                    } else {
-                        if (window.adminAuth && window.adminAuth.showNotification) {
-                            window.adminAuth.showNotification(`회원 정보 수정 실패: ${result.error?.message || '알 수 없는 오류'}`, 'error');
-                        }
-                    }
-                } catch (error) {
-                    console.error('회원 정보 수정 오류:', error);
+                if (result.success) {
+                    // ✅ 캐시 무효화 (간단해짐!)
+                    this.cacheManager.invalidate();
+
                     if (window.adminAuth && window.adminAuth.showNotification) {
-                        window.adminAuth.showNotification(`회원 정보 수정 오류: ${error.message || '알 수 없는 오류'}`, 'error');
+                        window.adminAuth.showNotification('회원 정보가 성공적으로 수정되었습니다.', 'success');
                     }
-                }
-            } else {
-                if (window.adminAuth && window.adminAuth.showNotification) {
-                    window.adminAuth.showNotification('데이터베이스에 연결할 수 없습니다.', 'error');
+                    this.closeUserModal();
+
+                    await this.loadUsers();
+                    await this.updateUserStats();
+                } else {
+                    if (window.adminAuth && window.adminAuth.showNotification) {
+                        window.adminAuth.showNotification(`회원 정보 수정 실패: ${result.error?.message || '알 수 없는 오류'}`, 'error');
+                    }
                 }
             }
-
         } catch (error) {
             console.error('회원 수정 처리 오류:', error);
-            if (window.adminAuth && window.adminAuth.showNotification) {
-                window.adminAuth.showNotification('회원 정보 수정 중 오류가 발생했습니다.', 'error');
-            }
         }
     },
 
@@ -1524,38 +1489,24 @@ window.userManager = {
     handleDeleteUser: async function (userId) {
         try {
             if (this.isFirebaseAvailable()) {
-                try {
-                    await this.deleteRelatedUserData(userId);
+                await this.deleteRelatedUserData(userId);
 
-                    const result = await window.dbService.deleteDocument('users', userId);
+                const result = await window.dbService.deleteDocument('users', userId);
 
-                    if (result.success) {
-                        if (window.adminAuth && window.adminAuth.showNotification) {
-                            window.adminAuth.showNotification('회원이 성공적으로 삭제되었습니다.', 'success');
-                        }
-                        this.loadUsers();
-                        this.updateUserStats();
-                    } else {
-                        if (window.adminAuth && window.adminAuth.showNotification) {
-                            window.adminAuth.showNotification(`회원 삭제 실패: ${result.error?.message || '알 수 없는 오류'}`, 'error');
-                        }
-                    }
-                } catch (error) {
-                    console.error('회원 삭제 오류:', error);
+                if (result.success) {
+                    // ✅ 캐시 무효화
+                    this.cacheManager.invalidate();
+
                     if (window.adminAuth && window.adminAuth.showNotification) {
-                        window.adminAuth.showNotification(`회원 삭제 오류: ${error.message || '알 수 없는 오류'}`, 'error');
+                        window.adminAuth.showNotification('회원이 성공적으로 삭제되었습니다.', 'success');
                     }
-                }
-            } else {
-                if (window.adminAuth && window.adminAuth.showNotification) {
-                    window.adminAuth.showNotification('데이터베이스에 연결할 수 없습니다.', 'error');
+
+                    await this.loadUsers();
+                    await this.updateUserStats();
                 }
             }
         } catch (error) {
             console.error('회원 삭제 처리 오류:', error);
-            if (window.adminAuth && window.adminAuth.showNotification) {
-                window.adminAuth.showNotification('회원 삭제 중 오류가 발생했습니다.', 'error');
-            }
         }
     },
 
