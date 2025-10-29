@@ -335,6 +335,8 @@ function initCertManager() {
         selectedApplicants: [],
         allPaidApplicants: [],
         filteredPaidApplicants: [],
+        paginationInstance: null, // 페이지네이션 인스턴스
+        filteredData: [], // 필터링된 전체 데이터
 
         modalStates: {
             'cert-issue-modal': false,
@@ -1068,6 +1070,9 @@ Object.assign(window.certManager, {
 
             // 검색 필터 적용
             const filteredCertificates = this.applySearchFilters(integratedCertificates);
+            
+            // 필터링된 전체 데이터 저장 (페이지네이션용)
+            this.filteredData = filteredCertificates;
 
             // 페이지네이션 적용
             const startIndex = (this.currentPage - 1) * this.pageSize;
@@ -1075,6 +1080,9 @@ Object.assign(window.certManager, {
 
             // 테이블 업데이트
             this.updateCertificateTable(paginatedCertificates);
+
+            // 페이지네이션 렌더링 추가 ⭐
+            this.renderPagination();
 
             console.log('✅ 자격증 목록 로드 완료:', filteredCertificates.length + '개');
 
@@ -1368,6 +1376,58 @@ Object.assign(window.certManager, {
 
         // 현재 드롭다운 토글
         dropdown.classList.toggle('hidden');
+    },
+
+    // =================================
+    // 📄 페이지네이션 렌더링
+    // =================================
+
+    renderPagination() {
+        const container = document.getElementById('cert-pagination');
+        if (!container) {
+            console.error('페이지네이션 컨테이너를 찾을 수 없습니다.');
+            return;
+        }
+
+        // 필터링된 데이터가 없으면 페이지네이션 숨김
+        if (!this.filteredData || this.filteredData.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+
+        // 전체 페이지 수 계산
+        const totalPages = Math.ceil(this.filteredData.length / this.pageSize);
+
+        // 페이지가 1개 이하면 페이지네이션 숨김
+        if (totalPages <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+
+        // 기존 페이지네이션 인스턴스가 있으면 제거
+        if (this.paginationInstance) {
+            this.paginationInstance.destroy();
+        }
+
+        // 페이지네이션 생성
+        if (window.Pagination) {
+            this.paginationInstance = window.Pagination.create(container, {
+                totalItems: this.filteredData.length,
+                itemsPerPage: this.pageSize,
+                currentPage: this.currentPage,
+                maxButtons: 5,
+                showFirstLast: true,
+                showPrevNext: true,
+                showPageInfo: true,
+                onPageChange: (page) => {
+                    this.currentPage = page;
+                    this.loadCertificatesData();
+                }
+            });
+            console.log(`✅ 페이지네이션 렌더링 완료: ${totalPages}페이지, 현재 ${this.currentPage}페이지`);
+        } else {
+            console.error('⚠️ Pagination 컴포넌트가 로드되지 않았습니다.');
+        }
     },
 
     // =================================
@@ -2852,15 +2912,74 @@ Object.assign(window.certManager, {
 
             if (firebaseStatus.connected && window.dhcFirebase) {
                 try {
-                    const docRef = window.dhcFirebase.db.collection('certificates').doc(certId);
-                    const docSnap = await docRef.get();
+                    // 1. 먼저 certificates 컬렉션에서 조회
+                    let docRef = window.dhcFirebase.db.collection('certificates').doc(certId);
+                    let docSnap = await docRef.get();
+                    
                     if (docSnap.exists) {
                         cert = { id: docSnap.id, ...docSnap.data() };
-                        console.log('✅ Firebase에서 자격증 정보 조회 성공:', cert);
+                        console.log('✅ certificates 컬렉션에서 조회 성공');
+                    } else {
+                        // 2. 없으면 certificate_applications 컬렉션에서 조회
+                        console.log('🔍 certificate_applications 컬렉션에서 조회 시도...');
+                        docRef = window.dhcFirebase.db.collection('certificate_applications').doc(certId);
+                        docSnap = await docRef.get();
+                        
+                        if (docSnap.exists) {
+                            cert = { id: docSnap.id, ...docSnap.data() };
+                            console.log('✅ certificate_applications 컬렉션에서 조회 성공');
+                        }
                     }
                 } catch (error) {
                     console.error('❌ Firebase 자격증 정보 조회 오류:', error);
                 }
+
+            // 🆕 생년월일이 없는 경우 users 컬렉션에서 조회
+            if (cert && firebaseStatus.connected && window.dhcFirebase) {
+                const hasNoBirthDate = !cert.holderBirthDate && 
+                                      !cert.birthDate && 
+                                      !cert.dateOfBirth;
+                
+                if (hasNoBirthDate && (cert.userId || cert.userEmail)) {
+                    try {
+                        console.log('🔍 users 컬렉션에서 생년월일 조회 시도...');
+                        let userDoc = null;
+                        
+                        // userId로 조회
+                        if (cert.userId) {
+                            const userRef = window.dhcFirebase.db.collection('users').doc(cert.userId);
+                            const userSnap = await userRef.get();
+                            if (userSnap.exists) {
+                                userDoc = userSnap.data();
+                            }
+                        }
+                        
+                        // userId로 못 찾았으면 email로 조회
+                        if (!userDoc && cert.userEmail) {
+                            const usersQuery = window.dhcFirebase.db.collection('users')
+                                .where('email', '==', cert.userEmail)
+                                .limit(1);
+                            const querySnap = await usersQuery.get();
+                            if (!querySnap.empty) {
+                                userDoc = querySnap.docs[0].data();
+                            }
+                        }
+                        
+                        // 생년월일 추가
+                        if (userDoc && userDoc.birthdate) {
+                            cert.holderBirthDate = userDoc.birthdate;
+                            console.log('✅ users 컬렉션에서 생년월일 가져옴:', userDoc.birthdate);
+                        } else if (userDoc && userDoc.birthDate) {
+                            cert.holderBirthDate = userDoc.birthDate;
+                            console.log('✅ users 컬렉션에서 생년월일 가져옴:', userDoc.birthDate);
+                        } else {
+                            console.log('⚠️ users 컬렉션에 생년월일 정보 없음');
+                        }
+                    } catch (error) {
+                        console.warn('⚠️ users 컬렉션 조회 실패:', error);
+                    }
+                }
+            }
             }
 
             if (!cert) {
@@ -2888,7 +3007,7 @@ Object.assign(window.certManager, {
             return;
         }
 
-        // 🔧 안전한 데이터 추출
+        // 🔧 안전한 데이터 추출 (applicantInfo 지원 추가)
         const safeGetValue = (obj, path, defaultValue = '-') => {
             try {
                 return path.split('.').reduce((current, key) => current?.[key], obj) || defaultValue;
@@ -2897,28 +3016,62 @@ Object.assign(window.certManager, {
             }
         };
 
+        // applicantInfo 객체에서도 데이터 추출
+        const applicantInfo = cert.applicantInfo || {};
+        const courseInfo = cert.courseInfo || {};
+
         const certNumber = safeGetValue(cert, 'certificateNumber') ||
             safeGetValue(cert, 'certNumber') ||
+            safeGetValue(cert, 'applicationId') ||
             safeGetValue(cert, 'id') || 'Unknown';
 
         const holderNameKorean = safeGetValue(cert, 'holderName') ||
             safeGetValue(cert, 'nameKorean') ||
-            safeGetValue(cert, 'name') || 'Unknown';
+            safeGetValue(cert, 'name') ||
+            applicantInfo['applicant-name'] ||
+            safeGetValue(applicantInfo, 'applicant-name') || 'Unknown';
 
         const holderNameEnglish = safeGetValue(cert, 'holderNameEnglish') ||
-            safeGetValue(cert, 'nameEnglish') || 'Not provided';
+            safeGetValue(cert, 'nameEnglish') ||
+            applicantInfo['applicant-name-english'] ||
+            safeGetValue(applicantInfo, 'applicant-name-english') || 'Not provided';
 
         const holderEmail = safeGetValue(cert, 'holderEmail') ||
-            safeGetValue(cert, 'email') || 'unknown@example.com';
+            safeGetValue(cert, 'email') ||
+            applicantInfo['email'] ||
+            safeGetValue(applicantInfo, 'email') || 'unknown@example.com';
 
         // 🆕 연락처 정보
         const holderPhone = safeGetValue(cert, 'holderPhone') ||
-            safeGetValue(cert, 'phone') || '-';
+            safeGetValue(cert, 'phone') ||
+            applicantInfo['phone'] ||
+            safeGetValue(applicantInfo, 'phone') || '-';
 
-        const certType = this.getCertTypeName(safeGetValue(cert, 'certificateType') || this.currentCertType);
+        // 🆕 생년월일 정보 (holderBirthDate 우선, 없으면 다른 필드에서 추출)
+        let birthDate = safeGetValue(cert, 'holderBirthDate') ||  // ✅ 신규 필드 (최우선)
+            applicantInfo['birth-date'] ||
+            safeGetValue(cert, 'birthDate') ||
+            safeGetValue(cert, 'dateOfBirth') ||
+            safeGetValue(cert, 'birth-date') ||
+            safeGetValue(cert, 'date-of-birth') || '-';
+        
+        // 날짜 포맷팅
+        if (birthDate && birthDate !== '-') {
+            birthDate = this.formatDateSafe(birthDate) || birthDate;
+        }
 
-        // 교육과정명
-        let courseName = safeGetValue(cert, 'courseName') || safeGetValue(cert, 'course');
+        const certType = this.getCertTypeName(
+            safeGetValue(cert, 'certificateType') ||
+            courseInfo['certificateType'] ||
+            safeGetValue(courseInfo, 'certificateType') ||
+            this.currentCertType
+        );
+
+        // 교육과정명 (courseInfo에서도 추출)
+        let courseName = safeGetValue(cert, 'courseName') ||
+            courseInfo['courseName'] ||
+            safeGetValue(courseInfo, 'courseName') ||
+            safeGetValue(cert, 'course');
         if (!courseName || courseName === '-') {
             const certTypeName = this.getCertTypeName(cert.certificateType || this.currentCertType);
             const year = cert.createdAt ?
@@ -2939,16 +3092,28 @@ Object.assign(window.certManager, {
         const updatedAt = this.formatDate(cert.updatedAt, true) || '-';
         const remarks = safeGetValue(cert, 'remarks') || '-';
 
-        // 🆕 주소 정보
-        const deliveryAddress = safeGetValue(cert, 'deliveryAddress') || '-';
-        const postalCode = safeGetValue(cert, 'postalCode') || '';
-        const basicAddress = safeGetValue(cert, 'basicAddress') || '';
-        const detailAddress = safeGetValue(cert, 'detailAddress') || '';
+        // 🆕 주소 정보 (applicantInfo에서도 추출)
+        const deliveryAddress = safeGetValue(cert, 'deliveryAddress') ||
+            applicantInfo['address'] ||
+            safeGetValue(applicantInfo, 'address') || '-';
+        const postalCode = safeGetValue(cert, 'postalCode') ||
+            applicantInfo['postal-code'] ||
+            safeGetValue(applicantInfo, 'postal-code') || '';
+        const basicAddress = safeGetValue(cert, 'basicAddress') ||
+            applicantInfo['basic-address'] ||
+            safeGetValue(applicantInfo, 'basic-address') ||
+            applicantInfo['address'] ||
+            safeGetValue(applicantInfo, 'address') || '';
+        const detailAddress = safeGetValue(cert, 'detailAddress') ||
+            applicantInfo['detail-address'] ||
+            safeGetValue(applicantInfo, 'detail-address') || '';
 
         // 전체 주소 구성
         let fullAddress = deliveryAddress;
         if (fullAddress === '-' && postalCode && basicAddress) {
             fullAddress = `(${postalCode}) ${basicAddress}${detailAddress ? ' ' + detailAddress : ''}`;
+        } else if (fullAddress === '-' && basicAddress && basicAddress !== '-') {
+            fullAddress = basicAddress;
         }
 
         // 🆕 증명사진 정보
@@ -3011,6 +3176,7 @@ Object.assign(window.certManager, {
             <div class="space-y-1">
                 <p><span class="font-medium">한글명:</span> ${holderNameKorean}</p>
                 <p><span class="font-medium">영문명:</span> ${holderNameEnglish}</p>
+                <p><span class="font-medium">🎂 생년월일:</span> ${birthDate}</p>
                 <p><span class="font-medium">이메일:</span> ${holderEmail}</p>
                 <p><span class="font-medium">📞 연락처:</span> ${holderPhone}</p>
             </div>
@@ -5581,4 +5747,3 @@ console.log('\n🚀 최적화된 코드로 성능이 크게 향상되었습니�
 window.certManagementOptimized = true;
 
 console.log('✅ cert-management.js Part 7 (PDF 생성 및 완료) 로드 완료');
-

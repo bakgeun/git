@@ -48,6 +48,9 @@ window.CertApplication = window.CertApplication || {};
             holderEmail: applicationData.email || '',
             holderPhone: applicationData.phone || '',
 
+            // ✅ 추가: 생년월일 필드
+            holderBirthDate: applicationData['birth-date'] || applicationData.birthDate || applicationData.holderBirthDate || '',
+
             // 🔧 자격증 정보
             certificateType: applicationData['cert-type'] || applicationData.certificateType || '',
             certificateName: getCertificateTypeName(applicationData['cert-type'] || applicationData.certificateType),
