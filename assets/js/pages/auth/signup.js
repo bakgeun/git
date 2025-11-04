@@ -19,7 +19,9 @@
         password: false,
         'password-confirm': false,
         name: false,
-        phone: false
+        phone: false,
+        birthdate: false,
+        gender: false
     };
 
     // 이메일 중복 검사 디바운스 타이머
@@ -478,6 +480,58 @@
         setFieldState('phone', 'success', '올바른 휴대폰 번호입니다.');
     }
 
+    // 🆕 생년월일 실시간 검증
+    function validateBirthdateRealtime() {
+        const birthdate = birthdateInput?.value;
+
+        if (!birthdate) {
+            validationStates.birthdate = false;
+            updateSubmitButton();
+            return;
+        }
+
+        // 날짜 유효성 검사
+        const today = new Date();
+        const selectedDate = new Date(birthdate);
+        const age = today.getFullYear() - selectedDate.getFullYear();
+
+        if (selectedDate > today) {
+            validationStates.birthdate = false;
+            updateSubmitButton();
+            return;
+        }
+
+        if (age > 120) {
+            validationStates.birthdate = false;
+            updateSubmitButton();
+            return;
+        }
+
+        validationStates.birthdate = true;
+        updateSubmitButton();
+        console.log('✅ 생년월일 검증 성공');
+    }
+
+    // 🆕 성별 실시간 검증
+    function validateGenderRealtime() {
+        if (!genderInputs || genderInputs.length === 0) {
+            validationStates.gender = false;
+            updateSubmitButton();
+            return;
+        }
+
+        const selectedGender = Array.from(genderInputs).find(input => input.checked);
+        
+        if (selectedGender) {
+            validationStates.gender = true;
+            console.log('✅ 성별 검증 성공');
+        } else {
+            validationStates.gender = false;
+        }
+        
+        updateSubmitButton();
+    }
+
     function setupRealtimeValidation() {
         console.log('🔍 실시간 검증 이벤트 리스너 설정');
 
@@ -508,6 +562,19 @@
                 validatePhoneRealtime();
             });
             phoneInput.addEventListener('blur', validatePhoneRealtime);
+
+        // 🆕 생년월일 필드 이벤트
+        if (birthdateInput) {
+            birthdateInput.addEventListener('change', validateBirthdateRealtime);
+            birthdateInput.addEventListener('blur', validateBirthdateRealtime);
+        }
+
+        // 🆕 성별 필드 이벤트
+        if (genderInputs && genderInputs.length > 0) {
+            genderInputs.forEach(input => {
+                input.addEventListener('change', validateGenderRealtime);
+            });
+        }
         }
 
         [termsServiceCheckbox, termsPrivacyCheckbox].forEach(checkbox => {
@@ -622,6 +689,18 @@
                                 break;
                             case 'phone':
                                 validatePhoneRealtime();
+                                break;
+                            case 'birthdate':
+                                validateBirthdateRealtime();
+                                if (!validationStates.birthdate) {
+                                    showNotification('생년월일을 입력해주세요.');
+                                }
+                                break;
+                            case 'gender':
+                                validateGenderRealtime();
+                                if (!validationStates.gender) {
+                                    showNotification('성별을 선택해주세요.');
+                                }
                                 break;
                         }
                     }

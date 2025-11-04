@@ -424,8 +424,8 @@
                     <!-- 🆕 생년월일 -->
                     <div class="field-validation">
                         <label for="birthdate" class="block text-sm font-medium text-gray-700 mb-1">생년월일</label>
-                        <input type="date" id="birthdate" name="birthdate" class="form-input">
-                        <p class="text-sm text-gray-600 mt-1">선택사항입니다.</p>
+                        <input type="date" id="birthdate" name="birthdate" required class="form-input">
+                        <p class="text-sm text-red-600 mt-1">필수 입력 항목입니다.</p>
                     </div>
 
                     <!-- 🆕 성별 -->
@@ -433,7 +433,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">성별</label>
                         <div class="flex space-x-4">
                             <label class="inline-flex items-center">
-                                <input type="radio" name="gender" value="male" class="form-radio">
+                                <input type="radio" name="gender" value="male" required class="form-radio">
                                 <span class="ml-2">남성</span>
                             </label>
                             <label class="inline-flex items-center">
@@ -441,7 +441,7 @@
                                 <span class="ml-2">여성</span>
                             </label>
                         </div>
-                        <p class="text-sm text-gray-600 mt-1">선택사항입니다.</p>
+                        <p class="text-sm text-red-600 mt-1">필수 입력 항목입니다.</p>
                     </div>
 
                     <!-- 🆕 주소 -->
