@@ -734,11 +734,11 @@
             // 현재 슬라이드 인덱스 업데이트
             this.currentSlide = index;
 
-            // 배경 이미지 변경
+            // 배경 이미지 변경 (오버레이 제거)
             const slideData = slides[index];
-            heroSection.style.backgroundImage = `linear-gradient(to right, rgba(37, 99, 235, 0.9), rgba(79, 70, 229, 0.9)), url('${slideData.bgImage}')`;
+            heroSection.style.backgroundImage = `url('${slideData.bgImage}')`;
 
-            // 텍스트 변경 (페이드 효과 적용)
+            // 텍스트 변경 (부드러운 페이드 효과 적용)
             const heading = heroSection.querySelector('h1');
             const subheading = heroSection.querySelector('p');
 
@@ -753,9 +753,11 @@
                     subheading.innerHTML = slideData.subheading;
 
                     // 페이드 인
-                    heading.style.opacity = '1';
-                    subheading.style.opacity = '1';
-                }, 500);
+                    setTimeout(() => {
+                        heading.style.opacity = '1';
+                        subheading.style.opacity = '1';
+                    }, 50);
+                }, 600); // CSS transition 시간과 일치
             }
 
             // 내비게이션 도트 업데이트
@@ -791,18 +793,25 @@
                 }
             ];
 
-            // 5초마다 슬라이드 변경
+            // 기존 인터벌 클리어
+            if (this.slideInterval) {
+                clearInterval(this.slideInterval);
+            }
+
+            // 6초마다 슬라이드 변경 (더 여유있는 간격)
             this.slideInterval = setInterval(() => {
                 const nextSlide = (this.currentSlide + 1) % slides.length;
                 this.goToSlide(nextSlide);
-            }, 5000);
+            }, 6000);
 
             // 마우스 오버 시 자동 슬라이드 일시 중지
             const heroSection = document.querySelector('.hero-section');
 
             if (heroSection) {
                 heroSection.addEventListener('mouseenter', () => {
-                    clearInterval(this.slideInterval);
+                    if (this.slideInterval) {
+                        clearInterval(this.slideInterval);
+                    }
                 });
 
                 heroSection.addEventListener('mouseleave', () => {

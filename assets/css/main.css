@@ -572,9 +572,50 @@ footer a:hover {
 }
 
 .hero-section {
-  background-image: linear-gradient(to right, rgba(37, 99, 235, 0.9), rgba(79, 70, 229, 0.9)), url('../images/banners/hero-bg.jpg');
+  background-image: url('../images/banners/hero-bg.jpg');
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
+  transition: background-image 0.8s ease-in-out;
+}
+
+/* 히어로 섹션 텍스트에 부드러운 전환 효과 추가 */
+.hero-section h1,
+.hero-section p {
+  transition: opacity 0.6s ease-in-out;
+}
+
+/* 페이지별 히어로 섹션 배경 이미지 */
+.hero-about {
+  background-image: url('../images/banners/hero-bg.jpg');
+}
+
+.hero-health-exercise {
+  background-image: url('../images/banners/hero-bg2.jpg');
+}
+
+.hero-rehabilitation {
+  background-image: url('../images/banners/hero-bg3.jpg');
+}
+
+.hero-pilates {
+  background-image: url('../images/banners/hero-bg.jpg');
+}
+
+.hero-recreation {
+  background-image: url('../images/banners/hero-bg2.jpg');
+}
+
+.hero-instructors {
+  background-image: url('../images/banners/hero-bg3.jpg');
+}
+
+.hero-course-application {
+  background-image: url('../images/banners/hero-bg.jpg');
+}
+
+.hero-cert-application {
+  background-image: url('../images/banners/hero-bg2.jpg');
 }
 
 /* 모달 기본 스타일 */
