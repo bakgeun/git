@@ -17,7 +17,7 @@
     <script src="assets/js/utils/script-loader.js"></script>
 </head>
 
-<body>
+<body class="home-page">
     <header id="main-header">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="logo flex items-center">
@@ -643,7 +643,7 @@
     </button>
 
     <!-- Firebase SDK 템플릿 (script-loader.js에 의해 처리됨) -->
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script id="firebase-sdk-template" type="text/template">
+    <script id="firebase-sdk-template" type="text/template">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
@@ -657,4 +657,11 @@
 
     <!-- 추가 스크립트 템플릿 (페이지별 필요한 스크립트) -->
     <script id="additional-scripts-template" type="text/template">
-    <script src="{basePath}assets/js/components/header.js"><\/scrip
+    <script src="{basePath}assets/js/components/header.js"><\/script>
+    <script src="{basePath}assets/js/components/scroll-top.js"><\/script>
+    <script src="{basePath}assets/js/pages/home.js"><\/script>
+    <script src="{basePath}assets/js/main.js"><\/script>
+</script>
+</body>
+
+</html>

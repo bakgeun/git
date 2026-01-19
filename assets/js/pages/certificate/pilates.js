@@ -419,21 +419,8 @@ console.log('pilates.js (수정된 교육일정 동적 버전) 로드됨');
 
     // 히어로 섹션 초기화
     function initHeroSection() {
-        console.log('히어로 섹션 초기화');
-
-        // 히어로 섹션 애니메이션 효과
-        const heroSection = document.querySelector('.hero-section');
-        if (heroSection) {
-            heroSection.style.opacity = '0';
-            heroSection.style.transform = 'translateY(30px)';
-
-            // 페이드인 애니메이션
-            setTimeout(() => {
-                heroSection.style.transition = 'all 0.8s ease';
-                heroSection.style.opacity = '1';
-                heroSection.style.transform = 'translateY(0)';
-            }, 100);
-        }
+        console.log('히어로 섹션 초기화 (애니메이션 비활성화)');
+        // 애니메이션 제거됨 - 즉시 표시
     }
 
     // 스크롤 효과 초기화
