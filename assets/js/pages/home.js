@@ -665,17 +665,17 @@
             // 슬라이더 이미지 및 텍스트
             const slides = [
                 {
-                    bgImage: 'assets/images/banners/hero-bg.jpg',
+                    bgImage: 'assets/images/banners/main-bg1.png',
                     heading: '운동과학 기반 전문인력 양성 플랫폼',
                     subheading: '사&rpar;문경 부설 디지털헬스케어센터에서 각 분야 최고의 전문가들과 함께<br>건강운동 전문가의 꿈을 이루세요.'
                 },
                 {
-                    bgImage: 'assets/images/banners/hero-bg2.jpg',
+                    bgImage: 'assets/images/banners/main-bg2.png',
                     heading: '체계적인 교육으로 전문성을 키우세요',
                     subheading: '이론과 실습이 결합된 과학적 교육과정을 통해<br>건강운동 분야의 진정한 전문가로 성장할 수 있습니다.'
                 },
                 {
-                    bgImage: 'assets/images/banners/hero-bg3.jpg',
+                    bgImage: 'assets/images/banners/main-bg3.png',
                     heading: '국제적으로 인정받는 자격증 과정',
                     subheading: '엄격한 기준과 체계적인 교육과정을 통해<br>신뢰할 수 있는 전문가 자격을 취득하세요.'
                 }
@@ -710,17 +710,17 @@
             const heroSection = document.querySelector('.hero-section');
             const slides = [
                 {
-                    bgImage: 'assets/images/banners/hero-bg.jpg',
+                    bgImage: 'assets/images/banners/main-bg1.png',
                     heading: '운동과학 기반 전문인력 양성 플랫폼',
                     subheading: '사&rpar;문경 부설 디지털헬스케어센터에서 각 분야 최고의 전문가들과 함께<br>건강운동 전문가의 꿈을 이루세요.'
                 },
                 {
-                    bgImage: 'assets/images/banners/hero-bg2.jpg',
+                    bgImage: 'assets/images/banners/main-bg2.png',
                     heading: '체계적인 교육으로 전문성을 키우세요',
                     subheading: '이론과 실습이 결합된 과학적 교육과정을 통해<br>건강운동 분야의 진정한 전문가로 성장할 수 있습니다.'
                 },
                 {
-                    bgImage: 'assets/images/banners/hero-bg3.jpg',
+                    bgImage: 'assets/images/banners/main-bg3.png',
                     heading: '국제적으로 인정받는 자격증 과정',
                     subheading: '엄격한 기준과 체계적인 교육과정을 통해<br>신뢰할 수 있는 전문가 자격을 취득하세요.'
                 }
@@ -777,17 +777,17 @@
         startAutoSlide: function () {
             const slides = [
                 {
-                    bgImage: 'assets/images/banners/hero-bg.jpg',
+                    bgImage: 'assets/images/banners/main-bg1.png',
                     heading: '운동과학 기반 전문인력 양성 플랫폼',
                     subheading: '사&rpar;문경 부설 디지털헬스케어센터에서 각 분야 최고의 전문가들과 함께<br>건강운동 전문가의 꿈을 이루세요.'
                 },
                 {
-                    bgImage: 'assets/images/banners/hero-bg2.jpg',
+                    bgImage: 'assets/images/banners/main-bg2.png',
                     heading: '체계적인 교육으로 전문성을 키우세요',
                     subheading: '이론과 실습이 결합된 과학적 교육과정을 통해<br>건강운동 분야의 진정한 전문가로 성장할 수 있습니다.'
                 },
                 {
-                    bgImage: 'assets/images/banners/hero-bg3.jpg',
+                    bgImage: 'assets/images/banners/main-bg3.png',
                     heading: '국제적으로 인정받는 자격증 과정',
                     subheading: '엄격한 기준과 체계적인 교육과정을 통해<br>신뢰할 수 있는 전문가 자격을 취득하세요.'
                 }

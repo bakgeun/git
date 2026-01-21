@@ -572,7 +572,7 @@ footer a:hover {
 }
 
 .hero-section {
-  background-image: url('../images/banners/hero-bg.png');
+  background-image: url('../images/banners/main-bg1.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -580,23 +580,23 @@ footer a:hover {
 
 /* 페이지별 히어로 섹션 배경 이미지 */
 .hero-about {
-  background-image: url('../images/banners/hero-bg.jpg');
+  background-image: url('../images/banners/about.png');
 }
 
 .hero-health-exercise {
-  background-image: url('../images/banners/hero-bg2.jpg');
+  background-image: url('../images/banners/health-exercise.png');
 }
 
 .hero-rehabilitation {
-  background-image: url('../images/banners/hero-bg3.jpg');
+  background-image: url('../images/banners/rehabilitation.png');
 }
 
 .hero-pilates {
-  background-image: url('../images/banners/hero-bg.jpg');
+  background-image: url('../images/banners/pilates.png');
 }
 
 .hero-recreation {
-  background-image: url('../images/banners/hero-bg2.jpg');
+  background-image: url('../images/banners/recreation.png');
 }
 
 .hero-instructors {
