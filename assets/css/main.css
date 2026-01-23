@@ -572,60 +572,94 @@ footer a:hover {
 }
 
 .hero-section {
-  background-image: url('../images/banners/main-bg1.png');
+  background-image: url('../images/banners/main-bg1.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  position: relative;
+}
+
+/* 히어로 섹션 어두운 오버레이 (가독성 향상) */
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.2); /* 20% 검정 오버레이 */
+  z-index: 1;
+}
+
+/* 히어로 섹션 콘텐츠가 오버레이 위에 표시되도록 */
+.hero-section > * {
+  position: relative;
+  z-index: 2;
 }
 
 /* 페이지별 히어로 섹션 배경 이미지 */
 .hero-about {
-  background-image: url('../images/banners/about.png');
+  background-image: url('../images/banners/about.jpg');
 }
 
 .hero-health-exercise {
-  background-image: url('../images/banners/health-exercise.png');
+  background-image: url('../images/banners/health-exercise.jpg');
 }
 
 .hero-rehabilitation {
-  background-image: url('../images/banners/rehabilitation.png');
+  background-image: url('../images/banners/rehabilitation.jpg');
 }
 
 .hero-pilates {
-  background-image: url('../images/banners/pilates.png');
+  background-image: url('../images/banners/pilates.jpg');
 }
 
 .hero-recreation {
-  background-image: url('../images/banners/recreation.png');
+  background-image: url('../images/banners/recreation.jpg');
 }
 
 .hero-instructors {
-  background-image: url('../images/banners/main-bg1.png');
+  background-image: url('../images/banners/main-bg1.jpg');
 }
 
 .hero-course-application {
-  background-image: url('../images/banners/main-bg2.png');
+  background-image: url('../images/banners/main-bg2.jpg');
 }
 
 .hero-cert-application {
-  background-image: url('../images/banners/main-bg3.png');
+  background-image: url('../images/banners/main-bg3.jpg');
 }
 
 /* 게시판 페이지별 히어로 섹션 배경 이미지 */
 .hero-notice {
-  background-image: url('../images/banners/hero-notice.png');
+  background-image: url('../images/banners/hero-notice.jpg');
 }
 
 .hero-column {
-  background-image: url('../images/banners/hero-column.png');
+  background-image: url('../images/banners/hero-column.jpg');
 }
 
 .hero-materials {
-  background-image: url('../images/banners/hero-materials.png');
+  background-image: url('../images/banners/hero-materials.jpg');
 }
 
 .hero-videos {
-  background-image: url('../images/banners/hero-videos.png');
+  background-image: url('../images/banners/hero-videos.jpg');
+}
+
+/* 히어로 섹션 텍스트 그림자 효과 (가독성 향상) */
+.hero-section h1,
+.hero-section p {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* 히어로 섹션 버튼 그림자 효과 */
+.hero-section a {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.hero-section a:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 /* index.html 슬라이더를 위한 transition 효과 (다른 페이지에는 적용 안 됨) */

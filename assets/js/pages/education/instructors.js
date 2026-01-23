@@ -7,6 +7,14 @@ let isInitialized = false;
 async function loadInstructorsFromFirestore() {
     console.log('🔥 Firestore에서 강사 데이터 로드 시작');
 
+    // HTML 정적 데이터만 사용하려면 여기를 true로 변경
+    const USE_STATIC_HTML_ONLY = false;
+    
+    if (USE_STATIC_HTML_ONLY) {
+        console.log('📄 HTML 정적 데이터만 사용하도록 설정됨');
+        return false;
+    }
+
     try {
         if (!window.dhcFirebase || !window.dhcFirebase.db) {
             console.warn('Firebase 미연동, 하드코딩된 데이터 사용');
@@ -15,12 +23,25 @@ async function loadInstructorsFromFirestore() {
 
         const snapshot = await window.dhcFirebase.db
             .collection('instructors')
-            .where('active', '==', true)
             .orderBy('order', 'asc')
             .get();
 
         if (snapshot.empty) {
             console.warn('강사 데이터가 없습니다.');
+            return false;
+        }
+
+        // active가 true인 것만 필터링 (클라이언트 측)
+        const activeInstructors = [];
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.active !== false) {  // active가 false가 아니면 포함
+                activeInstructors.push(data);
+            }
+        });
+
+        if (activeInstructors.length === 0) {
+            console.warn('활성화된 강사가 없습니다.');
             return false;
         }
 
@@ -46,7 +67,7 @@ async function loadInstructorsFromFirestore() {
     }
 }
 
-// 강사 카드 생성 함수 (가로 레이아웃)
+// 강사 카드 생성 함수 (가로 레이아웃 + 담당 과정 배지)
 function createInstructorCard(instructor) {
     const card = document.createElement('div');
     card.className = 'instructor-card-horizontal';
@@ -63,17 +84,50 @@ function createInstructorCard(instructor) {
     const mainCategory = categoryMap[instructor.specialties[0]] || 'health';
     card.setAttribute('data-category', mainCategory);
 
+    // 과정명 매핑
+    const courseNames = {
+        'health': '운동건강관리사 과정',
+        'rehab': '스포츠헬스케어지도자 과정',
+        'pilates': '필라테스 전문가 과정',
+        'recreation': '레크리에이션 지도자 과정'
+    };
+
+    // 배지 클래스 매핑
+    const badgeClasses = {
+        'health': 'badge-health',
+        'rehab': 'badge-rehab',
+        'pilates': 'badge-pilates',
+        'recreation': 'badge-recreation'
+    };
+
+    const courseName = courseNames[mainCategory] || '전문 과정';
+    const badgeClass = badgeClasses[mainCategory] || 'badge-health';
+
+    // careers 배열을 HTML 리스트로 변환
+    let careerListHTML = '';
+    if (instructor.careers && Array.isArray(instructor.careers)) {
+        careerListHTML = instructor.careers.map(career => `<li>${career}</li>`).join('');
+    } else {
+        // 하위 호환성: 기존 데이터 구조 지원
+        const careerItems = [];
+        if (instructor.position) careerItems.push(instructor.position);
+        if (instructor.description) careerItems.push('전문 분야: ' + instructor.description);
+        if (instructor.education) careerItems.push('학력: ' + instructor.education);
+        if (instructor.career) careerItems.push('경력: ' + instructor.career);
+        careerListHTML = careerItems.map(item => `<li>${item}</li>`).join('');
+    }
+
     card.innerHTML = `
         <div class="instructor-photo-small">
             <img src="${instructor.photoUrl}" alt="${instructor.name}" onerror="this.src='../../assets/images/instructors/default.jpg'">
         </div>
         <div class="instructor-info-horizontal">
-            <h3 class="instructor-name-horizontal">${instructor.name}</h3>
+            <div class="instructor-header-row">
+                <h3 class="instructor-name-horizontal">${instructor.name}</h3>
+                <span class="course-badge ${badgeClass}">${courseName}</span>
+            </div>
             <ul class="instructor-details-list">
-                <li>${instructor.position}</li>
-                <li>전문 분야: ${instructor.description}</li>
-                <li>학력: ${instructor.education}</li>
-                <li>경력: ${instructor.career}</li>
+                ${careerListHTML}
             </ul>
         </div>
     `;
