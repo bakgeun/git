@@ -2987,6 +2987,89 @@ body.modal-open {
 }
 
 /* =================================== */
+/* 🔧 필터 영역 버튼 스타일 */
+/* =================================== */
+
+/* 필터 영역의 admin-btn 기본 스타일 */
+.admin-filter-actions .admin-btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.25;
+    white-space: nowrap;
+    text-decoration: none;
+    user-select: none;
+}
+
+/* Primary 버튼 (검색) */
+.admin-filter-actions .admin-btn-primary {
+    background-color: #2563eb;
+    color: white;
+    border-color: #1d4ed8;
+}
+
+.admin-filter-actions .admin-btn-primary:hover {
+    background-color: #1d4ed8;
+    border-color: #1e40af;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+}
+
+/* Secondary 버튼 (초기화) */
+.admin-filter-actions .admin-btn-secondary {
+    background-color: #f3f4f6;
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+.admin-filter-actions .admin-btn-secondary:hover {
+    background-color: #e5e7eb;
+    border-color: #9ca3af;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Success 버튼 (CSV 다운로드) */
+.admin-filter-actions .admin-btn-success {
+    background-color: #16a34a;
+    color: white;
+    border-color: #15803d;
+}
+
+.admin-filter-actions .admin-btn-success:hover {
+    background-color: #15803d;
+    border-color: #166534;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(22, 163, 74, 0.3);
+}
+
+/* 버튼 포커스 상태 */
+.admin-filter-actions .admin-btn:focus {
+    outline: 3px solid rgba(59, 130, 246, 0.5);
+    outline-offset: 2px;
+}
+
+/* 버튼 활성 상태 */
+.admin-filter-actions .admin-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* 버튼 비활성화 상태 */
+.admin-filter-actions .admin-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* =================================== */
 /* 🔧 모든 기존 중복 스타일 무효화 */
 /* =================================== */
 

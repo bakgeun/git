@@ -1667,6 +1667,180 @@ window.userManager = {
                 window.adminAuth.showNotification('영구 삭제 중 오류가 발생했습니다.', 'error');
             }
         }
+    },
+
+    // =================================
+    // CSV 다운로드
+    // =================================
+
+    /**
+     * 회원 정보를 CSV 파일로 다운로드
+     */
+    downloadCSV: function () {
+        try {
+            console.log('CSV 다운로드 시작...');
+
+            // 현재 표시 중인 사용자 데이터 가져오기
+            const users = this.currentUsers;
+
+            if (!users || users.length === 0) {
+                showErrorMessage('다운로드할 회원 데이터가 없습니다.');
+                return;
+            }
+
+            // CSV 헤더 정의
+            const headers = [
+                '이름',
+                '이메일',
+                '전화번호',
+                '생년월일',
+                '회원유형',
+                '상태',
+                '가입일',
+                '최근로그인',
+                '주소'
+            ];
+
+            // CSV 데이터 생성
+            const csvRows = [];
+            csvRows.push(headers.join(','));
+
+            users.forEach(user => {
+                const row = [
+                    this.escapeCSV(user.name || ''),
+                    this.escapeCSV(user.email || ''),
+                    this.escapeCSV(user.phone || ''),
+                    this.escapeCSV(user.birthdate || ''),
+                    this.getRoleLabel(user.role || ''),
+                    this.getStatusLabel(user.status || ''),
+                    this.formatDate(user.createdAt),
+                    this.formatDate(user.lastLoginAt),
+                    this.escapeCSV(this.getFullAddress(user))
+                ];
+                csvRows.push(row.join(','));
+            });
+
+            // CSV 문자열 생성
+            const csvString = csvRows.join('\n');
+
+            // BOM 추가 (한글 인코딩 문제 해결)
+            const BOM = '\uFEFF';
+            const csvContent = BOM + csvString;
+
+            // Blob 생성
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+            // 다운로드 링크 생성
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+
+            // 파일명 생성 (현재 날짜 포함)
+            const now = new Date();
+            const dateStr = now.getFullYear() + 
+                String(now.getMonth() + 1).padStart(2, '0') + 
+                String(now.getDate()).padStart(2, '0') + '_' +
+                String(now.getHours()).padStart(2, '0') + 
+                String(now.getMinutes()).padStart(2, '0');
+            const filename = `회원목록_${dateStr}.csv`;
+
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // URL 해제
+            URL.revokeObjectURL(url);
+
+            showSuccessMessage(`${users.length}명의 회원 정보가 CSV 파일로 다운로드되었습니다.`);
+            console.log('CSV 다운로드 완료:', filename);
+
+        } catch (error) {
+            console.error('CSV 다운로드 오류:', error);
+            showErrorMessage('CSV 다운로드 중 오류가 발생했습니다.');
+        }
+    },
+
+    /**
+     * CSV 필드 이스케이프 처리
+     */
+    escapeCSV: function (value) {
+        if (value === null || value === undefined) {
+            return '';
+        }
+
+        const stringValue = String(value);
+
+        // 쉼표, 따옴표, 줄바꿈이 있는 경우 따옴표로 감싸기
+        if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+            // 따옴표는 두 개로 이스케이프
+            return '"' + stringValue.replace(/"/g, '""') + '"';
+        }
+
+        return stringValue;
+    },
+
+    /**
+     * 회원 유형 라벨 반환
+     */
+    getRoleLabel: function (role) {
+        const roleLabels = {
+            'student': '수강생',
+            'instructor': '강사',
+            'admin': '관리자'
+        };
+        return roleLabels[role] || role;
+    },
+
+    /**
+     * 상태 라벨 반환
+     */
+    getStatusLabel: function (status) {
+        const statusLabels = {
+            'active': '활성',
+            'inactive': '비활성',
+            'suspended': '정지',
+            'deleted': '삭제됨'
+        };
+        return statusLabels[status] || status;
+    },
+
+    /**
+     * 날짜 포맷팅
+     */
+    formatDate: function (timestamp) {
+        if (!timestamp) return '';
+
+        try {
+            let date;
+            if (timestamp && typeof timestamp.toDate === 'function') {
+                date = timestamp.toDate();
+            } else if (timestamp instanceof Date) {
+                date = timestamp;
+            } else {
+                return '';
+            }
+
+            return window.formatters.formatDate(date, 'YYYY.MM.DD HH:mm');
+        } catch (error) {
+            console.error('날짜 포맷팅 오류:', error);
+            return '';
+        }
+    },
+
+    /**
+     * 전체 주소 반환
+     */
+    getFullAddress: function (user) {
+        if (!user) return '';
+
+        const parts = [];
+        if (user.address) parts.push(user.address);
+        if (user.detailAddress) parts.push(user.detailAddress);
+
+        return parts.join(' ');
     }
 };
 

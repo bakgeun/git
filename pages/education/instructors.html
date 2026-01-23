@@ -43,7 +43,7 @@
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동건강관리사</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">스포츠</a></li>
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">스포츠헬스케어지도자</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스 전문가</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
@@ -275,117 +275,91 @@
                     </p>
                 </div>
 
-                <!-- 강사 탭 메뉴 -->
-                <div class="instructor-tabs-container mb-12">
-                    <div class="instructor-tabs flex flex-wrap justify-center gap-4">
-                        <button class="instructor-tab active" data-category="all">전체</button>
-                        <button class="instructor-tab" data-category="health">운동건강관리사</button>
-                        <button class="instructor-tab" data-category="rehab">스포츠헬스케어지도자</button>
-                        <button class="instructor-tab" data-category="pilates">필라테스</button>
-                        <button class="instructor-tab" data-category="recreation">레크리에이션</button>
-                    </div>
-                </div>
-
                 <!-- 강사 프로필 그리드 -->
-                <div class="instructor-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="instructor-grid-horizontal">
                     <!-- 건강운동처방 강사 1 -->
-                    <div class="instructor-card" data-category="health">
-                        <div class="instructor-photo">
+                    <div class="instructor-card-horizontal" data-category="health">
+                        <div class="instructor-photo-small">
                             <img src="../../assets/images/instructors/instructor1.jpg" alt="노호성 교수">
                         </div>
-                        <div class="instructor-info">
-                            <div class="instructor-header">
-                                <h3 class="instructor-name">노호성 교수</h3>
-                                <span class="instructor-category health-category">건강운동처방</span>
+                        <div class="instructor-info-horizontal">
+                            <div class="instructor-header-row">
+                                <h3 class="instructor-name-horizontal">노호성 교수</h3>
+                                <span class="course-badge badge-health">운동건강관리사 과정</span>
                             </div>
-                            <p class="instructor-position">한양대학교 예술체육대학 겸임교수</p>
-                            <div class="instructor-details">
-                                <div class="detail-item">
-                                    <strong>전문 분야:</strong> 생활습관병 운동처방, 스포츠의학, 노인 건강·체력관리
-                                </div>
-                                <div class="detail-item">
-                                    <strong>학력:</strong> 경희대학교 체육학사, 일본 Taukuba대학교 코칭학석사, 체육과학박사
-                                </div>
-                                <div class="detail-item">
-                                    <strong>경력:</strong> 경희대학교 스포츠의학 교수, 수원여자대학교 교수, 일본 Taukuba대학교 교수
-                                </div>
-                            </div>
+                            <ul class="instructor-details-list">
+                                <li>Univ. of Tsukuba, Japan 체육과학박사</li>
+                                <li>전) 경희대학교 체육대학 교수</li>
+                                <li>현) 대한걷기연맹 부회장</li>
+                                <li>현) 국제항노화협회 부회장</li>
+                                <li>현) 한양대학교 예술체육대학 겸임교수</li>
+                            </ul>
                         </div>
                     </div>
 
                     <!-- 운동재활 강사 1 -->
-                    <div class="instructor-card" data-category="rehab">
-                        <div class="instructor-photo">
+                    <div class="instructor-card-horizontal" data-category="rehab">
+                        <div class="instructor-photo-small">
                             <img src="../../assets/images/instructors/instructor2.jpg" alt="박재활 교수">
                         </div>
-                        <div class="instructor-info">
-                            <div class="instructor-header">
-                                <h3 class="instructor-name">박재활 교수</h3>
-                                <span class="instructor-category rehab-category">운동재활</span>
+                        <div class="instructor-info-horizontal">
+                            <div class="instructor-header-row">
+                                <h3 class="instructor-name-horizontal">박재활 교수</h3>
+                                <span class="course-badge badge-rehab">스포츠헬스케어지도자 과정</span>
                             </div>
-                            <p class="instructor-position">중앙대학교 스포츠의학과 교수</p>
-                            <div class="instructor-details">
-                                <div class="detail-item">
-                                    <strong>전문 분야:</strong> 근골격계 부상 재활, 스포츠 손상 예방
-                                </div>
-                                <div class="detail-item">
-                                    <strong>학력:</strong> 고려대학교 의과대학 스포츠의학 박사
-                                </div>
-                                <div class="detail-item">
-                                    <strong>경력:</strong> 대한재활의학회 이사, 국제 스포츠재활학회 회원
-                                </div>
-                            </div>
+                            <ul class="instructor-details-list">
+                                <li>Univ. of Tsukuba, Japan 체육과학박사</li>
+                                <li>전) 경희대학교 체육대학 교수</li>
+                                <li>현) 대한걷기연맹 부회장</li>
+                                <li>현) 국제항노화협회 부회장</li>
+                                <li>현) 한양대학교 예술체육대학 겸임교수</li>
+                            </ul>
                         </div>
                     </div>
 
                     <!-- 필라테스 강사 1 -->
-                    <div class="instructor-card" data-category="pilates">
-                        <div class="instructor-photo">
-                            <img src="../../assets/images/instructors/instructor3.png" alt="박민선 강사">
+                    <div class="instructor-card-horizontal" data-category="pilates">
+                        <div class="instructor-photo-small">
+                            <img src="../../assets/images/instructors/instructor3.png" alt="박민선 교수">
                         </div>
-                        <div class="instructor-info">
-                            <div class="instructor-header">
-                                <h3 class="instructor-name">박민선 교수</h3>
-                                <span class="instructor-category pilates-category">필라테스</span>
+                        <div class="instructor-info-horizontal">
+                            <div class="instructor-header-row">
+                                <h3 class="instructor-name-horizontal">박민선 교수</h3>
+                                <span class="course-badge badge-pilates">필라테스 전문가 과정</span>
                             </div>
-                            <p class="instructor-position">건국대학교 산업대학원 재활필라테스 외래교수</p>
-                            <div class="instructor-details">
-                                <div class="detail-item">
-                                    <strong>전문 분야:</strong> 재활 회복 필라테스, 무용재활, 신체기능교정, 통증회복, 노인 건강 복지 관리
-                                </div>
-                                <div class="detail-item">
-                                    <strong>학력:</strong> 뉴욕대학교 무용교육대학원 석사, 충남대학교 무용학 박사(재활필라테스 생체역학 분석 연구), 숭실대학교 사회복지학 석사
-                                </div>
-                                <div class="detail-item">
-                                    <strong>경력:</strong> Zen Dance Company, 뉴욕 Romana Pilates studio, 더코어 필라테스 대표원장, 닥터리켐 필라테스 대표원장, 전)충남대 겸임교수·중앙대가천대·공주대 외래교수
-                                </div>
-                            </div>
+                            <ul class="instructor-details-list">
+                                <li>New York Univ. 무용석사 / 충남대학교 무용학 박사</li>
+                                <li>현) 더코어 대표원장</li>
+                                <li>현) 한국무용예술학회 이사</li>
+                                <li>현) 구제예술심리치료학회 이사</li>
+                                <li>현) 코어닷에이 인터넷 강의 및 온라인 몰 대표원장</li>
+                                <li>현) 닥터리켐 회복필라테스 대표원장</li>
+                                <li>현) 건국대학교 산업대학원 스포츠융합산업학과 강사</li>
+                            </ul>
                         </div>
                     </div>
 
                     <!-- 레크리에이션 강사 1 -->
-                    <div class="instructor-card" data-category="recreation">
-                        <div class="instructor-photo">
-                            <img src="../../assets/images/instructors/instructor4.jpg" alt="박즐거움 강사">
+                    <div class="instructor-card-horizontal" data-category="recreation">
+                        <div class="instructor-photo-small">
+                            <img src="../../assets/images/instructors/instructor4.jpg" alt="박신언 교수">
                         </div>
-                        <div class="instructor-info">
-                            <div class="instructor-header">
-                                <h3 class="instructor-name">박즐거움 강사</h3>
-                                <span class="instructor-category recreation-category">레크리에이션</span>
+                        <div class="instructor-info-horizontal">
+                            <div class="instructor-header-row">
+                                <h3 class="instructor-name-horizontal">박신언 교수</h3>
+                                <span class="course-badge badge-recreation">레크리에이션 지도자 과정</span>
                             </div>
-                            <p class="instructor-position">행복레크리에이션협회 이사</p>
-                            <div class="instructor-details">
-                                <div class="detail-item">
-                                    <strong>전문 분야:</strong> 실버레크리에이션, 단체 레크리에이션
-                                </div>
-                                <div class="detail-item">
-                                    <strong>학력:</strong> 한국체육대학교 레저스포츠학과 석사
-                                </div>
-                                <div class="detail-item">
-                                    <strong>경력:</strong> 10년 이상의 레크리에이션 강의 경력, 대기업 연수원 프로그램 개발
-                                </div>
-                            </div>
+                            <ul class="instructor-details-list">
+                                <li>경희대학교 체육학박사</li>
+                                <li>현) 화성의과학대학교 스포츠과학과 교수</li>
+                                <li>현) 국민체육진흥공단 기금평가 위원</li>
+                                <li>현) 한국 스포츠 사회학회 이사</li>
+                                <li>현) 국제학술지 Journal of Men's Health (SSCI) 편집위원</li>
+                                <li>현) 국제학술지 'BMC Psychology' (SSCI) 편집위원</li>
+                            </ul>
                         </div>
+                    </div>
+                </div>
                     </div>
                 </div>
 
@@ -525,7 +499,7 @@
                                 <ol class="list-decimal list-inside space-y-3 text-gray-700">
                                     <li>지원서 다운로드 및 작성</li>
                                     <li>필요 서류 준비 (이력서, 자격증 사본 등)</li>
-                                    <li>이메일 접수: nhohs1507@gmail.com</li>
+                                    <li>이메일 접수: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5d333532352e6c686d6a1d3a303c3431733e3230">[email&#160;protected]</a></li>
                                     <li>서류 심사 후 면접 진행</li>
                                     <li>최종 합격 후 계약 체결</li>
                                 </ol>
@@ -581,7 +555,7 @@
                         <p class="text-sm text-gray-400 mb-1">전화: 010-2596-2233</p>
                     </div>
                     <div class="min-w-[200px]">
-                        <p class="text-sm text-gray-400 mb-1">이메일: nhohs1507@gmail.com</p>
+                        <p class="text-sm text-gray-400 mb-1">이메일: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="640a0c0b0c1755515453240309050d084a070b09">[email&#160;protected]</a></p>
                         <p class="text-sm text-gray-400 mb-1">사업자등록번호: 217-82-07188</p>
                         <p class="text-sm text-gray-400 mb-1">통신판매신고번호: 제2025-서울노원-1117호</p>
                     </div>
@@ -603,7 +577,7 @@
     </button>
 
     <!-- Firebase SDK 템플릿 -->
-    <script id="firebase-sdk-template" type="text/template">
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script id="firebase-sdk-template" type="text/template">
         <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
         <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
         <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
@@ -614,7 +588,7 @@
         <script src="{basePath}assets/js/services/db-service.js"><\/script>
         <script src="{basePath}assets/js/services/storage-service.js"><\/script>
     </script>
-
+    
     <!-- 추가 스크립트 템플릿 -->
     <script id="additional-scripts-template" type="text/template">
         <script src="{basePath}assets/js/components/header.js"><\/script>

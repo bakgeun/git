@@ -600,15 +600,15 @@ footer a:hover {
 }
 
 .hero-instructors {
-  background-image: url('../images/banners/hero-bg3.jpg');
+  background-image: url('../images/banners/main-bg1.png');
 }
 
 .hero-course-application {
-  background-image: url('../images/banners/hero-bg.jpg');
+  background-image: url('../images/banners/main-bg2.png');
 }
 
 .hero-cert-application {
-  background-image: url('../images/banners/hero-bg2.jpg');
+  background-image: url('../images/banners/main-bg3.png');
 }
 
 /* 게시판 페이지별 히어로 섹션 배경 이미지 */
