@@ -613,19 +613,19 @@ footer a:hover {
 
 /* 게시판 페이지별 히어로 섹션 배경 이미지 */
 .hero-notice {
-  background-image: url('../images/banners/hero-bg3.jpg');
+  background-image: url('../images/banners/hero-notice.png');
 }
 
 .hero-column {
-  background-image: url('../images/banners/hero-bg.jpg');
+  background-image: url('../images/banners/hero-column.png');
 }
 
 .hero-materials {
-  background-image: url('../images/banners/hero-bg2.jpg');
+  background-image: url('../images/banners/hero-materials.png');
 }
 
 .hero-videos {
-  background-image: url('../images/banners/hero-bg3.jpg');
+  background-image: url('../images/banners/hero-videos.png');
 }
 
 /* index.html 슬라이더를 위한 transition 효과 (다른 페이지에는 적용 안 됨) */
