@@ -238,6 +238,87 @@
                 <!-- 페이지네이션 -->
                 <div id="course-pagination" class="admin-pagination"></div>
             </div>
+
+            <!-- 신청자 목록 섹션 -->
+            <div id="applicants-section" class="bg-white rounded-lg shadow-md mt-8" style="display: none;">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-800" id="selected-course-title">신청자 목록</h2>
+                            <p class="text-sm text-gray-600 mt-1" id="selected-course-info">과정을 선택하면 신청자 목록이 표시됩니다.</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-gray-600">총 신청자</p>
+                            <p class="text-2xl font-bold text-indigo-600" id="total-applicants-count">0명</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 신청자 목록 테이블 -->
+                <div class="admin-table-container">
+                    <table id="applicants-table" class="admin-table admin-table-responsive">
+                        <thead>
+                            <tr>
+                                <th>신청일시</th>
+                                <th>신청자명</th>
+                                <th>이메일</th>
+                                <th>전화번호</th>
+                                <th>생년월일</th>
+                                <th>결제금액</th>
+                                <th>상태</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="7" class="admin-loading-state">
+                                    <div class="admin-loading-spinner"></div>
+                                    <span class="text-gray-600">신청자 데이터 로딩 중...</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 페이지네이션 -->
+                <div id="applicants-pagination" class="admin-pagination-container" style="display: none;">
+                    <div class="admin-pagination-info">
+                        <span id="applicants-pagination-info">1-10 / 총 0명</span>
+                    </div>
+                    <div class="admin-pagination-buttons">
+                        <button onclick="courseManager.prevApplicantsPage()" 
+                            id="applicants-prev-btn" 
+                            class="admin-pagination-btn" 
+                            disabled>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                            이전
+                        </button>
+                        <div class="admin-pagination-pages" id="applicants-page-numbers">
+                            <!-- 페이지 번호 버튼들이 동적으로 추가됩니다 -->
+                        </div>
+                        <button onclick="courseManager.nextApplicantsPage()" 
+                            id="applicants-next-btn" 
+                            class="admin-pagination-btn">
+                            다음
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 신청자가 없을 때 메시지 -->
+                <div id="no-applicants-message" class="p-12 text-center" style="display: none;">
+                    <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                        </path>
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">신청자가 없습니다</h3>
+                    <p class="text-gray-600">아직 이 과정에 신청한 사람이 없습니다.</p>
+                </div>
+            </div>
         </main>
     </div>
 
