@@ -1688,21 +1688,21 @@ window.userManager = {
             }
 
             showInfoMessage('회원 정보를 불러오는 중...');
-
+            
             // 자격과정 신청 내역 가져오기
             const usersWithApps = [];
             for (const user of users) {
                 console.log(`조회 중: ${user.displayName} (${user.id})`);
-
+                
                 const applications = [];
                 try {
                     const snapshot = await window.dhcFirebase.db
                         .collection('applications')
                         .where('userId', '==', user.id)
                         .get();
-
+                    
                     console.log(`${user.displayName}: ${snapshot.size}건`);
-
+                    
                     snapshot.forEach(doc => {
                         const data = doc.data();
                         const courseNames = {
@@ -1720,7 +1720,7 @@ window.userManager = {
                 } catch (error) {
                     console.error(`${user.displayName} 조회 오류:`, error);
                 }
-
+                
                 usersWithApps.push({
                     ...user,
                     applications: applications.join(', ')
@@ -1740,7 +1740,7 @@ window.userManager = {
                     }
                     return str;
                 };
-
+                
                 const formatDate = (timestamp) => {
                     if (!timestamp) return '';
                     try {
@@ -1750,10 +1750,23 @@ window.userManager = {
                         return '';
                     }
                 };
-
+                
                 const roleLabels = { 'student': '수강생', 'instructor': '강사', 'admin': '관리자' };
                 const statusLabels = { 'active': '활성', 'inactive': '비활성', 'suspended': '정지' };
 
+                const formatPhoneNumber = (phone) => {
+                    if (!phone) return '';
+                    // 숫자만 추출
+                    const numbers = phone.replace(/[^0-9]/g, '');
+                    // 010-1234-5678 형식으로 변환
+                    if (numbers.length === 11) {
+                        return numbers.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+                    } else if (numbers.length === 10) {
+                        return numbers.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+                    }
+                    return phone;
+                };
+                
                 const row = [
                     escapeCSV(user.displayName || ''),
                     escapeCSV(user.email || ''),
@@ -1774,14 +1787,14 @@ window.userManager = {
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
-
+            
             const now = new Date();
-            const dateStr = now.getFullYear() +
-                String(now.getMonth() + 1).padStart(2, '0') +
+            const dateStr = now.getFullYear() + 
+                String(now.getMonth() + 1).padStart(2, '0') + 
                 String(now.getDate()).padStart(2, '0') + '_' +
-                String(now.getHours()).padStart(2, '0') +
+                String(now.getHours()).padStart(2, '0') + 
                 String(now.getMinutes()).padStart(2, '0');
-
+            
             link.setAttribute('href', url);
             link.setAttribute('download', `회원목록_${dateStr}.csv`);
             link.style.visibility = 'hidden';
@@ -1797,7 +1810,7 @@ window.userManager = {
             console.error('CSV 다운로드 오류:', error);
             showErrorMessage('CSV 다운로드 중 오류가 발생했습니다.');
         }
-    },
+    }
 };
 
 // =================================
