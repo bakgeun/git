@@ -11,6 +11,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../../assets/css/main.css">
 
+    <!-- 교육 방식 select 옵션 텍스트 색상 수정 -->
+    <style>
+        #course-method option {
+            color: #1f2937 !important;
+            background-color: #ffffff !important;
+        }
+        #course-method option:hover {
+            background-color: #f3f4f6 !important;
+        }
+    </style>
+
     <!-- 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
     <script src="../../assets/js/utils/script-loader.js"></script>
 </head>
@@ -145,8 +156,8 @@
                         <label for="filter-certificate-type" class="admin-filter-label">자격증</label>
                         <select id="filter-certificate-type" class="admin-filter-select">
                             <option value="">전체</option>
-                            <option value="health-exercise">건강운동처방사</option>
-                            <option value="rehabilitation">운동재활전문가</option>
+                            <option value="health-exercise">운동건강관리사</option>
+                            <option value="rehabilitation">스포츠헬스케어지도자</option>
                             <option value="pilates">필라테스 전문가</option>
                             <option value="recreation">레크리에이션지도자</option>
                         </select>
@@ -262,8 +273,8 @@
                                     class="required">*</span></label>
                             <select id="course-certificate-type" name="certificateType" required class="form-select">
                                 <option value="">선택하세요</option>
-                                <option value="health-exercise">건강운동처방사</option>
-                                <option value="rehabilitation">운동재활전문가</option>
+                                <option value="health-exercise">운동건강관리사</option>
+                                <option value="rehabilitation">스포츠헬스케어지도자</option>
                                 <option value="pilates">필라테스 전문가</option>
                                 <option value="recreation">레크리에이션지도자</option>
                             </select>
@@ -360,7 +371,7 @@
                                 <div class="form-field">
                                     <label for="material-name" class="form-label">교재명</label>
                                     <input type="text" id="material-name" name="materialName" class="form-input"
-                                        placeholder="예: 건강운동처방사 전문교재">
+                                        placeholder="예: 운동건강관리사 전문교재">
                                     <p class="field-helper">교재 이름을 입력하세요</p>
                                 </div>
                                 <div class="form-field">
@@ -433,13 +444,22 @@
                         과정 설정
                     </h4>
 
-                    <div class="form-row-triple">
+                    <div class="form-row">
                         <div class="form-field">
                             <label for="course-capacity" class="form-label">정원 <span class="required">*</span></label>
                             <input type="number" id="course-capacity" name="capacity" required min="1" max="100"
                                 class="form-input">
                             <p class="field-helper">최대 수강 인원</p>
                         </div>
+                        <div class="form-field">
+                            <label for="course-period" class="form-label">기수 <span class="required">*</span></label>
+                            <input type="text" id="course-period" name="period" required 
+                                placeholder="예: 25년 하반기" class="form-input">
+                            <p class="field-helper">교육 과정 기수 (예: 25년 하반기)</p>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
                         <div class="form-field">
                             <label for="course-status" class="form-label">상태 <span class="required">*</span></label>
                             <select id="course-status" name="status" required class="form-select">
@@ -486,7 +506,7 @@
 
                     <div class="auto-generation-info">
                         <ul class="auto-generation-list">
-                            <li><strong>교육명:</strong> "자격증명 + 년도 + 상반기/하반기 과정" (예: 건강운동처방사 25년 상반기 과정)</li>
+                            <li><strong>교육명:</strong> "자격증명 + 년도 + 상반기/하반기 과정" (예: 운동건강관리사 25년 상반기 과정)</li>
                             <li><strong>기수:</strong> 교육 시작일 기준으로 자동 계산</li>
                             <li><strong>교육 설명:</strong> 자격증별 기본 설명 템플릿 적용</li>
                             <li><strong>토스페이먼츠:</strong> 설정된 가격이 자동으로 결제 시스템에 연동됩니다</li>

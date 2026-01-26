@@ -736,7 +736,7 @@ window.courseManager = {
                     return badges[status] || `<span class="status-badge status-inactive">${status}</span>`;
                 };
 
-                const coursePeriod = this.generateCoursePeriod(startDate);
+                const coursePeriod = course.period || this.generateCoursePeriod(startDate);
 
                 // 🔧 NEW: 통합 가격 정보 표시 (HTML 테이블 구조와 일치)
                 html += `
@@ -749,7 +749,7 @@ window.courseManager = {
                         <td data-label="교육비">${formatCurrency(course.price ?? course.pricing?.education ?? 0)}</td>
                         <td data-label="자격증비">${formatCurrency(course.certificatePrice ?? course.pricing?.certificate ?? 0)}</td>
                         <td data-label="교재비">${formatCurrency(course.materialPrice ?? course.pricing?.material ?? 0)}</td>
-                        <td data-label="정원/신청자">${course.enrolledCount || 0}/${course.capacity}명</td>
+                        <td data-label="정원/신청자">${course.capacity}/${course.enrolledCount || 0}명</td>
                         <td data-label="상태">${getStatusBadge(course.status)}</td>
                         <td data-label="작업">
                             <div class="table-actions">
@@ -803,7 +803,7 @@ window.courseManager = {
         return [
             {
                 id: 'test-health-1',
-                title: '건강운동처방사 25년 상반기 과정',
+                title: '운동건강관리사 25년 상반기 과정',
                 certificateType: 'health-exercise',
                 instructor: '김운동 교수',
                 startDate: new Date(now.getTime() + oneMonth),
@@ -822,7 +822,7 @@ window.courseManager = {
                     packageDiscount: 10,
                     enableInstallment: true
                 },
-                materialName: '건강운동처방사 전문교재',
+                materialName: '운동건강관리사 전문교재',
                 capacity: 30,
                 enrolledCount: 18,
                 status: 'active',
@@ -831,7 +831,7 @@ window.courseManager = {
             },
             {
                 id: 'test-rehab-1',
-                title: '운동재활전문가 25년 상반기 과정',
+                title: '스포츠헬스케어지도자 25년 상반기 과정',
                 certificateType: 'rehabilitation',
                 instructor: '이재활 박사',
                 startDate: new Date(now.getTime() + oneMonth * 1.5),
@@ -850,7 +850,7 @@ window.courseManager = {
                     packageDiscount: 15,
                     enableInstallment: true
                 },
-                materialName: '운동재활전문가 실무교재',
+                materialName: '스포츠헬스케어지도자 실무교재',
                 capacity: 25,
                 enrolledCount: 22,
                 status: 'active',
@@ -1050,6 +1050,7 @@ window.courseManager = {
         const applyStartDate = new Date(form.querySelector('#course-apply-start-date').value);
         const applyEndDate = new Date(form.querySelector('#course-apply-end-date').value);
         const capacity = parseInt(form.querySelector('#course-capacity').value);
+        const period = form.querySelector('#course-period').value.trim();
         const status = form.querySelector('#course-status').value;
         const method = form.querySelector('#course-method').value;
         const location = form.querySelector('#course-location').value;
@@ -1079,7 +1080,7 @@ window.courseManager = {
         }
 
         // 유효성 검사
-        if (!certificateType || !instructorId || !startDate || !endDate || !applyStartDate || !applyEndDate) {
+        if (!certificateType || !instructorId || !startDate || !endDate || !applyStartDate || !applyEndDate || !period) {
             window.adminAuth?.showNotification('모든 필수 항목을 입력하세요.', 'error');
             return null;
         }
@@ -1130,6 +1131,7 @@ window.courseManager = {
             applyStartDate,
             applyEndDate,
             capacity,
+            period,
             status,
             method,
             location,
@@ -1159,6 +1161,7 @@ window.courseManager = {
             instructorId: formData.instructorId,
             description: description,
             capacity: formData.capacity,
+            period: formData.period,
             method: formData.method || '온라인 + 오프라인 병행',
             location: formData.location || '서울 강남구 센터',
             status: formData.status,
@@ -1493,8 +1496,8 @@ ${course.description || '내용 없음'}
      */
     getCertificateName: function (type) {
         const types = {
-            'health-exercise': '건강운동처방사',
-            'rehabilitation': '운동재활전문가',
+            'health-exercise': '운동건강관리사',
+            'rehabilitation': '스포츠헬스케어지도자',
             'pilates': '필라테스 전문가',
             'recreation': '레크리에이션지도자'
         };
@@ -1609,7 +1612,7 @@ if (window.location.hostname === 'localhost' ||
 
             const materialNameField = form.querySelector('#material-name');
             if (materialNameField) {
-                materialNameField.value = '건강운동처방사 전문교재';
+                materialNameField.value = '운동건강관리사 전문교재';
             }
 
             // 🔧 수정: 할인율 0% 테스트
