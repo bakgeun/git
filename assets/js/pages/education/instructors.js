@@ -67,7 +67,7 @@ async function loadInstructorsFromFirestore() {
     }
 }
 
-// 강사 카드 생성 함수 (가로 레이아웃 + 담당 과정 배지)
+// 강사 카드 생성 함수 (가로 레이아웃 + 4줄 형식 + 완벽한 들여쓰기)
 function createInstructorCard(instructor) {
     const card = document.createElement('div');
     card.className = 'instructor-card-horizontal';
@@ -103,18 +103,70 @@ function createInstructorCard(instructor) {
     const courseName = courseNames[mainCategory] || '전문 과정';
     const badgeClass = badgeClasses[mainCategory] || 'badge-health';
 
-    // careers 배열을 HTML 리스트로 변환
-    let careerListHTML = '';
-    if (instructor.careers && Array.isArray(instructor.careers)) {
-        careerListHTML = instructor.careers.map(career => `<li>${career}</li>`).join('');
-    } else {
-        // 하위 호환성: 기존 데이터 구조 지원
-        const careerItems = [];
-        if (instructor.position) careerItems.push(instructor.position);
-        if (instructor.description) careerItems.push('전문 분야: ' + instructor.description);
-        if (instructor.education) careerItems.push('학력: ' + instructor.education);
-        if (instructor.career) careerItems.push('경력: ' + instructor.career);
-        careerListHTML = careerItems.map(item => `<li>${item}</li>`).join('');
+    // 4줄 형식으로 데이터 구성
+    let contentHTML = '';
+    
+    // 1. Position (주요 직책) - 첫 번째 항목
+    if (instructor.position) {
+        contentHTML += `<li class="position-item">${instructor.position}</li>`;
+    }
+    
+    // 2. 전문분야 - 박민선 교수는 3개, 2개로 줄바꿈
+    if (instructor.specialties_detail && Array.isArray(instructor.specialties_detail) && instructor.specialties_detail.length > 0) {
+        let specialtiesHTML;
+        
+        // 박민선 교수 (instructor3)는 전문분야를 2줄로
+        if (instructor.name === '박민선 교수' || instructor.order === 3) {
+            const line1 = instructor.specialties_detail.slice(0, 3).join(', ');
+            const line2 = instructor.specialties_detail.slice(3).join(', ');
+            specialtiesHTML = [line1, line2].filter(Boolean).join('<br>');
+        } else {
+            // 나머지는 한 줄로
+            specialtiesHTML = instructor.specialties_detail.join(', ');
+        }
+        
+        contentHTML += `<li class="section-item"><span class="section-label">전문분야 :</span> ${specialtiesHTML}</li>`;
+    }
+    
+    // 3. 학력 - 박민선 교수는 2개, 1개로 줄바꿈
+    if (instructor.education && Array.isArray(instructor.education) && instructor.education.length > 0) {
+        let educationHTML;
+        
+        // 박민선 교수 (instructor3)는 학력을 2줄로
+        if (instructor.name === '박민선 교수' || instructor.order === 3) {
+            const line1 = instructor.education.slice(0, 2).join(', ');
+            const line2 = instructor.education.slice(2).join(', ');
+            educationHTML = [line1, line2].filter(Boolean).join('<br>');
+        } else {
+            // 나머지는 한 줄로
+            educationHTML = instructor.education.join(', ');
+        }
+        
+        contentHTML += `<li class="section-item"><span class="section-label">학력 :</span> ${educationHTML}</li>`;
+    }
+    
+    // 4. 경력 - 박성언 교수는 3줄, 나머지는 2개씩 묶어서 줄바꿈
+    if (instructor.career && Array.isArray(instructor.career) && instructor.career.length > 0) {
+        let careerHTML;
+        
+        // 박성언 교수 (instructor4)는 경력을 3줄로 표시
+        if (instructor.name === '박성언 교수' || instructor.order === 4) {
+            // 첫 줄: 2개, 둘째 줄: 1개, 셋째 줄: 1개
+            const line1 = instructor.career.slice(0, 2).join(', ');
+            const line2 = instructor.career[2] || '';
+            const line3 = instructor.career[3] || '';
+            careerHTML = [line1, line2, line3].filter(Boolean).join('<br>');
+        } else {
+            // 나머지는 2개씩 묶어서 줄바꿈
+            const careerChunks = [];
+            for (let i = 0; i < instructor.career.length; i += 2) {
+                const chunk = instructor.career.slice(i, i + 2).join(', ');
+                careerChunks.push(chunk);
+            }
+            careerHTML = careerChunks.join('<br>');
+        }
+        
+        contentHTML += `<li class="section-item"><span class="section-label">경력 :</span> ${careerHTML}</li>`;
     }
 
     card.innerHTML = `
@@ -127,7 +179,7 @@ function createInstructorCard(instructor) {
                 <span class="course-badge ${badgeClass}">${courseName}</span>
             </div>
             <ul class="instructor-details-list">
-                ${careerListHTML}
+                ${contentHTML}
             </ul>
         </div>
     `;

@@ -6297,14 +6297,57 @@ textarea {
     color: #374151;
 }
 
-/* 첫 번째 항목 (주요 소속) 강조 */
-.instructor-details-list li:first-child {
+/* 주요 직책 (position-item) 강조 */
+.instructor-details-list li.position-item {
     font-weight: 600;
     color: #374151;
     font-size: 0.9375rem;
 }
 
-.instructor-details-list li:first-child::before {
+.instructor-details-list li.position-item::before {
+    color: #3b82f6;
+}
+
+/* 섹션 항목 (전문분야, 학력, 경력) - 완벽한 들여쓰기 */
+.instructor-details-list li.section-item {
+    font-size: 0.875rem;
+    color: #4b5563;
+    line-height: 1.7;
+    display: flex;
+    align-items: flex-start;
+}
+
+.instructor-details-list li.section-item::before {
+    color: #10b981;
+    flex-shrink: 0;
+    margin-right: 0.5rem;
+}
+
+.instructor-details-list li.section-item .section-label {
+    flex-shrink: 0;
+    font-weight: 500;
+    margin-right: 0.25rem;
+}
+
+/* 상세 항목 (detail-item) - 하위 호환성 */
+.instructor-details-list li.detail-item {
+    font-size: 0.875rem;
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+.instructor-details-list li.detail-item::before {
+    color: #10b981;
+}
+
+/* 하위 호환성: 첫 번째 항목 강조 (클래스 없을 때) */
+.instructor-details-list li:first-child:not(.section-item):not(.detail-item) {
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.9375rem;
+}
+
+.instructor-details-list li:first-child:not(.section-item):not(.detail-item)::before {
     color: #3b82f6;
 }
 
