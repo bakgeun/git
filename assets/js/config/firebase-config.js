@@ -1,5 +1,5 @@
 /**
- * Firebase 설정 파일 (수정된 버전)
+ * Firebase 설정 파일 (보안 강화 버전)
  * 이 파일은 Firebase SDK를 초기화하고 환경을 설정합니다.
  */
 
@@ -40,7 +40,7 @@ if (firebase.analytics && typeof firebase.analytics === 'function') {
     firebase.analytics();
     console.log("✅ Firebase Analytics 초기화 성공");
   } catch (error) {
-    console.error("❌ Firebase Analytics 초기化 오류:", error);
+    console.error("❌ Firebase Analytics 초기화 오류:", error);
   }
 }
 
@@ -76,13 +76,11 @@ window.dhcFirebase = {
 
 console.log("✅ Firebase dhcFirebase 객체 생성 완료");
 
-// 🔧 Firebase 연결 테스트 (오류 처리 개선)
+// 🔧 Firebase 연결 테스트 (보안 강화: 민감한 정보 제거)
 try {
   if (window.dhcFirebase.isConnected()) {
-    console.log("✅ Firebase 서비스 연결 상태:");
-    console.log("  - Auth:", !!window.dhcFirebase.auth);
-    console.log("  - Firestore:", !!window.dhcFirebase.db);
-    console.log("  - Storage:", !!window.dhcFirebase.storage);
+    console.log("✅ Firebase 서비스 연결됨");
+    // 🔒 민감한 정보 로그 제거: 서비스별 상세 정보는 출력하지 않음
   } else {
     console.warn("⚠️ Firebase 서비스 연결에 문제가 있을 수 있습니다.");
   }
@@ -94,23 +92,19 @@ try {
 // 실제 Firebase를 사용할 때는 이 플래그를 false로 설정
 window.LOCAL_TEST_MODE = false;
 
-// Firebase Authentication 상태 모니터링 및 디버깅
+// Firebase Authentication 상태 모니터링 (보안 강화: 민감한 정보 제거)
 window.dhcFirebase.onAuthStateChanged(function(user) {
   if (user) {
-    console.log("🔐 Firebase 인증 상태: 로그인됨", {
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName,
-      emailVerified: user.emailVerified
-    });
+    // 🔒 민감한 정보 로그 제거: 사용자 세부 정보는 출력하지 않음
+    console.log("🔐 Firebase 인증: 로그인됨");
   } else {
-    console.log("🔐 Firebase 인증 상태: 로그아웃됨");
+    console.log("🔐 Firebase 인증: 로그아웃됨");
   }
 });
 
-// 🔧 추가: Firestore 연결 확인
+// 🔧 Firestore 네트워크 연결 확인 (오류만 출력)
 window.dhcFirebase.db.enableNetwork().then(() => {
-  console.log("✅ Firestore 네트워크 연결 활성화됨");
+  console.log("✅ Firestore 네트워크 활성화됨");
 }).catch((error) => {
   console.warn("⚠️ Firestore 네트워크 연결 오류:", error);
 });

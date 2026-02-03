@@ -1,4 +1,214 @@
 /**
+ * 🔒 Console 관리 시스템 (프로덕션 환경 로그 제어)
+ * 이 코드는 반드시 모든 스크립트보다 먼저 실행되어야 합니다.
+ */
+(function() {
+    // ===== 환경 설정 =====
+    // 프로덕션 배포 시: IS_PRODUCTION = true 로 변경
+    // 개발 중일 때: IS_PRODUCTION = false 유지
+    const IS_PRODUCTION = true; // 👈 배포 전에 true로 변경하세요!
+    
+    // ===== 민감한 정보 패턴 정의 =====
+    const SENSITIVE_PATTERNS = [
+        /apiKey["\s:=]+["']?([A-Za-z0-9_-]{20,})/gi,  // API 키
+        /password["\s:=]+["']?([^\s"']+)/gi,          // 비밀번호
+        /token["\s:=]+["']?([A-Za-z0-9._-]{20,})/gi,  // 토큰
+        /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, // 이메일
+        /\b01[0-9]-?[0-9]{3,4}-?[0-9]{4}\b/g,         // 전화번호
+        /\b\d{6}-?\d{7}\b/g,                          // 주민등록번호
+        /\b\d{4}-?\d{4}-?\d{4}-?\d{4}\b/g,           // 카드번호
+    ];
+    
+    /**
+     * 민감한 정보 마스킹 함수 (순환 참조 안전)
+     */
+    function maskSensitiveData(data, visited = new WeakSet(), depth = 0) {
+        // 최대 깊이 제한 (무한 재귀 방지)
+        const MAX_DEPTH = 10;
+        if (depth > MAX_DEPTH) {
+            return '[MAX_DEPTH_REACHED]';
+        }
+        
+        // 문자열 마스킹
+        if (typeof data === 'string') {
+            let masked = data;
+            SENSITIVE_PATTERNS.forEach(pattern => {
+                masked = masked.replace(pattern, '***[MASKED]***');
+            });
+            return masked;
+        }
+        
+        // 기본 타입은 그대로 반환
+        if (data === null || typeof data !== 'object') {
+            return data;
+        }
+        
+        // 순환 참조 감지
+        if (visited.has(data)) {
+            return '[CIRCULAR]';
+        }
+        
+        // 방문 표시
+        visited.add(data);
+        
+        try {
+            // 배열 처리
+            if (Array.isArray(data)) {
+                return data.map(item => maskSensitiveData(item, visited, depth + 1));
+            }
+            
+            // 객체 처리
+            const masked = {};
+            for (let key in data) {
+                if (data.hasOwnProperty(key)) {
+                    try {
+                        masked[key] = maskSensitiveData(data[key], visited, depth + 1);
+                    } catch (e) {
+                        masked[key] = '[ERROR]';
+                    }
+                }
+            }
+            return masked;
+        } catch (e) {
+            return '[MASKING_ERROR]';
+        }
+    }
+    
+    if (IS_PRODUCTION) {
+        // 원본 console 메서드 백업
+        const originalConsole = {
+            log: console.log,
+            warn: console.warn,
+            info: console.info,
+            debug: console.debug,
+            error: console.error
+        };
+        
+        // 기본적으로 모든 로그 숨김
+        console.log = function() {};
+        console.warn = function() {};
+        console.info = function() {};
+        console.debug = function() {};
+        
+        // error는 민감정보 필터링 후 출력
+        console.error = function(...args) {
+            const maskedArgs = args.map(arg => maskSensitiveData(arg));
+            originalConsole.error.apply(console, maskedArgs);
+        };
+        
+        // ===== 안전한 디버그 모드 시스템 =====
+        
+        // 디버그 활성화 상태 체크 함수
+        function isDebugEnabled() {
+            const debugFlag = localStorage.getItem('dhc_debug_mode');
+            const debugKey = sessionStorage.getItem('dhc_debug_key');
+            
+            // localStorage와 sessionStorage 모두 있어야 함
+            return debugFlag === 'enabled' && debugKey === 'verified';
+        }
+        
+        // 디버그 모드가 활성화되어 있으면 로그 복구
+        if (isDebugEnabled()) {
+            // 민감정보는 마스킹하여 출력
+            console.log = function(...args) {
+                const maskedArgs = args.map(arg => maskSensitiveData(arg));
+                originalConsole.log.apply(console, maskedArgs);
+            };
+            
+            console.warn = function(...args) {
+                const maskedArgs = args.map(arg => maskSensitiveData(arg));
+                originalConsole.warn.apply(console, maskedArgs);
+            };
+            
+            console.info = function(...args) {
+                const maskedArgs = args.map(arg => maskSensitiveData(arg));
+                originalConsole.info.apply(console, maskedArgs);
+            };
+            
+            originalConsole.log('%c🔧 관리자 디버그 모드 활성화됨 (민감정보 자동 마스킹)', 
+                'color: #00ff00; font-weight: bold; font-size: 14px;');
+        }
+        
+        // ===== 관리자용 디버그 활성화 시스템 =====
+        
+        // 방법 1: Firebase 관리자 인증으로 활성화
+        window.enableAdminDebug = function() {
+            // Firebase 인증 확인
+            if (window.dhcFirebase && window.dhcFirebase.getCurrentUser) {
+                const user = window.dhcFirebase.getCurrentUser();
+                
+                // 관리자 이메일 체크
+                if (user && user.email === 'gostepexercise@gmail.com') {
+                    localStorage.setItem('dhc_debug_mode', 'enabled');
+                    sessionStorage.setItem('dhc_debug_key', 'verified');
+                    
+                    originalConsole.log('%c✅ 관리자 인증 성공! 페이지를 새로고침하세요.', 
+                        'color: #00ff00; font-weight: bold; font-size: 16px;');
+                    
+                    setTimeout(() => location.reload(), 1000);
+                    return true;
+                } else {
+                    originalConsole.error('❌ 관리자 계정으로 로그인이 필요합니다.');
+                    return false;
+                }
+            } else {
+                originalConsole.error('❌ Firebase 인증이 준비되지 않았습니다.');
+                return false;
+            }
+        };
+        
+        // 방법 2: 비밀키 입력으로 활성화 (백업용)
+        window.enableDebugWithKey = function(secretKey) {
+            // 실제로는 이 키를 환경변수나 별도로 관리
+            const ADMIN_DEBUG_KEY = 'DHC2025_SECURE_DEBUG_' + btoa('gostepexercise@gmail.com').substring(0, 10);
+            
+            if (secretKey === ADMIN_DEBUG_KEY) {
+                localStorage.setItem('dhc_debug_mode', 'enabled');
+                sessionStorage.setItem('dhc_debug_key', 'verified');
+                
+                originalConsole.log('%c✅ 디버그 모드 활성화! 페이지를 새로고침하세요.', 
+                    'color: #00ff00; font-weight: bold; font-size: 16px;');
+                
+                setTimeout(() => location.reload(), 1000);
+                return true;
+            } else {
+                originalConsole.error('❌ 잘못된 디버그 키입니다.');
+                return false;
+            }
+        };
+        
+        // 디버그 모드 비활성화
+        window.disableDebug = function() {
+            localStorage.removeItem('dhc_debug_mode');
+            sessionStorage.removeItem('dhc_debug_key');
+            
+            originalConsole.log('%c🔒 디버그 모드가 비활성화되었습니다. 페이지를 새로고침하세요.', 
+                'color: #ff0000; font-weight: bold;');
+            
+            setTimeout(() => location.reload(), 1000);
+        };
+        
+        // 숨겨진 디버그 상태 확인 함수
+        Object.defineProperty(window, '__checkDebugStatus', {
+            value: function() {
+                originalConsole.log('디버그 모드:', isDebugEnabled() ? '활성화됨' : '비활성화됨');
+                originalConsole.log('localStorage:', localStorage.getItem('dhc_debug_mode'));
+                originalConsole.log('sessionStorage:', sessionStorage.getItem('dhc_debug_key'));
+            },
+            enumerable: false
+        });
+        
+        console.error('🔒 프로덕션 모드: console.log가 비활성화되었습니다.');
+        console.error('💡 관리자 디버깅: enableAdminDebug() 함수를 사용하세요.');
+        
+    } else {
+        // 개발 모드
+        console.log('%c🔧 개발 모드: console.log가 활성화되어 있습니다.', 
+            'color: #00aaff; font-weight: bold;');
+    }
+})();
+
+/**
  * 스크립트 로더 (경로 계산 수정 버전)
  * 페이지의 깊이에 따라 스크립트 경로를 자동으로 조정합니다.
  * - 중복 실행 방지
