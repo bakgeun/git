@@ -33,9 +33,22 @@
             </div>
             <nav class="main-nav hidden md:flex">
                 <ul class="flex space-x-6">
-                    <li class="nav-item">
+                    <li class="group relative nav-item">
                         <a href="javascript:window.location.href=window.adjustPath('pages/about.html')"
-                            class="text-blue-600 font-bold py-2 nav-link">기관 소개</a>
+                            class="text-gray-800 hover:text-blue-600 py-2 nav-link">기관 소개</a>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#greeting')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">센터장 인사말</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#mission')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">미션과 핵심가치</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#organization')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#business')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">주요 사업영역</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#partners')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">협력 네트워크</a></li>
+                        </ul>
                     </li>
                     <li class="group relative nav-item">
                         <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">자격증 소개</a>
@@ -125,12 +138,54 @@
 
                             <!-- 기관 소개 -->
                             <div class="mobile-menu-item">
-                                <a href="javascript:window.location.href=window.adjustPath('pages/about.html')"
-                                    class="p-3 bg-white rounded-lg shadow-sm flex items-center">
-                                    <div class="menu-icon">🏢</div>
-                                    <div class="menu-text">기관 소개</div>
-                                </a>
+                                <button
+                                    class="w-full text-left p-3 bg-white rounded-lg shadow-sm font-semibold text-gray-800 flex justify-between items-center"
+                                    onclick="toggleAboutSubmenu(event)">
+                                    <span class="flex items-center">
+                                        <span class="menu-icon mr-2">🏢</span>
+                                        <span class="menu-text">기관 소개</span>
+                                    </span>
+                                    <span class="toggle-icon">▷</span>
+                                </button>
+                                <div class="mobile-submenu mt-2 ml-4 space-y-1 hidden">
+                                    <a href="javascript:window.location.href=window.adjustPath('pages/about.html#greeting')"
+                                        class="block p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded"
+                                        onclick="closeMobileMenu()">센터장 인사말</a>
+                                    <a href="javascript:window.location.href=window.adjustPath('pages/about.html#mission')"
+                                        class="block p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded"
+                                        onclick="closeMobileMenu()">미션과 핵심가치</a>
+                                    <a href="javascript:window.location.href=window.adjustPath('pages/about.html#organization')"
+                                        class="block p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded"
+                                        onclick="closeMobileMenu()">조직도</a>
+                                    <a href="javascript:window.location.href=window.adjustPath('pages/about.html#business')"
+                                        class="block p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded"
+                                        onclick="closeMobileMenu()">주요 사업영역</a>
+                                    <a href="javascript:window.location.href=window.adjustPath('pages/about.html#partners')"
+                                        class="block p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded"
+                                        onclick="closeMobileMenu()">협력 네트워크</a>
+                                </div>
                             </div>
+
+                            <script>
+                                function toggleAboutSubmenu(event) {
+                                    const button = event.currentTarget;
+                                    const submenu = button.nextElementSibling;
+                                    const toggleIcon = button.querySelector('.toggle-icon');
+
+                                    // 다른 서브메뉴 닫기
+                                    document.querySelectorAll('.mobile-submenu').forEach(sub => {
+                                        if (sub !== submenu && !sub.classList.contains('hidden')) {
+                                            sub.classList.add('hidden');
+                                            const otherIcon = sub.previousElementSibling.querySelector('.toggle-icon');
+                                            if (otherIcon) otherIcon.textContent = '▷';
+                                        }
+                                    });
+
+                                    // 현재 서브메뉴 토글
+                                    submenu.classList.toggle('hidden');
+                                    toggleIcon.textContent = submenu.classList.contains('hidden') ? '▷' : '▽';
+                                }
+                            </script>
 
                             <!-- 자격증 소개 -->
                             <div class="mobile-menu-item">
@@ -819,7 +874,9 @@
                         <p class="text-sm text-gray-400 mb-1">전화: 010-2596-2233</p>
                     </div>
                     <div class="min-w-[200px]">
-                        <p class="text-sm text-gray-400 mb-1">이메일: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e18f898e8992d0d4d1d6a1868c80888dcf828e8c">[email&#160;protected]</a></p>
+                        <p class="text-sm text-gray-400 mb-1">이메일: <a href="/cdn-cgi/l/email-protection"
+                                class="__cf_email__"
+                                data-cfemail="e18f898e8992d0d4d1d6a1868c80888dcf828e8c">[email&#160;protected]</a></p>
                         <p class="text-sm text-gray-400 mb-1">사업자등록번호: 217-82-07188</p>
                         <p class="text-sm text-gray-400 mb-1">통신판매신고번호: 제2025-서울노원-1117호</p>
                     </div>

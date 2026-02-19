@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>기관 소개 - 문경 부설 디지털헬스케어센터</title>
-    <meta name="description" content="사&rpar;문경 부설 디지털헬스케어센터 소개 - 비전, 미션, 조직도 및 사업 내용을 한눈에 확인하세요">
+    <meta name="description" content="사)문경 부설 디지털헬스케어센터 소개 - 비전, 미션, 조직도 및 사업 내용을 한눈에 확인하세요">
     <link rel="icon" href="../../assets/images/logo/logo.jpeg">
     <link rel="manifest" href="../../manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
@@ -15,6 +15,109 @@
     <link rel="stylesheet" href="../../assets/css/main.css">
     <!-- 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
     <script src="../../assets/js/utils/script-loader.js"></script>
+    <style>
+        /* 드롭다운 제어를 위한 추가 스타일 - FOUC 방지 */
+        .nav-item .submenu {
+            display: none !important;
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .nav-item.dropdown-open .submenu {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        /* 페이지 로드 중 모든 서브메뉴 강제 숨김 */
+        .submenu {
+            display: none !important;
+        }
+    </style>
+
+    <script>
+        // 드롭다운 메뉴 JavaScript 제어
+        function initDropdownMenus() {
+            const navItems = document.querySelectorAll('.nav-item.group.relative');
+            
+            console.log('드롭다운 초기화 시작, 발견된 메뉴:', navItems.length);
+
+            navItems.forEach(item => {
+                const mainLink = item.querySelector('a.nav-link');
+                const submenu = item.querySelector('.submenu');
+
+                if (mainLink && submenu) {
+                    // 기존 이벤트 리스너 제거 (중복 방지)
+                    if (item._mouseenterHandler) {
+                        item.removeEventListener('mouseenter', item._mouseenterHandler);
+                    }
+                    if (item._mouseleaveHandler) {
+                        item.removeEventListener('mouseleave', item._mouseleaveHandler);
+                    }
+                    
+                    // 마우스 오버 시 열기
+                    item._mouseenterHandler = function () {
+                        // 먼저 모든 다른 드롭다운 닫기
+                        navItems.forEach(otherItem => {
+                            if (otherItem !== item) {
+                                otherItem.classList.remove('dropdown-open');
+                                const otherSubmenu = otherItem.querySelector('.submenu');
+                                if (otherSubmenu) {
+                                    otherSubmenu.classList.add('hidden');
+                                }
+                            }
+                        });
+                        
+                        // 현재 드롭다운 열기
+                        this.classList.add('dropdown-open');
+                        if (submenu) {
+                            submenu.classList.remove('hidden');
+                        }
+                    };
+                    
+                    item.addEventListener('mouseenter', item._mouseenterHandler);
+
+                    // 마우스 아웃 시 닫기
+                    item._mouseleaveHandler = function () {
+                        this.classList.remove('dropdown-open');
+                        if (submenu) {
+                            submenu.classList.add('hidden');
+                        }
+                    };
+                    
+                    item.addEventListener('mouseleave', item._mouseleaveHandler);
+
+                    // 서브메뉴 링크 클릭 시 강제로 닫기
+                    submenu.querySelectorAll('a').forEach(link => {
+                        link.addEventListener('click', function () {
+                            // 모든 드롭다운 닫기
+                            navItems.forEach(navItem => {
+                                navItem.classList.remove('dropdown-open');
+                                const navSubmenu = navItem.querySelector('.submenu');
+                                if (navSubmenu) {
+                                    navSubmenu.classList.add('hidden');
+                                }
+                            });
+                        });
+                    });
+                }
+            });
+            
+            console.log('드롭다운 초기화 완료');
+        }
+
+        // DOM 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', initDropdownMenus);
+        
+        // header.js가 로드된 후에도 다시 초기화
+        window.addEventListener('load', function() {
+            setTimeout(initDropdownMenus, 100);
+        });
+    </script>
 </head>
 
 <body>
@@ -33,39 +136,45 @@
             </div>
             <nav class="main-nav hidden md:flex">
                 <ul class="flex space-x-6">
-                    <li class="nav-item">
+                    <li class="group relative nav-item">
                         <a href="javascript:window.location.href=window.adjustPath('pages/about.html')"
                             class="text-blue-600 font-bold py-2 nav-link">기관 소개</a>
+                        <ul class="submenu absolute bg-white shadow-lg rounded-md w-48 p-2 z-10 hidden">
+                            <li><a href="#greeting" class="block px-4 py-2 hover:bg-gray-100 rounded-md">센터장 인사말</a></li>
+                            <li><a href="#mission" class="block px-4 py-2 hover:bg-gray-100 rounded-md">미션과 핵심가치</a></li>
+                            <li><a href="#organization" class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
+                            <li><a href="#business" class="block px-4 py-2 hover:bg-gray-100 rounded-md">주요 사업영역</a></li>
+                            <li><a href="#partners" class="block px-4 py-2 hover:bg-gray-100 rounded-md">협력 네트워크</a></li>
+                        </ul>
                     </li>
                     <li class="group relative nav-item">
                         <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">자격증 소개</a>
-                        <ul
-                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                        <ul class="submenu absolute bg-white shadow-lg rounded-md w-48 p-2 z-10 hidden">
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">건강운동처방사</a></li>
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동건강관리사</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동재활지도자</a></li>
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">스포츠헬스케어지도자</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스 전문가</a></li>
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스전문가</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
                         </ul>
                     </li>
                     <li class="group relative nav-item">
-                        <a href="#" class="text-blue-600 font-bold py-2 nav-link">교육 과정</a>
-                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">교육 과정</a>
+                        <ul class="submenu absolute bg-white shadow-lg rounded-md w-48 p-2 z-10 hidden">
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/education/instructors.html')"
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600 font-medium">자격증 신청</a></li>
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600 font-medium">자격증
+                                    신청</a></li>
                         </ul>
                     </li>
                     <li class="group relative nav-item">
                         <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">게시판</a>
-                        <ul
-                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                        <ul class="submenu absolute bg-white shadow-lg rounded-md w-48 p-2 z-10 hidden">
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')"
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">공지사항</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')"
@@ -122,12 +231,54 @@
 
                             <!-- 기관 소개 -->
                             <div class="mobile-menu-item">
-                                <a href="javascript:window.location.href=window.adjustPath('pages/about.html')"
-                                    class="p-3 bg-white rounded-lg shadow-sm flex items-center">
-                                    <div class="menu-icon">🏢</div>
-                                    <div class="menu-text">기관 소개</div>
-                                </a>
+                                <button
+                                    class="w-full text-left p-3 bg-white rounded-lg shadow-sm font-semibold text-gray-800 flex justify-between items-center"
+                                    onclick="toggleAboutSubmenu(event)">
+                                    <span class="flex items-center">
+                                        <span class="menu-icon mr-2">🏢</span>
+                                        <span class="menu-text">기관 소개</span>
+                                    </span>
+                                    <span class="toggle-icon">▷</span>
+                                </button>
+                                <div class="mobile-submenu mt-2 ml-4 space-y-1 hidden">
+                                    <a href="#greeting"
+                                        class="block p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded"
+                                        onclick="closeMobileMenu()">센터장 인사말</a>
+                                    <a href="#mission"
+                                        class="block p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded"
+                                        onclick="closeMobileMenu()">미션과 핵심가치</a>
+                                    <a href="#organization"
+                                        class="block p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded"
+                                        onclick="closeMobileMenu()">조직도</a>
+                                    <a href="#business"
+                                        class="block p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded"
+                                        onclick="closeMobileMenu()">주요 사업영역</a>
+                                    <a href="#partners"
+                                        class="block p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded"
+                                        onclick="closeMobileMenu()">협력 네트워크</a>
+                                </div>
                             </div>
+
+                            <script>
+                                function toggleAboutSubmenu(event) {
+                                    const button = event.currentTarget;
+                                    const submenu = button.nextElementSibling;
+                                    const toggleIcon = button.querySelector('.toggle-icon');
+
+                                    // 다른 서브메뉴 닫기
+                                    document.querySelectorAll('.mobile-submenu').forEach(sub => {
+                                        if (sub !== submenu && !sub.classList.contains('hidden')) {
+                                            sub.classList.add('hidden');
+                                            const otherIcon = sub.previousElementSibling.querySelector('.toggle-icon');
+                                            if (otherIcon) otherIcon.textContent = '▷';
+                                        }
+                                    });
+
+                                    // 현재 서브메뉴 토글
+                                    submenu.classList.toggle('hidden');
+                                    toggleIcon.textContent = submenu.classList.contains('hidden') ? '▷' : '▽';
+                                }
+                            </script>
 
                             <!-- 자격증 소개 -->
                             <div class="mobile-menu-item">
@@ -142,8 +293,7 @@
                                     <a
                                         href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')">운동재활지도자</a>
                                     <a
-                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')">필라테스
-                                        전문가</a>
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')">필라테스 전문가</a>
                                     <a
                                         href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')">레크리에이션지도자</a>
                                 </div>
@@ -158,10 +308,10 @@
                                 </button>
                                 <div class="mobile-submenu">
                                     <a
-                                        href="javascript:window.location.href=window.adjustPath('pages/education/instructors.html')">강사 소개</a>
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/instructors.html')">강사
+                                        소개</a>
                                     <a
-                                        href="javascript:window.location.href=window.adjustPath('pages/education/course-info.html')">교육
-                                        과정 안내</a>
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')">교육 신청</a>
                                     <a
                                         href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')">자격증
                                         신청</a>
@@ -187,51 +337,6 @@
                                         강의</a>
                                 </div>
                             </div>
-
-                            <!-- 마이페이지 -->
-                            <div class="mobile-menu-item">
-                                <button type="button">
-                                    <div class="menu-icon">👤</div>
-                                    <div class="menu-text">마이페이지</div>
-                                    <div class="toggle-icon">▶</div>
-                                </button>
-                                <div class="mobile-submenu">
-                                    <a
-                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/personal-info.html')">개인정보
-                                        관리</a>
-                                    <a
-                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/course-history.html')">수강
-                                        내역</a>
-                                    <a
-                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/cert-management.html')">자격증
-                                        관리</a>
-                                    <a
-                                        href="javascript:window.location.href=window.adjustPath('pages/mypage/payment-history.html')">결제
-                                        내역</a>
-                                </div>
-                            </div>
-
-                            <!-- 관리자 (조건부 표시) -->
-                            <div class="mobile-menu-item admin-only" style="display: none;">
-                                <button type="button">
-                                    <div class="menu-icon">⚙️</div>
-                                    <div class="menu-text">관리자</div>
-                                    <div class="toggle-icon">▶</div>
-                                </button>
-                                <div class="mobile-submenu">
-                                    <a
-                                        href="javascript:window.location.href=window.adjustPath('pages/admin/dashboard.html')">대시보드</a>
-                                    <a
-                                        href="javascript:window.location.href=window.adjustPath('pages/admin/user-management.html')">회원
-                                        관리</a>
-                                    <a
-                                        href="javascript:window.location.href=window.adjustPath('pages/admin/course-management.html')">교육
-                                        관리</a>
-                                    <a
-                                        href="javascript:window.location.href=window.adjustPath('pages/admin/cert-management.html')">자격증
-                                        관리</a>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -244,7 +349,7 @@
         <div class="container mx-auto px-4">
             <div class="max-w-3xl text-left">
                 <h1 class="text-4xl md:text-5xl font-bold mb-4 text-left">디지털헬스케어센터 소개</h1>
-                <p class="text-xl mb-8 text-left">사&rpar;문경 부설 디지털헬스케어센터는 운동 과학 기반<br>전문인력 양성의 선도 기관입니다.</p>
+                <p class="text-xl mb-8 text-left">사)문경 부설 디지털헬스케어센터는 운동 과학 기반<br>전문인력 양성의 선도 기관입니다.</p>
             </div>
         </div>
     </section>
@@ -271,6 +376,45 @@
                                     양성</span>을 위한
                                 자격인증 교육프로그램 운영을 통해 국내 건강관리 서비스의 질적 향상에 기여하고 있습니다.
                             </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 센터장 인사말 섹션 -->
+        <section id="greeting" class="section-spacing bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-2xl font-bold mb-8 text-center">센터장 인사말</h2>
+
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-gray-50 rounded-lg p-8 md:p-12">
+                        <div class="mb-8">
+                            <p class="text-lg leading-relaxed text-gray-700 mb-6">
+                                안녕하십니까.
+                            </p>
+                            <p class="text-lg leading-relaxed text-gray-700 mb-6">
+                                사단법인 문경 부설 디지털헬스케어센터는 운동과학 기반의 전문 인력 양성 플랫폼으로서,
+                                건강 운동 전문가를 꿈꾸는 분들이 현장에서 바로 적용할 수 있는 역량을 갖추도록 돕고 있습니다.
+                            </p>
+                            <p class="text-lg leading-relaxed text-gray-700 mb-6">
+                                체계적인 교육과 자격 인증 시스템을 바탕으로, 질병 예방과 건강 증진에 기여하는 실천형 전문가가
+                                성장할 수 있는 환경을 꾸준히 마련하겠습니다.
+                            </p>
+                            <p class="text-lg leading-relaxed text-gray-700 mb-8">
+                                또한 각 분야 전문가들의 협력을 통해 교육의 깊이를 더하고, 지역사회와 국민의 삶의 질을 높이는
+                                디지털헬스케어 거점 기관으로 자리 매김하겠습니다.
+                            </p>
+                        </div>
+
+                        <div class="text-right">
+                            <p class="text-xl font-bold text-gray-800 mb-2">센터장 최철순</p>
+                            <div class="flex justify-end">
+                                <img src="../../assets/images/about/director-signature.png"
+                                    alt="센터장 서명"
+                                    class="h-16 object-contain"
+                                    onerror="this.style.display='none'">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -453,23 +597,23 @@
                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                             clip-rule="evenodd" />
                                     </svg>
-                                    <span>글로벌 현장실습 교육 참여 인력 양성 및 지원</span>
+                                    <span>업계 실무진 대상 특화 기술 워크샵 및 교육</span>
                                 </li>
                             </ul>
                         </div>
                     </div>
 
-                    <!-- 국제협력 -->
+                    <!-- 산학협력 -->
                     <div class="business-area-card">
                         <div class="p-6">
                             <div class="business-area-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
                             </div>
-                            <h3 class="business-area-title">국제협력</h3>
+                            <h3 class="business-area-title">산학협력</h3>
                             <ul class="business-area-list">
                                 <li>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="check-icon" viewBox="0 0 20 20"
@@ -478,7 +622,7 @@
                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                             clip-rule="evenodd" />
                                     </svg>
-                                    <span>국내외 디지털헬스케어 연구기관들과 협력 체계 구축</span>
+                                    <span>기업체와의 기술 개발 및 공동 연구 프로젝트 추진</span>
                                 </li>
                                 <li>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="check-icon" viewBox="0 0 20 20"
@@ -487,7 +631,7 @@
                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                             clip-rule="evenodd" />
                                     </svg>
-                                    <span>국내 및 국제학술대회의 참여와 학술행사 유치로 연구 협력 확대</span>
+                                    <span>산업계 수요 맞춤형 R&D 및 기술 이전 지원</span>
                                 </li>
                                 <li>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="check-icon" viewBox="0 0 20 20"
@@ -496,25 +640,23 @@
                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                             clip-rule="evenodd" />
                                     </svg>
-                                    <span>글로벌 건강운동 전문가 자격 표준화 추진</span>
+                                    <span>인력 교류 및 기술 자문을 통한 협력 네트워크 구축</span>
                                 </li>
                             </ul>
                         </div>
                     </div>
 
-                    <!-- 기타 연구 지원활동 -->
+                    <!-- 네트워킹 -->
                     <div class="business-area-card">
                         <div class="p-6">
                             <div class="business-area-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                                        d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                                 </svg>
                             </div>
-                            <h3 class="business-area-title">기타 연구 지원활동</h3>
+                            <h3 class="business-area-title">네트워킹</h3>
                             <ul class="business-area-list">
                                 <li>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="check-icon" viewBox="0 0 20 20"
@@ -523,7 +665,7 @@
                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                             clip-rule="evenodd" />
                                     </svg>
-                                    <span>스포츠 현장의 신규 디지털 서비스 수요 파악 및 대응</span>
+                                    <span>국내외 학술 네트워크를 통한 최신 연구 정보 공유</span>
                                 </li>
                                 <li>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="check-icon" viewBox="0 0 20 20"
@@ -532,7 +674,7 @@
                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                             clip-rule="evenodd" />
                                     </svg>
-                                    <span>디지털헬스케어 분야 스타트업에 대한 자문 및 공동 연구개발</span>
+                                    <span>세미나, 심포지엄 개최를 통한 전문가 교류 활성화</span>
                                 </li>
                                 <li>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="check-icon" viewBox="0 0 20 20"
@@ -541,7 +683,7 @@
                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                             clip-rule="evenodd" />
                                     </svg>
-                                    <span>산업체-학계 간 공동 프로젝트 중개 및 지원</span>
+                                    <span>글로벌 파트너십 구축 및 국제 공동 연구 추진</span>
                                 </li>
                             </ul>
                         </div>
@@ -637,11 +779,12 @@
                     <div class="min-w-[200px]">
                         <p class="text-sm text-gray-400 mb-1">상호: 사단법인 문경</p>
                         <p class="text-sm text-gray-400 mb-1">대표: 최승욱</p>
-                        <p class="text-sm text-gray-400 mb-1">주소: 서울특별시 노원구 한글비석로 233, 새롬스타빌 706호&lpar;중계동, 새롬스타빌&rpar;</p>
+                        <p class="text-sm text-gray-400 mb-1">주소: 서울특별시 노원구 한글비석로 233, 새롬스타빌 706호(중계동, 새롬스타빌)
+                        </p>
                         <p class="text-sm text-gray-400 mb-1">전화: 010-2596-2233</p>
                     </div>
                     <div class="min-w-[200px]">
-                        <p class="text-sm text-gray-400 mb-1">이메일: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="721c1a1d1a014347424532151f131b1e5c111d1f">[email&#160;protected]</a></p>
+                        <p class="text-sm text-gray-400 mb-1">이메일: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="13747c60677663766b7661707a607653747e727a7f3d707c7e">[email&#160;protected]</a></p>
                         <p class="text-sm text-gray-400 mb-1">사업자등록번호: 217-82-07188</p>
                         <p class="text-sm text-gray-400 mb-1">통신판매신고번호: 제2025-서울노원-1117호</p>
                     </div>
@@ -670,7 +813,6 @@
         <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
         <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
         <script src="{basePath}assets/js/services/auth-service.js"><\/script>
-        
         <script src="{basePath}assets/js/services/db-service.js"><\/script>
         <script src="{basePath}assets/js/services/storage-service.js"><\/script>
     </script>

@@ -33,20 +33,33 @@
             </div>
             <nav class="main-nav hidden md:flex">
                 <ul class="flex space-x-6">
-                    <li class="nav-item">
+                    <li class="group relative nav-item">
                         <a href="javascript:window.location.href=window.adjustPath('pages/about.html')"
-                            class="text-blue-600 font-bold py-2 nav-link">기관 소개</a>
+                            class="text-gray-800 hover:text-blue-600 py-2 nav-link">기관 소개</a>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#greeting')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">센터장 인사말</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#mission')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">미션과 핵심가치</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#organization')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#business')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">주요 사업영역</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#partners')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">협력 네트워크</a></li>
+                        </ul>
                     </li>
                     <li class="group relative nav-item">
                         <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">자격증 소개</a>
                         <ul
                             class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">건강운동처방사</a></li>
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동건강관리사</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동재활지도자</a></li>
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">스포츠헬스케어지도자</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
-                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스 전문가</a></li>
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스전문가</a></li>
                             <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
                                     class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
                         </ul>
@@ -186,9 +199,9 @@
                                     <label for="cert-type" class="form-label">자격증 종류 *</label>
                                     <select id="cert-type" name="cert-type" class="form-select" required>
                                         <option value="">선택하세요</option>
-                                        <option value="health-exercise">건강운동처방사</option>
-                                        <option value="rehabilitation">운동재활전문가</option>
-                                        <option value="pilates">필라테스 전문가</option>
+                                        <option value="health-exercise">운동건강관리사</option>
+                                        <option value="rehabilitation">스포츠헬스케어지도자</option>
+                                        <option value="pilates">필라테스전문가</option>
                                         <option value="recreation">레크리에이션지도자</option>
                                     </select>
                                 </div>

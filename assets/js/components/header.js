@@ -26,7 +26,7 @@ function detectPageType() {
 // 초기화 함수
 function initHeader() {
     console.log('=== 헤더 초기화 시작 ===');
-    
+
     const pageType = detectPageType();
     console.log('페이지 타입 감지:', pageType);
 
@@ -467,16 +467,21 @@ function createMobileMenu() {
         {
             title: '기관 소개',
             icon: '🏢',
-            url: 'pages/about.html',
-            items: [] // 빈 배열 추가
+            items: [
+                { name: '센터장 인사말', url: 'pages/about.html#greeting' },
+                { name: '미션과 핵심가치', url: 'pages/about.html#mission' },
+                { name: '조직도', url: 'pages/about.html#organization' },
+                { name: '주요 사업영역', url: 'pages/about.html#business' },
+                { name: '협력 네트워크', url: 'pages/about.html#partners' }
+            ]
         },
         {
             title: '자격증 소개',
             icon: '🏆',
             items: [
-                { name: '건강운동처방사', url: 'pages/certificate/health-exercise.html' },
-                { name: '운동재활지도자', url: 'pages/certificate/rehabilitation.html' },
-                { name: '필라테스 전문가', url: 'pages/certificate/pilates.html' },
+                { name: '운동건강관리사', url: 'pages/certificate/health-exercise.html' },
+                { name: '스포츠헬스케어지도자', url: 'pages/certificate/rehabilitation.html' },
+                { name: '필라테스전문가', url: 'pages/certificate/pilates.html' },
                 { name: '레크리에이션지도자', url: 'pages/certificate/recreation.html' }
             ]
         },
@@ -623,3 +628,169 @@ function updateMobileAuthStatus() {
 
 // 전역 함수로 등록 (관리자 페이지에서 사용)
 window.toggleUserMenu = toggleUserMenu;
+
+// 부드러운 스크롤 기능 - 해시 링크 처리
+(function() {
+    // 헤더 높이 계산 함수
+    function getHeaderHeight() {
+        const header = document.getElementById('main-header');
+        return header ? header.offsetHeight + 20 : 100; // 20px 여유 공간
+    }
+
+    // 섹션으로 스크롤하는 함수
+    function scrollToSection(targetId) {
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+            const headerHeight = getHeaderHeight();
+            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+            
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+            });
+        }
+    }
+
+    // 페이지 로드 시 해시가 있으면 해당 섹션으로 스크롤
+    if (window.location.hash) {
+        setTimeout(function() {
+            const targetId = window.location.hash.substring(1);
+            scrollToSection(targetId);
+        }, 100);
+    }
+
+    // 페이지 내 모든 해시 링크에 부드러운 스크롤 적용
+    document.addEventListener('click', function(e) {
+        const target = e.target.closest('a[href*="#"]');
+        if (target && target.hash) {
+            const targetId = target.hash.substring(1);
+            const targetElement = document.getElementById(targetId);
+            
+            if (targetElement) {
+                e.preventDefault();
+                
+                // URL 업데이트
+                history.pushState(null, null, target.hash);
+                
+                // 부드러운 스크롤
+                scrollToSection(targetId);
+            }
+        }
+    });
+})();
+
+// ========================================
+// 드롭다운 메뉴 완전 제어 시스템
+// ========================================
+(function initDropdownMenuSystem() {
+    console.log('=== 드롭다운 메뉴 시스템 초기화 ===');
+    
+    // 스타일 태그가 없으면 추가
+    if (!document.querySelector('#dropdown-control-styles')) {
+        const style = document.createElement('style');
+        style.id = 'dropdown-control-styles';
+        style.textContent = `
+            .nav-item .submenu {
+                display: none !important;
+            }
+            .nav-item.dropdown-open .submenu {
+                display: block !important;
+            }
+        `;
+        document.head.appendChild(style);
+        console.log('드롭다운 제어 스타일 추가됨');
+    }
+    
+    // 드롭다운 초기화 함수
+    function initDropdowns() {
+        const navItems = document.querySelectorAll('.nav-item.group.relative');
+        
+        if (navItems.length === 0) {
+            console.log('드롭다운 메뉴를 찾을 수 없음, 나중에 다시 시도');
+            return false;
+        }
+        
+        console.log('드롭다운 초기화 시작, 발견된 메뉴:', navItems.length);
+
+        navItems.forEach(item => {
+            const mainLink = item.querySelector('a.nav-link');
+            const submenu = item.querySelector('.submenu');
+
+            if (mainLink && submenu) {
+                // 기존 이벤트 리스너 제거 (중복 방지)
+                if (item._mouseenterHandler) {
+                    item.removeEventListener('mouseenter', item._mouseenterHandler);
+                }
+                if (item._mouseleaveHandler) {
+                    item.removeEventListener('mouseleave', item._mouseleaveHandler);
+                }
+                
+                // 마우스 오버 시 열기
+                item._mouseenterHandler = function () {
+                    // 먼저 모든 다른 드롭다운 닫기
+                    navItems.forEach(otherItem => {
+                        if (otherItem !== item) {
+                            otherItem.classList.remove('dropdown-open');
+                        }
+                    });
+                    
+                    // 현재 드롭다운 열기
+                    this.classList.add('dropdown-open');
+                };
+                
+                item.addEventListener('mouseenter', item._mouseenterHandler);
+
+                // 마우스 아웃 시 닫기
+                item._mouseleaveHandler = function () {
+                    this.classList.remove('dropdown-open');
+                };
+                
+                item.addEventListener('mouseleave', item._mouseleaveHandler);
+
+                // 서브메뉴 링크 클릭 시 강제로 닫기
+                submenu.querySelectorAll('a').forEach(link => {
+                    // 기존 리스너 제거
+                    if (link._clickHandler) {
+                        link.removeEventListener('click', link._clickHandler);
+                    }
+                    
+                    link._clickHandler = function () {
+                        // 모든 드롭다운 닫기
+                        navItems.forEach(navItem => {
+                            navItem.classList.remove('dropdown-open');
+                        });
+                    };
+                    
+                    link.addEventListener('click', link._clickHandler);
+                });
+            }
+        });
+        
+        console.log('드롭다운 초기화 완료');
+        return true;
+    }
+    
+    // 즉시 초기화 시도
+    const initialized = initDropdowns();
+    
+    // 실패하면 DOM 로드 후 재시도
+    if (!initialized) {
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded 이벤트에서 드롭다운 재초기화');
+            initDropdowns();
+        });
+    }
+    
+    // 페이지 완전 로드 후에도 재초기화 (header.js 로드 타이밍 문제 해결)
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            console.log('window.load 이벤트에서 드롭다운 재초기화');
+            initDropdowns();
+        }, 100);
+    });
+    
+    // 전역 함수로 노출 (필요시 수동 재초기화)
+    window.reinitDropdowns = initDropdowns;
+    
+    console.log('=== 드롭다운 메뉴 시스템 설정 완료 ===');
+})();
