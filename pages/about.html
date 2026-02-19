@@ -32,7 +32,7 @@
             visibility: visible !important;
             opacity: 1 !important;
         }
-        
+
         /* 페이지 로드 중 모든 서브메뉴 강제 숨김 */
         .submenu {
             display: none !important;
@@ -43,7 +43,7 @@
         // 드롭다운 메뉴 JavaScript 제어
         function initDropdownMenus() {
             const navItems = document.querySelectorAll('.nav-item.group.relative');
-            
+
             console.log('드롭다운 초기화 시작, 발견된 메뉴:', navItems.length);
 
             navItems.forEach(item => {
@@ -58,7 +58,7 @@
                     if (item._mouseleaveHandler) {
                         item.removeEventListener('mouseleave', item._mouseleaveHandler);
                     }
-                    
+
                     // 마우스 오버 시 열기
                     item._mouseenterHandler = function () {
                         // 먼저 모든 다른 드롭다운 닫기
@@ -71,14 +71,14 @@
                                 }
                             }
                         });
-                        
+
                         // 현재 드롭다운 열기
                         this.classList.add('dropdown-open');
                         if (submenu) {
                             submenu.classList.remove('hidden');
                         }
                     };
-                    
+
                     item.addEventListener('mouseenter', item._mouseenterHandler);
 
                     // 마우스 아웃 시 닫기
@@ -88,7 +88,7 @@
                             submenu.classList.add('hidden');
                         }
                     };
-                    
+
                     item.addEventListener('mouseleave', item._mouseleaveHandler);
 
                     // 서브메뉴 링크 클릭 시 강제로 닫기
@@ -106,15 +106,15 @@
                     });
                 }
             });
-            
+
             console.log('드롭다운 초기화 완료');
         }
 
         // DOM 로드 시 초기화
         document.addEventListener('DOMContentLoaded', initDropdownMenus);
-        
+
         // header.js가 로드된 후에도 다시 초기화
-        window.addEventListener('load', function() {
+        window.addEventListener('load', function () {
             setTimeout(initDropdownMenus, 100);
         });
     </script>
@@ -129,7 +129,10 @@
                     <div class="flex items-center">
                         <img src="../../assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" class="logo-image">
                         <div class="ml-3">
-                            <span class="organization-name">문경 부설 디지털헬스케어센터</span>
+                            <div class="flex flex-col">
+                                <span class="organization-name">문경 부설 디지털헬스케어센터</span>
+                                <span class="organization-name-en">Digital Healthcare Center in Mungyeong</span>
+                            </div>
                         </div>
                     </div>
                 </a>
@@ -140,11 +143,16 @@
                         <a href="javascript:window.location.href=window.adjustPath('pages/about.html')"
                             class="text-blue-600 font-bold py-2 nav-link">기관 소개</a>
                         <ul class="submenu absolute bg-white shadow-lg rounded-md w-48 p-2 z-10 hidden">
-                            <li><a href="#greeting" class="block px-4 py-2 hover:bg-gray-100 rounded-md">센터장 인사말</a></li>
-                            <li><a href="#mission" class="block px-4 py-2 hover:bg-gray-100 rounded-md">미션과 핵심가치</a></li>
-                            <li><a href="#organization" class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
-                            <li><a href="#business" class="block px-4 py-2 hover:bg-gray-100 rounded-md">주요 사업영역</a></li>
-                            <li><a href="#partners" class="block px-4 py-2 hover:bg-gray-100 rounded-md">협력 네트워크</a></li>
+                            <li><a href="#greeting" class="block px-4 py-2 hover:bg-gray-100 rounded-md">센터장 인사말</a>
+                            </li>
+                            <li><a href="#mission" class="block px-4 py-2 hover:bg-gray-100 rounded-md">미션과 핵심가치</a>
+                            </li>
+                            <li><a href="#organization" class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a>
+                            </li>
+                            <li><a href="#business" class="block px-4 py-2 hover:bg-gray-100 rounded-md">주요 사업영역</a>
+                            </li>
+                            <li><a href="#partners" class="block px-4 py-2 hover:bg-gray-100 rounded-md">협력 네트워크</a>
+                            </li>
                         </ul>
                     </li>
                     <li class="group relative nav-item">
@@ -293,7 +301,8 @@
                                     <a
                                         href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')">운동재활지도자</a>
                                     <a
-                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')">필라테스 전문가</a>
+                                        href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')">필라테스
+                                        전문가</a>
                                     <a
                                         href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')">레크리에이션지도자</a>
                                 </div>
@@ -311,7 +320,8 @@
                                         href="javascript:window.location.href=window.adjustPath('pages/education/instructors.html')">강사
                                         소개</a>
                                     <a
-                                        href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')">교육 신청</a>
+                                        href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')">교육
+                                        신청</a>
                                     <a
                                         href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')">자격증
                                         신청</a>
@@ -410,10 +420,8 @@
                         <div class="text-right">
                             <p class="text-xl font-bold text-gray-800 mb-2">센터장 최철순</p>
                             <div class="flex justify-end">
-                                <img src="../../assets/images/about/director-signature.png"
-                                    alt="센터장 서명"
-                                    class="h-16 object-contain"
-                                    onerror="this.style.display='none'">
+                                <img src="../../assets/images/about/director-signature.png" alt="센터장 서명"
+                                    class="h-16 object-contain" onerror="this.style.display='none'">
                             </div>
                         </div>
                     </div>
@@ -784,7 +792,10 @@
                         <p class="text-sm text-gray-400 mb-1">전화: 010-2596-2233</p>
                     </div>
                     <div class="min-w-[200px]">
-                        <p class="text-sm text-gray-400 mb-1">이메일: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="13747c60677663766b7661707a607653747e727a7f3d707c7e">[email&#160;protected]</a></p>
+                        <p class="text-sm text-gray-400 mb-1">이메일: <a href="/cdn-cgi/l/email-protection"
+                                class="__cf_email__"
+                                data-cfemail="13747c60677663766b7661707a607653747e727a7f3d707c7e">[email&#160;protected]</a>
+                        </p>
                         <p class="text-sm text-gray-400 mb-1">사업자등록번호: 217-82-07188</p>
                         <p class="text-sm text-gray-400 mb-1">통신판매신고번호: 제2025-서울노원-1117호</p>
                     </div>
@@ -806,7 +817,8 @@
     </button>
 
     <!-- Firebase SDK 템플릿 -->
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script id="firebase-sdk-template" type="text/template">
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script id="firebase-sdk-template" type="text/template">
         <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
         <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
         <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
