@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자문위원 - 문경 부설 디지털헬스케어센터</title>
+    <meta name="description" content="디지털헬스케어센터 자문위원 소개">
+    <link rel="icon" href="../assets/images/logo/logo.jpeg">
+    <link rel="manifest" href="../manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <script src="../assets/js/utils/script-loader.js"></script>
+    <style>
+        /* 히어로: 기존 about 배너 이미지 재활용 */
+        .hero-advisor {
+            background-image: url('../assets/images/banners/about.jpg');
+        }
+
+        /* ── 통계 바 ── */
+        .advisor-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            margin-bottom: 3rem;
+        }
+
+        .advisor-stat-item {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            border-right: 1px solid #e5e7eb;
+        }
+
+        .advisor-stat-item:last-child {
+            border-right: none;
+        }
+
+        .stat-num {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            line-height: 1;
+            margin-bottom: 0.35rem;
+        }
+
+        .stat-lbl {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* ── 섹션 구분 라벨 ── */
+        .section-label-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .section-label-row .divider {
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: var(--primary-color);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        /* ── 총재 카드 ── */
+        .president-card {
+            background: white;
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(37, 99, 235, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .president-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: var(--primary-color);
+            border-radius: 12px 0 0 12px;
+        }
+
+        .president-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .president-avatar svg {
+            width: 44px;
+            height: 44px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .president-badge-pill {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            padding: 0.2rem 0.75rem;
+            border-radius: 20px;
+            margin-bottom: 0.5rem;
+        }
+
+        .president-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0.25rem 0 0.5rem;
+        }
+
+        .president-affil {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .president-bio {
+            font-size: 0.87rem;
+            color: var(--text-secondary);
+            line-height: 1.85;
+        }
+
+        /* ── 자문위원 그리드 ── */
+        .advisor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .advisor-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 1.4rem 1rem 1.1rem;
+            text-align: center;
+            transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+        }
+
+        .advisor-card:hover {
+            border-color: #93c5fd;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .advisor-avatar {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: #eff6ff;
+            border: 2px solid #dbeafe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem;
+        }
+
+        .advisor-avatar svg {
+            width: 26px;
+            height: 26px;
+            color: var(--primary-color);
+        }
+
+        .advisor-name {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .advisor-affil {
+            font-size: 0.71rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .advisor-field {
+            display: inline-block;
+            margin-top: 0.5rem;
+            background: #eff6ff;
+            color: var(--primary-color);
+            font-size: 0.67rem;
+            font-weight: 600;
+            padding: 0.15rem 0.6rem;
+            border-radius: 10px;
+        }
+
+        /* ── 반응형 ── */
+        @media (max-width: 767px) {
+            .advisor-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .advisor-stat-item:nth-child(2) {
+                border-right: none;
+            }
+
+            .advisor-stat-item:nth-child(1),
+            .advisor-stat-item:nth-child(2) {
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+            .president-card {
+                flex-direction: column;
+                text-align: center;
+                padding: 1.75rem 1.25rem;
+            }
+
+            .advisor-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ── 헤더 (health-exercise.html과 동일) ── -->
+    <header id="main-header">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="logo flex items-center">
+                <a href="javascript:window.location.href=window.adjustPath('index.html')">
+                    <div class="flex items-center">
+                        <img src="../assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" class="logo-image">
+                        <div class="ml-3">
+                            <div class="flex flex-col">
+                                <span class="organization-name">문경 부설 디지털헬스케어센터</span>
+                                <span class="organization-name-en">Digital Healthcare Center in Mungyeong</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <nav class="main-nav hidden md:flex">
+                <ul class="flex space-x-6">
+                    <li class="group relative nav-item">
+                        <a href="javascript:window.location.href=window.adjustPath('pages/about.html')"
+                            class="text-gray-800 hover:text-blue-600 py-2 nav-link">기관 소개</a>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#greeting')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">센터장 인사말</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#mission')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">미션과 핵심가치</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#organization')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#business')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">주요 사업영역</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#partners')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">협력 네트워크</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative nav-item">
+                        <a href="javascript:window.location.href=window.adjustPath('pages/advisor.html')"
+                            class="text-blue-600 font-bold py-2 nav-link">자문위원</a>
+                    </li>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">학술·연구</a>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-40 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/research/domestic.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">국내</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/research/international.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">국제</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">자격증 소개</a>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동건강관리사</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">스포츠헬스케어지도자</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스전문가</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">교육 과정</a>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/instructors.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600 font-medium">자격증
+                                    신청</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">게시판</a>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">공지사항</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">칼럼</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/materials/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">강의자료</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/videos/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">동영상 강의</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <div class="auth-buttons flex items-center">
+                <a href="javascript:window.location.href=window.adjustPath('pages/auth/login.html')"
+                    class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/auth/signup.html')"
+                    class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden ml-4 hamburger-menu" aria-expanded="false"
+                aria-controls="mobile-menu-overlay">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+        <!-- Mobile Menu Overlay -->
+        <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden md:hidden">
+            <div class="bg-white h-full w-full flex flex-col">
+                <div class="flex justify-between items-center p-4 bg-blue-600 text-white mobile-menu-header">
+                    <span class="text-lg font-semibold">메뉴</span>
+                    <button id="mobile-menu-close" class="text-2xl font-bold hover:text-gray-200">&times;</button>
+                </div>
+                <div class="flex-1 overflow-y-auto bg-gray-50 mobile-menu-container">
+                    <div class="p-4">
+                        <div class="mb-6 p-4 bg-white rounded-lg shadow-sm mobile-menu-user-info">
+                            <span class="text-blue-600 font-semibold">로그인 해주세요 ></span>
+                        </div>
+                        <div class="space-y-2 mobile-menu-nav"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ── Hero (기존 사이트 패턴: hero-section + 배너 이미지 클래스) ── -->
+    <section class="hero-section hero-advisor text-white py-16">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl text-left">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-left">자문위원</h1>
+                <p class="text-xl mb-8 text-left">사)문경 부설 디지털헬스케어센터의 발전과 학술적 방향성을<br>이끌어 가는 각 분야 최고 전문가들을 소개합니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── 메인 컨텐츠 ── -->
+    <main>
+        <section class="py-14 bg-light">
+            <div class="container mx-auto px-4">
+
+                <!-- 통계 바 -->
+                <div class="advisor-stats">
+                    <div class="advisor-stat-item">
+                        <div class="stat-num">1</div>
+                        <div class="stat-lbl">총재</div>
+                    </div>
+                    <div class="advisor-stat-item">
+                        <div class="stat-num">150</div>
+                        <div class="stat-lbl">자문위원</div>
+                    </div>
+                    <div class="advisor-stat-item">
+                        <div class="stat-num">12</div>
+                        <div class="stat-lbl">전문 분야</div>
+                    </div>
+                    <div class="advisor-stat-item">
+                        <div class="stat-num">15+</div>
+                        <div class="stat-lbl">소속 기관</div>
+                    </div>
+                </div>
+
+                <!-- 총재 섹션 -->
+                <div class="section-label-row">
+                    <div class="divider"></div>
+                    <span class="section-badge">⭐ 총재</span>
+                    <div class="divider"></div>
+                </div>
+
+                <div class="president-card">
+                    <div class="president-avatar">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="president-badge-pill">총재</span>
+                        <h2>홍 길 동</h2>
+                        <p class="president-affil">○○대학교 체육학과 교수 &nbsp;|&nbsp; 前 대한체육학회 회장</p>
+                        <p class="president-bio">
+                            운동과학 및 스포츠 의학 분야의 권위자로서 40여 년간 활발한 연구·교육 활동을 이어왔습니다.
+                            국내·외 학술지에 300편 이상의 논문을 게재하였으며, 체육 정책 자문 및 국제 학술 교류에
+                            기여해 왔습니다. 디지털헬스케어센터의 설립 이념과 비전에 공감하여 총재직을 맡고 있습니다.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 자문위원 섹션 -->
+                <div class="section-label-row">
+                    <div class="divider"></div>
+                    <span class="section-badge">👥 자문위원 150인</span>
+                    <div class="divider"></div>
+                </div>
+
+                <!-- 1페이지 전체 그리드 -->
+                <div class="advisor-grid" id="advisor-grid"></div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- ── 푸터 ── -->
+    <footer id="main-footer"></footer>
+
+    <!-- Firebase SDK 템플릿 (script-loader.js가 {basePath}를 처리) -->
+    <script id="firebase-sdk-template" type="text/template">
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
+        <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
+        <script src="{basePath}assets/js/services/auth-service.js"><\/script>
+    </script>
+
+    <!-- 추가 스크립트 템플릿 -->
+    <script id="additional-scripts-template" type="text/template">
+        <script src="{basePath}assets/js/components/header.js"><\/script>
+        <script src="{basePath}assets/js/components/footer.js"><\/script>
+    </script>
+
+    <script>
+        // 더미 데이터 150명 (시드 고정 → 새로고침해도 동일)
+        const FIELDS = ['운동과학', '스포츠의학', '재활치료', '체육교육', '영양학', '운동생리학', '스포츠심리', '바이오메카닉스', '건강관리', '스포츠경영', '물리치료', '한의학'];
+        const AFFILS = ['○○대학교', '△△대학교', '□□병원', '◇◇연구소', '★★스포츠과학원', '◆◆체육대학원', '▲▲의과대학', '○○재활의학과'];
+        const SURNAMES = ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임', '한', '오', '서', '신', '권', '황', '안', '송', '전', '홍', '유', '고', '문', '양', '손'];
+        const FIRSTNAMES = ['민준', '서준', '예준', '도윤', '시우', '지호', '준서', '현우', '지훈', '서연', '서윤', '지우', '서현', '하은', '민서', '수아', '지유', '윤서', '채원', '가은', '나은', '다은', '민지', '수현', '도현'];
+        const TITLES = ['교수', '부교수', '연구원', '원장', '부원장', '과장', '박사', '전문의', '소장'];
+
+        let s = 42;
+        const r = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+        const pick = arr => arr[Math.floor(r() * arr.length)];
+
+        const advisors = Array.from({ length: 150 }, () => ({
+            name: pick(SURNAMES) + pick(FIRSTNAMES),
+            affil: pick(AFFILS) + ' ' + pick(TITLES),
+            field: pick(FIELDS)
+        }));
+
+        document.getElementById('advisor-grid').innerHTML = advisors.map(a => `
+        <div class="advisor-card">
+            <div class="advisor-avatar">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+            </div>
+            <div class="advisor-name">${a.name}</div>
+            <div class="advisor-affil">${a.affil}</div>
+            <span class="advisor-field">${a.field}</span>
+        </div>
+    `).join('');
+    </script>
+</body>
+
+</html>

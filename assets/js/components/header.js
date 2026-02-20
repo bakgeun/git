@@ -476,6 +476,20 @@ function createMobileMenu() {
             ]
         },
         {
+            title: '자문위원',
+            icon: '👔',
+            url: 'pages/advisor.html',
+            items: [] // 직접 링크
+        },
+        {
+            title: '학술·연구',
+            icon: '🔬',
+            items: [
+                { name: '국내', url: 'pages/research/domestic.html' },
+                { name: '국제', url: 'pages/research/international.html' }
+            ]
+        },
+        {
             title: '자격증 소개',
             icon: '🏆',
             items: [

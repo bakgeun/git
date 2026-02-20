@@ -1688,113 +1688,148 @@ window.userManager = {
             }
 
             showInfoMessage('회원 정보를 불러오는 중...');
-            
-            // 자격과정 신청 내역 가져오기
-            const usersWithApps = [];
-            for (const user of users) {
-                console.log(`조회 중: ${user.displayName} (${user.id})`);
-                
-                const applications = [];
-                try {
-                    const snapshot = await window.dhcFirebase.db
-                        .collection('applications')
-                        .where('userId', '==', user.id)
-                        .get();
-                    
-                    console.log(`${user.displayName}: ${snapshot.size}건`);
-                    
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        const courseNames = {
-                            'health-exercise': '운동건강관리사',
-                            'sports-healthcare': '스포츠헬스케어지도자',
-                            'pilates': '필라테스전문가',
-                            'recreation': '레크리에이션지도자',
-                            'rehabilitation': '운동재활전문가'
-                        };
-                        const courseName = courseNames[data.certificateType] || data.certificateType || '';
-                        if (courseName && !applications.includes(courseName)) {
-                            applications.push(courseName);
-                        }
-                    });
-                } catch (error) {
-                    console.error(`${user.displayName} 조회 오류:`, error);
-                }
-                
-                usersWithApps.push({
-                    ...user,
-                    applications: applications.join(', ')
-                });
-            }
 
-            // CSV 생성
-            const headers = ['이름', '이메일', '전화번호', '생년월일', '회원유형', '상태', '가입일', '최근로그인', '주소', '신청한 자격과정'];
+            // 공통 유틸 함수
+            const escapeCSV = (value) => {
+                if (!value) return '';
+                const str = String(value);
+                if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                    return '"' + str.replace(/"/g, '""') + '"';
+                }
+                return str;
+            };
+
+            const formatDate = (timestamp) => {
+                if (!timestamp) return '';
+                try {
+                    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+                    return window.formatters.formatDate(date, 'YYYY.MM.DD HH:mm');
+                } catch (e) {
+                    return '';
+                }
+            };
+
+            const formatPhoneNumber = (phone) => {
+                if (!phone) return '';
+                const numbers = phone.replace(/[^0-9]/g, '');
+                if (numbers.length === 11) {
+                    return numbers.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+                } else if (numbers.length === 10) {
+                    return numbers.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+                }
+                return phone;
+            };
+
+            const courseNames = {
+                'health-exercise': '운동건강관리사',
+                'sports-healthcare': '스포츠헬스케어지도자',
+                'pilates': '필라테스전문가',
+                'recreation': '레크리에이션지도자',
+                'rehabilitation': '운동재활전문가'
+            };
+
+            const roleLabels = { 'student': '수강생', 'instructor': '강사', 'admin': '관리자' };
+            const statusLabels = { 'active': '활성', 'inactive': '비활성', 'suspended': '정지' };
+
+            // 헤더 (영문성명, 자격증발급번호 추가)
+            const headers = [
+                '이름', '이메일', '전화번호', '생년월일',
+                '회원유형', '상태', '가입일', '최근로그인',
+                '주소', '신청한 자격과정', '영문성명', '자격증발급번호'
+            ];
             const csvRows = [headers.join(',')];
 
-            usersWithApps.forEach(user => {
-                const escapeCSV = (value) => {
-                    if (!value) return '';
-                    const str = String(value);
-                    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-                        return '"' + str.replace(/"/g, '""') + '"';
-                    }
-                    return str;
-                };
-                
-                const formatDate = (timestamp) => {
-                    if (!timestamp) return '';
-                    try {
-                        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-                        return window.formatters.formatDate(date, 'YYYY.MM.DD HH:mm');
-                    } catch (e) {
-                        return '';
-                    }
-                };
-                
-                const roleLabels = { 'student': '수강생', 'instructor': '강사', 'admin': '관리자' };
-                const statusLabels = { 'active': '활성', 'inactive': '비활성', 'suspended': '정지' };
+            for (const user of users) {
+                console.log(`조회 중: ${user.displayName} (${user.id})`);
 
-                const formatPhoneNumber = (phone) => {
-                    if (!phone) return '';
-                    // 숫자만 추출
-                    const numbers = phone.replace(/[^0-9]/g, '');
-                    // 010-1234-5678 형식으로 변환
-                    if (numbers.length === 11) {
-                        return numbers.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
-                    } else if (numbers.length === 10) {
-                        return numbers.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
-                    }
-                    return phone;
-                };
-                
-                const row = [
+                // 기본 정보 (공통)
+                const baseFields = [
                     escapeCSV(user.displayName || ''),
                     escapeCSV(user.email || ''),
-                    escapeCSV(user.phoneNumber || ''),
-                    escapeCSV(user.birthdate || ''),
+                    escapeCSV(formatPhoneNumber(user.phoneNumber || '')),
+                    escapeCSV(user.birthdate || user.birthDate || ''),
                     roleLabels[user.userType] || '',
                     statusLabels[user.status] || '',
                     formatDate(user.createdAt),
                     formatDate(user.lastLoginAt),
-                    escapeCSV([user.address, user.detailAddress].filter(Boolean).join(' ')),
-                    escapeCSV(user.applications || '')
+                    escapeCSV([user.address, user.detailAddress].filter(Boolean).join(' '))
                 ];
-                csvRows.push(row.join(','));
-            });
+
+                // applications 컬렉션 조회
+                let applicationList = [];
+                try {
+                    const appSnapshot = await window.dhcFirebase.db
+                        .collection('applications')
+                        .where('userId', '==', user.id)
+                        .get();
+
+                    appSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        const certType = data.certificateType || '';
+                        const courseName = courseNames[certType] || certType;
+                        if (courseName) {
+                            applicationList.push({ certType, courseName });
+                        }
+                    });
+                    // 중복 제거
+                    applicationList = applicationList.filter(
+                        (item, idx, arr) => arr.findIndex(i => i.certType === item.certType) === idx
+                    );
+                } catch (error) {
+                    console.error(`${user.displayName} applications 조회 오류:`, error);
+                }
+
+                // certificates 컬렉션 조회 (영문성명, 자격증발급번호)
+                const certMap = {}; // certType → { holderNameEnglish, certificateNumber }
+                try {
+                    const certSnapshot = await window.dhcFirebase.db
+                        .collection('certificates')
+                        .where('userId', '==', user.id)
+                        .get();
+
+                    certSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        const certType = data.certificateType || '';
+                        certMap[certType] = {
+                            holderNameEnglish: data.holderNameEnglish || '',
+                            certificateNumber: data.certificateNumber || ''
+                        };
+                    });
+                } catch (error) {
+                    console.error(`${user.displayName} certificates 조회 오류:`, error);
+                }
+
+                if (applicationList.length === 0) {
+                    // 신청한 자격과정이 없으면 1행만 출력
+                    csvRows.push([...baseFields, '', '', ''].join(','));
+                } else {
+                    // 자격과정별로 1행씩 출력 (방안 B)
+                    applicationList.forEach(({ certType, courseName }) => {
+                        const certInfo = certMap[certType] || {};
+                        const row = [
+                            ...baseFields,
+                            escapeCSV(courseName),
+                            escapeCSV(certInfo.holderNameEnglish || ''),
+                            escapeCSV(certInfo.certificateNumber || '')
+                        ];
+                        csvRows.push(row.join(','));
+                    });
+                }
+            }
 
             // 다운로드
             const csvContent = '\uFEFF' + csvRows.join('\n');
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
-            
+
             const now = new Date();
-            const dateStr = now.getFullYear() + 
-                String(now.getMonth() + 1).padStart(2, '0') + 
+            const dateStr = now.getFullYear() +
+                String(now.getMonth() + 1).padStart(2, '0') +
                 String(now.getDate()).padStart(2, '0') + '_' +
-                String(now.getHours()).padStart(2, '0') + 
+                String(now.getHours()).padStart(2, '0') +
                 String(now.getMinutes()).padStart(2, '0');
-            
+
             link.setAttribute('href', url);
             link.setAttribute('download', `회원목록_${dateStr}.csv`);
             link.style.visibility = 'hidden';

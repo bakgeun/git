@@ -7,6 +7,8 @@
 ### 주요 기능
 
 - **기관 소개**: 센터 소개, 비전 및 전략, 조직도, 강사 소개
+- **자문위원**: 총재 1명, 자문위원 150명 (분야별 필터, 이름/소속 검색, 페이지네이션)
+- **학술·연구**: 국내·국제 학회 및 연구소 소개, 홈페이지 바로가기 링크
 - **자격증 소개**: 건강운동처방사, 운동재활전문가, 필라테스 전문가, 레크리에이션지도자 자격증 정보
 - **교육 과정**: 교육 과정 안내, 신청, 결제 (통합)
 - **게시판**: 공지사항, 칼럼, 강의자료, 동영상 강의
@@ -32,6 +34,11 @@ digital-healthcare-center/
 ├── index.html                # 메인 페이지
 ├── pages/                    # 서브 페이지들
 │   ├── about.html           # 기관 소개 페이지 ✓
+│   ├── advisor.html         # 자문위원 페이지 ✓ (총재 1명 + 자문위원 150명, 검색/필터/페이지네이션)
+│   │
+│   ├── research/             # 학술·연구 관련 페이지들
+│   │   ├── domestic.html    # 국내 학술·연구 (학회 2개 + 연구소 2개) ✓
+│   │   └── international.html # 국제 학술·연구 (학회 1개 + 연구소 1개) ✓
 │   │
 │   ├── certificate/          # 자격증 관련 페이지들
 │   │   ├── health-exercise.html  # 건강운동처방사 ✓
@@ -215,8 +222,8 @@ digital-healthcare-center/
 #### 모든 HTML, CSS, JavaScript 파일 개발 완료 (구조 개선)
 - **삭제된 파일**: 7개 (중복 기능 통합으로 인한 정리)
 - **새로 개선된 파일**: 1개 (cert-management-enhanced.js)
-- **전체 파일 수**: 103개 파일
-- HTML: 36개 파일 (3개 삭제)
+- **전체 파일 수**: 106개 파일 (+3)
+- HTML: 39개 파일 (+3: advisor.html, research/domestic.html, research/international.html)
 - CSS: 26개 파일  
 - JavaScript: 41개 파일 (3개 삭제, 1개 개선)
 
@@ -227,8 +234,10 @@ digital-healthcare-center/
 4. **게시판 모듈 (Board)** ✓
 5. **마이페이지 모듈 (Mypage)** ✓ (자격증 관리 강화)
 6. **기관 소개 모듈 (About)** ✓
-7. **관리자 모듈 (Admin)** ✓
-8. **공통 컴포넌트 및 서비스** ✓
+7. **자문위원 모듈 (Advisor)** ✓ (총재 + 자문위원 150명, 검색/필터/페이지네이션)
+8. **학술·연구 모듈 (Research)** ✓ (국내/국제 분리, 학회·연구소 소개)
+9. **관리자 모듈 (Admin)** ✓
+10. **공통 컴포넌트 및 서비스** ✓
 
 ## 사용자 여정 최적화
 
@@ -457,6 +466,36 @@ window.LOCAL_TEST_MODE = false;
 - **개발자**: [개발자 이메일](mailto:bakgeun82@gmail.com)
 
 ## 변경 이력
+
+### 2026-02-19 - 자문위원 및 학술·연구 메뉴 추가 ✨
+- **헤더 네비게이션 메뉴 확장**
+  - 기관 소개 다음에 `자문위원`, `학술·연구` 메뉴 추가 (`index.html` 수정)
+  - `학술·연구`는 드롭다운으로 국내/국제 하위 메뉴 구성
+  - 모바일 메뉴(`header.js` menuItems 배열)에도 동일하게 반영
+- **자문위원 페이지 신규 개발** (`pages/advisor.html`)
+  - 총재 1명 대형 카드 (좌측 컬러 바 강조 디자인)
+  - 자문위원 150명 더미 데이터 (JS 배열, 추후 Firebase 교체 가능)
+  - 이름·소속 키워드 검색 기능
+  - 전문 분야별 필터 버튼 (전체/운동과학/스포츠의학/재활치료/체육교육/영양학)
+  - 페이지당 30명 표시 페이지네이션
+  - 통계 바 (총재 1, 자문위원 150, 전문분야 12, 기관 15+)
+- **학술·연구 국내 페이지 신규 개발** (`pages/research/domestic.html`)
+  - 국내 협력 학회: 세계바이오융합스포츠공학회(ISO-BASE), 대한체육학회
+  - 부설 연구소: 질병관리연구소, 운동건강관리연구소
+  - 각 학회 홈페이지 바로가기 링크 포함 (URL 교체 필요)
+  - 국내/국제 탭 네비게이션 상단 고정
+- **학술·연구 국제 페이지 신규 개발** (`pages/research/international.html`)
+  - 국제 협력 학회: Study on China Physical Science (SciScan Publishing)
+  - 국제 협력 연구소: Key Laboratory of Plateau Mountain Tourism Equipment (Sichuan Tourism University)
+  - 연구 분야 키워드 태그 UI 포함
+  - 국내/국제 탭 네비게이션 상단 고정
+- **신규 파일 목록**
+  - `pages/advisor.html`
+  - `pages/research/domestic.html`
+  - `pages/research/international.html`
+- **수정 파일 목록**
+  - `index.html` (헤더 nav 메뉴 추가)
+  - `assets/js/components/header.js` (모바일 menuItems 배열 추가)
 
 ### 2026-01-26 - 교육 과정 관리 개선 ✨
 - **교육 과정 관리 기능 개선**

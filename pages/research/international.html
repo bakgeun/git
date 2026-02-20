@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학술·연구 (국제) - 문경 부설 디지털헬스케어센터</title>
+    <meta name="description" content="디지털헬스케어센터 국제 학술·연구 소개">
+    <link rel="icon" href="../../assets/images/logo/logo.jpeg">
+    <link rel="manifest" href="../../manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <script src="../../assets/js/utils/script-loader.js"></script>
+    <style>
+        /* 히어로: 기존 배너 이미지 재활용 */
+        .hero-research {
+            background-image: url('../../assets/images/banners/main-bg3.jpg');
+        }
+
+        /* ── 기관 카드 ── */
+        .org-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow: hidden;
+            margin-bottom: 1.25rem;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .org-card:hover {
+            box-shadow: 0 6px 20px rgba(37,99,235,0.1);
+            transform: translateY(-2px);
+        }
+        .org-card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.1rem;
+            padding: 1.25rem 1.5rem;
+            background: #f8faff;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .org-icon {
+            width: 52px; height: 52px;
+            border-radius: 10px;
+            background: var(--primary-color);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+        .org-names { flex: 1; min-width: 0; }
+        .org-name-en-main { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; line-height: 1.4; }
+        .org-publisher { font-size: 0.76rem; color: var(--text-secondary); }
+        .org-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--primary-color);
+            color: white;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: background 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .org-link-btn:hover { background: var(--secondary-color); color: white; box-shadow: none; }
+        .org-link-btn svg { width: 13px; height: 13px; }
+        .org-body { padding: 1.25rem 1.5rem; }
+        .org-desc { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.85; word-break: keep-all; }
+
+        /* 키워드 태그 */
+        .keyword-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 1rem; }
+        .keyword-tag {
+            background: #eff6ff;
+            color: var(--primary-color);
+            font-size: 0.71rem;
+            font-weight: 600;
+            padding: 0.2rem 0.65rem;
+            border-radius: 10px;
+            border: 1px solid #dbeafe;
+        }
+
+        /* ── 연구소 카드 ── */
+        .lab-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-left: 4px solid var(--primary-color);
+            border-radius: 0 10px 10px 0;
+            padding: 1.5rem 1.75rem;
+            margin-bottom: 1rem;
+            transition: box-shadow 0.2s;
+        }
+        .lab-card:hover { box-shadow: 0 4px 16px rgba(37,99,235,0.09); }
+        .lab-title-row { display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+        .lab-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            line-height: 1.5;
+            flex: 1;
+        }
+        .lab-title::before {
+            content: '';
+            display: inline-block;
+            width: 8px; height: 8px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 6px;
+        }
+        .lab-affil-tag {
+            display: inline-block;
+            background: #eff6ff;
+            color: var(--primary-color);
+            font-size: 0.71rem;
+            font-weight: 600;
+            padding: 0.2rem 0.65rem;
+            border-radius: 10px;
+            border: 1px solid #dbeafe;
+            white-space: nowrap;
+        }
+        .lab-desc { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.85; word-break: keep-all; }
+
+        /* ── 섹션 헤더 ── */
+        .content-section { margin-bottom: 3rem; }
+        .section-head {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #dbeafe;
+        }
+        .section-head-icon {
+            width: 36px; height: 36px;
+            background: var(--primary-color);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .section-head h2 { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0; }
+        .section-count {
+            margin-left: auto;
+            background: #eff6ff;
+            color: var(--primary-color);
+            font-size: 0.73rem;
+            font-weight: 700;
+            padding: 0.2rem 0.75rem;
+            border-radius: 20px;
+        }
+
+        /* ── 학회지 커버 이미지 ── */
+        .journal-cover-wrap {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+        }
+        .journal-cover-img {
+            width: 120px;
+            flex-shrink: 0;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            object-fit: cover;
+        }
+        .journal-cover-text { flex: 1; min-width: 0; }
+
+        /* ── 연구소 사진 ── */
+        .lab-photo {
+            width: 100%;
+            border-radius: 8px;
+            object-fit: cover;
+            max-height: 280px;
+            margin-bottom: 1.25rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        @media (max-width: 767px) {
+            .org-card-header { flex-wrap: wrap; padding: 1rem; }
+            .org-link-btn { width: 100%; justify-content: center; }
+            .org-body, .lab-card { padding: 1rem; }
+            .journal-cover-wrap { flex-direction: column; }
+            .journal-cover-img { width: 100px; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ── 헤더 ── -->
+    <header id="main-header">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="logo flex items-center">
+                <a href="javascript:window.location.href=window.adjustPath('index.html')">
+                    <div class="flex items-center">
+                        <img src="../../assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" class="logo-image">
+                        <div class="ml-3">
+                            <div class="flex flex-col">
+                                <span class="organization-name">문경 부설 디지털헬스케어센터</span>
+                                <span class="organization-name-en">Digital Healthcare Center in Mungyeong</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <nav class="main-nav hidden md:flex">
+                <ul class="flex space-x-6">
+                    <li class="group relative nav-item">
+                        <a href="javascript:window.location.href=window.adjustPath('pages/about.html')" class="text-gray-800 hover:text-blue-600 py-2 nav-link">기관 소개</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#greeting')" class="block px-4 py-2 hover:bg-gray-100 rounded-md">센터장 인사말</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#mission')" class="block px-4 py-2 hover:bg-gray-100 rounded-md">미션과 핵심가치</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#organization')" class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#business')" class="block px-4 py-2 hover:bg-gray-100 rounded-md">주요 사업영역</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#partners')" class="block px-4 py-2 hover:bg-gray-100 rounded-md">협력 네트워크</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative nav-item">
+                        <a href="javascript:window.location.href=window.adjustPath('pages/advisor.html')" class="text-gray-800 hover:text-blue-600 py-2 nav-link">자문위원</a>
+                    </li>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-blue-600 font-bold py-2 nav-link">학술·연구</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-40 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/research/domestic.html')" class="block px-4 py-2 hover:bg-gray-100 rounded-md">국내</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/research/international.html')" class="block px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600 font-medium">국제</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">자격증 소개</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')" class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동건강관리사</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')" class="block px-4 py-2 hover:bg-gray-100 rounded-md">스포츠헬스케어지도자</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')" class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스전문가</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')" class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">교육 과정</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/instructors.html')" class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')" class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')" class="block px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600 font-medium">자격증 신청</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">게시판</a>
+                        <ul class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')" class="block px-4 py-2 hover:bg-gray-100 rounded-md">공지사항</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')" class="block px-4 py-2 hover:bg-gray-100 rounded-md">칼럼</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/materials/index.html')" class="block px-4 py-2 hover:bg-gray-100 rounded-md">강의자료</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/videos/index.html')" class="block px-4 py-2 hover:bg-gray-100 rounded-md">동영상 강의</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <div class="auth-buttons flex items-center">
+                <a href="javascript:window.location.href=window.adjustPath('pages/auth/login.html')" class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/auth/signup.html')" class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden ml-4 hamburger-menu" aria-expanded="false" aria-controls="mobile-menu-overlay">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+        <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden md:hidden">
+            <div class="bg-white h-full w-full flex flex-col">
+                <div class="flex justify-between items-center p-4 bg-blue-600 text-white mobile-menu-header">
+                    <span class="text-lg font-semibold">메뉴</span>
+                    <button id="mobile-menu-close" class="text-2xl font-bold hover:text-gray-200">&times;</button>
+                </div>
+                <div class="flex-1 overflow-y-auto bg-gray-50 mobile-menu-container">
+                    <div class="p-4">
+                        <div class="mb-6 p-4 bg-white rounded-lg shadow-sm mobile-menu-user-info">
+                            <span class="text-blue-600 font-semibold">로그인 해주세요 ></span>
+                        </div>
+                        <div class="space-y-2 mobile-menu-nav"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ── Hero ── -->
+    <section class="hero-section hero-research text-white py-16">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl text-left">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-left">학술·연구</h1>
+                <p class="text-xl mb-8 text-left">국내·외 학술단체 및 연구소와의 협력 네트워크를 소개합니다.</p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ── 국내/국제 탭 ── -->
+    <div class="certificate-selector-tabs">
+        <div class="container mx-auto px-4">
+            <nav class="flex overflow-x-auto py-2">
+                <a href="javascript:window.location.href=window.adjustPath('pages/research/domestic.html')"
+                    class="cert-tab-item">국내</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/research/international.html')"
+                    class="cert-tab-item active">국제</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- ── 메인 컨텐츠 ── -->
+    <main>
+        <section class="py-12 bg-light">
+            <div class="container mx-auto px-4" style="max-width: 900px;">
+
+                <!-- 국제 학회 -->
+                <div class="content-section">
+                    <div class="section-head">
+                        <div class="section-head-icon">🏛️</div>
+                        <h2>국제 협력 학회</h2>
+                        <span class="section-count">1개 학회</span>
+                    </div>
+
+                    <div class="org-card">
+                        <div class="org-card-header">
+                            <div class="org-icon">📖</div>
+                            <div class="org-names">
+                                <div class="org-name-en-main">Study on China Physical Science</div>
+                                <div class="org-publisher">SciScan Publishing Limited &nbsp;·&nbsp; CNKI Foreign Language Database</div>
+                            </div>
+                            <a href="https://www.sciscanpub.com/journals/scps" target="_blank" rel="noopener noreferrer" class="org-link-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                </svg>
+                                Journal Website
+                            </a>
+                        </div>
+                        <div class="org-body">
+                            <div class="journal-cover-wrap">
+                                <img src="../../assets/images/research/journal-cover.jpg"
+                                     alt="Study on China Physical Science 학회지 표지"
+                                     class="journal-cover-img">
+                                <div class="journal-cover-text">
+                                    <p class="org-desc">
+                                        Study on China Physical Science is an international open-access journal published quarterly by SciScan Publishing Limited and indexed in the CNKI Foreign Language Database. The journal primarily focuses on publishing cutting-edge advancements, recent research findings, and academic reviews in the field of sports science. Its aim is to provide researchers, professionals, and students in sports-related disciplines with the latest theories, methodologies, and developments, thereby fostering academic exchange and promoting scientific and technological progress.
+                                    </p>
+                                    <div class="keyword-tags">
+                                        <span class="keyword-tag">Sports History</span>
+                                        <span class="keyword-tag">Sports Biomechanics</span>
+                                        <span class="keyword-tag">Exercise Physiology</span>
+                                        <span class="keyword-tag">Sports Psychology</span>
+                                        <span class="keyword-tag">Sports Biochemistry</span>
+                                        <span class="keyword-tag">Sports Health Science</span>
+                                        <span class="keyword-tag">Training Science</span>
+                                        <span class="keyword-tag">Sports Pedagogy</span>
+                                        <span class="keyword-tag">Sports Management</span>
+                                        <span class="keyword-tag">Sports Economics</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 국제 연구소 -->
+                <div class="content-section">
+                    <div class="section-head">
+                        <div class="section-head-icon">🔭</div>
+                        <h2>국제 협력 연구소</h2>
+                        <span class="section-count">1개 연구소</span>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-title-row">
+                            <div class="lab-title">
+                                Key Laboratory of Plateau Mountain Tourism Equipment and Intelligent Technology, Sichuan Provincial Department of Culture and Tourism
+                            </div>
+                            <span class="lab-affil-tag">Sichuan Tourism University</span>
+                        </div>
+                        <img src="../../assets/images/research/lab-photo.png"
+                             alt="Key Laboratory of Plateau Mountain Tourism Equipment"
+                             class="lab-photo">
+                        <p class="lab-desc">
+                            The Key Laboratory of Plateau Mountain Tourism Equipment and Intelligent Technology, Sichuan Provincial Department of Culture and Tourism is led by Sichuan Tourism University. It is dedicated to advancing technological innovation and promoting industry development in the field of plateau and mountain tourism.
+                            <br><br>
+                            The laboratory's research is closely aligned with the practical needs of the mountain tourism and outdoor sectors. Its core focus areas include the development of intelligent technologies, the application of new materials, innovation in high-altitude adaptive nutrition and supplements, as well as tourism data analytics and smart service optimization. A significant new extension of its research scope now incorporates health wellness and exercise prescription, aiming to enhance tourist safety, physical resilience, and overall experience in high-altitude environments.
+                            <br><br>
+                            By addressing critical challenges in the field, the laboratory supports the sustainable growth of the tourism industry. Its work contributes to meaningful technological progress and helps strengthen the competitive position of related sectors in both domestic and international contexts.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- ── 푸터 ── -->
+    <footer id="main-footer"></footer>
+
+    <!-- Firebase SDK 템플릿 -->
+    <script id="firebase-sdk-template" type="text/template">
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
+        <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
+        <script src="{basePath}assets/js/services/auth-service.js"><\/script>
+    </script>
+
+    <!-- 추가 스크립트 템플릿 -->
+    <script id="additional-scripts-template" type="text/template">
+        <script src="{basePath}assets/js/components/header.js"><\/script>
+        <script src="{basePath}assets/js/components/footer.js"><\/script>
+    </script>
+</body>
+</html>

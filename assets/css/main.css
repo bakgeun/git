@@ -647,6 +647,16 @@ footer a:hover {
   background-image: url('../images/banners/hero-videos.jpg');
 }
 
+/* 자문위원 페이지 히어로 */
+.hero-advisor {
+  background-image: url('../images/banners/about.jpg');
+}
+
+/* 학술·연구 페이지 히어로 */
+.hero-research {
+  background-image: url('../images/banners/main-bg3.jpg');
+}
+
 /* 히어로 섹션 텍스트 그림자 효과 (가독성 향상) */
 .hero-section h1,
 .hero-section p {

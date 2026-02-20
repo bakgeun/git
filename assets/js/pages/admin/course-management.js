@@ -802,21 +802,21 @@ window.courseManager = {
     /**
      * 🆕 교육 과정 선택하여 신청자 목록 표시
      */
-    selectCourseForApplicants: async function(courseId, courseName, coursePeriod) {
+    selectCourseForApplicants: async function (courseId, courseName, coursePeriod) {
         console.log(`📋 과정 선택: ${courseId} - ${courseName} ${coursePeriod}`);
-        
+
         // 선택된 과정 정보 표시
         const section = document.getElementById('applicants-section');
         const titleElement = document.getElementById('selected-course-title');
         const infoElement = document.getElementById('selected-course-info');
-        
+
         if (section) section.style.display = 'block';
         if (titleElement) titleElement.textContent = `신청자 목록 - ${courseName}`;
         if (infoElement) infoElement.textContent = `기수: ${coursePeriod}`;
-        
+
         // 신청자 목록 로드
         await this.loadApplicants(courseId);
-        
+
         // 스크롤 이동
         section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     },
@@ -824,26 +824,26 @@ window.courseManager = {
     /**
      * 🆕 신청자 목록 로드
      */
-    loadApplicants: async function(courseId) {
+    loadApplicants: async function (courseId) {
         try {
             console.log(`🔍 신청자 목록 로드 시작: ${courseId}`);
-            
+
             // 로딩 상태 표시
             this.showApplicantsLoading();
-            
+
             // Firebase에서 신청자 조회
             if (!window.dhcFirebase || !window.dhcFirebase.db) {
                 console.error('❌ Firebase가 초기화되지 않음');
                 this.showApplicantsError('Firebase 연결 오류');
                 return;
             }
-            
+
             const snapshot = await window.dhcFirebase.db
                 .collection('applications')
                 .where('courseInfo.courseId', '==', courseId)
                 .orderBy('timestamp', 'desc')
                 .get();
-            
+
             const applicants = [];
             snapshot.forEach(doc => {
                 applicants.push({
@@ -851,9 +851,9 @@ window.courseManager = {
                     ...doc.data()
                 });
             });
-            
+
             console.log(`✅ 신청자 ${applicants.length}명 조회 완료`);
-            
+
             // 🆕 실제 신청자 수와 courses의 enrolledCount 동기화
             const course = this.courses.find(c => c.id === courseId);
             if (course && course.enrolledCount !== applicants.length) {
@@ -869,18 +869,18 @@ window.courseManager = {
                     console.error('⚠️ enrolledCount 동기화 실패:', error);
                 }
             }
-            
+
             // 🆕 전체 신청자 목록 저장
             this.allApplicants = applicants;
             this.applicantsTotalCount = applicants.length;
             this.applicantsCurrentPage = 1; // 페이지 초기화
-            
+
             // 신청자 수 표시
             const countElement = document.getElementById('total-applicants-count');
             if (countElement) {
                 countElement.textContent = `${applicants.length}명`;
             }
-            
+
             // 신청자 목록 렌더링
             if (applicants.length > 0) {
                 this.renderApplicantsPage();
@@ -889,7 +889,7 @@ window.courseManager = {
                 this.showNoApplicants();
                 this.hideApplicantsPagination();
             }
-            
+
         } catch (error) {
             console.error('❌ 신청자 목록 로드 실패:', error);
             this.showApplicantsError('신청자 목록을 불러오는데 실패했습니다.');
@@ -899,47 +899,47 @@ window.courseManager = {
     /**
      * 🆕 신청자 목록 렌더링
      */
-    renderApplicantsPage: function() {
+    renderApplicantsPage: function () {
         const tbody = document.querySelector('#applicants-table tbody');
         const noApplicantsMessage = document.getElementById('no-applicants-message');
-        
+
         if (!tbody) return;
-        
+
         // 메시지 숨기기
         if (noApplicantsMessage) {
             noApplicantsMessage.style.display = 'none';
         }
-        
+
         // 🆕 페이지네이션 계산
         const startIndex = (this.applicantsCurrentPage - 1) * this.applicantsPageSize;
         const endIndex = Math.min(startIndex + this.applicantsPageSize, this.applicantsTotalCount);
         const pageApplicants = this.allApplicants.slice(startIndex, endIndex);
-        
+
         // 날짜/통화 포맷터
         const formatDate = (date) => {
             if (!date) return '-';
-            const d = date instanceof Date ? date : 
-                     date.toDate ? date.toDate() : 
-                     new Date(date);
-            return d.toLocaleDateString('ko-KR') + ' ' + d.toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'});
+            const d = date instanceof Date ? date :
+                date.toDate ? date.toDate() :
+                    new Date(date);
+            return d.toLocaleDateString('ko-KR') + ' ' + d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
         };
-        
+
         const formatCurrency = (amount) => {
             if (!amount && amount !== 0) return '₩0';
             return '₩' + parseInt(amount).toLocaleString('ko-KR');
         };
-        
+
         let html = '';
-        
+
         pageApplicants.forEach(applicant => {
             const info = applicant.applicantInfo || {};
             const timestamp = applicant.timestamp;
             const pricing = applicant.pricing || {};
-            
+
             // 신청 상태 결정
             let status = '신청완료';
             let statusClass = 'status-active';
-            
+
             html += `
                 <tr class="hover:bg-gray-50 transition-colors">
                     <td data-label="신청일시">${formatDate(timestamp)}</td>
@@ -954,21 +954,21 @@ window.courseManager = {
                 </tr>
             `;
         });
-        
+
         tbody.innerHTML = html;
     },
 
     /**
      * 🆕 신청자가 없을 때 표시
      */
-    showNoApplicants: function() {
+    showNoApplicants: function () {
         const tbody = document.querySelector('#applicants-table tbody');
         const noApplicantsMessage = document.getElementById('no-applicants-message');
-        
+
         if (tbody) {
             tbody.innerHTML = '';
         }
-        
+
         if (noApplicantsMessage) {
             noApplicantsMessage.style.display = 'block';
         }
@@ -977,14 +977,14 @@ window.courseManager = {
     /**
      * 🆕 로딩 상태 표시
      */
-    showApplicantsLoading: function() {
+    showApplicantsLoading: function () {
         const tbody = document.querySelector('#applicants-table tbody');
         const noApplicantsMessage = document.getElementById('no-applicants-message');
-        
+
         if (noApplicantsMessage) {
             noApplicantsMessage.style.display = 'none';
         }
-        
+
         if (tbody) {
             tbody.innerHTML = `
                 <tr>
@@ -1000,9 +1000,9 @@ window.courseManager = {
     /**
      * 🆕 에러 메시지 표시
      */
-    showApplicantsError: function(message) {
+    showApplicantsError: function (message) {
         const tbody = document.querySelector('#applicants-table tbody');
-        
+
         if (tbody) {
             tbody.innerHTML = `
                 <tr>
@@ -1021,31 +1021,31 @@ window.courseManager = {
     /**
      * 🆕 신청자 페이지네이션 업데이트
      */
-    updateApplicantsPagination: function() {
+    updateApplicantsPagination: function () {
         const totalPages = Math.ceil(this.applicantsTotalCount / this.applicantsPageSize);
         const paginationContainer = document.getElementById('applicants-pagination');
         const pageNumbersContainer = document.getElementById('applicants-page-numbers');
         const prevBtn = document.getElementById('applicants-prev-btn');
         const nextBtn = document.getElementById('applicants-next-btn');
         const paginationInfo = document.getElementById('applicants-pagination-info');
-        
+
         if (!paginationContainer) return;
-        
+
         // 페이지네이션 표시 여부
         if (totalPages <= 1) {
             paginationContainer.style.display = 'none';
             return;
         }
-        
+
         paginationContainer.style.display = 'flex';
-        
+
         // 페이지 정보 업데이트
         const startIndex = (this.applicantsCurrentPage - 1) * this.applicantsPageSize + 1;
         const endIndex = Math.min(this.applicantsCurrentPage * this.applicantsPageSize, this.applicantsTotalCount);
         if (paginationInfo) {
             paginationInfo.textContent = `${startIndex}-${endIndex} / 총 ${this.applicantsTotalCount}명`;
         }
-        
+
         // 이전/다음 버튼 상태
         if (prevBtn) {
             prevBtn.disabled = this.applicantsCurrentPage === 1;
@@ -1053,18 +1053,18 @@ window.courseManager = {
         if (nextBtn) {
             nextBtn.disabled = this.applicantsCurrentPage === totalPages;
         }
-        
+
         // 페이지 번호 버튼 생성
         if (pageNumbersContainer) {
             let pageNumbersHtml = '';
             const maxVisiblePages = 5;
             let startPage = Math.max(1, this.applicantsCurrentPage - Math.floor(maxVisiblePages / 2));
             let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-            
+
             if (endPage - startPage < maxVisiblePages - 1) {
                 startPage = Math.max(1, endPage - maxVisiblePages + 1);
             }
-            
+
             for (let i = startPage; i <= endPage; i++) {
                 const isActive = i === this.applicantsCurrentPage;
                 pageNumbersHtml += `
@@ -1074,7 +1074,7 @@ window.courseManager = {
                     </button>
                 `;
             }
-            
+
             pageNumbersContainer.innerHTML = pageNumbersHtml;
         }
     },
@@ -1082,7 +1082,7 @@ window.courseManager = {
     /**
      * 🆕 페이지네이션 숨기기
      */
-    hideApplicantsPagination: function() {
+    hideApplicantsPagination: function () {
         const paginationContainer = document.getElementById('applicants-pagination');
         if (paginationContainer) {
             paginationContainer.style.display = 'none';
@@ -1090,9 +1090,127 @@ window.courseManager = {
     },
 
     /**
+     * 🆕 신청자 목록 CSV 다운로드
+     */ 
+    downloadApplicantsCSV: function () {
+        try {
+            const applicants = this.allApplicants;
+
+            if (!applicants || applicants.length === 0) {
+                if (window.adminAuth && window.adminAuth.showNotification) {
+                    window.adminAuth.showNotification('다운로드할 신청자 데이터가 없습니다.', 'error');
+                }
+                return;
+            }
+
+            // 현재 선택된 과정 정보 가져오기
+            const courseTitle = document.getElementById('selected-course-title')?.textContent || '신청자목록';
+            const courseInfo = document.getElementById('selected-course-info')?.textContent || '';
+
+            // 공통 유틸 함수
+            const escapeCSV = (value) => {
+                if (value === null || value === undefined) return '';
+                const str = String(value);
+                if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                    return '"' + str.replace(/"/g, '""') + '"';
+                }
+                return str;
+            };
+
+            const formatDate = (date) => {
+                if (!date) return '';
+                try {
+                    const d = date.toDate ? date.toDate() : new Date(date);
+                    const yyyy = d.getFullYear();
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    const hh = String(d.getHours()).padStart(2, '0');
+                    const mi = String(d.getMinutes()).padStart(2, '0');
+                    return `${yyyy}.${mm}.${dd} ${hh}:${mi}`;
+                } catch (e) {
+                    return '';
+                }
+            };
+
+            const formatPhoneNumber = (phone) => {
+                if (!phone) return '';
+                const numbers = String(phone).replace(/[^0-9]/g, '');
+                if (numbers.length === 11) {
+                    return numbers.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+                } else if (numbers.length === 10) {
+                    return numbers.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+                }
+                return phone;
+            };
+
+            // 헤더
+            const headers = ['신청일시', '신청자명', '이메일', '전화번호', '생년월일', '결제금액', '상태'];
+            const csvRows = [headers.join(',')];
+
+            // 데이터 행
+            applicants.forEach(applicant => {
+                const info = applicant.applicantInfo || {};
+                const pricing = applicant.pricing || {};
+
+                const row = [
+                    escapeCSV(formatDate(applicant.timestamp)),
+                    escapeCSV(info['applicant-name'] || ''),
+                    escapeCSV(info.email || ''),
+                    escapeCSV(formatPhoneNumber(info.phone || '')),
+                    escapeCSV(info['birth-date'] || ''),
+                    escapeCSV(pricing.totalAmount !== undefined ? pricing.totalAmount : ''),
+                    '신청완료'
+                ];
+                csvRows.push(row.join(','));
+            });
+
+            // 파일명 생성 (과정명 + 날짜)
+            const now = new Date();
+            const dateStr = now.getFullYear() +
+                String(now.getMonth() + 1).padStart(2, '0') +
+                String(now.getDate()).padStart(2, '0') + '_' +
+                String(now.getHours()).padStart(2, '0') +
+                String(now.getMinutes()).padStart(2, '0');
+
+            // 파일명에 사용할 수 없는 문자 제거
+            const safeCourseName = courseTitle
+                .replace('신청자 목록 - ', '')
+                .replace(/[\\/:*?"<>|]/g, '')
+                .trim();
+
+            const fileName = `신청자목록_${safeCourseName}_${courseInfo}_${dateStr}.csv`;
+
+            // 다운로드
+            const csvContent = '\uFEFF' + csvRows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+
+            link.setAttribute('href', url);
+            link.setAttribute('download', fileName);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification(`${applicants.length}명의 신청자 정보가 CSV로 다운로드되었습니다.`, 'success');
+            }
+            console.log('✅ 신청자 CSV 다운로드 완료');
+
+        } catch (error) {
+            console.error('❌ 신청자 CSV 다운로드 오류:', error);
+            if (window.adminAuth && window.adminAuth.showNotification) {
+                window.adminAuth.showNotification('CSV 다운로드 중 오류가 발생했습니다.', 'error');
+            }
+        }
+    },
+
+    /**
      * 🆕 이전 페이지로 이동
      */
-    prevApplicantsPage: function() {
+    prevApplicantsPage: function () {
         if (this.applicantsCurrentPage > 1) {
             this.applicantsCurrentPage--;
             this.renderApplicantsPage();
@@ -1103,7 +1221,7 @@ window.courseManager = {
     /**
      * 🆕 다음 페이지로 이동
      */
-    nextApplicantsPage: function() {
+    nextApplicantsPage: function () {
         const totalPages = Math.ceil(this.applicantsTotalCount / this.applicantsPageSize);
         if (this.applicantsCurrentPage < totalPages) {
             this.applicantsCurrentPage++;
@@ -1115,7 +1233,7 @@ window.courseManager = {
     /**
      * 🆕 특정 페이지로 이동
      */
-    goToApplicantsPage: function(pageNumber) {
+    goToApplicantsPage: function (pageNumber) {
         const totalPages = Math.ceil(this.applicantsTotalCount / this.applicantsPageSize);
         if (pageNumber >= 1 && pageNumber <= totalPages) {
             this.applicantsCurrentPage = pageNumber;
@@ -2070,11 +2188,11 @@ if (window.location.hostname === 'localhost' ||
         /**
          * 🔧 신청자 카운팅 테스트
          */
-        testEnrollmentCount: async function(courseId, count) {
+        testEnrollmentCount: async function (courseId, count) {
             if (!courseId) {
                 console.log('사용 방법: testEnrollmentCount("과정ID", 신청자수)');
                 console.log('예시: testEnrollmentCount("course123", 5)');
-                
+
                 // 현재 과정 목록 표시
                 if (window.courseManager.courses.length > 0) {
                     console.log('\n📋 현재 과정 목록:');
@@ -2090,7 +2208,7 @@ if (window.location.hostname === 'localhost' ||
 
             try {
                 console.log(`🧪 신청자 수를 ${count}명으로 설정 중...`);
-                
+
                 // Firestore 업데이트
                 await window.dhcFirebase.db.collection('courses').doc(courseId).update({
                     enrolledCount: count,
@@ -2102,7 +2220,7 @@ if (window.location.hostname === 'localhost' ||
 
                 // 목록 새로고침
                 await window.courseManager.loadCourses();
-                
+
                 console.log('✅ 테스트 완료! 교육 과정 목록을 확인하세요.');
             } catch (error) {
                 console.error('❌ 테스트 실패:', error);
@@ -2112,10 +2230,10 @@ if (window.location.hostname === 'localhost' ||
         /**
          * 🔧 신청자 1명 추가 테스트
          */
-        addOneEnrollment: async function(courseId) {
+        addOneEnrollment: async function (courseId) {
             if (!courseId) {
                 console.log('사용 방법: addOneEnrollment("과정ID")');
-                
+
                 // 현재 과정 목록 표시
                 if (window.courseManager.courses.length > 0) {
                     console.log('\n📋 현재 과정 목록:');
@@ -2128,7 +2246,7 @@ if (window.location.hostname === 'localhost' ||
 
             try {
                 const courseDoc = await window.dhcFirebase.db.collection('courses').doc(courseId).get();
-                
+
                 if (!courseDoc.exists) {
                     console.error('❌ 해당 과정을 찾을 수 없습니다.');
                     return;
@@ -2146,7 +2264,7 @@ if (window.location.hostname === 'localhost' ||
 
                 console.log('✅ 신청자 1명 추가 완료');
                 await window.courseManager.loadCourses();
-                
+
             } catch (error) {
                 console.error('❌ 신청자 추가 실패:', error);
             }

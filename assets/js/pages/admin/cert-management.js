@@ -5693,6 +5693,118 @@ window.debugRenewalModal = {
     }
 };
 
+// =================================
+// 자격증 CSV 다운로드
+// =================================
+Object.assign(window.certManager, {
+
+    downloadCSV: function () {
+        try {
+            const data = this.filteredData;
+
+            if (!data || data.length === 0) {
+                window.adminAuth?.showNotification('다운로드할 자격증 데이터가 없습니다.', 'error');
+                return;
+            }
+
+            // 현재 탭 자격증 종류명
+            const certTypeNames = {
+                'health-exercise': '건강운동처방사',
+                'rehabilitation':  '운동재활전문가',
+                'pilates':         '필라테스전문가',
+                'recreation':      '레크리에이션지도자'
+            };
+            const certTypeName = certTypeNames[this.currentCertType] || this.currentCertType;
+
+            // 상태 텍스트 변환
+            const statusLabels = {
+                'active':    '유효',
+                'expired':   '만료',
+                'revoked':   '취소',
+                'suspended': '정지',
+                'pending':   '신청 대기'
+            };
+
+            // CSV 유틸 함수
+            const escapeCSV = (value) => {
+                if (value === null || value === undefined) return '';
+                const str = String(value);
+                if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                    return '"' + str.replace(/"/g, '""') + '"';
+                }
+                return str;
+            };
+
+            const formatDateSafe = (value) => {
+                if (!value) return '';
+                try {
+                    const d = value.toDate ? value.toDate()
+                            : typeof value === 'string' ? new Date(value)
+                            : value instanceof Date ? value
+                            : new Date(value.seconds * 1000);
+                    if (isNaN(d.getTime())) return String(value);
+                    const yyyy = d.getFullYear();
+                    const mm   = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd   = String(d.getDate()).padStart(2, '0');
+                    return `${yyyy}-${mm}-${dd}`;
+                } catch (e) {
+                    return String(value);
+                }
+            };
+
+            // 헤더
+            const headers = ['자격증 번호', '성명', '교육과정', '취득일', '발급일', '만료일', '상태'];
+            const csvRows = [headers.join(',')];
+
+            // 데이터 행
+            data.forEach(cert => {
+                const row = [
+                    escapeCSV(cert.certificateNumber || ''),
+                    escapeCSV(cert.holderName || cert.name || ''),
+                    escapeCSV(cert.courseName || ''),
+                    escapeCSV(formatDateSafe(cert.completionDate || cert.issueDate || '')),
+                    escapeCSV(formatDateSafe(cert.issueDate || '')),
+                    escapeCSV(formatDateSafe(cert.expiryDate || '')),
+                    escapeCSV(statusLabels[cert.status] || cert.status || '')
+                ];
+                csvRows.push(row.join(','));
+            });
+
+            // 파일명 생성
+            const now = new Date();
+            const dateStr = now.getFullYear() +
+                String(now.getMonth() + 1).padStart(2, '0') +
+                String(now.getDate()).padStart(2, '0') + '_' +
+                String(now.getHours()).padStart(2, '0') +
+                String(now.getMinutes()).padStart(2, '0');
+
+            const fileName = `자격증목록_${certTypeName}_${dateStr}.csv`;
+
+            // 다운로드 실행
+            const csvContent = '\uFEFF' + csvRows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url  = URL.createObjectURL(blob);
+
+            link.setAttribute('href', url);
+            link.setAttribute('download', fileName);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            window.adminAuth?.showNotification(`${data.length}건의 자격증 데이터가 CSV로 다운로드되었습니다.`, 'success');
+            console.log('✅ 자격증 CSV 다운로드 완료:', fileName);
+
+        } catch (error) {
+            console.error('❌ 자격증 CSV 다운로드 오류:', error);
+            window.adminAuth?.showNotification('CSV 다운로드 중 오류가 발생했습니다.', 'error');
+        }
+    }
+
+});
+
 console.log('✅ 갱신 관리 모달 디버깅 스크립트 로드 완료');
 console.log('💡 테스트 방법:');
 console.log('1. window.debugRenewalModal.checkModal() - 상태 확인');
