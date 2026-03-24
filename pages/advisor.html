@@ -22,7 +22,7 @@
         /* ── 통계 바 ── */
         .advisor-stats {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             background: white;
             border: 1px solid #e5e7eb;
             border-radius: 12px;
@@ -225,16 +225,7 @@
         /* ── 반응형 ── */
         @media (max-width: 767px) {
             .advisor-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .advisor-stat-item:nth-child(2) {
-                border-right: none;
-            }
-
-            .advisor-stat-item:nth-child(1),
-            .advisor-stat-item:nth-child(2) {
-                border-bottom: 1px solid #e5e7eb;
+                grid-template-columns: repeat(3, 1fr);
             }
 
             .president-card {
@@ -394,10 +385,6 @@
                 <!-- 통계 바 -->
                 <div class="advisor-stats">
                     <div class="advisor-stat-item">
-                        <div class="stat-num">1</div>
-                        <div class="stat-lbl">총재</div>
-                    </div>
-                    <div class="advisor-stat-item">
                         <div class="stat-num">150</div>
                         <div class="stat-lbl">자문위원</div>
                     </div>
@@ -408,32 +395,6 @@
                     <div class="advisor-stat-item">
                         <div class="stat-num">15+</div>
                         <div class="stat-lbl">소속 기관</div>
-                    </div>
-                </div>
-
-                <!-- 총재 섹션 -->
-                <div class="section-label-row">
-                    <div class="divider"></div>
-                    <span class="section-badge">⭐ 총재</span>
-                    <div class="divider"></div>
-                </div>
-
-                <div class="president-card">
-                    <div class="president-avatar">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <span class="president-badge-pill">총재</span>
-                        <h2>홍 길 동</h2>
-                        <p class="president-affil">○○대학교 체육학과 교수 &nbsp;|&nbsp; 前 대한체육학회 회장</p>
-                        <p class="president-bio">
-                            운동과학 및 스포츠 의학 분야의 권위자로서 40여 년간 활발한 연구·교육 활동을 이어왔습니다.
-                            국내·외 학술지에 300편 이상의 논문을 게재하였으며, 체육 정책 자문 및 국제 학술 교류에
-                            기여해 왔습니다. 디지털헬스케어센터의 설립 이념과 비전에 공감하여 총재직을 맡고 있습니다.
-                        </p>
                     </div>
                 </div>
 
