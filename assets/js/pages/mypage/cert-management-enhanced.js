@@ -783,7 +783,7 @@
         // 배송비 행 표시/숨김
         const deliveryFeeRow = document.getElementById('renewal-delivery-fee-row');
         if (deliveryFeeRow) {
-            if (deliveryMethod === 'both') {
+            if (deliveryMethod === 'both' && deliveryFee > 0) {
                 deliveryFeeRow.style.display = 'flex';
             } else {
                 deliveryFeeRow.style.display = 'none';
@@ -2105,12 +2105,16 @@
                         console.log('📦 실물 수령 - 주소 필드 표시');
                     }
                     if (deliveryFeeRow) {
-                        if (this.value === 'both') {
+                        const currentFees = selectedCertForRenewal
+                            ? renewalFees[selectedCertForRenewal.certType]
+                            : null;
+                        const currentDeliveryFee = currentFees?.deliveryFee ?? 5000;
+                        if (this.value === 'both' && currentDeliveryFee > 0) {
                             deliveryFeeRow.style.display = 'flex';
                             console.log('💰 배송비 표시 (실물+디지털)');
                         } else {
                             deliveryFeeRow.style.display = 'none';
-                            console.log('💰 배송비 숨김 (실물만)');
+                            console.log('💰 배송비 숨김 (실물만 또는 배송비 0원)');
                         }
                     }
                 }

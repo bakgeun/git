@@ -2180,7 +2180,7 @@ Object.assign(window.certManager, {
 
         // 폼 필드에 값 설정
         this.setFormValue('renewal-base-fee', settings.renewal);
-        this.setFormValue('delivery-fee', settings.deliveryFee || 5000);
+        this.setFormValue('delivery-fee', settings.deliveryFee ?? 5000);
         this.setFormValue('education-online-fee', settings.education.online);
         this.setFormValue('education-offline-fee', settings.education.offline);
         this.setFormValue('education-completed-fee', settings.education.completed);
@@ -2278,9 +2278,10 @@ Object.assign(window.certManager, {
                     </div>
                 </div>
             </div>
+            ${(settings.deliveryFee ?? 5000) > 0 ? `
             <div class="mt-2 text-xs text-green-600">
-                * 실물 + 디지털 배송 선택 시 배송비 ${settings.deliveryFee?.toLocaleString() || '5,000'}원 추가
-            </div>
+                * 실물 + 디지털 배송 선택 시 배송비 ${(settings.deliveryFee ?? 5000).toLocaleString()}원 추가
+            </div>` : ''}
         `;
     },
 
@@ -2572,7 +2573,7 @@ const certManagerEnhancements = {
 
         // 폼 필드에 값 설정
         this.setFormValue('renewal-base-fee', settings.renewal);
-        this.setFormValue('delivery-fee', settings.deliveryFee || 5000);
+        this.setFormValue('delivery-fee', settings.deliveryFee ?? 5000);
         this.setFormValue('education-online-fee', settings.education.online);
         this.setFormValue('education-offline-fee', settings.education.offline);
         this.setFormValue('education-completed-fee', settings.education.completed);
@@ -2670,9 +2671,10 @@ const certManagerEnhancements = {
                     </div>
                 </div>
             </div>
+            ${(settings.deliveryFee ?? 5000) > 0 ? `
             <div class="mt-2 text-xs text-green-600">
-                * 실물 + 디지털 배송 선택 시 배송비 ${settings.deliveryFee?.toLocaleString() || '5,000'}원 추가
-            </div>
+                * 실물 + 디지털 배송 선택 시 배송비 ${(settings.deliveryFee ?? 5000).toLocaleString()}원 추가
+            </div>` : ''}
         `;
     },
 
