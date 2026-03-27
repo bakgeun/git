@@ -169,20 +169,31 @@ function createInstructorCard(instructor) {
         contentHTML += `<li class="section-item"><span class="section-label">경력 :</span> ${careerHTML}</li>`;
     }
 
-    card.innerHTML = `
-        <div class="instructor-photo-small">
-            <img src="${instructor.photoUrl}" alt="${instructor.name}" onerror="this.src='../../assets/images/instructors/default.jpg'">
-        </div>
-        <div class="instructor-info-horizontal">
-            <div class="instructor-header-row">
-                <h3 class="instructor-name-horizontal">${instructor.name}</h3>
-                <span class="course-badge ${badgeClass}">${courseName}</span>
+    if (instructor.comingSoon) {
+        card.innerHTML = `
+            <div class="instructor-info-horizontal">
+                <div class="instructor-header-row">
+                    <span class="course-badge ${badgeClass}">${courseName}</span>
+                </div>
+                <p style="margin-top: 12px; font-size: 1rem; color: #555;">과정 개설 준비중</p>
             </div>
-            <ul class="instructor-details-list">
-                ${contentHTML}
-            </ul>
-        </div>
-    `;
+        `;
+    } else {
+        card.innerHTML = `
+            <div class="instructor-photo-small">
+                <img src="${instructor.photoUrl}" alt="${instructor.name}" onerror="this.src='../../assets/images/instructors/default.jpg'">
+            </div>
+            <div class="instructor-info-horizontal">
+                <div class="instructor-header-row">
+                    <h3 class="instructor-name-horizontal">${instructor.name}</h3>
+                    <span class="course-badge ${badgeClass}">${courseName}</span>
+                </div>
+                <ul class="instructor-details-list">
+                    ${contentHTML}
+                </ul>
+            </div>
+        `;
+    }
 
     return card;
 }
