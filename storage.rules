@@ -6,10 +6,11 @@ service firebase.storage {
       return request.auth != null;
     }
     
-    // 헬퍼 함수: 관리자 권한 확인
+    // 헬퍼 함수: 관리자 권한 확인 — Firestore users/{uid}.userType == 'admin' 기반
     function isAdmin() {
-      return isAuthenticated() && 
-        (request.auth.token.email == 'gostepexercise@gmail.com');
+      return isAuthenticated() &&
+        firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.userType == 'admin';
     }
     
     // 헬퍼 함수: 파일 소유자 확인

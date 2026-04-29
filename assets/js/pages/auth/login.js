@@ -97,7 +97,7 @@ function checkCurrentUser() {
 
     if (currentUser && currentUser.email && !redirectInProgress) {
         console.log('이미 로그인됨:', currentUser.email);
-        redirectUser(currentUser.email);
+        redirectUser(currentUser);
     }
 }
 
@@ -147,7 +147,7 @@ async function handleLogin(event) {
         console.log('로그인 성공:', result.user.email);
 
         // 즉시 리디렉션 (메시지 없이)
-        redirectUser(result.user.email);
+        await redirectUser(result.user);
 
     } catch (error) {
         console.error('로그인 오류:', error);
@@ -207,7 +207,7 @@ async function handleGoogleLogin() {
         }
 
         // 즉시 리디렉션 (메시지 없이)
-        redirectUser(result.user.email);
+        await redirectUser(result.user);
 
     } catch (error) {
         console.error('Google 로그인 오류:', error);
@@ -224,18 +224,29 @@ async function handleGoogleLogin() {
     }
 }
 
-// 리디렉션 함수 (즉시 처리)
-function redirectUser(email) {
+// 리디렉션 함수 — Firestore userType 기반 관리자 확인
+async function redirectUser(user) {
     if (redirectInProgress) {
         console.log('이미 리디렉션 중, 중단');
         return;
     }
 
     redirectInProgress = true;
-    console.log('즉시 리디렉션 시작:', email);
+    console.log('리디렉션 시작:', user.email);
 
-    const adminEmails = ['admin@test.com', 'gostepexercise@gmail.com'];
-    const isAdmin = adminEmails.includes(email);
+    let isAdmin = false;
+
+    try {
+        if (window.dhcFirebase && window.dhcFirebase.db && user.uid) {
+            const userDoc = await window.dhcFirebase.db.collection('users').doc(user.uid).get();
+            if (userDoc.exists) {
+                isAdmin = userDoc.data().userType === 'admin';
+            }
+        }
+    } catch (err) {
+        console.warn('Firestore 권한 확인 실패, 일반 사용자로 처리:', err);
+        isAdmin = false;
+    }
 
     console.log('관리자 여부:', isAdmin);
 
@@ -243,12 +254,12 @@ function redirectUser(email) {
     localStorage.removeItem('dashboard_redirect_count');
     localStorage.removeItem('dashboard_last_access');
 
-    // 즉시 리디렉션 실행
+    // 리디렉션 실행
     if (isAdmin) {
-        console.log('관리자 대시보드로 즉시 이동:', '../admin/dashboard.html');
+        console.log('관리자 대시보드로 이동:', '../admin/dashboard.html');
         window.location.href = '../admin/dashboard.html';
     } else {
-        console.log('홈페이지로 즉시 이동:', '../../index.html');
+        console.log('홈페이지로 이동:', '../../index.html');
         window.location.href = '../../index.html';
     }
 }

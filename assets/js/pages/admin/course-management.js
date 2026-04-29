@@ -14,7 +14,8 @@ function checkAdminDependencies() {
     const missing = [];
 
     requiredUtils.forEach(util => {
-        if (!eval(util.name)) {
+        const val = util.name.split('.').reduce((o, k) => (o != null ? o[k] : undefined), globalThis);
+        if (!val) {
             missing.push(util);
         }
     });

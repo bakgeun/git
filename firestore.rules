@@ -11,12 +11,11 @@ service cloud.firestore {
       return request.auth != null;
     }
     
-    // 관리자 권한 확인 (안전하게 처리)
+    // 관리자 권한 확인 — Firestore users/{uid}.userType == 'admin' 기반
     function isAdmin() {
-      return isAuthenticated() && 
-        (request.auth.token.email == 'gostepexercise@gmail.com' ||
-         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'admin'));
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'admin';
     }
     
     // 문서 소유자 확인

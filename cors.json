@@ -1,6 +1,9 @@
 [
   {
-    "origin": ["*"],
+    "origin": [
+      "https://digital-healthcare-cente-2204b.web.app",
+      "https://digital-healthcare-cente-2204b.firebaseapp.com"
+    ],
     "method": ["GET", "HEAD"],
     "maxAgeSeconds": 3600
   }

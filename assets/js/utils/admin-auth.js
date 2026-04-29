@@ -5,11 +5,8 @@
 
 // 즉시 실행 함수 표현식(IIFE)을 사용하여 전역 네임스페이스 오염 방지
 (function () {
-    // 관리자 이메일 목록
-    const ADMIN_EMAILS = [
-        'admin@test.com', // 로컬 테스트용 계정
-        'gostepexercise@gmail.com' // 실제 관리자 계정
-    ];
+    // 관리자 여부 캐시 (Firestore 조회 결과 저장)
+    let _cachedAdminStatus = null;
 
     // 🔧 경로 조정 중복 방지를 위한 플래그
     let navigationLinksAdjusted = false;
@@ -51,29 +48,43 @@
         },
 
         /**
-         * 현재 사용자가 관리자인지 확인
+         * 현재 사용자가 관리자인지 확인 (캐시 기반 동기 확인)
+         * initAdminStatus()를 먼저 호출해야 정확한 결과를 반환합니다.
          * @returns {boolean} 관리자 여부
          */
         isAdmin: function () {
+            if (_cachedAdminStatus !== null) {
+                return _cachedAdminStatus;
+            }
+            // 캐시가 없으면 로그인 상태만 확인 (Firestore 조회 전)
+            if (!window.dhcFirebase) return false;
+            const currentUser = window.dhcFirebase.getCurrentUser();
+            return currentUser != null && _cachedAdminStatus === true;
+        },
+
+        /**
+         * Firestore에서 관리자 여부를 조회하고 캐시에 저장합니다.
+         * 관리자 페이지 진입 시 반드시 호출해야 합니다.
+         * @returns {Promise<boolean>}
+         */
+        initAdminStatus: async function () {
             try {
-                if (!window.dhcFirebase) {
-                    console.log('dhcFirebase가 초기화되지 않음');
+                if (!window.dhcFirebase || !window.dhcFirebase.db) {
+                    _cachedAdminStatus = false;
                     return false;
                 }
-
-                const currentUser = window.dhcFirebase.getCurrentUser();
-
-                if (!currentUser || !currentUser.email) {
-                    console.log('로그인한 사용자가 없음');
+                const user = window.dhcFirebase.getCurrentUser();
+                if (!user || !user.uid) {
+                    _cachedAdminStatus = false;
                     return false;
                 }
-
-                // 이메일이 관리자 목록에 있는지 확인
-                const isAdmin = ADMIN_EMAILS.includes(currentUser.email);
-                console.log('isAdmin 확인:', { email: currentUser.email, isAdmin });
-                return isAdmin;
+                const doc = await window.dhcFirebase.db.collection('users').doc(user.uid).get();
+                _cachedAdminStatus = doc.exists && doc.data().userType === 'admin';
+                console.log('관리자 상태 초기화:', { uid: user.uid, isAdmin: _cachedAdminStatus });
+                return _cachedAdminStatus;
             } catch (error) {
-                console.error('관리자 권한 확인 오류:', error);
+                console.error('관리자 상태 초기화 오류:', error);
+                _cachedAdminStatus = false;
                 return false;
             }
         },
@@ -189,6 +200,7 @@
                     } else {
                         throw new Error('인증 서비스를 찾을 수 없습니다.');
                     }
+                    this.clearAdminCache();
 
                     this.showNotification('로그아웃 되었습니다.', 'success');
                     console.log('로그아웃 성공');
@@ -639,13 +651,6 @@
         },
 
         /**
-         * 관리자 계정 목록 반환 (디버깅용)
-         */
-        getAdminEmails: function () {
-            return ADMIN_EMAILS;
-        },
-
-        /**
          * 네비게이션 링크 조정 상태 재설정 (디버깅용)
          */
         resetNavigationState: function () {
@@ -654,12 +659,20 @@
         },
 
         /**
+         * 관리자 캐시 초기화 (로그아웃 시 호출)
+         */
+        clearAdminCache: function () {
+            _cachedAdminStatus = null;
+            console.log('관리자 캐시 초기화됨');
+        },
+
+        /**
          * 현재 상태 확인 (디버깅용)
          */
         getStatus: function () {
             return {
                 navigationLinksAdjusted: navigationLinksAdjusted,
-                adminEmails: ADMIN_EMAILS,
+                cachedAdminStatus: _cachedAdminStatus,
                 currentUser: window.dhcFirebase?.getCurrentUser()?.email || null,
                 isAdmin: this.isAdmin()
             };

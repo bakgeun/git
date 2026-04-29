@@ -6,6 +6,19 @@
 console.log('=== 완전한 표준화된 user-management.js 파일 로드됨 ===');
 
 // =================================
+// XSS 방지 유틸리티
+// =================================
+function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;');
+}
+
+// =================================
 // 전역 변수 선언 (🔧 호이스팅 문제 해결 - 최상단으로 이동)
 // =================================
 
@@ -26,7 +39,8 @@ function checkDependencies() {
     const missing = [];
 
     requiredUtils.forEach(util => {
-        if (!eval(util.name)) {
+        const val = util.name.split('.').reduce((o, k) => (o != null ? o[k] : undefined), globalThis);
+        if (!val) {
             missing.push(util);
         }
     });
@@ -888,12 +902,12 @@ window.userManager = {
                 </td>
                 <td data-label="이름">
                     <div class="flex items-center">
-                        <span class="text-sm font-medium text-gray-900">${displayName}</span>
+                        <span class="text-sm font-medium text-gray-900">${escapeHtml(displayName)}</span>
                         ${isAdmin ? '<span class="ml-2 user-type-badge type-admin">관리자</span>' : ''}
                     </div>
                 </td>
                 <td data-label="이메일">
-                    <div class="text-sm text-gray-900 text-truncate">${email}</div>
+                    <div class="text-sm text-gray-900 text-truncate">${escapeHtml(email)}</div>
                 </td>
                 <td data-label="회원 유형">
                     <div class="flex items-center flex-wrap gap-2">

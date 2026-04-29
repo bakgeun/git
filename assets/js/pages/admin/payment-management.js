@@ -6,6 +6,19 @@
 console.log('=== 완전한 표준화된 payment-management.js 파일 로드됨 ===');
 
 // =================================
+// XSS 방지 유틸리티
+// =================================
+function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;');
+}
+
+// =================================
 // 전역 변수 선언 (최적화 - 중복 방지)
 // =================================
 
@@ -36,7 +49,8 @@ function checkDependencies() {
     const missing = [];
     
     requiredUtils.forEach(util => {
-        if (!eval(util.name)) {
+        const val = util.name.split('.').reduce((o, k) => (o != null ? o[k] : undefined), globalThis);
+        if (!val) {
             missing.push(util);
         }
     });
@@ -1061,13 +1075,13 @@ window.paymentManager = {
                 </td>
                 <td data-label="결제자">
                     <div>
-                        <div class="font-medium text-gray-900">${payment.userName || '알 수 없음'}</div>
-                        <div class="text-sm text-gray-500">${payment.userEmail || ''}</div>
+                        <div class="font-medium text-gray-900">${escapeHtml(payment.userName || '알 수 없음')}</div>
+                        <div class="text-sm text-gray-500">${escapeHtml(payment.userEmail || '')}</div>
                     </div>
                 </td>
                 <td data-label="교육과정">
                     <div class="text-sm text-gray-900">
-                        ${payment.courseName || '-'}
+                        ${escapeHtml(payment.courseName || '-')}
                     </div>
                 </td>
                 <td data-label="결제금액">
@@ -1333,15 +1347,15 @@ window.paymentManager = {
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-500">이름</label>
-                            <p class="mt-1 text-sm text-gray-900">${payment.userName || '-'}</p>
+                            <p class="mt-1 text-sm text-gray-900">${escapeHtml(payment.userName || '-')}</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-500">이메일</label>
-                            <p class="mt-1 text-sm text-gray-900">${payment.userEmail || '-'}</p>
+                            <p class="mt-1 text-sm text-gray-900">${escapeHtml(payment.userEmail || '-')}</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-500">연락처</label>
-                            <p class="mt-1 text-sm text-gray-900">${payment.userPhone || '-'}</p>
+                            <p class="mt-1 text-sm text-gray-900">${escapeHtml(payment.userPhone || '-')}</p>
                         </div>
                     </div>
                 </div>
@@ -1352,11 +1366,11 @@ window.paymentManager = {
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-500">교육과정명</label>
-                            <p class="mt-1 text-sm text-gray-900">${payment.courseName || '-'}</p>
+                            <p class="mt-1 text-sm text-gray-900">${escapeHtml(payment.courseName || '-')}</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-500">자격증 유형</label>
-                            <p class="mt-1 text-sm text-gray-900">${payment.courseType || '-'}</p>
+                            <p class="mt-1 text-sm text-gray-900">${escapeHtml(payment.courseType || '-')}</p>
                         </div>
                     </div>
                 </div>
@@ -1369,19 +1383,19 @@ window.paymentManager = {
                         ${payment.pgResponse.authCode ? `
                         <div>
                             <label class="block text-sm font-medium text-gray-500">승인번호</label>
-                            <p class="mt-1 text-sm text-gray-900">${payment.pgResponse.authCode}</p>
+                            <p class="mt-1 text-sm text-gray-900">${escapeHtml(payment.pgResponse.authCode)}</p>
                         </div>
                         ` : ''}
                         ${payment.pgResponse.transactionId ? `
                         <div>
                             <label class="block text-sm font-medium text-gray-500">거래번호</label>
-                            <p class="mt-1 text-sm text-gray-900">${payment.pgResponse.transactionId}</p>
+                            <p class="mt-1 text-sm text-gray-900">${escapeHtml(payment.pgResponse.transactionId)}</p>
                         </div>
                         ` : ''}
                         ${payment.pgResponse.cardName ? `
                         <div>
                             <label class="block text-sm font-medium text-gray-500">카드사</label>
-                            <p class="mt-1 text-sm text-gray-900">${payment.pgResponse.cardName}</p>
+                            <p class="mt-1 text-sm text-gray-900">${escapeHtml(payment.pgResponse.cardName)}</p>
                         </div>
                         ` : ''}
                         ${payment.pgResponse.installment !== undefined ? `

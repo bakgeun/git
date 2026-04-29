@@ -32,42 +32,11 @@ console.log('local-auth-override.js 파일이 로드되었습니다.');
     // (현재는 실행되지 않음)
     
     console.log('=== 로컬 테스트 모드 활성화 ===');
-    console.log('테스트 계정 정보:');
-    console.log('1. 관리자 계정');
-    console.log('   - 이메일: admin@test.com');
-    console.log('   - 비밀번호: admin123');
-    console.log('2. 학생 계정');
-    console.log('   - 이메일: student@test.com');
-    console.log('   - 비밀번호: student123');
+    console.log('테스트 계정을 사용하려면 Firebase 콘솔에서 직접 계정을 생성하세요.');
     console.log('===========================');
 
-    // 테스트용 사용자 데이터베이스
-    const mockUsers = {
-        'admin@test.com': {
-            uid: 'mock-admin-uid',
-            email: 'admin@test.com',
-            password: 'admin123',
-            displayName: '관리자',
-            userType: 'admin',
-            phoneNumber: '010-1234-5678',
-            address: '서울시 강남구',
-            createdAt: new Date().toISOString()
-        },
-        'student@test.com': {
-            uid: 'mock-student-uid',
-            email: 'student@test.com',
-            password: 'student123',
-            displayName: '홍길동',
-            userType: 'student',
-            phoneNumber: '010-9876-5432',
-            address: '서울시 서초구',
-            createdAt: new Date().toISOString()
-        }
-    };
-    
-    console.log('테스트 계정 정보가 올바르게 설정되었는지 확인:', 
-                mockUsers['admin@test.com'] ? '관리자 계정 확인됨' : '관리자 계정 없음',
-                mockUsers['student@test.com'] ? '학생 계정 확인됨' : '학생 계정 없음');
+    // 테스트용 사용자 데이터베이스 (보안상 자격 증명 제거됨)
+    const mockUsers = {};
     
     // 현재 로그인한 사용자 정보 (localStorage에서 복원)
     let currentUser = null;

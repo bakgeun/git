@@ -15,7 +15,7 @@ function checkDependencies() {
         { name: 'window.dateUtils', path: 'date-utils.js' }
     ];
 
-    const missing = requiredUtils.filter(util => !eval(util.name));
+    const missing = requiredUtils.filter(util => !util.name.split('.').reduce((o, k) => (o != null ? o[k] : undefined), globalThis));
     if (missing.length > 0) {
         console.error('⚠️ 필수 유틸리티가 로드되지 않음:', missing.map(m => m.path));
         return false;
