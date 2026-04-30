@@ -55,27 +55,18 @@ if (document.readyState === 'loading') {
  */
 async function confirmPayment(paymentKey, orderId, amount) {
     try {
-        console.log('✅ 토스페이먼츠 결제 승인 시작:', { paymentKey, orderId, amount });
-        
-        // payment-service 초기화 확인
-        if (!window.paymentService || !window.paymentService.isInitialized) {
-            console.log('⚠️ payment-service 초기화 대기...');
-            await waitForPaymentService();
+        console.log('✅ 결제 승인 시작 (Firebase Functions 경유):', { paymentKey, orderId, amount });
+
+        // confirmPayment는 Firebase Functions를 호출하므로 SDK 초기화 불필요
+        if (!window.paymentService) {
+            throw new Error('payment-service가 로드되지 않았습니다.');
         }
-        
-        // URL 파라미터에서 면세 금액 가져오기
-        const urlParams = new URLSearchParams(window.location.search);
-        const taxFreeAmountParam = urlParams.get('taxFreeAmount');
-        const taxFreeAmount = taxFreeAmountParam ? parseInt(taxFreeAmountParam) : null;
-        
-        console.log('💰 면세 금액 확인:', taxFreeAmount);
-        
-        // 토스페이먼츠 결제 승인 요청
+
+        // taxFreeAmount는 서버(Firebase Functions)에서 처리 — 클라이언트 전달 불필요
         const confirmResult = await window.paymentService.confirmPayment(
-            paymentKey, 
-            orderId, 
-            amount,
-            taxFreeAmount
+            paymentKey,
+            orderId,
+            amount
         );
         
         if (confirmResult.success) {

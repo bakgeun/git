@@ -1406,60 +1406,30 @@ async function initiatePayment(applicationData) {
             const orderId = window.paymentService.generateOrderId('DHC_COURSE');
             const { successUrl, failUrl } = buildAlternativePaymentUrls(orderId);
 
-            // 🆕 면세 지원 대체 데이터 구성
-            const paymentItems = buildPaymentItems(applicationData);
-
             paymentData = {
-                amount: applicationData.pricing.totalAmount,
-                orderId: orderId,
-                orderName: buildOrderName(applicationData),
-                customerName: applicationData.applicantInfo['applicant-name'] || '고객',
-                customerEmail: applicationData.applicantInfo['email'] || '',
+                amount:              applicationData.pricing.totalAmount,
+                orderId:             orderId,
+                orderName:           buildOrderName(applicationData),
+                customerName:        applicationData.applicantInfo['applicant-name'] || '고객',
+                customerEmail:       applicationData.applicantInfo['email'] || '',
                 customerMobilePhone: formatPhoneNumber(applicationData.applicantInfo['phone'] || ''),
-                successUrl: successUrl,
-                failUrl: failUrl,
-                paymentItems: paymentItems  // 🆕 면세 계산용 항목 추가
+                successUrl:          successUrl,
+                failUrl:             failUrl
             };
 
-            console.log('🔄 대체 결제 데이터 생성 (면세 지원):', paymentData);
-        }
-
-        // 🆕 면세 금액 사전 검증
-        if (paymentData.paymentItems) {
-            const isValid = window.paymentService.validateTaxFreeAmount(paymentData.paymentItems);
-            if (!isValid) {
-                throw new Error('면세 금액 검증에 실패했습니다.');
-            }
-
-            // 면세 계산 결과 미리보기
-            const taxCalculation = window.paymentService.calculateTaxFreeAmount(paymentData.paymentItems);
-            console.log('💰 면세 계산 미리보기:', {
-                총금액: taxCalculation.totalAmount,
-                면세금액: taxCalculation.taxFreeAmount,
-                과세금액: taxCalculation.suppliedAmount,
-                부가세: taxCalculation.vat
-            });
+            console.log('🔄 대체 결제 데이터 생성:', paymentData);
         }
 
         // 결제 요청 전 데이터 저장
         await saveApplicationDataBeforePayment(applicationData);
 
-        console.log('🔧 토스페이먼츠 결제 요청 (면세 지원):', paymentData);
+        console.log('💳 토스페이먼츠 결제 요청:', paymentData);
 
-        // 결제 방법 명시적 지정 및 면세 옵션 추가
-        const result = await window.paymentService.requestPayment(paymentData, {
-            paymentMethod: 'CARD',
-            additionalData: {
-                flowMode: 'DEFAULT',
-                discountCode: getAppliedDiscountCode(),
-                // 🆕 면세 관련 메타데이터 추가
-                taxFreeMetadata: {
-                    businessType: 'TAX_FREE',
-                    applicationId: applicationData.applicationId,
-                    courseType: applicationData.courseInfo.certificateType
-                }
-            }
-        });
+        // v2: customerKey로 Firebase UID 사용 (비로그인 시 ANONYMOUS)
+        const currentUser = window.dhcFirebase ? window.dhcFirebase.getCurrentUser() : null;
+        const customerKey = currentUser ? currentUser.uid : 'ANONYMOUS';
+
+        const result = await window.paymentService.requestPayment(paymentData, { customerKey });
 
         console.log('✅ 토스페이먼츠 결제 요청 성공 (면세 지원):', result);
 
@@ -1498,18 +1468,7 @@ async function handlePaymentSuccess(paymentResult, applicationData) {
                 throw new Error('결제 승인 실패: ' + confirmResult.error);
             }
 
-            console.log('✅ 토스페이먼츠 결제 승인 완료 (면세 지원):', confirmResult.data);
-
-            // 🆕 면세 정보 로깅
-            if (confirmResult.data.taxFreeAmount) {
-                console.log('💰 승인된 면세 정보:', {
-                    총결제금액: confirmResult.data.totalAmount,
-                    면세금액: confirmResult.data.taxFreeAmount,
-                    공급가액: confirmResult.data.suppliedAmount,
-                    부가세: confirmResult.data.vat
-                });
-            }
-
+            console.log('✅ 결제 승인 완료:', confirmResult.data);
             paymentResult = { ...paymentResult, ...confirmResult.data };
         }
 
@@ -1521,15 +1480,7 @@ async function handlePaymentSuccess(paymentResult, applicationData) {
                 status: 'completed',
                 paidAt: new Date(),
                 paymentMethod: 'toss_payments',
-                pgProvider: 'tosspayments',
-                // 🆕 면세 정보 저장
-                taxInfo: {
-                    totalAmount: paymentResult.totalAmount,
-                    taxFreeAmount: paymentResult.taxFreeAmount || 0,
-                    suppliedAmount: paymentResult.suppliedAmount || 0,
-                    vat: paymentResult.vat || 0,
-                    businessType: 'TAX_FREE'
-                }
+                pgProvider: 'tosspayments'
             },
             status: 'payment_completed',
 
@@ -1544,14 +1495,7 @@ async function handlePaymentSuccess(paymentResult, applicationData) {
                     '교육 시작 전 안내 문자 발송',
                     '온라인 강의 자료 접근 권한 부여',
                     '교육 수료 후 자격증 발급 진행'
-                ],
-                // 🆕 면세 정보 표시용
-                taxSummary: paymentResult.taxFreeAmount > 0 ? {
-                    hasTaxFreeItems: true,
-                    taxFreeAmount: paymentResult.taxFreeAmount,
-                    taxableAmount: paymentResult.suppliedAmount,
-                    vat: paymentResult.vat
-                } : null
+                ]
             }
         };
 
@@ -3559,38 +3503,15 @@ function debugCurrentPaths() {
 }
 
 /**
- * 토스페이먼츠 결제 데이터 구성 (면세 파라미터 포함)
+ * 토스페이먼츠 결제 데이터 구성
  * @param {Object} applicationData - 신청 데이터
  * @returns {Object} 토스페이먼츠 결제 요청 데이터
  */
 function buildTossPaymentData(applicationData) {
-    console.log('💳 면세 지원 결제 데이터 구성 시작:', applicationData);
-
-    // 주문 ID 생성
-    const orderId = window.paymentService.generateOrderId('DHC_COURSE');
-
-    // 주문명 생성
-    const orderName = buildOrderName(applicationData);
-
-    // 🔧 결제 항목별 금액 구성 (면세 계산용) - 한 번만!
-    const paymentItems = buildPaymentItems(applicationData);
-
-    // 🆕 면세 금액 미리 계산
-    let taxFreeAmount = 0;
-    if (window.paymentService && paymentItems) {
-        try {
-            const taxCalculation = window.paymentService.calculateTaxFreeAmount(paymentItems);
-            taxFreeAmount = taxCalculation.taxFreeAmount || 0;
-            console.log('💰 계산된 면세 금액:', taxFreeAmount);
-        } catch (error) {
-            console.warn('⚠️ 면세 금액 계산 실패:', error);
-            taxFreeAmount = 0;
-        }
-    }
-
-    // 🆕 성공/실패 URL 생성 (면세 금액 포함)
-    const successUrl = buildPaymentResultUrl('success', orderId, taxFreeAmount);
-    const failUrl = buildPaymentResultUrl('fail', orderId, taxFreeAmount);
+    const orderId    = window.paymentService.generateOrderId('DHC_COURSE');
+    const orderName  = buildOrderName(applicationData);
+    const successUrl = buildPaymentResultUrl('success', orderId);
+    const failUrl    = buildPaymentResultUrl('fail',    orderId);
 
     // URL 검증
     if (!validatePaymentUrls(successUrl, failUrl)) {
@@ -3621,69 +3542,21 @@ function buildTossPaymentData(applicationData) {
         customerEmail: applicationData.applicantInfo['email'] || '',
         customerMobilePhone: formattedPhone,
 
-        // 성공/실패 URL
         successUrl: successUrl,
-        failUrl: failUrl,
-
-        // 🆕 면세 계산용 결제 항목 추가 (이미 위에서 생성했으므로 재사용)
-        paymentItems: paymentItems
+        failUrl:    failUrl
     };
 
-    console.log('🔧 생성된 결제 데이터 (면세 지원):', paymentData);
-
-    // 주문 데이터를 로컬 저장소에 임시 저장
+    // 주문 데이터 임시 저장
     localStorage.setItem('dhc_pending_order', JSON.stringify({
-        orderId: orderId,
+        orderId:         orderId,
         applicationData: applicationData,
-        paymentItems: paymentItems,
-        taxFreeAmount: taxFreeAmount,  // 면세 금액도 저장
-        timestamp: new Date().toISOString()
+        timestamp:       new Date().toISOString()
     }));
 
     return paymentData;
 }
 
-/**
- * 🆕 결제 항목별 금액 구성 (면세 계산용) (NEW)
- * @param {Object} applicationData - 신청 데이터
- * @returns {Object} 항목별 금액 정보
- */
-function buildPaymentItems(applicationData) {
-    const items = {};
-
-    // 교육비 (항상 포함, 면세)
-    if (applicationData.pricing.educationPrice > 0) {
-        items.education = applicationData.pricing.educationPrice;
-    }
-
-    // 자격증 발급비 (선택, 과세)
-    if (applicationData.options.includeCertificate && applicationData.pricing.certificatePrice > 0) {
-        items.certificate = applicationData.pricing.certificatePrice;
-    }
-
-    // 교재비 (선택, 면세)
-    if (applicationData.options.includeMaterial && applicationData.pricing.materialPrice > 0) {
-        items.material = applicationData.pricing.materialPrice;
-    }
-
-    console.log('📋 구성된 결제 항목:', items);
-
-    // 🆕 면세 설정 검증
-    const totalCalculated = Object.values(items).reduce((sum, amount) => sum + amount, 0);
-    const expectedTotal = applicationData.pricing.totalAmount;
-
-    if (Math.abs(totalCalculated - expectedTotal) > 1) {  // 1원 오차 허용
-        console.warn('⚠️ 항목별 합계와 총 금액이 일치하지 않습니다:', {
-            계산된합계: totalCalculated,
-            예상총액: expectedTotal,
-            차이: totalCalculated - expectedTotal
-        });
-    }
-
-    return items;
-}
-
-// 🔧 NEW: 대체 URL 생성 함수 (폴백용)
+// 대체 URL 생성 함수 (폴백용)
 function buildAlternativePaymentUrls(orderId) {
     const protocol = window.location.protocol;
     const host = window.location.host;
