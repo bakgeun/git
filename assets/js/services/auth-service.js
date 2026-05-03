@@ -89,13 +89,14 @@
                 console.error("❌ 회원가입 오류:", error);
 
                 // Firebase Auth 계정은 생성되었지만 Firestore 저장이 실패한 경우
-                // 생성된 Auth 계정을 정리
-                if (error.code && error.code.includes('firestore')) {
-                    // userCredential이 정의되어 있는지 확인
-                    if (typeof userCredential !== 'undefined' && userCredential?.user) {
+                // 생성된 Auth 계정을 정리 (Auth 오류가 아닌 경우에만 — Auth 오류는 계정 미생성)
+                const isAuthError = error.code && error.code.startsWith('auth/');
+                if (!isAuthError) {
+                    const currentUser = window.dhcFirebase.auth.currentUser;
+                    if (currentUser) {
                         try {
                             console.log('🔄 Firestore 저장 실패로 인한 Auth 계정 정리...');
-                            await userCredential.user.delete();
+                            await currentUser.delete();
                             console.log('✅ Auth 계정 정리 완료');
                         } catch (deleteError) {
                             console.error('❌ Auth 계정 정리 실패:', deleteError);

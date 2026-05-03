@@ -115,34 +115,6 @@ async function confirmPayment(paymentKey, orderId, amount) {
 }
 
 /**
- * payment-service 초기화 대기
- */
-function waitForPaymentService() {
-    return new Promise((resolve, reject) => {
-        let attempts = 0;
-        const maxAttempts = 50;
-        
-        function check() {
-            attempts++;
-            
-            if (window.paymentService && window.paymentService.isInitialized) {
-                console.log('✅ payment-service 준비됨');
-                resolve();
-                return;
-            }
-            
-            if (attempts < maxAttempts) {
-                setTimeout(check, 100);
-            } else {
-                reject(new Error('payment-service 초기화 시간 초과'));
-            }
-        }
-        
-        check();
-    });
-}
-
-/**
  * 신청 데이터 로드 및 업데이트
  */
 async function loadAndUpdateApplicationData() {

@@ -597,11 +597,6 @@
         }
     };
 
-    if (!window.dbService) {
-        console.error('❌ 기존 dbService를 찾을 수 없습니다. 먼저 db-service.js를 로드해주세요.');
-        return;
-    }
-
     console.log('🔧 db-service.js 개선 시작 (데이터 변환 유틸리티 추가)');
 
     // =================================
@@ -812,44 +807,28 @@
     };
 
     /**
-     * 🆕 자격증 번호 생성
+     * 🆕 자격증 번호 생성 — 카운터 문서 트랜잭션으로 중복 방지
      */
     window.dbService.generateCertificateNumber = async function (certificateType) {
         const year = new Date().getFullYear();
         const typeCode = this.getCertificateTypeCode(certificateType);
+        const counterKey = `cert_${certificateType}_${year}`;
+        const counterRef = window.dhcFirebase.db.collection('_counters').doc(counterKey);
 
         try {
-            // 같은 종류의 가장 최근 자격증 번호 조회
-            const query = window.dhcFirebase.db.collection('certificates')
-                .where('certificateType', '==', certificateType)
-                .orderBy('certificateNumber', 'desc')
-                .limit(1);
+            const nextNumber = await window.dhcFirebase.db.runTransaction(async (t) => {
+                const doc = await t.get(counterRef);
+                const n = (doc.exists ? (doc.data().count || 0) : 0) + 1;
+                t.set(counterRef, { count: n, updatedAt: new Date().toISOString() }, { merge: true });
+                return n;
+            });
 
-            const snapshot = await query.get();
-
-            let nextNumber = 1;
-
-            if (!snapshot.empty) {
-                const lastCert = snapshot.docs[0].data();
-                const lastNumber = lastCert.certificateNumber;
-
-                // 번호에서 순번 추출 (예: HE-2025-0001 → 1)
-                const match = lastNumber.match(/-(\d+)$/);
-                if (match) {
-                    nextNumber = parseInt(match[1]) + 1;
-                }
-            }
-
-            // 번호 포맷팅 (4자리로 패딩)
-            const formattedNumber = nextNumber.toString().padStart(4, '0');
-            const certificateNumber = `${typeCode}-${year}-${formattedNumber}`;
-
+            const certificateNumber = `${typeCode}-${year}-${nextNumber.toString().padStart(4, '0')}`;
             console.log('✅ 자격증 번호 생성:', certificateNumber);
             return certificateNumber;
 
         } catch (error) {
             console.error('❌ 자격증 번호 생성 오류:', error);
-            // 오류 시 시간 기반 번호 생성
             const timestamp = Date.now().toString().slice(-4);
             return `${typeCode}-${year}-${timestamp}`;
         }
@@ -1426,8 +1405,65 @@ console.log('📸 테스트: window.dbService.debug.help()');
 window.dbServiceEnhancementComplete = true;
 
 // =================================
-// 갱신 비용 설정 관련 함수들 (window.dbServiceEnhancementComplete = true; 다음에 추가)
+// 갱신 비용 설정 관련 함수들
 // =================================
+(function () {
+// 헬퍼 함수 (이 IIFE 내부에서만 참조됨 — 전역 오염 방지)
+function getDefaultRenewalFeeSettings() {
+    return {
+        'health-exercise': {
+            renewal: 50000,
+            deliveryFee: 5000,
+            education: { online: 80000, offline: 100000, completed: 0 },
+            earlyDiscountRate: 0.1,
+            onlineDiscountRate: 0.2
+        },
+        'rehabilitation': {
+            renewal: 50000,
+            deliveryFee: 5000,
+            education: { online: 96000, offline: 120000, completed: 0 },
+            earlyDiscountRate: 0.1,
+            onlineDiscountRate: 0.2
+        },
+        'pilates': {
+            renewal: 40000,
+            deliveryFee: 5000,
+            education: { online: 64000, offline: 80000, completed: 0 },
+            earlyDiscountRate: 0.1,
+            onlineDiscountRate: 0.2
+        },
+        'recreation': {
+            renewal: 30000,
+            deliveryFee: 5000,
+            education: { online: 56000, offline: 70000, completed: 0 },
+            earlyDiscountRate: 0.1,
+            onlineDiscountRate: 0.2
+        }
+    };
+}
+
+function getCertTypeName(certType) {
+    const certTypeNames = {
+        'health-exercise': '건강운동처방사',
+        'rehabilitation': '운동재활전문가',
+        'pilates': '필라테스 전문가',
+        'recreation': '레크리에이션지도자'
+    };
+    return certTypeNames[certType] || certType;
+}
+
+function getCurrentUserEmail() {
+    try {
+        if (window.dhcFirebase && window.dhcFirebase.auth) {
+            const currentUser = window.dhcFirebase.auth.currentUser;
+            return currentUser ? currentUser.email : null;
+        }
+        return null;
+    } catch (error) {
+        console.warn('사용자 정보 조회 실패:', error);
+        return null;
+    }
+}
 
 /**
  * 갱신 비용 설정 저장
@@ -1674,76 +1710,6 @@ window.dbService.calculateRenewalFee = async function (certType, educationType, 
     }
 };
 
-/**
- * 기본 갱신 비용 설정 반환
- * @returns {Object} 기본 갱신 비용 설정
- */
-function getDefaultRenewalFeeSettings() {
-    return {
-        'health-exercise': {
-            renewal: 50000,
-            deliveryFee: 5000,
-            education: { online: 80000, offline: 100000, completed: 0 },
-            earlyDiscountRate: 0.1,
-            onlineDiscountRate: 0.2
-        },
-        'rehabilitation': {
-            renewal: 50000,
-            deliveryFee: 5000,
-            education: { online: 96000, offline: 120000, completed: 0 },
-            earlyDiscountRate: 0.1,
-            onlineDiscountRate: 0.2
-        },
-        'pilates': {
-            renewal: 40000,
-            deliveryFee: 5000,
-            education: { online: 64000, offline: 80000, completed: 0 },
-            earlyDiscountRate: 0.1,
-            onlineDiscountRate: 0.2
-        },
-        'recreation': {
-            renewal: 30000,
-            deliveryFee: 5000,
-            education: { online: 56000, offline: 70000, completed: 0 },
-            earlyDiscountRate: 0.1,
-            onlineDiscountRate: 0.2
-        }
-    };
-}
-
-/**
- * 자격증 유형명 반환 헬퍼 함수
- * @param {string} certType - 자격증 유형
- * @returns {string} 자격증 유형명
- */
-function getCertTypeName(certType) {
-    const certTypeNames = {
-        'health-exercise': '건강운동처방사',
-        'rehabilitation': '운동재활전문가',
-        'pilates': '필라테스 전문가',
-        'recreation': '레크리에이션지도자'
-    };
-
-    return certTypeNames[certType] || certType;
-}
-
-/**
- * 현재 사용자 이메일 반환
- * @returns {string|null} 사용자 이메일
- */
-function getCurrentUserEmail() {
-    try {
-        if (window.dhcFirebase && window.dhcFirebase.auth) {
-            const currentUser = window.dhcFirebase.auth.currentUser;
-            return currentUser ? currentUser.email : null;
-        }
-        return null;
-    } catch (error) {
-        console.warn('사용자 정보 조회 실패:', error);
-        return null;
-    }
-}
-
 // =================================
 // 테스트 함수들 (개발 환경에서만)
 // =================================
@@ -1818,3 +1784,4 @@ if (window.location.hostname === 'localhost' ||
 }
 
 console.log('🎉 갱신 비용 관련 db-service 함수 추가 완료!');
+})(); // 갱신 비용 IIFE 종료

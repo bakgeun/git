@@ -200,7 +200,7 @@
 
         generateOrderId: function (prefix = 'DHC') {
             const ts     = Date.now();
-            const random = Math.random().toString(36).substr(2, 9).toUpperCase();
+            const random = Math.random().toString(36).slice(2, 11).toUpperCase();
             return `${prefix}_${ts}_${random}`;
         },
 
