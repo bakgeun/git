@@ -3157,6 +3157,14 @@ input[type="tel"] {
     cursor: not-allowed;
 }
 
+/* 필수 옵션: checked + disabled 상태에서 파란색 유지 */
+.option-label input[type="checkbox"]:checked:disabled + .option-checkmark {
+    background: var(--edu-primary);
+    border-color: var(--edu-primary);
+    opacity: 0.85;
+    cursor: not-allowed;
+}
+
 .option-content {
     flex: 1;
 }

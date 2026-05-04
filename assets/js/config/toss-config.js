@@ -20,7 +20,7 @@ window.TOSS_KEYS = {
 
     // 테스트 클라이언트 키 (공개용 — 노출되어도 무방)
     TEST: {
-        CLIENT_KEY: 'test_ck_Z61JOxRQVE2xdezv4v1QrW0X9bAq'
+        CLIENT_KEY: 'test_ck_BX7zk2yd8yjMMD4eg0Dv3x9POLqK'
     },
 
     // 운영 클라이언트 키 (공개용 — 노출되어도 무방)

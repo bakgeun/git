@@ -169,6 +169,7 @@ async function handleLogin(event) {
                 errorMessage = '로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.';
                 break;
             case 'auth/invalid-credential':
+            case 'auth/invalid-login-credentials':
                 errorMessage = '이메일 또는 비밀번호가 올바르지 않습니다.';
                 break;
         }
@@ -330,13 +331,14 @@ function showNotification(message, type = 'info') {
     };
 
     notification.className = 'mb-6 ' + typeClasses[type];
+    notification.style.display = 'block';
     notificationMessage.textContent = message;
-    notification.classList.remove('hidden');
 
     // 에러 메시지는 조금 더 오래 표시
     const displayTime = type === 'error' ? 7000 : 5000;
 
     setTimeout(() => {
+        notification.style.display = '';
         notification.classList.add('hidden');
     }, displayTime);
 }

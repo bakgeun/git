@@ -156,16 +156,13 @@
                     if (postalCodeInput) postalCodeInput.value = data.zonecode;
                     if (addressBasicInput) addressBasicInput.value = data.address;
 
-                    // 상세 주소 입력 필드로 포커스 이동
-                    if (addressDetailInput) {
-                        addressDetailInput.focus();
-                    }
-
                     // 전체 주소 업데이트
                     updateFullAddress();
 
-                    // 성공 메시지 표시
-                    showNotification('주소가 입력되었습니다. 상세 주소를 입력해주세요.', 'success');
+                    // 상세 주소 입력 필드로 포커스 이동 (스크롤 없이)
+                    if (addressDetailInput) {
+                        addressDetailInput.focus({ preventScroll: true });
+                    }
                 }
             }).open();
 
@@ -480,40 +477,36 @@
         setFieldState('phone', 'success', '올바른 휴대폰 번호입니다.');
     }
 
-    // 🆕 생년월일 실시간 검증
+    // 생년월일 실시간 검증
     function validateBirthdateRealtime() {
+        const msgEl = document.getElementById('birthdate-validation-message');
         const birthdate = birthdateInput?.value;
 
-        if (!birthdate) {
+        const showError = (msg) => {
+            if (msgEl) { msgEl.textContent = msg; msgEl.classList.remove('hidden'); }
             validationStates.birthdate = false;
             updateSubmitButton();
-            return;
-        }
+        };
 
-        // 날짜 유효성 검사
+        if (!birthdate) { showError('생년월일을 입력해주세요.'); return; }
+
         const today = new Date();
         const selectedDate = new Date(birthdate);
         const age = today.getFullYear() - selectedDate.getFullYear();
 
-        if (selectedDate > today) {
-            validationStates.birthdate = false;
-            updateSubmitButton();
-            return;
-        }
+        if (selectedDate > today) { showError('올바른 생년월일을 입력해주세요.'); return; }
+        if (age > 120) { showError('올바른 생년월일을 입력해주세요.'); return; }
 
-        if (age > 120) {
-            validationStates.birthdate = false;
-            updateSubmitButton();
-            return;
-        }
-
+        if (msgEl) msgEl.classList.add('hidden');
         validationStates.birthdate = true;
         updateSubmitButton();
         console.log('✅ 생년월일 검증 성공');
     }
 
-    // 🆕 성별 실시간 검증
+    // 성별 실시간 검증
     function validateGenderRealtime() {
+        const msgEl = document.getElementById('gender-validation-message');
+
         if (!genderInputs || genderInputs.length === 0) {
             validationStates.gender = false;
             updateSubmitButton();
@@ -521,14 +514,16 @@
         }
 
         const selectedGender = Array.from(genderInputs).find(input => input.checked);
-        
+
         if (selectedGender) {
+            if (msgEl) msgEl.classList.add('hidden');
             validationStates.gender = true;
             console.log('✅ 성별 검증 성공');
         } else {
+            if (msgEl) { msgEl.textContent = '성별을 선택해주세요.'; msgEl.classList.remove('hidden'); }
             validationStates.gender = false;
         }
-        
+
         updateSubmitButton();
     }
 
@@ -562,19 +557,19 @@
                 validatePhoneRealtime();
             });
             phoneInput.addEventListener('blur', validatePhoneRealtime);
+        }
 
-        // 🆕 생년월일 필드 이벤트
+        // 생년월일 필드 이벤트
         if (birthdateInput) {
             birthdateInput.addEventListener('change', validateBirthdateRealtime);
             birthdateInput.addEventListener('blur', validateBirthdateRealtime);
         }
 
-        // 🆕 성별 필드 이벤트
+        // 성별 필드 이벤트
         if (genderInputs && genderInputs.length > 0) {
             genderInputs.forEach(input => {
                 input.addEventListener('change', validateGenderRealtime);
             });
-        }
         }
 
         [termsServiceCheckbox, termsPrivacyCheckbox].forEach(checkbox => {
@@ -621,11 +616,10 @@
             signupButton.disabled = true;
             signupButton.classList.add('opacity-70', 'cursor-not-allowed');
             signupButton.innerHTML = `
-                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                처리 중...
+                <svg style="display:inline-block;width:16px;height:16px;margin-right:8px;vertical-align:middle;animation:spin 1s linear infinite;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle style="opacity:0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path style="opacity:0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>처리 중...
             `;
 
             if (googleSignupButton) {

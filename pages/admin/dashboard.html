@@ -489,7 +489,11 @@
                         'initDashboard'            // 대시보드 함수
                     ];
 
+                    let checkAttempts = 0;
+                    const maxCheckAttempts = 100; // 10초 타임아웃
+
                     const checkScripts = () => {
+                        checkAttempts++;
                         const loadedScripts = requiredScripts.filter(script => {
                             try {
                                 // eval 대신 window 객체를 통해 안전하게 확인
@@ -537,6 +541,9 @@
                                 }, 100);
                             }, 100);
                             
+                        } else if (checkAttempts >= maxCheckAttempts) {
+                            console.error('❌ 스크립트 로드 타임아웃 (10초 초과)');
+                            showInitializationError();
                         } else {
                             // 아직 로딩 중인 스크립트가 있다면 100ms 후 재확인
                             setTimeout(checkScripts, 100);

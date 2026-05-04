@@ -3,7 +3,10 @@
     "allow": [
       "WebFetch(domain:docs.tosspayments.com)",
       "WebSearch",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(git show *)",
+      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\samdu\\\\OneDrive\\\\바탕 화면\\\\digital-healthcare-center\\\\pages\" -Recurse | Where-Object {!$_.PSIsContainer} | Sort-Object LastWriteTime -Descending | Select-Object -First 20 | Format-Table Name, LastWriteTime)",
+      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\samdu\\\\OneDrive\\\\바탕 화면\\\\digital-healthcare-center\" -Recurse | Where-Object { !$_.PSIsContainer -and $_.FullName -notmatch \"node_modules|\\\\.git\" } | Sort-Object LastWriteTime -Descending | Select-Object -First 30 | Format-Table Name, Directory, LastWriteTime)"
     ]
   }
 }

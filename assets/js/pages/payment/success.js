@@ -177,6 +177,11 @@ async function loadAndUpdateApplicationData() {
 
         // Firebase에 최종 데이터 저장
         if (window.dbService) {
+            const currentUser = window.authService?.getCurrentUser();
+            // Fall back to userId stored in applicationData in case auth hasn't restored yet
+            const userId = currentUser?.uid || applicationData.userId || '';
+
+            // 1. applications 컬렉션 저장 (신청서 원본)
             try {
                 const result = await window.dbService.addDocument('applications', updatedData);
                 if (result.success) {
@@ -184,8 +189,56 @@ async function loadAndUpdateApplicationData() {
                     console.log('✅ 결제 완료 데이터 저장 성공:', result.id);
                 }
             } catch (dbError) {
-                console.error('❌ Firebase 저장 오류:', dbError);
-                // Firebase 저장 실패해도 계속 진행
+                console.error('❌ Firebase applications 저장 오류:', dbError);
+            }
+
+            // 2. payments 컬렉션 저장 (결제 내역 페이지용)
+            try {
+                const paymentRecord = {
+                    userId: userId,
+                    orderId: paymentData.orderId,
+                    paymentKey: paymentData.paymentKey,
+                    amount: paymentData.totalAmount || paymentData.amount || 0,
+                    status: 'completed',
+                    paymentType: 'course',
+                    productName: applicationData.courseInfo?.courseName ||
+                                 applicationData.displayInfo?.courseName || '교육과정',
+                    paymentMethod: paymentData.method || '카드',
+                    createdAt: new Date(),
+                    paidAt: paymentData.approvedAt || new Date().toISOString()
+                };
+                const payResult = await window.dbService.addDocument('payments', paymentRecord);
+                if (payResult.success) {
+                    console.log('✅ payments 컬렉션 저장 성공:', payResult.id);
+                }
+            } catch (payError) {
+                console.error('❌ Firebase payments 저장 오류:', payError);
+            }
+
+            // 3. enrollments 컬렉션 저장 (수강 내역 페이지용)
+            try {
+                const enrollmentRecord = {
+                    userId: userId,
+                    courseId: applicationData.courseInfo?.courseId || '',
+                    courseName: applicationData.courseInfo?.courseName ||
+                                applicationData.displayInfo?.courseName || '교육과정',
+                    certType: applicationData.courseInfo?.certificateType || '',
+                    status: 'enrolled',
+                    progress: 0,
+                    enrolledAt: new Date(),
+                    applicationId: applicationData.applicationId || '',
+                    paymentKey: paymentData.paymentKey,
+                    orderId: paymentData.orderId,
+                    paidAmount: paymentData.totalAmount || paymentData.amount || 0,
+                    startDate: applicationData.courseInfo?.startDate || '',
+                    endDate: applicationData.courseInfo?.endDate || ''
+                };
+                const enrollResult = await window.dbService.addDocument('enrollments', enrollmentRecord);
+                if (enrollResult.success) {
+                    console.log('✅ enrollments 컬렉션 저장 성공:', enrollResult.id);
+                }
+            } catch (enrollError) {
+                console.error('❌ Firebase enrollments 저장 오류:', enrollError);
             }
         }
 
@@ -362,8 +415,9 @@ function goToMyPage() {
 
         // URL 파라미터 구성
         const params = new URLSearchParams({
-            from: 'payment_success',
+            from: 'course-application',
             type: 'course_enrollment',
+            status: 'payment_completed',
             highlight: 'latest'
         });
 

@@ -1943,11 +1943,20 @@ async function loadUserDetailInfo(userId) {
     }
 }
 
+function formatPhoneWithHyphen(phone) {
+    if (!phone) return phone;
+    const d = phone.replace(/[^0-9]/g, '');
+    if (d.length === 11) return `${d.slice(0,3)}-${d.slice(3,7)}-${d.slice(7)}`;
+    if (d.length === 10) return `${d.slice(0,3)}-${d.slice(3,6)}-${d.slice(6)}`;
+    return phone;
+}
+
 function fillUserData(userData) {
+    const rawPhone = userData.phone || userData.phoneNumber;
     const fieldMappings = {
         'applicant-name': userData.name || userData.displayName || userData.firstName,
         'applicant-name-english': userData.nameEnglish || userData.englishName,
-        'phone': userData.phone || userData.phoneNumber,
+        'phone': formatPhoneWithHyphen(rawPhone),
         // ⭐ 수정: birthdate 추가 (소문자 'd')
         'birth-date': userData.birthdate || userData.birthDate || userData.dateOfBirth,
         'address': userData.address || userData.streetAddress,
@@ -2426,7 +2435,6 @@ function generateTaxFreeReceipt(paymentResult) {
 // =================================
 
 window.buildTossPaymentData = buildTossPaymentData;
-window.buildPaymentItems = buildPaymentItems;  // 🆕 NEW
 window.initiatePayment = initiatePayment;
 window.handlePaymentSuccess = handlePaymentSuccess;
 

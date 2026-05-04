@@ -102,8 +102,6 @@
         function isDebugEnabled() {
             const debugFlag = localStorage.getItem('dhc_debug_mode');
             const debugKey = sessionStorage.getItem('dhc_debug_key');
-            
-            // localStorage와 sessionStorage 모두 있어야 함
             return debugFlag === 'enabled' && debugKey === 'verified';
         }
         

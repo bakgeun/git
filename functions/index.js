@@ -13,14 +13,12 @@
  *   firebase emulators:start --only functions
  */
 
-const functions = require('firebase-functions');
-const fetch     = require('node-fetch');
+const functions = require('firebase-functions/v1');
+const admin = require('firebase-admin');
+admin.initializeApp();
 
-const TOSS_API  = 'https://api.tosspayments.com/v1/payments';
+const TOSS_API = 'https://api.tosspayments.com/v1/payments';
 
-// Firebase Secret Manager에서 SECRET_KEY 로드
-// 배포 시: firebase functions:secrets:set TOSS_SECRET_KEY
-// 로컬 시: functions/.env 파일에 TOSS_SECRET_KEY=test_sk_... 설정
 function getSecretKey() {
     return process.env.TOSS_SECRET_KEY || '';
 }
@@ -29,11 +27,19 @@ function basicAuth(secretKey) {
     return 'Basic ' + Buffer.from(secretKey + ':').toString('base64');
 }
 
-// Firebase Hosting rewrite를 통해 호출되므로 별도 CORS 불필요
-// 직접 호출 시 대비하여 최소 헤더만 설정
 function handleCors(req, res) {
     res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.set('Access-Control-Allow-Headers', 'Content-Type');
+    if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return true;
+    }
+    return false;
+}
+
+function handleAdminCors(req, res) {
+    res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     if (req.method === 'OPTIONS') {
         res.status(204).send('');
         return true;
@@ -68,16 +74,13 @@ exports.confirmPayment = functions.https.onRequest(async (req, res) => {
     }
 
     try {
-        // 면세 처리: 토스페이먼츠에 면세사업자로 등록되어 있어 별도 파라미터 불필요
-        const requestBody = { paymentKey, orderId, amount };
-
         const tossRes = await fetch(`${TOSS_API}/confirm`, {
             method: 'POST',
             headers: {
                 'Authorization': basicAuth(secretKey),
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(requestBody)
+            body: JSON.stringify({ paymentKey, orderId, amount })
         });
 
         const result = await tossRes.json();
@@ -144,5 +147,57 @@ exports.cancelPayment = functions.https.onRequest(async (req, res) => {
     } catch (error) {
         console.error('[cancelPayment] 처리 오류:', error);
         res.status(500).json({ message: '결제 취소 중 서버 오류가 발생했습니다.' });
+    }
+});
+
+// =============================================================
+// Firebase Auth 계정 삭제 (관리자 전용)
+// POST /api/deleteAuthUser
+// headers: { Authorization: 'Bearer <idToken>' }
+// body: { uid }
+// =============================================================
+exports.deleteAuthUser = functions.https.onRequest(async (req, res) => {
+    if (handleAdminCors(req, res)) return;
+    if (req.method !== 'POST') {
+        res.status(405).json({ message: 'Method Not Allowed' });
+        return;
+    }
+
+    // ID 토큰 검증
+    const authHeader = req.headers.authorization || '';
+    const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (!idToken) {
+        res.status(401).json({ message: '인증 토큰이 필요합니다.' });
+        return;
+    }
+
+    let decoded;
+    try {
+        decoded = await admin.auth().verifyIdToken(idToken);
+    } catch (e) {
+        res.status(401).json({ message: '유효하지 않은 토큰입니다.' });
+        return;
+    }
+
+    // 관리자 권한 확인
+    const callerDoc = await admin.firestore().collection('users').doc(decoded.uid).get();
+    if (!callerDoc.exists || callerDoc.data().role !== 'admin') {
+        res.status(403).json({ message: '관리자 권한이 필요합니다.' });
+        return;
+    }
+
+    const { uid } = req.body;
+    if (!uid) {
+        res.status(400).json({ message: '필수 파라미터 누락: uid' });
+        return;
+    }
+
+    try {
+        await admin.auth().deleteUser(uid);
+        console.log(`[deleteAuthUser] Firebase Auth 계정 삭제 완료: ${uid}`);
+        res.status(200).json({ success: true });
+    } catch (error) {
+        console.error('[deleteAuthUser] 처리 오류:', error);
+        res.status(500).json({ message: 'Firebase Auth 계정 삭제 실패: ' + error.message });
     }
 });

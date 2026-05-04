@@ -259,84 +259,82 @@
 
             <!-- 자격증 목록 테이블 -->
             <div class="bg-white rounded-lg shadow-md">
-                <div class="p-6 border-b border-gray-200 flex justify-between items-center">
-                    <h2 class="text-xl font-semibold text-gray-800">
+                <div class="p-4 border-b border-gray-200 flex justify-between items-center gap-4">
+                    <h2 class="text-xl font-semibold text-gray-800 shrink-0">
                         <span id="cert-type-title">건강운동처방사</span> 자격증 목록
                     </h2>
-                    <!-- 🔧 개선된 버튼 그룹 (갱신 비용 설정 버튼 추가) -->
-                    <div class="flex space-x-3">
-                        <!-- 💰 NEW: 갱신 비용 설정 버튼 (기존) -->
-                        <button onclick="certManager.showRenewalFeeModal()" class="admin-btn admin-btn-secondary">
-                            <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                    <div class="flex items-center gap-2 flex-wrap justify-end">
+
+                        <!-- 선택 삭제: 체크박스 선택 시에만 표시 -->
+                        <button id="delete-selected-btn"
+                            onclick="certManager.deleteSelectedCertificates()"
+                            class="admin-btn admin-btn-danger hidden items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m-3-6h6m-6 0a3 3 0 11-6 0 3 3 0 016 0z">
-                                </path>
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                             </svg>
-                            💰 갱신 비용 설정
+                            삭제 (<span id="selected-cert-count">0</span>건)
                         </button>
 
-                        <!-- 🆕 NEW: 갱신 신청자 관리 버튼 - 여기에 추가하세요 -->
-                        <button onclick="certManager.showRenewalManagementModal()" class="admin-btn admin-btn-warning">
-                            <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-                                </path>
-                            </svg>
-                            🔄 갱신 신청자 관리
-                        </button>
+                        <!-- 갱신 관리 드롭다운 -->
+                        <div class="relative">
+                            <button onclick="certManager.toggleDropdown('renewal-dropdown')"
+                                class="admin-btn admin-btn-secondary flex items-center gap-1">
+                                갱신 관리
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            <div id="renewal-dropdown"
+                                class="hidden absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20 py-1">
+                                <button onclick="certManager.showRenewalFeeModal(); certManager.closeDropdown('renewal-dropdown')"
+                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    💰 갱신 비용 설정
+                                </button>
+                                <button onclick="certManager.showRenewalManagementModal(); certManager.closeDropdown('renewal-dropdown')"
+                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    👥 갱신 신청자 관리
+                                </button>
+                            </div>
+                        </div>
 
-                        <!-- 기존 버튼들 -->
-                        <button onclick="certManager.showBulkIssuanceModal()" class="admin-btn admin-btn-secondary">
-                            <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                </path>
-                            </svg>
-                            일괄 발급
-                        </button>
+                        <!-- 발급 드롭다운 -->
+                        <div class="relative">
+                            <button onclick="certManager.toggleDropdown('issue-sub-dropdown')"
+                                class="admin-btn admin-btn-secondary flex items-center gap-1">
+                                발급
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            <div id="issue-sub-dropdown"
+                                class="hidden absolute right-0 mt-1 w-52 bg-white rounded-lg shadow-lg border border-gray-200 z-20 py-1">
+                                <button onclick="certManager.showPaidApplicantsModal(); certManager.closeDropdown('issue-sub-dropdown')"
+                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    💳 결제자 선택 발급
+                                </button>
+                                <button onclick="certManager.showBulkIssuanceModal(); certManager.closeDropdown('issue-sub-dropdown')"
+                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    📄 일괄 발급
+                                </button>
+                            </div>
+                        </div>
 
-                        <!-- 🆕 NEW: 결제자 선택 발급 버튼 -->
-                        <button onclick="certManager.showPaidApplicantsModal()" class="admin-btn admin-btn-success">
-                            <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z">
-                                </path>
-                            </svg>
-                            결제자 선택 발급
-                        </button>
-
-                        <button onclick="certManager.showIssueCertModal()" class="admin-btn admin-btn-primary">
-                            <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        <!-- 자격증 발급 (primary) -->
+                        <button onclick="certManager.showIssueCertModal()" class="admin-btn admin-btn-primary flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                             </svg>
                             자격증 발급
                         </button>
 
-                        <!-- 🆕 일괄 삭제 버튼 추가 -->
-                        <button onclick="certManager.deleteSelectedCertificates()" class="admin-btn admin-btn-danger">
-                            <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                </path>
-                            </svg>
-                            선택 삭제
-                        </button>
-
-                        <!-- CSV 다운로드 버튼 -->
-                        <button onclick="certManager.downloadCSV()" class="admin-btn admin-btn-secondary">
-                            <svg class="inline-block w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                        <!-- CSV 다운로드 (아이콘만) -->
+                        <button onclick="certManager.downloadCSV()"
+                            class="admin-btn admin-btn-secondary px-2.5" title="CSV 다운로드">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                             </svg>
-                            CSV 다운로드
                         </button>
                     </div>
                 </div>
@@ -391,8 +389,32 @@
                     </button>
                 </div>
                 <div class="cert-modal-body">
-                    <!-- 🔧 폼 구조 개선 -->
                     <form id="cert-issue-form" class="space-y-4">
+                        <div class="form-field">
+                            <label for="issue-course" class="block text-sm font-medium text-gray-700">
+                                교육 과정 <span class="text-red-500">*</span>
+                            </label>
+                            <select id="issue-course" name="course" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="">교육 과정을 선택하세요</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">
+                                💡 교육과정을 선택하면 수료일·만료일이 자동 설정되고 수강자 목록이 로드됩니다.
+                            </p>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="issue-enrollee-select" class="block text-sm font-medium text-gray-700">
+                                수강자 선택 <span class="text-xs text-gray-400 font-normal">(교육과정 선택 후 로드됨)</span>
+                            </label>
+                            <select id="issue-enrollee-select"
+                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                onchange="certManager.handleEnrolleeSelection(this)">
+                                <option value="">-- 교육과정을 먼저 선택하세요 --</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">선택하면 수료자명·이메일이 자동 입력됩니다. 직접 입력도 가능합니다.</p>
+                        </div>
+
                         <div class="form-field">
                             <label for="issue-name" class="block text-sm font-medium text-gray-700">
                                 수료자명 <span class="text-red-500">*</span>
@@ -409,20 +431,6 @@
                             <input type="email" id="issue-email" name="email" required
                                 class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                                 placeholder="수료자 이메일을 입력하세요">
-                        </div>
-
-                        <div class="form-field">
-                            <label for="issue-course" class="block text-sm font-medium text-gray-700">
-                                교육 과정 <span class="text-red-500">*</span>
-                            </label>
-                            <select id="issue-course" name="course" required
-                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                <option value="">교육 과정을 선택하세요</option>
-                                <!-- 🔧 옵션들은 JavaScript에서 동적으로 로드됩니다 -->
-                            </select>
-                            <p class="text-xs text-gray-500 mt-1">
-                                💡 교육과정을 선택하면 수료일과 만료일이 자동으로 설정됩니다.
-                            </p>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
@@ -1293,6 +1301,9 @@
                 if (hasAccess) {
                     console.log('관리자 권한 확인 완료');
                     window.adminAuth.displayAdminInfo();
+                    if (typeof window.adminAuth.setupAdminNavigation === 'function') {
+                        window.adminAuth.setupAdminNavigation();
+                    }
 
                     // 3. certManager가 있으면 초기화, 없으면 대기 후 재시도
                     if (window.certManager) {

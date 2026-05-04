@@ -162,8 +162,8 @@
             if (filters.startDate || filters.endDate) {
                 const paymentDate = new Date(payment.createdAt.seconds * 1000);
                 const start = filters.startDate ? new Date(filters.startDate) : null;
-                const end = filters.endDate ? new Date(filters.endDate) : null;
-                
+                const end = filters.endDate ? new Date(filters.endDate + 'T23:59:59') : null;
+
                 if (start && paymentDate < start) return false;
                 if (end && paymentDate > end) return false;
             }

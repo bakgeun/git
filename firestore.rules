@@ -271,6 +271,22 @@ service cloud.firestore {
     }
     
     // ===================================
+    // 로그인 기록(login_logs) 컬렉션
+    // ===================================
+    match /login_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+
+    // ===================================
+    // 카운터(_counters) 컬렉션 — 자격증 번호 채번용
+    // ===================================
+    match /_counters/{counterId} {
+      allow read, write: if isAdmin();
+    }
+
+    // ===================================
     // 기본 거부 규칙
     // ===================================
     match /{document=**} {

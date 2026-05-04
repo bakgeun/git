@@ -685,6 +685,9 @@
 
                     // 관리자 정보 표시
                     window.adminAuth.displayAdminInfo();
+                    if (typeof window.adminAuth.setupAdminNavigation === 'function') {
+                        window.adminAuth.setupAdminNavigation();
+                    }
 
                     // 개선된 교육 관리자 초기화
                     console.log('개선된 교육 관리자 초기화 시작');

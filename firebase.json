@@ -18,8 +18,9 @@
       "functions/**"
     ],
     "rewrites": [
-      { "source": "/api/confirmPayment", "function": "confirmPayment" },
-      { "source": "/api/cancelPayment",  "function": "cancelPayment"  }
+      { "source": "/api/confirmPayment",  "function": "confirmPayment"  },
+      { "source": "/api/cancelPayment",   "function": "cancelPayment"   },
+      { "source": "/api/deleteAuthUser",  "function": "deleteAuthUser"  }
     ]
   }
 }

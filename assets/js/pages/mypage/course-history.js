@@ -674,57 +674,11 @@
         }
     };
 
-    // 🔧 개선된 초기화 방식
-    async function initializePage() {
-        try {
-            console.log('🚀 수강내역 페이지 초기화 시작');
-
-            // 🆕 URL 파라미터 처리 (최우선) - 인증 확인 전에 실행
-            handleURLParameters();
-
-            // 🔧 인증 상태 확인 (null 체크 추가)
-            const user = window.authService?.getCurrentUser();
-            if (!user) {
-                console.log('⚠️ 사용자 정보 없음 - 하지만 URL 파라미터 처리는 계속 진행');
-                // 사용자 정보가 없어도 URL 파라미터 처리는 계속 진행
-            } else {
-                console.log('✅ 인증된 사용자:', user.email);
-            }
-
-            // 이벤트 리스너 설정
-            setupEventListeners();
-
-            // 수강 내역 로드
-            await loadCourseHistory();
-
-        } catch (error) {
-            console.error('❌ 페이지 초기화 오류:', error);
-            if (window.mypageHelpers?.showNotification) {
-                window.mypageHelpers.showNotification('페이지 초기화 중 오류가 발생했습니다.', 'error');
-            } else {
-                console.log('알림: 페이지 초기화 중 오류가 발생했습니다.');
-            }
-        }
-    }
-
-
-    // 새로운 코드
     document.addEventListener('DOMContentLoaded', initializePage);
 
-    // 이미 로드된 경우를 위한 즉시 실행
     if (document.readyState !== 'loading') {
-        setTimeout(initializePage, 100);
+        initializePage();
     }
-
-    console.log('✅ course-history.js 개선 완료 (URL 파라미터 연동 추가)');
-
-    // 🧪 디버깅 정보 출력
-    console.log('📊 course-history.js 로드 상태:', {
-        timestamp: new Date().toISOString(),
-        readyState: document.readyState,
-        hasURL: !!window.location.search,
-        hasScript: !!document.getElementById('course-list')
-    });
 
     // 🆕 전역 함수로 노출 (디버깅용)
     window.courseHistoryDebug = {
