@@ -93,10 +93,9 @@ function checkCurrentUser() {
     if (!window.dhcFirebase) return;
 
     const currentUser = window.dhcFirebase.getCurrentUser();
-    console.log('현재 사용자 확인:', currentUser);
 
     if (currentUser && currentUser.email && !redirectInProgress) {
-        console.log('이미 로그인됨:', currentUser.email);
+        console.log('이미 로그인됨 — 리다이렉션');
         redirectUser(currentUser);
     }
 }
@@ -128,7 +127,7 @@ async function handleLogin(event) {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
-    console.log('입력값 확인:', { email: email, hasPassword: !!password });
+    console.log('입력값 확인: 이메일/비밀번호 존재 여부', { hasEmail: !!email, hasPassword: !!password });
 
     if (!email || !password) {
         console.log('이메일 또는 비밀번호가 입력되지 않음');
@@ -136,7 +135,7 @@ async function handleLogin(event) {
         return;
     }
 
-    console.log('로그인 시도:', email);
+    console.log('로그인 시도');
 
     // 로딩 상태 표시
     setLoading(true);
@@ -144,7 +143,7 @@ async function handleLogin(event) {
     try {
         console.log('Firebase 로그인 실행 중...');
         const result = await window.dhcFirebase.auth.signInWithEmailAndPassword(email, password);
-        console.log('로그인 성공:', result.user.email);
+        console.log('로그인 성공');
 
         // 즉시 리디렉션 (메시지 없이)
         await redirectUser(result.user);
@@ -184,9 +183,9 @@ async function handleGoogleLogin() {
         console.log('Google 로그인 시도');
         setLoading(true);
 
-        const provider = new firebase.auth.GoogleAuthProvider();
+        const provider = new window.dhcFirebase.firebase.auth.GoogleAuthProvider();
         const result = await window.dhcFirebase.auth.signInWithPopup(provider);
-        console.log('Google 로그인 성공:', result.user.email);
+        console.log('Google 로그인 성공');
 
         // ⭐ 추가: users 문서 확실하게 생성/업데이트
         try {
@@ -233,7 +232,7 @@ async function redirectUser(user) {
     }
 
     redirectInProgress = true;
-    console.log('리디렉션 시작:', user.email);
+    console.log('리디렉션 시작');
 
     let isAdmin = false;
 

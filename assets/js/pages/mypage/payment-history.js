@@ -25,7 +25,7 @@
     async function initializePage() {
         try {
             // 인증 상태 확인
-            if (!window.mypageHelpers.checkAuthState()) {
+            if (!await window.mypageHelpers.checkAuthState()) {
                 return;
             }
 
@@ -230,10 +230,13 @@
                     </div>
                 </td>
                 <td>
-                    ${payment.status === 'completed' ? 
-                        `<button onclick="downloadReceipt('${payment.id}')" class="btn btn-sm btn-secondary">
-                            영수증
-                        </button>` : '-'}
+                    <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                        ${payment.status === 'completed' ?
+                            `<button onclick="downloadReceipt('${payment.id}')" class="btn btn-sm btn-secondary">영수증</button>` : ''}
+                        ${payment.receiptUrl ?
+                            `<button onclick="window.open('${payment.receiptUrl}','_blank')" class="btn btn-sm btn-secondary">카드전표</button>` : ''}
+                        ${!payment.receiptUrl && payment.status !== 'completed' ? '-' : ''}
+                    </div>
                 </td>
             </tr>
         `;
@@ -398,23 +401,114 @@
      * 영수증 다운로드
      * @param {string} paymentId - 결제 ID
      */
+    function generateReceiptHtml(payment) {
+        const formatCurrency = (amount) =>
+            window.formatters?.formatCurrency
+                ? window.formatters.formatCurrency(amount)
+                : `${Number(amount).toLocaleString()}원`;
+
+        const formatDate = (date) =>
+            window.formatters?.formatDate
+                ? window.formatters.formatDate(date, 'YYYY-MM-DD HH:mm')
+                : date.toLocaleString('ko-KR');
+
+        const paymentDate = new Date(payment.createdAt.seconds * 1000);
+        const paymentTypeText = getPaymentTypeText(payment.paymentType);
+        const now = new Date();
+        const printDate = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일`;
+
+        return `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>결제 영수증 - ${payment.orderId}</title>
+<style>
+  @media print {
+    body { margin: 0; }
+    .no-print { display: none !important; }
+    @page { margin: 20mm; size: A4; }
+  }
+  * { box-sizing: border-box; }
+  body { font-family: 'Malgun Gothic', '맑은 고딕', sans-serif; color: #1a1a1a; background: #fff; margin: 0; padding: 0; }
+  .receipt-wrapper { max-width: 680px; margin: 0 auto; padding: 40px 40px 60px; }
+  .receipt-header { text-align: center; border-bottom: 3px solid #1e3a5f; padding-bottom: 24px; margin-bottom: 32px; }
+  .company-name { font-size: 22px; font-weight: 700; color: #1e3a5f; margin-bottom: 4px; }
+  .company-sub { font-size: 13px; color: #555; }
+  .receipt-title { font-size: 26px; font-weight: 700; color: #1a1a1a; margin: 16px 0 4px; }
+  .receipt-date { font-size: 13px; color: #777; }
+  .section { margin-bottom: 28px; }
+  .section-title { font-size: 13px; font-weight: 700; color: #1e3a5f; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e0e0e0; padding-bottom: 8px; margin-bottom: 16px; }
+  .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+  .info-row:last-child { border-bottom: none; }
+  .info-label { color: #555; flex: 0 0 140px; }
+  .info-value { color: #1a1a1a; font-weight: 500; text-align: right; flex: 1; }
+  .total-box { background: #f0f4f9; border: 2px solid #1e3a5f; border-radius: 8px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+  .total-label { font-size: 16px; font-weight: 700; color: #1e3a5f; }
+  .total-amount { font-size: 24px; font-weight: 700; color: #1e3a5f; }
+  .stamp-area { text-align: center; margin-top: 32px; padding-top: 24px; border-top: 1px dashed #ccc; color: #888; font-size: 13px; line-height: 1.8; }
+  .print-btn { display: block; margin: 32px auto 0; padding: 14px 48px; background: #1e3a5f; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .print-btn:hover { background: #152d4a; }
+</style>
+</head>
+<body>
+<div class="receipt-wrapper">
+  <div class="receipt-header">
+    <div class="company-name">문경 부설 디지털헬스케어센터</div>
+    <div class="company-sub">Mungyeong Digital Healthcare Center</div>
+    <div class="receipt-title">결 제 영 수 증</div>
+    <div class="receipt-date">발행일: ${printDate}</div>
+  </div>
+  <div class="section">
+    <div class="section-title">결제 정보</div>
+    <div class="info-row"><span class="info-label">주문번호</span><span class="info-value">${payment.orderId || '-'}</span></div>
+    <div class="info-row"><span class="info-label">결제일시</span><span class="info-value">${formatDate(paymentDate)}</span></div>
+    <div class="info-row"><span class="info-label">결제방법</span><span class="info-value">${payment.paymentMethod || '-'}</span></div>
+    <div class="info-row"><span class="info-label">결제상태</span><span class="info-value">결제 완료</span></div>
+  </div>
+  <div class="section">
+    <div class="section-title">상품 정보</div>
+    <div class="info-row"><span class="info-label">상품명</span><span class="info-value">${payment.productName || '-'}</span></div>
+    <div class="info-row"><span class="info-label">구분</span><span class="info-value">${paymentTypeText}</span></div>
+  </div>
+  <div class="total-box">
+    <span class="total-label">최종 결제금액</span>
+    <span class="total-amount">${formatCurrency(payment.amount)}</span>
+  </div>
+  <div class="stamp-area">
+    <p>본 영수증은 전자상거래법에 의한 정식 영수증입니다.</p>
+    <p>문의: 010-2596-2233 &nbsp;|&nbsp; nhohs1507@gmail.com</p>
+  </div>
+  <button class="print-btn no-print" onclick="window.print()">인쇄 / PDF 저장</button>
+</div>
+</body>
+</html>`;
+    }
+
     window.downloadReceipt = async function(paymentId) {
         try {
-            window.mypageHelpers.showNotification('영수증 다운로드 기능은 준비 중입니다.', 'info');
-            
-            // 실제 구현 시 영수증 PDF 생성 및 다운로드 로직 추가
-            // const payment = filteredPayments.find(p => p.id === paymentId);
-            // if (payment) {
-            //     // 영수증 생성 및 다운로드
-            //     const receiptUrl = await generateReceipt(payment);
-            //     window.open(receiptUrl, '_blank');
-            // }
+            const payment = allPayments.find(p => p.id === paymentId);
+            if (!payment) {
+                window.mypageHelpers.showNotification('결제 정보를 찾을 수 없습니다.', 'error');
+                return;
+            }
+            const receiptHtml = generateReceiptHtml(payment);
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                window.mypageHelpers.showNotification('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.', 'error');
+                return;
+            }
+            printWindow.document.write(receiptHtml);
+            printWindow.document.close();
         } catch (error) {
             console.error('영수증 다운로드 오류:', error);
             window.mypageHelpers.showNotification('영수증 다운로드 중 오류가 발생했습니다.', 'error');
         }
     };
 
-    // 페이지 로드 시 초기화
-    document.addEventListener('DOMContentLoaded', initializePage);
+    // 페이지 로드 시 초기화 (동적 로드 대응)
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializePage);
+    } else {
+        initializePage();
+    }
 })();

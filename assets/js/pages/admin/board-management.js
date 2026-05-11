@@ -369,7 +369,7 @@ window.boardManager = {
         } catch (error) {
             console.error(`❌ ${mode} 모드 설정 오류:`, error);
             this.showModalLoading(false);
-            this.showNotification(`게시글 로드 중 오류가 발생했습니다: ${error.message}`, 'error');
+            this.showNotification('게시글 로드 중 오류가 발생했습니다.', 'error');
         }
     }
 };
@@ -1097,7 +1097,7 @@ window.boardManager.switchToViewMode = function () {
 
     } catch (error) {
         console.error('❌ 보기 모드 전환 중 오류:', error);
-        this.showNotification('보기 모드 전환 중 오류가 발생했습니다: ' + error.message, 'error');
+        this.showNotification('보기 모드 전환 중 오류가 발생했습니다.', 'error');
 
         // 오류 발생 시 최소한의 복구 시도
         try {
@@ -1278,7 +1278,7 @@ window.boardManager.handleCreatePost = async function (event) {
 
     } catch (error) {
         console.error('❌ 게시글 생성 처리 오류:', error);
-        this.showNotification('게시글 등록 중 오류가 발생했습니다: ' + error.message, 'error');
+        this.showNotification('게시글 등록 중 오류가 발생했습니다.', 'error');
     }
 };
 
@@ -1351,7 +1351,7 @@ window.boardManager.handleUpdatePost = async function (event, postId) {
 
     } catch (error) {
         console.error('❌ 게시글 수정 처리 오류:', error);
-        this.showNotification('게시글 수정 중 오류가 발생했습니다: ' + error.message, 'error');
+        this.showNotification('게시글 수정 중 오류가 발생했습니다.', 'error');
     }
 };
 
@@ -1433,7 +1433,7 @@ window.boardManager.handleDeletePost = async function (postId) {
 
     } catch (error) {
         console.error('❌ 게시글 삭제 처리 오류:', error);
-        this.showNotification('게시글 삭제 처리 중 오류가 발생했습니다: ' + error.message, 'error');
+        this.showNotification('게시글 삭제 처리 중 오류가 발생했습니다.', 'error');
     }
 };
 
@@ -2157,7 +2157,7 @@ window.boardManager.loadBoardData = async function () {
 
     } catch (error) {
         console.error('❌ 게시판 데이터 로드 오류:', error);
-        this.showErrorMessage('게시판 데이터를 불러오는 중 오류가 발생했습니다: ' + error.message);
+        this.showErrorMessage('게시판 데이터를 불러오는 중 오류가 발생했습니다.');
     }
 };
 
@@ -2718,11 +2718,11 @@ window.initBoardManagement = async function () {
         console.error('❌ 게시판 관리 페이지 초기화 오류:', error);
 
         if (window.adminAuth && window.adminAuth.showNotification) {
-            window.adminAuth.showNotification('게시판 관리 페이지 초기화 중 오류가 발생했습니다: ' + error.message, 'error');
+            window.adminAuth.showNotification('게시판 관리 페이지 초기화 중 오류가 발생했습니다.', 'error');
         } else if (typeof showToast === 'function') {
-            showToast('게시판 관리 페이지 초기화 중 오류가 발생했습니다: ' + error.message, 'error');
+            showToast('게시판 관리 페이지 초기화 중 오류가 발생했습니다.', 'error');
         } else {
-            alert('게시판 관리 페이지 초기화 중 오류가 발생했습니다: ' + error.message);
+            alert('게시판 관리 페이지 초기화 중 오류가 발생했습니다.');
         }
         return false;
     }

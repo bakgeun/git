@@ -150,7 +150,7 @@
         try {
             new daum.Postcode({
                 oncomplete: function (data) {
-                    console.log('✅ 주소 선택 완료:', data);
+                    console.log('✅ 주소 선택 완료');
 
                     // 우편번호와 기본 주소 입력
                     if (postalCodeInput) postalCodeInput.value = data.zonecode;
@@ -194,7 +194,7 @@
             addressFullInput.value = fullAddress;
         }
 
-        console.log('🔄 전체 주소 업데이트:', fullAddress);
+        console.log('🔄 전체 주소 업데이트 완료');
     }
 
     // ===================================
@@ -275,7 +275,7 @@
             }
 
             if (window.LOCAL_TEST_MODE) {
-                const testEmails = ['test@test.com', 'admin@test.com', 'gostepexercise@gmail.com'];
+                const testEmails = ['test@test.com', 'admin@test.com'];
                 return !testEmails.includes(email.toLowerCase());
             }
 
@@ -775,7 +775,7 @@
                 registrationIP: null
             };
 
-            console.log('📄 회원가입 요청:', { email, userData });
+            console.log('📄 회원가입 요청');
 
             const result = await window.authService.signUp(email, password, userData);
 
@@ -819,7 +819,7 @@
                             errorMessage = '너무 많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.';
                             break;
                         default:
-                            errorMessage = `회원가입 오류: ${result.error.message}`;
+                            errorMessage = '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.';
                     }
                 }
 

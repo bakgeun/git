@@ -16,24 +16,40 @@ let applicationData = null;
 // 초기화
 // =================================
 
-function initializeSuccessPage() {
+async function initializeSuccessPage() {
     console.log('🎉 결제 성공 페이지 초기화');
-    
+
     // URL 파라미터 파싱
     const urlParams = new URLSearchParams(window.location.search);
     const paymentKey = urlParams.get('paymentKey');
     const orderId = urlParams.get('orderId');
     const amount = urlParams.get('amount');
-    
-    console.log('📋 URL 파라미터:', { paymentKey, orderId, amount });
-    
-    if (paymentKey && orderId && amount) {
-        // 토스페이먼츠 결제 승인 처리
-        confirmPayment(paymentKey, orderId, parseInt(amount));
-    } else {
-        // 파라미터가 없는 경우 오류 처리
+
+    console.log('📋 URL 파라미터 확인: orderId 존재 여부', !!orderId);
+
+    if (!paymentKey || !orderId || !amount) {
         showError('결제 정보가 올바르지 않습니다.');
+        return;
     }
+
+    // Toss 리다이렉트 후 Firebase Auth 세션 복원 대기 (최대 5초)
+    const user = await new Promise((resolve) => {
+        if (!window.dhcFirebase?.auth) {
+            resolve(null);
+            return;
+        }
+        const unsubscribe = window.dhcFirebase.auth.onAuthStateChanged((u) => {
+            unsubscribe();
+            resolve(u);
+        });
+    });
+
+    if (!user) {
+        showError('로그인 세션이 만료되었습니다. 다시 로그인 후 시도해주세요.');
+        return;
+    }
+
+    confirmPayment(paymentKey, orderId, parseInt(amount));
 }
 
 // 🔧 즉시 실행 또는 DOMContentLoaded 대기
@@ -55,7 +71,7 @@ if (document.readyState === 'loading') {
  */
 async function confirmPayment(paymentKey, orderId, amount) {
     try {
-        console.log('✅ 결제 승인 시작 (Firebase Functions 경유):', { paymentKey, orderId, amount });
+        console.log('✅ 결제 승인 시작 (Firebase Functions 경유)');
 
         // confirmPayment는 Firebase Functions를 호출하므로 SDK 초기화 불필요
         if (!window.paymentService) {
@@ -72,13 +88,20 @@ async function confirmPayment(paymentKey, orderId, amount) {
         if (confirmResult.success) {
             console.log('✅ 결제 승인 성공:', confirmResult.data);
             paymentData = confirmResult.data;
-            
-            // 신청 데이터 로드 및 업데이트
-            await loadAndUpdateApplicationData();
-            
-            // 성공 화면 표시
-            showSuccessResult();
-            
+
+            // 신청 데이터 로드 및 DB 저장 — 실패 시 결제 완료 안내와 함께 오류 화면 표시
+            try {
+                await loadAndUpdateApplicationData();
+                showSuccessResult();
+            } catch (writeError) {
+                console.error('❌ 수강 등록 처리 오류:', writeError);
+                showError(
+                    `결제는 완료됐으나 수강 등록 처리 중 오류가 발생했습니다.\n` +
+                    `주문번호: ${paymentData?.orderId || ''}\n` +
+                    `고객센터 010-2596-2233으로 문의해 주시면 빠르게 처리해 드립니다.`
+                );
+            }
+
         } else {
             // 🔧 에러 메시지 개선
             const errorMessage = confirmResult.error || '결제 승인 실패';
@@ -106,10 +129,10 @@ async function confirmPayment(paymentKey, orderId, amount) {
             } else if (error.message.includes('404') || error.message.includes('존재하지 않습니다')) {
                 userMessage = '결제 정보를 찾을 수 없습니다. 테스트 결제 키가 아닌 실제 결제 후 접속해주세요.';
             } else {
-                userMessage = error.message;
+                userMessage = '결제 승인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
             }
         }
-        
+
         showError(userMessage);
     }
 }
@@ -134,7 +157,7 @@ async function loadAndUpdateApplicationData() {
         // Firebase에서 신청 데이터 검색 (백업)
         if (!applicationData && window.dbService) {
             const searchResult = await window.dbService.getDocuments('pending_applications', {
-                where: { field: 'applicationId', operator: '==', value: paymentData.orderId }
+                where: { field: 'orderId', operator: '==', value: paymentData.orderId }
             });
 
             if (searchResult.success && searchResult.data.length > 0) {
@@ -175,77 +198,94 @@ async function loadAndUpdateApplicationData() {
             }
         };
 
-        // Firebase에 최종 데이터 저장
-        if (window.dbService) {
-            const currentUser = window.authService?.getCurrentUser();
-            // Fall back to userId stored in applicationData in case auth hasn't restored yet
-            const userId = currentUser?.uid || applicationData.userId || '';
-
-            // 1. applications 컬렉션 저장 (신청서 원본)
-            try {
-                const result = await window.dbService.addDocument('applications', updatedData);
-                if (result.success) {
-                    updatedData.firestoreId = result.id;
-                    console.log('✅ 결제 완료 데이터 저장 성공:', result.id);
-                }
-            } catch (dbError) {
-                console.error('❌ Firebase applications 저장 오류:', dbError);
-            }
-
-            // 2. payments 컬렉션 저장 (결제 내역 페이지용)
-            try {
-                const paymentRecord = {
-                    userId: userId,
-                    orderId: paymentData.orderId,
-                    paymentKey: paymentData.paymentKey,
-                    amount: paymentData.totalAmount || paymentData.amount || 0,
-                    status: 'completed',
-                    paymentType: 'course',
-                    productName: applicationData.courseInfo?.courseName ||
-                                 applicationData.displayInfo?.courseName || '교육과정',
-                    paymentMethod: paymentData.method || '카드',
-                    createdAt: new Date(),
-                    paidAt: paymentData.approvedAt || new Date().toISOString()
-                };
-                const payResult = await window.dbService.addDocument('payments', paymentRecord);
-                if (payResult.success) {
-                    console.log('✅ payments 컬렉션 저장 성공:', payResult.id);
-                }
-            } catch (payError) {
-                console.error('❌ Firebase payments 저장 오류:', payError);
-            }
-
-            // 3. enrollments 컬렉션 저장 (수강 내역 페이지용)
-            try {
-                const enrollmentRecord = {
-                    userId: userId,
-                    courseId: applicationData.courseInfo?.courseId || '',
-                    courseName: applicationData.courseInfo?.courseName ||
-                                applicationData.displayInfo?.courseName || '교육과정',
-                    certType: applicationData.courseInfo?.certificateType || '',
-                    status: 'enrolled',
-                    progress: 0,
-                    enrolledAt: new Date(),
-                    applicationId: applicationData.applicationId || '',
-                    paymentKey: paymentData.paymentKey,
-                    orderId: paymentData.orderId,
-                    paidAmount: paymentData.totalAmount || paymentData.amount || 0,
-                    startDate: applicationData.courseInfo?.startDate || '',
-                    endDate: applicationData.courseInfo?.endDate || ''
-                };
-                const enrollResult = await window.dbService.addDocument('enrollments', enrollmentRecord);
-                if (enrollResult.success) {
-                    console.log('✅ enrollments 컬렉션 저장 성공:', enrollResult.id);
-                }
-            } catch (enrollError) {
-                console.error('❌ Firebase enrollments 저장 오류:', enrollError);
-            }
+        // dbService 필수 확인 — 없으면 저장 자체가 불가능하므로 즉시 실패
+        if (!window.dbService) {
+            throw new Error('데이터베이스 서비스를 사용할 수 없습니다. 고객센터에 문의해 주세요.');
         }
 
-        // 로컬 스토리지에 성공 데이터 저장
+        const currentUser = window.dhcFirebase?.getCurrentUser?.() || window.authService?.getCurrentUser?.();
+        const userId = currentUser?.uid || applicationData.userId || '';
+
+        if (!userId) {
+            throw new Error('사용자 정보를 확인할 수 없습니다. 다시 로그인 후 시도해 주세요.');
+        }
+
+        // 중복 처리 방지: 같은 orderId가 이미 payments에 저장됐는지 확인
+        const dupCheck = await window.dbService.getDocuments('payments', {
+            where: { field: 'orderId', operator: '==', value: paymentData.orderId }
+        });
+        if (dupCheck.success && dupCheck.data.length > 0) {
+            console.log('✅ 이미 처리된 결제 (중복 요청 무시):', paymentData.orderId);
+            applicationData = updatedData;
+            return;
+        }
+
+        // ── 핵심 쓰기: payments + enrollments 배치 커밋 (둘 다 성공하거나 둘 다 실패)
+        if (!window.dhcFirebase?.db) {
+            throw new Error('데이터베이스 연결을 사용할 수 없습니다. 고객센터에 문의해 주세요.');
+        }
+        const db = window.dhcFirebase.db;
+        const methodMap = { '카드': '신용카드', 'card': '신용카드', '계좌이체': '계좌이체', '가상계좌': '가상계좌' };
+        const rawMethod = paymentData.method || paymentData.type || '카드';
+
+        const payRef = db.collection('payments').doc();
+        const enrollRef = db.collection('enrollments').doc();
+        const writeBatch = db.batch();
+
+        writeBatch.set(payRef, {
+            userId: userId,
+            orderId: paymentData.orderId,
+            paymentKey: paymentData.paymentKey,
+            amount: paymentData.totalAmount || paymentData.amount || 0,
+            status: 'completed',
+            paymentType: 'course',
+            productName: applicationData.courseInfo?.courseName ||
+                         applicationData.displayInfo?.courseName || '교육과정',
+            paymentMethod: methodMap[rawMethod] || rawMethod,
+            receiptUrl: paymentData.receipt?.url || '',
+            createdAt: new Date(),
+            paidAt: paymentData.approvedAt || new Date().toISOString()
+        });
+
+        writeBatch.set(enrollRef, {
+            userId: userId,
+            courseId: applicationData.courseInfo?.courseId || '',
+            courseName: applicationData.courseInfo?.courseName ||
+                        applicationData.displayInfo?.courseName || '교육과정',
+            certType: applicationData.courseInfo?.certificateType || '',
+            status: 'enrolled',
+            progress: 0,
+            enrolledAt: new Date(),
+            applicationId: applicationData.applicationId || '',
+            paymentKey: paymentData.paymentKey,
+            orderId: paymentData.orderId,
+            paidAmount: paymentData.totalAmount || paymentData.amount || 0,
+            startDate: applicationData.courseInfo?.startDate || '',
+            endDate: applicationData.courseInfo?.endDate || ''
+        });
+
+        try {
+            await writeBatch.commit();
+        } catch (batchErr) {
+            throw new Error(`수강 등록 저장 실패 (주문번호: ${paymentData.orderId}) — ${batchErr.message}`);
+        }
+        console.log('✅ payments + enrollments 배치 커밋 성공:', payRef.id, enrollRef.id);
+
+        // ── 비핵심 쓰기: applications ── 실패해도 성공 화면 표시 (추가 기록용)
+        try {
+            const result = await window.dbService.addDocument('applications', updatedData);
+            if (result.success) {
+                updatedData.firestoreId = result.id;
+                console.log('✅ applications 저장 성공:', result.id);
+            }
+        } catch (dbError) {
+            console.error('⚠️ applications 저장 오류 (비핵심):', dbError);
+        }
+
+        // 로컬 저장소 정리는 핵심 쓰기 성공 후에만 실행
         try {
             const recentApplications = JSON.parse(localStorage.getItem('dhc_recent_applications') || '[]');
-            const newApplication = {
+            recentApplications.unshift({
                 applicationId: updatedData.applicationId,
                 type: 'course_enrollment',
                 courseName: updatedData.displayInfo.courseName,
@@ -255,24 +295,14 @@ async function loadAndUpdateApplicationData() {
                 timestamp: new Date().toISOString(),
                 paymentKey: paymentData.paymentKey,
                 orderId: paymentData.orderId
-            };
-
-            recentApplications.unshift(newApplication);
-            if (recentApplications.length > 10) {
-                recentApplications.splice(10);
-            }
-
+            });
+            if (recentApplications.length > 10) recentApplications.splice(10);
             localStorage.setItem('dhc_recent_applications', JSON.stringify(recentApplications));
-
-            // 임시 저장 데이터 정리
-            localStorage.removeItem('dhc_pending_order');
-            localStorage.removeItem('dhc_payment_backup');
-
-            console.log('✅ 로컬 저장소 업데이트 완료');
-
         } catch (localError) {
             console.warn('⚠️ 로컬 저장소 업데이트 실패:', localError);
         }
+        localStorage.removeItem('dhc_pending_order');
+        localStorage.removeItem('dhc_payment_backup');
 
         // 업데이트된 데이터를 전역 변수에 저장
         applicationData = updatedData;

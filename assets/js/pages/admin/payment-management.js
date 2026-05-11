@@ -224,7 +224,7 @@ function initializeWithAuth() {
         
         // 현재 인증 상태 확인
         const currentUser = window.dhcFirebase.getCurrentUser();
-        console.log('초기 인증 상태:', currentUser ? `${currentUser.email} 로그인됨` : '로그인하지 않음');
+        console.log('초기 인증 상태:', currentUser ? '로그인됨' : '로그인하지 않음');
         
         // 기존 리스너 제거 (중복 방지)
         if (authStateListener) {
@@ -235,7 +235,7 @@ function initializeWithAuth() {
         
         // 인증 상태 변화 감지 리스너 설정
         authStateListener = window.dhcFirebase.onAuthStateChanged(async (user) => {
-            console.log('인증 상태 변화 감지:', user ? `${user.email} 로그인됨` : '로그아웃됨');
+            console.log('인증 상태 변화 감지:', user ? '로그인됨' : '로그아웃됨');
             
             try {
                 if (user) {
@@ -325,7 +325,7 @@ async function initializePaymentManager(user) {
         return;
     }
     
-    console.log('✅ 인증된 사용자로 결제 관리 초기화:', user.email);
+    console.log('✅ 인증된 사용자로 결제 관리 초기화');
     
     try {
         // 기본 UI 기능들
@@ -1433,13 +1433,15 @@ window.paymentManager = {
             const reasonInput = document.getElementById('refund-reason');
 
             if (modal && amountInput && reasonInput) {
-                amountInput.value = window.formatters.formatCurrency(payment.amount);
+                amountInput.value = payment.amount || 0;
                 reasonInput.value = '';
-                
-                // 환불 폼에 결제 ID 저장
+
+                // 환불 폼에 결제 정보 저장
                 const form = document.getElementById('refund-form');
                 if (form) {
                     form.dataset.paymentId = paymentId;
+                    form.dataset.paymentKey = payment.paymentKey || '';
+                    form.dataset.orderId = payment.orderId || '';
                 }
 
                 modal.classList.remove('hidden');
@@ -1464,23 +1466,28 @@ window.paymentManager = {
         }
 
         try {
-            let payment = this.currentPayments.find(p => p.id === paymentId);
-
-            if (!payment) {
-                if (window.showErrorToast) {
-                    window.showErrorToast('결제 정보를 찾을 수 없습니다.');
+            if (!this.isFirebaseAvailable()) {
+                // 더미 데이터에서 상태 변경
+                const cached = this.currentPayments.find(p => p.id === paymentId);
+                if (cached) {
+                    cached.status = 'cancelled';
+                    this.updatePaymentList(this.currentPayments);
                 }
-                return;
-            }
-
-            if (payment.status !== 'pending') {
-                if (window.showWarningToast) {
-                    window.showWarningToast('대기중인 결제만 취소할 수 있습니다.');
+                if (window.showSuccessToast) {
+                    window.showSuccessToast('결제가 취소되었습니다 (테스트 모드).');
                 }
-                return;
-            }
+            } else {
+                // Firestore에서 현재 상태를 직접 읽어 검증 (로컬 캐시는 stale할 수 있음)
+                const payDoc = await window.dhcFirebase.db.collection('payments').doc(paymentId).get();
+                if (!payDoc.exists) {
+                    if (window.showErrorToast) window.showErrorToast('결제 정보를 찾을 수 없습니다.');
+                    return;
+                }
+                if (payDoc.data().status !== 'pending') {
+                    if (window.showWarningToast) window.showWarningToast('대기중인 결제만 취소할 수 있습니다.');
+                    return;
+                }
 
-            if (this.isFirebaseAvailable()) {
                 const result = await window.dbService.updateDocument('payments', paymentId, {
                     status: 'cancelled',
                     cancelledAt: new Date(),
@@ -1488,22 +1495,11 @@ window.paymentManager = {
                 });
 
                 if (result.success) {
-                    if (window.showSuccessToast) {
-                        window.showSuccessToast('결제가 성공적으로 취소되었습니다.');
-                    }
+                    if (window.showSuccessToast) window.showSuccessToast('결제가 성공적으로 취소되었습니다.');
                     this.loadPayments();
                     this.loadPaymentStats();
                 } else {
-                    if (window.showErrorToast) {
-                        window.showErrorToast('결제 취소에 실패했습니다.');
-                    }
-                }
-            } else {
-                // 더미 데이터에서 상태 변경
-                payment.status = 'cancelled';
-                this.updatePaymentList(this.currentPayments);
-                if (window.showSuccessToast) {
-                    window.showSuccessToast('결제가 취소되었습니다 (테스트 모드).');
+                    if (window.showErrorToast) window.showErrorToast('결제 취소에 실패했습니다.');
                 }
             }
 
@@ -1583,60 +1579,78 @@ document.addEventListener('DOMContentLoaded', function() {
     if (refundForm) {
         refundForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             const paymentId = this.dataset.paymentId;
+            const paymentKey = this.dataset.paymentKey;
             const reason = document.getElementById('refund-reason').value.trim();
-            
+
             if (!reason) {
-                if (window.showWarningToast) {
-                    window.showWarningToast('환불 사유를 입력해주세요.');
-                }
+                showWarningMessage('환불 사유를 입력해주세요.');
                 return;
             }
-            
-            if (!confirm('환불을 처리하시겠습니까?')) {
+
+            if (!confirm('환불을 처리하시겠습니까?\n실제 결제 취소 및 환불이 진행됩니다.')) {
                 return;
             }
-            
+
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = '처리 중...';
+
             try {
-                if (window.paymentManager.isFirebaseAvailable()) {
-                    const result = await window.dbService.updateDocument('payments', paymentId, {
-                        status: 'refunded',
-                        refundedAt: new Date(),
-                        refundReason: reason,
-                        refundProcessedBy: window.dhcFirebase.getCurrentUser()?.email
+                if (paymentKey) {
+                    // Toss 환불 API 호출 → 성공 시 Firestore도 자동 업데이트(targetStatus='refunded')
+                    const currentUser = window.dhcFirebase?.getCurrentUser?.();
+                    const idToken = currentUser ? await currentUser.getIdToken() : null;
+                    if (!idToken) {
+                        throw new Error('관리자 로그인이 필요합니다.');
+                    }
+                    const response = await fetch('/api/cancelPayment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${idToken}`
+                        },
+                        body: JSON.stringify({
+                            paymentKey: paymentKey,
+                            cancelReason: reason,
+                            targetStatus: 'refunded'
+                        })
                     });
-                    
-                    if (result.success) {
-                        if (window.showSuccessToast) {
-                            window.showSuccessToast('환불이 성공적으로 처리되었습니다.');
-                        }
-                        document.getElementById('refund-modal').classList.add('hidden');
-                        window.paymentManager.loadPayments();
-                        window.paymentManager.loadPaymentStats();
-                    } else {
-                        if (window.showErrorToast) {
-                            window.showErrorToast('환불 처리에 실패했습니다.');
-                        }
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        const errMsg = result.message || result.code || '환불 처리 실패';
+                        throw new Error(errMsg);
                     }
+
+                    showSuccessMessage('환불이 성공적으로 처리되었습니다.');
                 } else {
-                    // 테스트 모드
-                    const payment = window.paymentManager.currentPayments.find(p => p.id === paymentId);
-                    if (payment) {
-                        payment.status = 'refunded';
-                        window.paymentManager.updatePaymentList(window.paymentManager.currentPayments);
+                    // paymentKey 없는 경우(구형 데이터 등) Firestore만 업데이트
+                    if (window.paymentManager.isFirebaseAvailable()) {
+                        const fsResult = await window.dbService.updateDocument('payments', paymentId, {
+                            status: 'refunded',
+                            cancelledAt: new Date(),
+                            refundReason: reason,
+                            refundProcessedBy: window.dhcFirebase.getCurrentUser()?.email
+                        });
+                        if (!fsResult.success) throw new Error('Firestore 업데이트 실패');
                     }
-                    document.getElementById('refund-modal').classList.add('hidden');
-                    if (window.showSuccessToast) {
-                        window.showSuccessToast('환불이 처리되었습니다 (테스트 모드).');
-                    }
+                    showSuccessMessage('환불 처리가 완료되었습니다. (Toss 연동 없음)');
                 }
-                
+
+                document.getElementById('refund-modal').classList.add('hidden');
+                window.paymentManager.loadPayments();
+                window.paymentManager.loadPaymentStats();
+
             } catch (error) {
                 console.error('환불 처리 오류:', error);
-                if (window.showErrorToast) {
-                    window.showErrorToast('환불 처리 중 오류가 발생했습니다.');
-                }
+                showErrorMessage('환불 처리 중 오류가 발생했습니다: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
             }
         });
     }
@@ -1893,16 +1907,15 @@ if (window.location.hostname === 'localhost' ||
             console.log('- auth:', !!window.dhcFirebase?.auth);
             console.log('- db:', !!window.dhcFirebase?.db);
             console.log('- dbService:', !!window.dbService);
-            console.log('- 현재 사용자:', window.dhcFirebase?.getCurrentUser()?.email || '없음');
+            console.log('- 현재 사용자:', window.dhcFirebase?.getCurrentUser() ? '로그인됨' : '없음');
         },
 
         checkAuth: function () {
             console.log('🔐 인증 상태 확인');
             const user = window.dhcFirebase?.getCurrentUser();
             if (user) {
-                console.log('✅ 로그인됨:', user.email);
+                console.log('✅ 로그인됨');
                 console.log('- displayName:', user.displayName);
-                console.log('- uid:', user.uid);
             } else {
                 console.log('❌ 로그인되지 않음');
             }

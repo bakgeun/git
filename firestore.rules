@@ -86,10 +86,10 @@ service cloud.firestore {
       allow create: if isAuthenticated() && 
         request.resource.data.userId == request.auth.uid;
       
-      // 업데이트: 본인 또는 관리자
-      allow update: if isAuthenticated() && 
-        (resource.data.userId == request.auth.uid || isAdmin());
-      
+      // 업데이트: 관리자만 (수강 상태·진도 등 핵심 필드는 서버/관리자가 관리)
+      // 취소·완료 처리는 Cloud Functions admin SDK가 직접 처리하므로 규칙 우회됨
+      allow update: if isAdmin();
+
       // 삭제: 관리자만
       allow delete: if isAdmin();
     }
@@ -139,7 +139,12 @@ service cloud.firestore {
         (isAuthenticated() &&
          resource.data.userId == request.auth.uid &&
          resource.data.applicationStatus == 'submitted' &&
-         request.resource.data.applicationStatus == 'submitted');
+         request.resource.data.applicationStatus == 'submitted' &&
+         // 관리자 전용 필드는 사용자가 수정 불가
+         !request.resource.data.diff(resource.data).affectedKeys()
+           .hasAny(['userId', 'isIssued', 'certificateNumber',
+                    'rejectionReason', 'approvalDetails',
+                    'approvedAt', 'rejectedAt', 'approvedBy']));
       allow delete: if isAdmin();
     }
 
@@ -147,22 +152,24 @@ service cloud.firestore {
     // 신청서(applications) 컬렉션
     // ===================================
     match /applications/{applicationId} {
-      allow read: if isAuthenticated() && 
+      allow read: if isAuthenticated() &&
         (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated() && 
+      allow create: if isAuthenticated() &&
+        request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() &&
         (resource.data.userId == request.auth.uid || isAdmin());
       allow delete: if isAdmin();
     }
-    
+
     // ===================================
     // 대기 중인 신청(pending_applications) 컬렉션
     // ===================================
     match /pending_applications/{applicationId} {
-      allow read: if isAuthenticated() && 
+      allow read: if isAuthenticated() &&
         (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated() && 
+      allow create: if isAuthenticated() &&
+        request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() &&
         (resource.data.userId == request.auth.uid || isAdmin());
       allow delete: if isAdmin();
     }

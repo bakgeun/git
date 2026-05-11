@@ -11,13 +11,87 @@
  * 로컬 테스트:
  *   functions/.env 파일에 TOSS_SECRET_KEY=test_sk_... 설정 후
  *   firebase emulators:start --only functions
+ *
+ * 헬스체크:
+ *   GET /api/health → 200 OK (Firestore 연결 확인 포함)
+ *
+ * Firestore 자동 백업:
+ *   scheduledBackup 함수가 매일 오전 3시(KST)에 실행됩니다.
+ *   사전 준비: Cloud Storage 버킷 생성 및 서비스 계정 권한 부여
+ *     gcloud storage buckets create gs://digital-healthcare-cente-2204b-backups --location=asia-northeast3
+ *     gcloud projects add-iam-policy-binding digital-healthcare-cente-2204b \
+ *       --member="serviceAccount:digital-healthcare-cente-2204b@appspot.gserviceaccount.com" \
+ *       --role="roles/datastore.importExportAdmin"
+ *     gcloud storage buckets add-iam-policy-binding gs://digital-healthcare-cente-2204b-backups \
+ *       --member="serviceAccount:digital-healthcare-cente-2204b@appspot.gserviceaccount.com" \
+ *       --role="roles/storage.admin"
  */
 
 const functions = require('firebase-functions/v1');
+const { logger } = require('firebase-functions');
 const admin = require('firebase-admin');
-admin.initializeApp();
+if (!admin.apps.length) {
+    admin.initializeApp();
+}
 
 const TOSS_API = 'https://api.tosspayments.com/v1/payments';
+
+// =============================================================
+// 감사 로그 헬퍼
+// _payment_logs 컬렉션에 결제 이벤트를 기록합니다.
+// =============================================================
+async function writePaymentLog(action, data) {
+    try {
+        await admin.firestore().collection('_payment_logs').add({
+            action,
+            ...data,
+            loggedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+    } catch (e) {
+        logger.error('[writePaymentLog] 감사 로그 기록 실패', { error: e.message });
+    }
+}
+
+// payments + enrollments 상태 동기화 (orderId 또는 paymentKey 기준)
+// targetStatus: 'cancelled'(기본) 또는 'refunded'(관리자 환불)
+async function syncCancelledStatus(orderId, paymentKey, targetStatus = 'cancelled') {
+    const db = admin.firestore();
+    const now = new Date();
+    const batch = db.batch();
+    let hasUpdates = false;
+
+    // payments 컬렉션 조회
+    let snap = null;
+    if (orderId) {
+        snap = await db.collection('payments').where('orderId', '==', orderId).get();
+    }
+    if ((!snap || snap.empty) && paymentKey) {
+        snap = await db.collection('payments').where('paymentKey', '==', paymentKey).get();
+    }
+    if (snap && !snap.empty) {
+        snap.docs.forEach(doc => {
+            batch.update(doc.ref, { status: targetStatus, cancelledAt: now });
+            hasUpdates = true;
+        });
+    }
+
+    // enrollments 컬렉션 조회
+    if (orderId) {
+        const enrollSnap = await db.collection('enrollments').where('orderId', '==', orderId).get();
+        if (!enrollSnap.empty) {
+            enrollSnap.docs.forEach(doc => {
+                batch.update(doc.ref, { status: targetStatus, cancelledAt: now });
+                hasUpdates = true;
+            });
+        }
+    }
+
+    // payments + enrollments를 단일 배치로 원자적 커밋
+    if (hasUpdates) {
+        await batch.commit();
+        logger.info('[syncCancelledStatus] 배치 커밋 완료', { orderId, targetStatus });
+    }
+}
 
 function getSecretKey() {
     return process.env.TOSS_SECRET_KEY || '';
@@ -50,12 +124,28 @@ function handleAdminCors(req, res) {
 // =============================================================
 // 결제 승인
 // POST /api/confirmPayment
+// headers: { Authorization: 'Bearer <idToken>' }
 // body: { paymentKey, orderId, amount }
 // =============================================================
 exports.confirmPayment = functions.https.onRequest(async (req, res) => {
-    if (handleCors(req, res)) return;
+    if (handleAdminCors(req, res)) return;
     if (req.method !== 'POST') {
         res.status(405).json({ message: 'Method Not Allowed' });
+        return;
+    }
+
+    // Firebase ID 토큰 검증
+    const authHeader = req.headers.authorization || '';
+    const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (!idToken) {
+        res.status(401).json({ message: '인증이 필요합니다.' });
+        return;
+    }
+    let decoded;
+    try {
+        decoded = await admin.auth().verifyIdToken(idToken);
+    } catch (e) {
+        res.status(401).json({ message: '유효하지 않은 토큰입니다.' });
         return;
     }
 
@@ -68,9 +158,28 @@ exports.confirmPayment = functions.https.onRequest(async (req, res) => {
 
     const secretKey = getSecretKey();
     if (!secretKey) {
-        console.error('[confirmPayment] TOSS_SECRET_KEY가 설정되지 않았습니다.');
+        logger.error('[confirmPayment] TOSS_SECRET_KEY가 설정되지 않았습니다.');
         res.status(500).json({ message: '서버 설정 오류 - 관리자에게 문의하세요.' });
         return;
+    }
+
+    // 멱등성 검사: 이미 완료된 결제인지 확인
+    try {
+        const existing = await admin.firestore()
+            .collection('payments')
+            .where('orderId', '==', orderId)
+            .where('status', '==', 'completed')
+            .limit(1)
+            .get();
+
+        if (!existing.empty) {
+            logger.info('[confirmPayment] 이미 처리된 결제, 멱등 응답 반환', { orderId });
+            res.status(200).json({ success: true, alreadyProcessed: true });
+            return;
+        }
+    } catch (idempotencyErr) {
+        logger.error('[confirmPayment] 멱등성 검사 오류', { orderId, error: idempotencyErr.message });
+        // 검사 실패 시에도 결제 진행 (최악의 경우 중복 방지 실패, 웹훅으로 보완)
     }
 
     try {
@@ -86,30 +195,82 @@ exports.confirmPayment = functions.https.onRequest(async (req, res) => {
         const result = await tossRes.json();
 
         if (!tossRes.ok) {
-            console.error('[confirmPayment] 토스 API 오류:', result);
+            logger.error('[confirmPayment] 토스 API 오류', {
+                orderId,
+                status: tossRes.status,
+                code: result.code,
+                message: result.message
+            });
+            await writePaymentLog('confirm_failed', {
+                orderId,
+                uid: decoded.uid,
+                tossStatus: tossRes.status,
+                errorCode: result.code
+            });
+        } else {
+            logger.info('[confirmPayment] 결제 승인 완료', {
+                orderId,
+                tossStatus: result.status,
+                amount: result.totalAmount
+            });
+            await writePaymentLog('confirm_success', {
+                orderId,
+                uid: decoded.uid,
+                tossStatus: result.status,
+                amount: result.totalAmount
+            });
         }
 
         res.status(tossRes.status).json(result);
 
     } catch (error) {
-        console.error('[confirmPayment] 처리 오류:', error);
+        logger.error('[confirmPayment] 처리 오류', { orderId, error: error.message });
+        await writePaymentLog('confirm_error', { orderId, uid: decoded.uid, error: error.message });
         res.status(500).json({ message: '결제 승인 중 서버 오류가 발생했습니다.' });
     }
 });
 
 // =============================================================
-// 결제 취소
+// 결제 취소 (관리자 전용)
 // POST /api/cancelPayment
-// body: { paymentKey, cancelReason, cancelAmount? }
+// headers: { Authorization: 'Bearer <idToken>' }
+// body: { paymentKey, cancelReason, cancelAmount?, targetStatus? }
 // =============================================================
 exports.cancelPayment = functions.https.onRequest(async (req, res) => {
-    if (handleCors(req, res)) return;
+    if (handleAdminCors(req, res)) return;
     if (req.method !== 'POST') {
         res.status(405).json({ message: 'Method Not Allowed' });
         return;
     }
 
+    // Firebase ID 토큰 검증
+    const authHeader = req.headers.authorization || '';
+    const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (!idToken) {
+        res.status(401).json({ message: '인증이 필요합니다.' });
+        return;
+    }
+    let decoded;
+    try {
+        decoded = await admin.auth().verifyIdToken(idToken);
+    } catch (e) {
+        res.status(401).json({ message: '유효하지 않은 토큰입니다.' });
+        return;
+    }
+
+    // 관리자 권한 확인
+    const callerDoc = await admin.firestore().collection('users').doc(decoded.uid).get();
+    if (!callerDoc.exists || callerDoc.data().userType !== 'admin') {
+        res.status(403).json({ message: '관리자 권한이 필요합니다.' });
+        return;
+    }
+
     const { paymentKey, cancelReason, cancelAmount } = req.body;
+    // targetStatus는 화이트리스트로만 허용 (기본: cancelled)
+    const allowedTargets = ['cancelled', 'refunded'];
+    const targetStatus = allowedTargets.includes(req.body.targetStatus)
+        ? req.body.targetStatus
+        : 'cancelled';
 
     if (!paymentKey || !cancelReason) {
         res.status(400).json({ message: '필수 파라미터 누락: paymentKey, cancelReason' });
@@ -118,7 +279,7 @@ exports.cancelPayment = functions.https.onRequest(async (req, res) => {
 
     const secretKey = getSecretKey();
     if (!secretKey) {
-        console.error('[cancelPayment] TOSS_SECRET_KEY가 설정되지 않았습니다.');
+        logger.error('[cancelPayment] TOSS_SECRET_KEY가 설정되지 않았습니다.');
         res.status(500).json({ message: '서버 설정 오류 - 관리자에게 문의하세요.' });
         return;
     }
@@ -139,13 +300,47 @@ exports.cancelPayment = functions.https.onRequest(async (req, res) => {
         const result = await tossRes.json();
 
         if (!tossRes.ok) {
-            console.error('[cancelPayment] 토스 API 오류:', result);
+            logger.error('[cancelPayment] 토스 API 오류', {
+                paymentKey,
+                status: tossRes.status,
+                code: result.code
+            });
+            await writePaymentLog('cancel_failed', {
+                paymentKey,
+                adminUid: decoded.uid,
+                cancelReason,
+                tossStatus: tossRes.status,
+                errorCode: result.code
+            });
+        } else {
+            // 취소 성공 시 Firestore payments / enrollments 상태 동기화
+            try {
+                await syncCancelledStatus(result.orderId, paymentKey, targetStatus);
+            } catch (syncErr) {
+                logger.error('[cancelPayment] Firestore 동기화 오류', {
+                    orderId: result.orderId,
+                    error: syncErr.message
+                });
+            }
+            logger.info('[cancelPayment] 취소 완료', {
+                orderId: result.orderId,
+                paymentKey,
+                targetStatus
+            });
+            await writePaymentLog('cancel_success', {
+                orderId: result.orderId,
+                paymentKey,
+                adminUid: decoded.uid,
+                cancelReason,
+                cancelAmount: cancelAmount || null,
+                targetStatus
+            });
         }
 
         res.status(tossRes.status).json(result);
 
     } catch (error) {
-        console.error('[cancelPayment] 처리 오류:', error);
+        logger.error('[cancelPayment] 처리 오류', { paymentKey, error: error.message });
         res.status(500).json({ message: '결제 취소 중 서버 오류가 발생했습니다.' });
     }
 });
@@ -181,7 +376,7 @@ exports.deleteAuthUser = functions.https.onRequest(async (req, res) => {
 
     // 관리자 권한 확인
     const callerDoc = await admin.firestore().collection('users').doc(decoded.uid).get();
-    if (!callerDoc.exists || callerDoc.data().role !== 'admin') {
+    if (!callerDoc.exists || callerDoc.data().userType !== 'admin') {
         res.status(403).json({ message: '관리자 권한이 필요합니다.' });
         return;
     }
@@ -194,10 +389,219 @@ exports.deleteAuthUser = functions.https.onRequest(async (req, res) => {
 
     try {
         await admin.auth().deleteUser(uid);
-        console.log(`[deleteAuthUser] Firebase Auth 계정 삭제 완료: ${uid}`);
+        logger.info('[deleteAuthUser] Firebase Auth 계정 삭제 완료', { targetUid: uid, adminUid: decoded.uid });
         res.status(200).json({ success: true });
     } catch (error) {
-        console.error('[deleteAuthUser] 처리 오류:', error);
-        res.status(500).json({ message: 'Firebase Auth 계정 삭제 실패: ' + error.message });
+        logger.error('[deleteAuthUser] 처리 오류', { targetUid: uid, error: error.message });
+        res.status(500).json({ message: 'Firebase Auth 계정 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.' });
     }
 });
+
+// =============================================================
+// 토스페이먼츠 웹훅 수신
+// POST /api/tossWebhook
+// 토스 대시보드에서 취소/상태 변경 시 Firestore 자동 동기화
+// =============================================================
+exports.tossWebhook = functions.https.onRequest(async (req, res) => {
+    if (req.method !== 'POST') {
+        res.status(405).json({ message: 'Method Not Allowed' });
+        return;
+    }
+
+    const { status, orderId } = req.body;
+
+    logger.info('[tossWebhook] 수신', { orderId, status });
+
+    // 토스페이먼츠 API로 역검증
+    if (orderId && status) {
+        const secretKey = getSecretKey();
+        if (secretKey) {
+            try {
+                const verifyRes = await fetch(
+                    `${TOSS_API}/orders/${encodeURIComponent(orderId)}`,
+                    { headers: { 'Authorization': basicAuth(secretKey) } }
+                );
+                if (!verifyRes.ok) {
+                    logger.error('[tossWebhook] 역검증 실패: 토스에서 주문 조회 불가', { orderId });
+                    res.status(200).json({ success: true }); // 재시도 방지용 200
+                    return;
+                }
+                const paymentInfo = await verifyRes.json();
+                if (paymentInfo.status !== status) {
+                    logger.error('[tossWebhook] 역검증 불일치', {
+                        orderId,
+                        webhookStatus: status,
+                        actualStatus: paymentInfo.status
+                    });
+                    res.status(200).json({ success: true });
+                    return;
+                }
+            } catch (verifyErr) {
+                logger.error('[tossWebhook] 역검증 오류 (Toss 재시도 허용)', {
+                    orderId,
+                    error: verifyErr.message
+                });
+                res.status(500).json({ message: '역검증 중 일시적 오류' });
+                return;
+            }
+        }
+    }
+
+    // Toss 상태 → 내부 상태 매핑
+    const statusMap = {
+        'DONE': 'completed',
+        'CANCELED': 'cancelled',
+        'PARTIAL_CANCELED': 'cancelled',
+        'ABORTED': 'failed',
+        'EXPIRED': 'expired'
+    };
+
+    const newStatus = statusMap[status];
+    if (!newStatus || !orderId) {
+        res.status(200).json({ success: true });
+        return;
+    }
+
+    try {
+        if (newStatus === 'cancelled') {
+            await syncCancelledStatus(orderId, null);
+        } else {
+            const snap = await admin.firestore()
+                .collection('payments').where('orderId', '==', orderId).get();
+            if (!snap.empty) {
+                const batch = admin.firestore().batch();
+                snap.docs.forEach(doc => batch.update(doc.ref, { status: newStatus }));
+                await batch.commit();
+            }
+        }
+        logger.info('[tossWebhook] 처리 완료', { orderId, newStatus });
+        await writePaymentLog('webhook_processed', { orderId, tossStatus: status, newStatus });
+        res.status(200).json({ success: true });
+    } catch (error) {
+        logger.error('[tossWebhook] 처리 오류', { orderId, error: error.message });
+        // 토스 재시도 방지를 위해 항상 200 반환
+        res.status(200).json({ success: true });
+    }
+});
+
+// =============================================================
+// 헬스체크
+// GET /api/health
+// Firestore 연결 상태를 포함한 서비스 상태를 반환합니다.
+// 외부 업타임 모니터(UptimeRobot 등)에서 이 엔드포인트를 주기적으로 호출하세요.
+// =============================================================
+exports.healthCheck = functions.https.onRequest(async (req, res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    if (req.method === 'OPTIONS') {
+        res.status(204).send('');
+        return;
+    }
+
+    const startTime = Date.now();
+    const checks = {};
+
+    // Firestore 연결 확인
+    try {
+        await admin.firestore()
+            .collection('_health')
+            .doc('ping')
+            .set({ checkedAt: admin.firestore.FieldValue.serverTimestamp() });
+        checks.firestore = 'ok';
+    } catch (e) {
+        checks.firestore = 'error';
+        logger.error('[healthCheck] Firestore 연결 실패', { error: e.message });
+    }
+
+    // Toss Secret Key 설정 확인
+    checks.tossSecretKey = getSecretKey() ? 'configured' : 'missing';
+
+    const allOk = Object.values(checks).every(v => v === 'ok' || v === 'configured');
+    const statusCode = allOk ? 200 : 503;
+
+    res.status(statusCode).json({
+        status: allOk ? 'ok' : 'degraded',
+        checks,
+        responseTimeMs: Date.now() - startTime,
+        timestamp: new Date().toISOString()
+    });
+});
+
+// =============================================================
+// Firestore 정기 백업 (매일 오전 3시 KST)
+// Cloud Storage 버킷에 주요 컬렉션을 내보냅니다.
+//
+// 사전 준비 (최초 1회):
+//   1. 버킷 생성:
+//      gcloud storage buckets create gs://digital-healthcare-cente-2204b-backups \
+//        --location=asia-northeast3
+//   2. 서비스 계정에 권한 부여:
+//      gcloud projects add-iam-policy-binding digital-healthcare-cente-2204b \
+//        --member="serviceAccount:digital-healthcare-cente-2204b@appspot.gserviceaccount.com" \
+//        --role="roles/datastore.importExportAdmin"
+//      gcloud storage buckets add-iam-policy-binding gs://digital-healthcare-cente-2204b-backups \
+//        --member="serviceAccount:digital-healthcare-cente-2204b@appspot.gserviceaccount.com" \
+//        --role="roles/storage.admin"
+// =============================================================
+exports.scheduledBackup = functions.pubsub
+    .schedule('0 3 * * *')
+    .timeZone('Asia/Seoul')
+    .onRun(async () => {
+        const projectId = process.env.GCLOUD_PROJECT
+            || JSON.parse(process.env.FIREBASE_CONFIG || '{}').projectId;
+        const bucket = `gs://${projectId}-backups`;
+        const timestamp = new Date().toISOString().split('T')[0];
+
+        try {
+            // GCE 메타데이터 서버에서 액세스 토큰 획득 (Cloud Functions 환경에서 자동 제공)
+            const tokenRes = await fetch(
+                'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token',
+                { headers: { 'Metadata-Flavor': 'Google' } }
+            );
+            if (!tokenRes.ok) {
+                throw new Error('메타데이터 서버에서 토큰 획득 실패');
+            }
+            const { access_token } = await tokenRes.json();
+
+            const exportRes = await fetch(
+                `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default):exportDocuments`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${access_token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        outputUriPrefix: `${bucket}/${timestamp}`,
+                        collectionIds: [
+                            'users',
+                            'payments',
+                            'enrollments',
+                            'certificates',
+                            'applications',
+                            'pending_applications',
+                            '_payment_logs'
+                        ]
+                    })
+                }
+            );
+
+            if (!exportRes.ok) {
+                const err = await exportRes.json();
+                logger.error('[scheduledBackup] Firestore 백업 실패', {
+                    projectId,
+                    bucket,
+                    error: err.error?.message || JSON.stringify(err)
+                });
+                return;
+            }
+
+            const operation = await exportRes.json();
+            logger.info('[scheduledBackup] Firestore 백업 시작됨', {
+                bucket: `${bucket}/${timestamp}`,
+                operationName: operation.name
+            });
+
+        } catch (err) {
+            logger.error('[scheduledBackup] 백업 오류', { projectId, error: err.message });
+        }
+    });

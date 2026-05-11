@@ -83,7 +83,7 @@ function initAuthStateListener() {
     console.log('Firebase 인증 상태 리스너 설정');
 
     window.dhcFirebase.onAuthStateChanged(function (user) {
-        console.log('인증 상태 변화 감지:', user);
+        console.log('인증 상태 변화 감지:', user ? '로그인됨' : '로그아웃됨');
 
         if (user) {
             // 로그인된 사용자
@@ -100,8 +100,6 @@ function initAuthStateListener() {
 
 // 사용자 상세 정보 가져오기
 async function getUserDetails(user) {
-    console.log('사용자 상세 정보 조회:', user.uid);
-
     try {
         // Firestore에서 사용자 정보 가져오기
         const userDoc = await window.dhcFirebase.db.collection('users').doc(user.uid).get();
@@ -113,11 +111,6 @@ async function getUserDetails(user) {
             userType = userData.userType || 'student';
         }
 
-        // 관리자 이메일 체크
-        if (user.email === 'gostepexercise@gmail.com') {
-            userType = 'admin';
-        }
-
         currentUser = {
             uid: user.uid,
             email: user.email,
@@ -127,8 +120,6 @@ async function getUserDetails(user) {
         };
 
         currentUserType = userType;
-
-        console.log('사용자 정보 업데이트:', currentUser, userType);
 
         updateAuthUI(currentUser, userType);
         updateMobileAuthStatus();
@@ -145,9 +136,7 @@ async function getUserDetails(user) {
             emailVerified: user.emailVerified
         };
 
-        currentUserType = user.email === 'gostepexercise@gmail.com' ? 'admin' : 'student';
-
-        console.log('기본 정보로 UI 업데이트:', currentUser, currentUserType);
+        currentUserType = 'student';
 
         updateAuthUI(currentUser, currentUserType);
         updateMobileAuthStatus();
@@ -171,7 +160,7 @@ async function login(email, password) {
 
     try {
         const result = await window.dhcFirebase.auth.signInWithEmailAndPassword(email, password);
-        console.log('로그인 성공:', result.user);
+        console.log('로그인 성공');
         return { success: true, user: result.user };
     } catch (error) {
         console.error('로그인 실패:', error);

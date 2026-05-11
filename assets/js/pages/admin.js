@@ -357,7 +357,7 @@
 
             // 기본값 설정 (즉시 표시)
             const defaultAdminName = '관리자';
-            const defaultAdminEmail = 'gostepexercise@gmail.com';
+            const defaultAdminEmail = '';
 
             // DOM 요소 참조
             const adminNameElem = document.getElementById('admin-name');
@@ -410,7 +410,7 @@
 
                 window.dhcFirebase.onAuthStateChanged((user) => {
                     if (user) {
-                        console.log('인증된 사용자:', user.email);
+                        console.log('인증된 사용자 확인');
 
                         const displayName = user.displayName || '관리자';
                         const email = user.email;
@@ -460,7 +460,7 @@
 
             // 헤더에서 사용자 정보 가져오기
             const adminName = document.getElementById('admin-name')?.textContent || sessionStorage.getItem('admin_name') || '관리자';
-            const adminEmail = document.getElementById('admin-email')?.textContent || sessionStorage.getItem('admin_email') || 'gostepexercise@gmail.com';
+            const adminEmail = document.getElementById('admin-email')?.textContent || sessionStorage.getItem('admin_email') || '';
 
             // 사용자 정보 영역 생성
             const userInfoDiv = document.createElement('div');

@@ -17,8 +17,7 @@
          * @returns {Promise} - 회원가입 결과 프로미스
          */
         signUp: async function (email, password, userData) {
-            console.log('📝 회원가입 시작:', email);
-            console.log('📝 사용자 데이터:', userData);
+            console.log('📝 회원가입 시작');
 
             try {
                 // 1. Firebase Auth를 사용하여 사용자 생성
@@ -26,7 +25,7 @@
                 const userCredential = await window.dhcFirebase.auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
 
-                console.log('✅ Firebase Auth 계정 생성 성공:', user.uid);
+                console.log('✅ Firebase Auth 계정 생성 성공');
 
                 // ⭐ 2. Firebase Auth 프로필 업데이트 (새로 추가된 부분)
                 try {
@@ -164,7 +163,7 @@
                 const userCredential = await window.dhcFirebase.auth.signInWithPopup(provider);
                 const user = userCredential.user;
 
-                console.log('✅ Google 로그인 성공:', user.email);
+                console.log('✅ Google 로그인 성공');
 
                 // 사용자가 처음 Google 로그인하는 경우 Firestore에 기본 정보 저장
                 const userDoc = await window.dhcFirebase.db.collection('users').doc(user.uid).get();
@@ -454,7 +453,7 @@
     // 인증 상태 감지 함수 등록 (개선된 버전)
     window.dhcFirebase.onAuthStateChanged(function (user) {
         if (user) {
-            console.log('🔐 사용자 로그인 상태 감지:', user.email);
+            console.log('🔐 사용자 로그인 상태 감지');
         } else {
             console.log('🔐 사용자 로그아웃 상태 감지');
         }

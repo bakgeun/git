@@ -67,7 +67,7 @@
         if (window.dhcFirebase && window.dhcFirebase.getCurrentUser) {
             const user = window.dhcFirebase.getCurrentUser();
             if (user) {
-                console.log('✅ Firebase 사용자 인증됨:', user.email);
+                console.log('✅ Firebase 사용자 인증됨');
                 currentUser = user;
                 return true;
             }
@@ -77,7 +77,7 @@
         if (window.authService && window.authService.getCurrentUser) {
             const user = window.authService.getCurrentUser();
             if (user) {
-                console.log('✅ authService 사용자 인증됨:', user.email);
+                console.log('✅ authService 사용자 인증됨');
                 currentUser = user;
                 return true;
             }
@@ -509,7 +509,7 @@
                 throw new Error('로그인된 사용자를 찾을 수 없습니다.');
             }
 
-            console.log('✅ Firebase Auth 사용자 확인:', currentUser.email);
+            console.log('✅ Firebase Auth 사용자 확인');
 
             // 2. Firestore에서 추가 사용자 정보 가져오기
             let firestoreData = {};
@@ -628,21 +628,18 @@
             if (emailField) {
                 emailField.value = userData.email || '';
                 emailField.disabled = true; // 이메일 수정 불가
-                console.log('✅ 이메일 필드 설정:', userData.email);
             }
 
             // 전화번호 필드
             const phoneField = document.getElementById('phone');
             if (phoneField) {
                 phoneField.value = userData.phoneNumber || '';
-                console.log('✅ 전화번호 필드 설정:', userData.phoneNumber);
             }
 
             // 생년월일 필드
             const birthdateField = document.getElementById('birthdate');
             if (birthdateField) {
                 birthdateField.value = userData.birthdate || '';
-                console.log('✅ 생년월일 필드 설정:', userData.birthdate);
             }
 
             // 🆕 주소 필드 (분리된 필드로 설정)
@@ -652,17 +649,14 @@
 
             if (postalCodeField && userData.postalCode) {
                 postalCodeField.value = userData.postalCode;
-                console.log('✅ 우편번호 필드 설정:', userData.postalCode);
             }
 
             if (addressBasicField && userData.addressBasic) {
                 addressBasicField.value = userData.addressBasic;
-                console.log('✅ 기본주소 필드 설정:', userData.addressBasic);
             }
 
             if (addressDetailField && userData.addressDetail) {
                 addressDetailField.value = userData.addressDetail;
-                console.log('✅ 상세주소 필드 설정:', userData.addressDetail);
             }
 
             // 전체 주소 업데이트
@@ -948,7 +942,7 @@
         } catch (error) {
             console.error('❌ 비밀번호 변경 오류:', error);
 
-            let errorMessage = error.message;
+            let errorMessage = '비밀번호 변경 중 오류가 발생했습니다. 다시 시도해주세요.';
 
             // Firebase 에러 코드별 한국어 메시지 처리
             if (error.code) {
@@ -966,7 +960,7 @@
                         errorMessage = '너무 많은 시도가 있었습니다. 잠시 후 다시 시도해주세요.';
                         break;
                     default:
-                        errorMessage = `비밀번호 변경 중 오류가 발생했습니다: ${error.code}`;
+                        errorMessage = '비밀번호 변경 중 오류가 발생했습니다. 다시 시도해주세요.';
                 }
             }
 
@@ -1364,7 +1358,7 @@
                 if (window.dhcFirebase && window.dhcFirebase.getCurrentUser) {
                     currentUserInfo = window.dhcFirebase.getCurrentUser();
                 }
-                console.log('- 현재 사용자:', currentUserInfo ? currentUserInfo.email : 'None');
+                console.log('- 현재 사용자:', currentUserInfo ? '로그인됨' : 'None');
 
                 return {
                     authService: !!window.authService,

@@ -2,7 +2,7 @@
 
 ## 프로젝트 소개
 
-디지털헬스케어센터 웹사이트는 운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼입니다. 이 웹사이트는 기관 소개, 자격증 정보 제공, 온라인 강의, 자격증 신청 및 결제 기능, 수험자 일정 및 시험 결과 관리 등 디지털헬스케어센터의 활동을 종합적으로 지원합니다.
+디지털헬스케어센터 웹사이트는 운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼입니다. 기관 소개, 자격증 정보 제공, 온라인 강의, 자격증 신청 및 결제 기능, 수험자 일정 및 시험 결과 관리 등 디지털헬스케어센터의 활동을 종합적으로 지원합니다.
 
 ### 주요 기능
 
@@ -19,13 +19,13 @@
 ## 기술 스택
 
 - **프론트엔드**: HTML, CSS, JavaScript
-- **백엔드**: Firebase (Authentication, Firestore, Storage, Hosting, Functions)
+- **백엔드**: Firebase (Authentication, Firestore, Storage, Hosting, Functions v1)
 - **UI 프레임워크**: Tailwind CSS
-- **외부 라이브러리**: 
-  - Firebase SDK
-  - 결제 모듈 (토스페이먼츠 연동 예정)
-  - PDF 생성 라이브러리 (자격증 발급용)
+- **결제**: 토스페이먼츠 v2 SDK
+- **외부 라이브러리**:
+  - Firebase SDK v9 compat (CDN)
   - Daum 우편번호 API
+  - PDF 생성 라이브러리 (자격증 발급용)
 
 ## 디렉토리 구조
 
@@ -46,31 +46,23 @@ digital-healthcare-center/
 │   │   ├── pilates.html          # 필라테스 전문가 ✓
 │   │   └── recreation.html       # 레크리에이션지도자 ✓
 │   │
-│   ├── education/            # 교육 과정 관련 페이지들 (간소화)
+│   ├── education/            # 교육 과정 관련 페이지들
 │   │   ├── course-application.html # 교육 신청 + 결제 통합 ✓
-│   │   ├── cert-application.html # 자격증 신청
+│   │   ├── cert-application.html # 자격증 신청 ✓
 │   │   └── instructors.html  # 강사 소개 ✓
 │   │
 │   ├── board/                # 게시판 관련 페이지들
 │   │   ├── notice/           # 공지사항
-│   │   │   ├── index.html    # 목록 ✓
-│   │   │   └── view.html     # 상세보기 ✓
 │   │   ├── column/           # 칼럼
-│   │   │   ├── index.html    # 목록 ✓
-│   │   │   └── view.html     # 상세보기 ✓
 │   │   ├── materials/        # 강의자료
-│   │   │   ├── index.html    # 목록 ✓
-│   │   │   └── view.html     # 상세보기 ✓
 │   │   └── videos/           # 동영상 강의
-│   │       ├── index.html    # 목록 ✓
-│   │       └── view.html     # 상세보기 ✓
 │   │
 │   ├── auth/                 # 인증 관련 페이지들
 │   │   ├── login.html        # 로그인 ✓
 │   │   ├── signup.html       # 회원가입 ✓
 │   │   └── find-account.html # 계정찾기 ✓
 │   │
-│   ├── mypage/               # 마이페이지 관련 페이지들 (강화)
+│   ├── mypage/               # 마이페이지 관련 페이지들
 │   │   ├── personal-info.html  # 개인정보 관리 ✓
 │   │   ├── course-history.html # 수강 내역 ✓
 │   │   ├── cert-management.html # 자격증 관리 (발급+갱신 통합) ✓✨
@@ -78,7 +70,7 @@ digital-healthcare-center/
 │   │
 │   ├── payment/
 │   │   ├── fail.html
-│   │   └── success.html                
+│   │   └── success.html
 │   │
 │   └── admin/                # 관리자 페이지들
 │       ├── dashboard.html    # 대시보드 ✓
@@ -88,183 +80,55 @@ digital-healthcare-center/
 │       ├── board-management.html # 게시판 관리 ✓
 │       └── payment-management.html # 결제 관리 ✓
 │
-├── assets/                   # 정적 자원
+├── assets/
 │   ├── css/                  # CSS 파일들
-│   │   ├── main.css          # 모든 CSS 파일을 import하는 메인 파일 ✓
-│   │   ├── base/             # 기본 스타일
-│   │   │   ├── reset.css     # CSS 리셋 또는 normalize ✓
-│   │   │   ├── typography.css # 타이포그래피 스타일 ✓
-│   │   │   ├── colors.css    # 색상 변수 정의 ✓
-│   │   │   └── variables.css # 기타 CSS 변수 정의 ✓
-│   │   │
-│   │   ├── layout/           # 레이아웃 스타일
-│   │   │   ├── grid.css      # 그리드 시스템 ✓
-│   │   │   ├── header.css    # 헤더 스타일 ✓
-│   │   │   ├── footer.css    # 푸터 스타일 ✓
-│   │   │   ├── sidebar.css   # 사이드바 스타일 ✓
-│   │   │   └── container.css # 컨테이너 스타일 ✓
-│   │   │
-│   │   ├── components/       # 컴포넌트 스타일
-│   │   │   ├── buttons.css   # 버튼 스타일 ✓
-│   │   │   ├── forms.css     # 폼 요소 스타일 ✓
-│   │   │   ├── cards.css     # 카드 컴포넌트 스타일 ✓
-│   │   │   ├── tables.css    # 테이블 스타일 ✓
-│   │   │   ├── alerts.css    # 알림 메시지 스타일 ✓
-│   │   │   ├── badges.css    # 뱃지 스타일 ✓
-│   │   │   ├── modal.css     # 모달 스타일 ✓
-│   │   │   ├── navigation.css # 네비게이션 스타일 ✓
-│   │   │   └── pagination.css # 페이지네이션 스타일 ✓
-│   │   │
-│   │   ├── pages/            # 페이지별 스타일
-│   │   │   ├── about.css     # 기관소개페이지 공통 및 특정 스타일 ✓
-│   │   │   ├── home.css      # 홈페이지 특정 스타일 ✓
-│   │   │   ├── certificate.css # 자격증 페이지 스타일 ✓
-│   │   │   ├── education.css # 교육 페이지 스타일 ✓
-│   │   │   ├── board.css     # 게시판 페이지 스타일 ✓
-│   │   │   ├── auth.css      # 인증 페이지 스타일 ✓
-│   │   │   ├── mypage.css    # 마이페이지 스타일 ✓
-│   │   │   └── admin.css     # 관리자 페이지 스타일 ✓
-│   │   │
-│   │   └── utilities/        # 유틸리티 스타일
-│   │       ├── spacing.css   # 여백 유틸리티 클래스 ✓
-│   │       ├── flex.css      # 플렉스 유틸리티 클래스 ✓
-│   │       ├── display.css   # 디스플레이 유틸리티 클래스 ✓
-│   │       └── text.css      # 텍스트 유틸리티 클래스 ✓
-│   │
-│   ├── js/                   # JavaScript 파일들
-│   │   ├── main.js           # 메인 JavaScript 파일 ✓
-│   │   │
-│   │   ├── config/           # 설정 파일
-│   │   │   └── firebase-config.js # Firebase 설정 ✓
-│   │   │
-│   │   ├── services/         # 서비스 모듈
-│   │   │   ├── auth-service.js   # 인증 관련 서비스 ✓
-│   │   │   ├── db-service.js     # 데이터베이스 관련 서비스 ✓
-│   │   │   ├── storage-service.js # 스토리지 관련 서비스 ✓
-│   │   │   ├── api-service.js    # 기타 API 호출 서비스 ✓
-│   │   │   ├── payment-service.js    # 결제 서비스 ✓
-│   │   │   └── local-auth-override.js # 로컬 테스트용 인증 오버라이드 ✓
-│   │   │
-│   │   ├── utils/            # 유틸리티 함수
-│   │   │   ├── validators.js # 유효성 검사 유틸리티 ✓
-│   │   │   ├── formatters.js # 데이터 포맷팅 유틸리티 ✓
-│   │   │   ├── date-utils.js # 날짜 관련 유틸리티 ✓
-│   │   │   ├── dom-utils.js  # DOM 조작 유틸리티 ✓
-│   │   │   ├── admin-auth.js # 관리자 권한 확인 미들웨어 ✓
-│   │   │   └── script-loader.js # 스크립트 로더 유틸리티 ✓
-│   │   │
-│   │   ├── components/       # 컴포넌트 스크립트
-│   │   │   ├── header.js     # 헤더 관련 기능 ✓
-│   │   │   ├── footer.js     # 푸터 관련 기능 ✓
-│   │   │   ├── modal.js      # 모달 관련 기능 ✓
-│   │   │   ├── forms.js      # 폼 관련 기능 ✓
-│   │   │   └── pagination.js # 페이지네이션 기능 ✓
-│   │   │
-│   │   └── pages/            # 페이지별 스크립트
-│   │       ├── home.js       # 홈페이지 스크립트 ✓
-│   │       ├── certificate.js # 자격증 페이지 공통 기능 ✓
-│   │       ├── education/  # 교육 페이지 개별 스크립트 (간소화)
-│   │       │   ├── course-application.js  # 교육 신청 통합결제 페이지 스크립트 ✓
-│   │       │   ├── cert-application.js # 자격증 신청 페이지 스크립트 ✓
-│   │       │   └── instructors.js # 강사소개 페이지 스크립트 ✓
-│   │       ├── board.js      # 게시판 페이지 스크립트 ✓
-│   │       ├── auth.js       # 인증 페이지 공통 기능 ✓
-│   │       ├── about/         
-│   │       │   └── about.js  # 기관 소개 페이지 스크립트 ✓
-│   │       ├── auth/         # 인증 관련 개별 페이지 스크립트
-│   │       │   ├── login.js  # 로그인 페이지 스크립트 ✓
-│   │       │   ├── signup.js # 회원가입 페이지 스크립트 ✓
-│   │       │   └── find-account.js # 계정찾기 페이지 스크립트 ✓
-│   │       ├── certificate/  # 자격증 관련 개별 페이지 스크립트
-│   │       │   ├── health-exercise.js  # 건강운동처방사 페이지 스크립트 ✓
-│   │       │   ├── rehabilitation.js   # 운동재활전문가 페이지 스크립트 ✓
-│   │       │   ├── pilates.js         # 필라테스 전문가 페이지 스크립트 ✓
-│   │       │   └── recreation.js      # 레크리에이션지도자 페이지 스크립트 ✓
-│   │       ├── mypage.js     # 마이페이지 스크립트 ✓
-│   │       ├── mypage/       # 마이페이지 관련 개별 페이지 스크립트
-│   │       │   ├── personal-info.js     # 개인정보 관리 스크립트 ✓
-│   │       │   ├── course-history.js    # 수강 내역 스크립트 ✓
-│   │       │   ├── cert-management-enhanced.js # 통합 자격증 관리 스크립트 ✓✨
-│   │       │   └── payment-history.js   # 결제 내역 스크립트 ✓
-│   │       ├── admin.js      # 관리자 페이지 공통 기능 ✓
-│   │       └── admin/        # 관리자 관련 개별 페이지 스크립트
-│   │           ├── dashboard.js    # 대시보드 스크립트 ✓
-│   │           ├── user-management.js # 회원 관리 스크립트 ✓
-│   │           ├── course-management.js # 교육 관리 스크립트 ✓
-│   │           ├── cert-management.js # 자격증 관리 스크립트 ✓
-│   │           ├── board-management.js # 게시판 관리 스크립트 ✓
-│   │           └── payment-management.js # 결제 관리 스크립트 ✓
-│   │
-│   ├── images/               # 이미지 파일들
-│   │   ├── logo/             # 로고 이미지
-│   │   ├── banners/          # 배너 이미지
-│   │   ├── instructors/      # 강사 이미지
-│   │   └── certificates/     # 자격증 관련 이미지
-│   │
-│   ├── fonts/                # 폰트 파일들
-│   └── videos/               # 동영상 파일들
+│   └── js/
+│       ├── config/
+│       │   └── firebase-config.js
+│       ├── services/
+│       │   ├── auth-service.js
+│       │   ├── db-service.js
+│       │   ├── storage-service.js
+│       │   ├── api-service.js
+│       │   ├── payment-service.js
+│       │   └── local-auth-override.js
+│       ├── utils/
+│       │   ├── script-loader.js  # 전역 에러 핸들러 포함
+│       │   ├── admin-auth.js
+│       │   └── ...
+│       ├── components/
+│       └── pages/
 │
-├── lib/                      # 외부 라이브러리
-│   └── firebase/             # Firebase SDK
+├── functions/
+│   └── index.js              # Cloud Functions (결제, 헬스체크, 자동 백업)
 │
-├── favicon.ico               # 파비콘
-├── manifest.json             # PWA 설정 파일
-└── robots.txt                # 검색엔진 접근 제어
+├── firebase.json
+├── firestore.rules
+├── firestore.indexes.json
+└── storage.rules
 ```
-
-✓ 표시는 개발 완료된 파일들을 나타냅니다.  
-✨ 표시는 새롭게 개선된 파일들을 나타냅니다.
-
-## 개발 현황
-
-### 완료된 모듈 - 100% 완료
-
-#### 모든 HTML, CSS, JavaScript 파일 개발 완료 (구조 개선)
-- **삭제된 파일**: 7개 (중복 기능 통합으로 인한 정리)
-- **새로 개선된 파일**: 1개 (cert-management-enhanced.js)
-- **전체 파일 수**: 106개 파일 (+3)
-- HTML: 39개 파일 (+3: advisor.html, research/domestic.html, research/international.html)
-- CSS: 26개 파일  
-- JavaScript: 41개 파일 (3개 삭제, 1개 개선)
-
-#### 주요 모듈별 개발 현황
-1. **인증 모듈 (Auth)** ✓
-2. **자격증 모듈 (Certificate)** ✓
-3. **교육 모듈 (Education)** ✓ (간소화 완료)
-4. **게시판 모듈 (Board)** ✓
-5. **마이페이지 모듈 (Mypage)** ✓ (자격증 관리 강화)
-6. **기관 소개 모듈 (About)** ✓
-7. **자문위원 모듈 (Advisor)** ✓ (총재 + 자문위원 150명, 검색/필터/페이지네이션)
-8. **학술·연구 모듈 (Research)** ✓ (국내/국제 분리, 학회·연구소 소개)
-9. **관리자 모듈 (Admin)** ✓
-10. **공통 컴포넌트 및 서비스** ✓
-
-## 사용자 여정 최적화
-
-### 개선된 사용자 흐름
-```
-1. 교육 신청 → 결제 → 마이페이지(수강내역 확인)
-2. 자격증 신청 → 결제 → 마이페이지(자격증관리 진행상황 확인)
-3. 자격증 갱신 → 마이페이지에서 신청 → 결제 → 진행상황 확인
-```
-
-### 통합된 기능
-- **교육 신청 + 결제**: `course-application.html`에서 원스톱 처리
-- **자격증 신청 + 결제**: `cert-application.html`에서 원스톱 처리
-- **자격증 발급 + 갱신**: `cert-management.html`에서 통합 관리
 
 ## 관리자 계정 설정
 
-### 관리자 계정 정보
-- **관리자 이메일**: `gostepexercise@gmail.com`
-- **권한**: 모든 관리자 기능 접근 가능
+관리자 권한은 Firestore `users` 컬렉션의 `userType` 필드로 관리합니다. 소스 코드에 관리자 이메일을 하드코딩하지 않습니다.
 
-### 관리자 시스템 설정
-1. Firebase Console에서 관리자 계정 생성
-2. `assets/js/utils/admin-auth.js` 파일에 관리자 이메일 등록
-3. 모든 관리자 페이지에 권한 확인 시스템 적용
+### 관리자 계정 등록 방법
+
+1. Firebase Console → Authentication에서 계정 생성
+2. Firebase Console → Firestore → `users` 컬렉션에서 해당 UID 문서의 `userType` 필드를 `'admin'`으로 설정
+
+```js
+// Firestore users/{uid} 문서 구조
+{
+  email: "admin@example.com",
+  userType: "admin",   // "student" | "admin"
+  status: "active",
+  ...
+}
+```
 
 ### 관리자 기능
+
 - **대시보드**: 시스템 전반적인 통계 및 현황
 - **회원 관리**: 사용자 계정 관리 및 권한 설정
 - **교육 관리**: 교육 과정 생성, 수정, 삭제
@@ -272,325 +136,343 @@ digital-healthcare-center/
 - **게시판 관리**: 공지사항, 칼럼, 강의자료, 동영상 관리
 - **결제 관리**: 결제 내역 조회, 환불 처리
 
-## 로컬 테스트 및 개발 방법
+## 로컬 개발 및 배포
 
-### 로컬 테스트 환경
+### 개발 환경 설정
 
-로컬 개발 및 테스트를 위해 `local-auth-override.js`와 `script-loader.js` 파일을 추가하여 Firebase 연동 전에도 모든 기능을 테스트할 수 있도록 구성했습니다.
+```bash
+# 저장소 클론
+git clone https://github.com/labcome/digital-healthcare-center.git
+cd digital-healthcare-center
 
-#### 테스트 계정
-- **관리자 계정**
-  - 이메일: admin@test.com
-  - 비밀번호: admin123
-- **실제 관리자 계정**
-  - 이메일: gostepexercise@gmail.com (실제 운영용)
-  - 비밀번호: Firebase에서 설정
-- **일반 사용자 계정**
-  - 이메일: student@test.com
-  - 비밀번호: student123
+# Firebase CLI 설치
+npm install -g firebase-tools
+firebase login
 
-#### 스크립트 로딩 방식
-모든 페이지는 일관된 스크립트 로딩 방식을 채택하여, 페이지 깊이에 관계없이 동일한 코드로 스크립트를 로드합니다:
+# 로컬 에뮬레이터 실행 (Functions 테스트 시)
+cd functions && npm install
+firebase emulators:start --only functions
+```
+
+### 스크립트 로딩 방식
+
+모든 페이지는 `script-loader.js`를 가장 먼저 로드합니다.
 
 ```html
-<!-- 스크립트 로더 - head 태그 안에 추가 -->
+<!-- head 태그 안 -->
 <script src="../../assets/js/utils/script-loader.js"></script>
 
-<!-- 페이지 하단에 추가 -->
+<!-- 페이지 하단 -->
 <script id="firebase-sdk-template" type="text/template">
-    <!-- Firebase SDK - CDN 방식 -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
-
-    <!-- 프로젝트 Firebase 설정 및 서비스 -->
     <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
     <script src="{basePath}assets/js/services/auth-service.js"><\/script>
-
-    <!-- 로컬 테스트용 인증 오버라이드 (개발 완료 후 제거) -->
-    <script src="{basePath}assets/js/services/local-auth-override.js"><\/script>
-
-    <!-- 필요한 서비스 모듈 -->
     <script src="{basePath}assets/js/services/db-service.js"><\/script>
     <script src="{basePath}assets/js/services/storage-service.js"><\/script>
 </script>
 ```
 
-#### 네비게이션 링크 처리
-모든 페이지의 네비게이션 링크는 다음과 같은 방식으로 구현되어 페이지 깊이에 관계없이 올바른 경로로 이동합니다:
+### 배포
 
-```html
-<a href="javascript:window.location.href=window.adjustPath('pages/admin/dashboard.html')">대시보드</a>
-```
-
-### 개발 환경 설정
-
-1. 저장소 클론:
 ```bash
-git clone https://github.com/bakgeun/digital-healthcare-center.git
-cd digital-healthcare-center
-```
-
-2. 웹 서버 실행:
-- 로컬 개발 시 VS Code의 Live Server 등의 확장 프로그램 활용
-- 또는 간단한 HTTP 서버 실행:
-```bash
-# Node.js가 설치된 경우
-npx http-server
-```
-
-### Firebase 설정
-
-1. [Firebase 콘솔](https://console.firebase.google.com/)에서 새 프로젝트 생성
-2. 웹 앱 등록 및 SDK 설정 정보 확인
-3. 다음 서비스 활성화:
-   - Authentication (이메일/비밀번호, Google 로그인)
-   - Firestore Database
-   - Storage
-   - Hosting (배포 시)
-   - Functions (필요한 경우)
-4. Firebase 설정 정보를 `assets/js/config/firebase-config.js` 파일에 입력
-
-### Firebase 설정 예시
-
-```javascript
-// assets/js/config/firebase-config.js
-const firebaseConfig = {
-  apiKey: "your-api-key",
-  authDomain: "your-project.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-project.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "your-app-id"
-};
-
-// Firebase 초기화
-firebase.initializeApp(firebaseConfig);
-
-// dhcFirebase 전역 객체 생성
-window.dhcFirebase = {
-  auth: firebase.auth(),
-  db: firebase.firestore(),
-  storage: firebase.storage(),
-  firebase: firebase,
-  
-  onAuthStateChanged: function(callback) {
-    return firebase.auth().onAuthStateChanged(callback);
-  },
-  
-  getCurrentUser: function() {
-    return firebase.auth().currentUser;
-  }
-};
-
-// 로컬 테스트 모드 비활성화 플래그
-window.LOCAL_TEST_MODE = false;
-```
-
-### 배포 방법
-
-#### Firebase Hosting 활용 (권장)
-
-1. Firebase CLI 설치:
-```bash
-npm install -g firebase-tools
-```
-
-2. Firebase CLI 로그인:
-```bash
-firebase login
-```
-
-3. 프로젝트 초기화:
-```bash
-firebase init
-```
-- Hosting 옵션 선택
-- 공개 디렉토리로 프로젝트 루트 지정
-
-4. 배포:
-```bash
+# 전체 배포 (Hosting + Functions + Rules)
 firebase deploy
+
+# Functions만 배포
+firebase deploy --only functions
+
+# Hosting만 배포
+firebase deploy --only hosting
 ```
 
-#### 일반 웹 호스팅 활용
+### Hosting 롤백
 
-1. 모든 파일을 웹 호스팅 서버에 업로드
-2. 필요한 경우 `.htaccess` 파일 등을 통해 URL 리다이렉션 설정
+Firebase Hosting은 배포 버전 이력을 보관합니다.
 
-### 실제 환경 전환 방법
+```bash
+# 배포 이력 확인
+firebase hosting:releases:list
 
-Firebase 연동이 완료되면 다음과 같이 실제 환경으로 전환할 수 있습니다:
-
-1. `local-auth-override.js` 파일에서 LOCAL_TEST_MODE 변수를 false로 설정:
-```javascript
-const LOCAL_TEST_MODE = false;
+# 롤백: Firebase Console → Hosting → 이전 버전 → [Rollback] 클릭
 ```
 
-2. `firebase-config.js` 파일에서 LOCAL_TEST_MODE 변수를 false로 설정:
-```javascript
-window.LOCAL_TEST_MODE = false;
+### Cloud Functions 롤백
+
+Functions에는 자동 롤백 기능이 없습니다. git으로 이전 커밋을 체크아웃 후 재배포합니다.
+
+```bash
+git checkout <이전-커밋-해시> -- functions/index.js
+firebase deploy --only functions
+git checkout HEAD -- functions/index.js
 ```
 
-3. 또는 모든 HTML 파일에서 로컬 인증 오버라이드 스크립트 로드 부분을 제거:
-```html
-<!-- 이 줄 제거 -->
-<script src="{basePath}assets/js/services/local-auth-override.js"><\/script>
+## Cloud Functions
+
+`functions/index.js`에 다음 함수들이 정의되어 있습니다.
+
+| 함수 | 경로 | 설명 |
+|---|---|---|
+| `confirmPayment` | `POST /api/confirmPayment` | 토스페이먼츠 결제 승인 (멱등성 검사 포함) |
+| `cancelPayment` | `POST /api/cancelPayment` | 결제 취소 (관리자 전용) |
+| `deleteAuthUser` | `POST /api/deleteAuthUser` | Firebase Auth 계정 삭제 (관리자 전용) |
+| `tossWebhook` | `POST /api/tossWebhook` | 토스 웹훅 수신 및 역검증 |
+| `healthCheck` | `GET /api/health` | 서비스 상태 확인 |
+| `scheduledBackup` | 매일 03:00 KST | Firestore 자동 백업 |
+
+### 환경 변수 설정
+
+```bash
+# 토스페이먼츠 시크릿 키 등록 (배포 전 필수)
+firebase functions:secrets:set TOSS_SECRET_KEY
+# 입력 프롬프트에 live_sk_... 값 입력
+```
+
+로컬 테스트 시 `functions/.env` 파일 생성:
+
+```
+TOSS_SECRET_KEY=test_sk_...
+```
+
+### 감사 로그
+
+결제 관련 모든 이벤트는 Firestore `_payment_logs` 컬렉션에 자동 기록됩니다.
+
+| action | 발생 시점 |
+|---|---|
+| `confirm_success` | 결제 승인 성공 |
+| `confirm_failed` | 결제 승인 실패 (Toss 오류) |
+| `confirm_error` | 결제 승인 중 서버 오류 |
+| `cancel_success` | 결제 취소 성공 |
+| `cancel_failed` | 결제 취소 실패 |
+| `webhook_processed` | 웹훅 처리 완료 |
+
+## 운영 및 모니터링
+
+### 헬스체크
+
+`GET https://dhcenter.co.kr/api/health` 로 서비스 상태를 확인할 수 있습니다.
+
+```json
+{
+  "status": "ok",
+  "checks": {
+    "firestore": "ok",
+    "tossSecretKey": "configured"
+  },
+  "responseTimeMs": 142,
+  "timestamp": "2026-05-11T18:00:00.000Z"
+}
+```
+
+외부 업타임 모니터(UptimeRobot 무료 플랜 등)에서 이 URL을 5분 간격으로 호출하면 장애 발생 시 이메일/SMS 알림을 받을 수 있습니다.
+
+### 배포 후 체크리스트
+
+배포 직후 아래 항목을 순서대로 확인합니다.
+
+```
+□ 메인 페이지 로드 확인 (dhcenter.co.kr)
+□ 로그인 → 내 정보 페이지 진입
+□ 교육 과정 목록 로드 확인
+□ GET /api/health → 200 OK, "status": "ok" 확인
+□ Firebase Console → Functions → 에러 0건 확인
+□ Firebase Console → Firestore → 최근 _health/ping 문서 갱신 확인
+```
+
+### 클라이언트 에러 로그 확인
+
+프로덕션에서 JS 런타임 에러와 미처리 Promise 오류는 `localStorage`에 자동 저장됩니다.  
+문제가 의심될 때 DevTools 콘솔에서 다음 명령어로 확인합니다.
+
+```js
+window.getErrorLog()
+// 최근 50건의 에러 배열 반환
+// [ { type, detail, url, ts }, ... ]
+```
+
+### Cloud Logging 확인
+
+Cloud Functions의 구조화된 로그는 Google Cloud Console에서 확인합니다.
+
+1. [Google Cloud Console](https://console.cloud.google.com) → Logging → Log Explorer
+2. 필터: `resource.type="cloud_function"` + `severity>=ERROR`
+3. 또는 Firebase CLI로 빠른 확인:
+
+```bash
+firebase functions:log --only confirmPayment
+```
+
+## Firestore 자동 백업
+
+매일 오전 3시(KST) `scheduledBackup` 함수가 실행되어 주요 컬렉션을 Cloud Storage로 내보냅니다.
+
+백업 대상 컬렉션: `users`, `payments`, `enrollments`, `certificates`, `applications`, `pending_applications`, `_payment_logs`
+
+### 최초 설정 (1회만 실행)
+
+Cloud Storage 버킷 생성과 서비스 계정 권한 부여가 필요합니다.  
+`gcloud` CLI가 없으면 먼저 [Google Cloud SDK](https://cloud.google.com/sdk/docs/install)를 설치하고 `gcloud auth login`을 실행합니다.
+
+```bash
+# 1. 백업용 버킷 생성 (서울 리전)
+gcloud storage buckets create gs://digital-healthcare-cente-2204b-backups \
+  --location=asia-northeast3
+
+# 2. 서비스 계정에 Firestore 내보내기 권한 부여
+gcloud projects add-iam-policy-binding digital-healthcare-cente-2204b \
+  --member="serviceAccount:digital-healthcare-cente-2204b@appspot.gserviceaccount.com" \
+  --role="roles/datastore.importExportAdmin"
+
+# 3. 서비스 계정에 스토리지 쓰기 권한 부여
+gcloud storage buckets add-iam-policy-binding gs://digital-healthcare-cente-2204b-backups \
+  --member="serviceAccount:digital-healthcare-cente-2204b@appspot.gserviceaccount.com" \
+  --role="roles/storage.admin"
+```
+
+### 배포
+
+```bash
+firebase deploy --only functions
+```
+
+Firebase Console → Functions 목록에 `scheduledBackup`이 표시되면 완료입니다.
+
+### 즉시 테스트
+
+배포 후 정상 동작 여부를 확인하려면:
+
+1. [Firebase Console](https://console.firebase.google.com) → Functions → `scheduledBackup` → 상세 → **지금 실행**
+2. [Cloud Storage Console](https://console.cloud.google.com/storage) → `digital-healthcare-cente-2204b-backups` 버킷에 날짜 폴더 생성 확인
+
+### 백업 파일 구조
+
+```
+gs://digital-healthcare-cente-2204b-backups/
+  └── 2026-05-11/
+        └── all_namespaces/
+              └── kinds/
+                    ├── users/
+                    ├── payments/
+                    ├── enrollments/
+                    └── ...
+```
+
+### 복구 방법
+
+특정 날짜 백업으로 복구할 때는 아래 명령어를 사용합니다.  
+`--collection-ids`를 지정하면 특정 컬렉션만 선택적으로 복구할 수 있습니다.
+
+```bash
+# 전체 복구 (기존 데이터 덮어씀 — 신중하게 사용)
+gcloud firestore import gs://digital-healthcare-cente-2204b-backups/2026-05-11
+
+# 특정 컬렉션만 복구
+gcloud firestore import gs://digital-healthcare-cente-2204b-backups/2026-05-11 \
+  --collection-ids=payments,enrollments
+```
+
+> **주의**: 복구는 기존 데이터를 덮어씁니다. 가능하면 별도 프로젝트에서 먼저 테스트하세요.
+
+## 보안
+
+### 적용된 보안 조치
+
+- **관리자 권한**: 소스 코드의 하드코딩 이메일 제거 → Firestore `userType` 필드 기반으로 통일
+- **콘솔 로그**: 프로덕션에서 `console.log` 비활성화, 개인정보(이메일·전화번호·주소·UID) 로깅 전면 제거
+- **에러 메시지**: 사용자 노출 오류 메시지에서 내부 Firebase 오류 코드·스택 제거
+- **결제 키**: `paymentKey`를 URL, 콘솔 로그에서 제거
+- **원자적 쓰기**: `payments` + `enrollments` 동시 생성을 Firestore `batch()`로 처리
+- **자격증 번호**: 카운터 증가 + 자격증 업데이트를 단일 `runTransaction()`으로 처리
+
+### 프로덕션 디버깅
+
+프로덕션 환경에서 콘솔 로그가 필요한 경우 관리자 계정으로 로그인 후 DevTools 콘솔에서 실행합니다.
+
+```js
+// 관리자 계정으로 로그인된 상태에서 실행
+await enableAdminDebug()
+// → Firestore userType 검증 후 디버그 모드 활성화, 페이지 자동 새로고침
 ```
 
 ## 사용된 외부 리소스
 
 - [Firebase](https://firebase.google.com/) - 백엔드 서비스
+- [토스페이먼츠](https://docs.tosspayments.com/) - 결제 연동 (v2 SDK)
 - [Tailwind CSS](https://tailwindcss.com/) - UI 스타일링
 - [Google Fonts - Noto Sans KR](https://fonts.google.com/specimen/Noto+Sans+KR) - 웹 폰트
-- [Heroicons](https://heroicons.com/) - 아이콘
 - [Daum 우편번호 API](https://postcode.map.daum.net/guide) - 주소 검색
-- [토스페이먼츠](https://docs.tosspayments.com/) - 결제 연동 (예정)
-
-## 기여 방법
-
-1. 저장소 포크
-2. 기능 브랜치 생성 (`git checkout -b feature/새기능`)
-3. 변경사항 커밋 (`git commit -m '새 기능 추가'`)
-4. 브랜치 푸시 (`git push origin feature/새기능`)
-5. Pull Request 제출
-
-## 라이센스
-
-이 프로젝트는 [MIT 라이센스](LICENSE)에 따라 라이센스가 부여됩니다.
-
-## 문의 및 연락처
-
-- **디지털헬스케어센터**: [info@digitalhealthcare.org](mailto:info@digitalhealthcare.org)
-- **개발자**: [개발자 이메일](mailto:bakgeun82@gmail.com)
 
 ## 변경 이력
 
-### 2026-02-19 - 자문위원 및 학술·연구 메뉴 추가 ✨
-- **헤더 네비게이션 메뉴 확장**
-  - 기관 소개 다음에 `자문위원`, `학술·연구` 메뉴 추가 (`index.html` 수정)
-  - `학술·연구`는 드롭다운으로 국내/국제 하위 메뉴 구성
-  - 모바일 메뉴(`header.js` menuItems 배열)에도 동일하게 반영
-- **자문위원 페이지 신규 개발** (`pages/advisor.html`)
-  - 총재 1명 대형 카드 (좌측 컬러 바 강조 디자인)
-  - 자문위원 150명 더미 데이터 (JS 배열, 추후 Firebase 교체 가능)
-  - 이름·소속 키워드 검색 기능
-  - 전문 분야별 필터 버튼 (전체/운동과학/스포츠의학/재활치료/체육교육/영양학)
-  - 페이지당 30명 표시 페이지네이션
-  - 통계 바 (총재 1, 자문위원 150, 전문분야 12, 기관 15+)
-- **학술·연구 국내 페이지 신규 개발** (`pages/research/domestic.html`)
-  - 국내 협력 학회: 세계바이오융합스포츠공학회(ISO-BASE), 대한체육학회
-  - 부설 연구소: 질병관리연구소, 운동건강관리연구소
-  - 각 학회 홈페이지 바로가기 링크 포함 (URL 교체 필요)
-  - 국내/국제 탭 네비게이션 상단 고정
-- **학술·연구 국제 페이지 신규 개발** (`pages/research/international.html`)
-  - 국제 협력 학회: Study on China Physical Science (SciScan Publishing)
-  - 국제 협력 연구소: Key Laboratory of Plateau Mountain Tourism Equipment (Sichuan Tourism University)
-  - 연구 분야 키워드 태그 UI 포함
-  - 국내/국제 탭 네비게이션 상단 고정
-- **신규 파일 목록**
-  - `pages/advisor.html`
-  - `pages/research/domestic.html`
-  - `pages/research/international.html`
-- **수정 파일 목록**
-  - `index.html` (헤더 nav 메뉴 추가)
-  - `assets/js/components/header.js` (모바일 menuItems 배열 추가)
+### 2026-05-11 — 보안 강화 및 운영 안정성 개선
 
-### 2026-01-26 - 교육 과정 관리 개선 ✨
-- **교육 과정 관리 기능 개선**
-  - 정원/신청자 표시 순서 수정: `신청자/정원` → `정원/신청자`로 변경하여 직관성 향상
-  - 기수 입력 필드 추가: 자동 생성 대신 관리자가 직접 입력 가능하도록 개선
-  - 교육 방식 드롭다운 텍스트 색상 수정: 옵션 가시성 개선
-- **신청자 관리 시스템 구현**
-  - 마스터-디테일 패턴: 교육 과정 클릭 시 해당 과정의 신청자 목록 즉시 표시
-  - 신청자 목록 기능: 신청일시, 신청자명, 이메일, 전화번호, 생년월일, 결제금액, 상태 표시
-  - 페이지네이션 구현: 신청자가 많을 경우 페이지당 10명씩 표시
-  - 자동 동기화 기능: 실제 applications 데이터와 courses의 enrolledCount 자동 동기화
-- **테스트 및 디버깅 도구 추가**
-  - `testEnrollmentCount()`: 신청자 수 테스트 함수
-  - `addOneEnrollment()`: 신청자 1명 추가 테스트 함수
-  - `testApplicantsList()`: 신청자 목록 표시 테스트 함수
-- **Firebase 최적화**
-  - 복합 쿼리 최적화: orderBy 제거하고 클라이언트 정렬로 인덱스 이슈 해결
-  - 포맷터 함수 독립화: window.formatters 의존성 제거
+#### 보안 수정
 
-### 2025-05-28 - 주요 구조 개선 ✨
-- **사용자 여정 최적화**
-  - 교육 신청 + 결제 통합 완료 (`course-application.html`)
-  - 자격증 신청 + 결제 통합 완료 (`cert-application.html`)
-  - 자격증 발급/갱신 기능을 마이페이지로 통합
-- **파일 구조 간소화**
-  - 중복 기능 제거: `payment.html`, `cert-issuance.html`, `cert-renewal.html` 삭제
-  - Education 폴더: 7개 → 3개 파일로 간소화
-  - JavaScript 파일: `cert-management-enhanced.js`로 통합 개선
-- **마이페이지 자격증 관리 강화**
-  - 대시보드 형태의 현황 요약 추가
-  - 자격증 발급 신청 기능 통합 (시험 합격자 대상)
-  - 자격증 갱신 신청 기능 통합 (만료 예정/만료된 자격증)
-  - 모든 신청의 진행상황 실시간 추적
-  - 파일 업로드, 주소 검색, 결제 연동 완료
-- **결제 시스템 통합**
-  - 토스페이먼츠 연동 준비 완료
-  - 결제 완료 후 적절한 마이페이지 섹션으로 자동 리다이렉션
-  - 통합된 결제 플로우로 사용자 경험 개선
+- **관리자 이메일 하드코딩 제거**: `admin.js`, `board.js`, `dashboard.js`, `script-loader.js`, `signup.js`, `header.js` 등 전체 파일에서 하드코딩된 관리자 이메일 제거 → Firestore `userType === 'admin'` 체크로 통일
+- **개인정보 콘솔 로그 제거**: `auth-service.js`, `admin-auth.js`, `personal-info.js`, `cert-management-enhanced.js`, `login.js`, `signup.js`, `course-application.js`, `cert-application.js`, 관리자 3개 페이지 등 11개 파일에서 이메일·전화번호·주소·UID 로깅 제거
+- **내부 에러 메시지 노출 제거**: `board-management.js`, `personal-info.js`, `signup.js`, `success.js` 등에서 Firebase 오류 코드/스택을 사용자 화면에 그대로 출력하던 코드 수정
+- **결제 키 노출 제거**: `success.js`에서 `paymentKey`를 URL 파라미터, 콘솔 로그에 출력하던 코드 제거
 
-### 2025-05-13
-- **관리자 시스템 완성**
-  - 관리자 계정 설정: `gostepexercise@gmail.com`
-  - 모든 관리자 페이지에 권한 확인 시스템 적용
-  - 관리자 권한 미들웨어 구현
-  - 관리자 페이지별 초기화 스크립트 통합
-  - 관리자 대시보드 통계 기능 구현
-  - 자격증 발급 및 관리 기능 고도화
-  - 결제 관리 및 환불 처리 기능 추가
-  - 게시판 통합 관리 시스템 완성
-- **스크립트 로더 유틸리티 개선**
-  - 페이지 깊이에 관계없는 일관된 스크립트 로딩 구현
-  - 네비게이션 링크 경로 자동 조정 기능 추가
-  - 관리자 권한 확인 로직 표준화
-- **Firebase와의 연동 최적화**
-  - Firebase 설정 파일 구조 개선
-  - 로컬 테스트용 인증 오버라이드 기능 강화
-  - 개발 완료 후 쉽게 제거 가능한 구조로 구현
+#### 데이터 정합성 수정 (부분 쓰기 방지)
 
-### 2025-05-12
-- 관리자 모듈 완성
-  - 관리자 대시보드 구현
-  - 회원 관리 기능 구현
-  - 교육 과정 관리 기능 구현
-  - 자격증 관리 기능 구현
-  - 게시판 통합 관리 기능 구현
-  - 결제 관리 기능 구현
-- 관리자 공통 기능 개발
-  - 권한 확인 미들웨어
-  - 데이터 테이블 컴포넌트
-  - 페이지네이션
-  - 모달 다이얼로그
-  - 검색/필터링 기능
-  - 폼 유효성 검사
+- **`success.js`**: `payments` + `enrollments` 두 컬렉션 생성을 별도 호출 → 단일 `db.batch()` 커밋으로 원자화
+- **`cert-management.js` (admin)**: 자격증 번호 카운터 증가 + 자격증 상태 업데이트를 단일 `runTransaction()`으로 원자화, 승인/거절에 `_processingIds` 중복 처리 방지 추가
+- **`cert-management-enhanced.js`**: 갱신 신청 모달 중복 열기 방지, 스토리지 고아 파일 업로드 즉시 추적 후 오류 시 개별 삭제
+- **`payment-management.js` (admin)**: 결제 취소 전 Firestore 실시간 상태 재조회로 캐시 기반 오류 방지
 
-### 2025-05-11
-- 자격증 모듈 개발 진행
-  - 공통 기능 및 스타일 개발 완료
-  - 건강운동처방사, 운동재활전문가 페이지 구현
-  - 필라테스 전문가, 레크리에이션지도자 페이지 구현
-  - 자격증 페이지 전용 스크립트 개발
-- 홈페이지 및 헤더 컴포넌트 개발
-- 게시판 모듈 개발 완료
-  - 공지사항 게시판 (목록, 상세보기)
-  - 칼럼 게시판 (목록, 상세보기)
-  - 강의자료 게시판 (목록, 상세보기)
-  - 동영상 강의 게시판 (목록, 상세보기)
-  - 게시판 공통 JavaScript 및 CSS 개발
-  - 게시판 타입별 권한 관리 시스템 구현
+#### 런타임 버그 수정
 
-### 2025-05-10
+- **`functions/index.js:277`**: `deleteAuthUser`의 관리자 권한 검사 필드 `role` → `userType` 수정 (회원 삭제 기능 항상 403이던 버그)
+- **`login.js:186`**: `new firebase.auth.GoogleAuthProvider()` → `new window.dhcFirebase.firebase.auth.GoogleAuthProvider()` (전역 참조 일관성)
+- **`course-application.js`**: `buildTossPaymentData`에서 `applicationData.orderId` 기록 추가
+- **`success.js:160`**: Firestore 폴백 검색 키 `applicationId` → `orderId` 수정 (localStorage 없는 환경에서 결제 후 수강 등록 실패하던 버그)
+
+#### 배포 전 최종 점검 수정
+
+- **보안 헤더 추가** (`firebase.json`): `X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection`, `Referrer-Policy`, `Permissions-Policy` 5개 HTTP 응답 헤더를 모든 경로에 적용
+- **테스트 데이터 제거** (`user-management.js`): 실제 이메일 주소와 가짜 UID가 하드코딩된 `syncMissingUsers()` 내 `knownUsers` 배열 제거 — 배포 시 Firestore에 유효하지 않은 사용자 문서가 생성될 수 있었음
+
+#### 운영 가시성 추가
+
+- **`functions/index.js`**: `console.*` → `logger.*` 전환 (Google Cloud Logging 심각도 분류 적용)
+- **`functions/index.js`**: `writePaymentLog()` 추가 — 결제 이벤트를 `_payment_logs` 컬렉션에 감사 로그로 기록
+- **`functions/index.js`**: `confirmPayment`에 멱등성 검사 추가 — 동일 `orderId` 중복 승인 요청 방지
+- **`functions/index.js`**: `healthCheck` 함수 추가 (`GET /api/health`)
+- **`functions/index.js`**: `scheduledBackup` 함수 추가 — 매일 03:00 KST 7개 컬렉션 Cloud Storage 자동 백업
+- **`firebase.json`**: `/api/health` 라우팅 추가
+- **`script-loader.js`**: `window.onerror` + `unhandledrejection` 전역 에러 핸들러 추가 — 클라이언트 오류를 `localStorage['dhc_error_log']`에 누적 저장, `window.getErrorLog()` 확인 함수 제공
+
+---
+
+### 2026-02-19 — 자문위원 및 학술·연구 메뉴 추가
+
+- 헤더 네비게이션에 `자문위원`, `학술·연구` 메뉴 추가
+- 자문위원 페이지 신규 개발 (총재 + 자문위원 150명, 검색/필터/페이지네이션)
+- 학술·연구 국내/국제 페이지 신규 개발
+- 수정 파일: `index.html`, `assets/js/components/header.js`
+
+### 2026-01-26 — 교육 과정 관리 개선
+
+- 신청자 관리 마스터-디테일 패턴 구현
+- 정원/신청자 표시 순서 수정, 기수 입력 필드 추가
+- Firebase 복합 쿼리 최적화
+
+### 2025-05-28 — 주요 구조 개선
+
+- 교육 신청 + 결제, 자격증 신청 + 결제 각각 원스톱 통합
+- 중복 파일 정리 (`payment.html`, `cert-issuance.html`, `cert-renewal.html` 삭제)
+- `cert-management-enhanced.js`로 자격증 발급/갱신 통합
+
+### 2025-05-13 — 관리자 시스템 완성
+
+- 관리자 권한 미들웨어, 대시보드 통계, 자격증 발급 관리, 결제 관리 기능 구현
+- 스크립트 로더 유틸리티 개선
+
+### 2025-05-10~12 — 초기 개발
+
 - 프로젝트 초기 설정
-- 인증 모듈 개발 완료
-  - 로그인, 회원가입, 계정찾기 페이지 구현
-  - 인증 관련 공통 기능 모듈화
-- 서비스 모듈 개발
-  - Firebase 인증, 데이터베이스, 스토리지 서비스 구현
-- 유틸리티 모듈 개발
-  - 유효성 검사, 포맷팅, 날짜 처리, DOM 조작 유틸리티 구현
+- 인증, 자격증, 교육, 게시판, 마이페이지, 관리자 모듈 전체 개발 완료
+- Firebase 인증/DB/스토리지 서비스 모듈 구현

@@ -32,9 +32,8 @@
             handleURLParameters();
 
             // 인증 상태 확인
-            if (!window.mypageHelpers?.checkAuthState()) {
+            if (!await window.mypageHelpers?.checkAuthState()) {
                 console.log('⚠️ 인증 확인 실패, 하지만 URL 파라미터 처리는 진행');
-                // 인증이 실패해도 URL 파라미터 처리는 계속 진행
             }
 
             // 이벤트 리스너 설정

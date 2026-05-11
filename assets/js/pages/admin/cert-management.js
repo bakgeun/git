@@ -949,34 +949,24 @@ Object.assign(window.certManager, {
     async generateCertificateNumber() {
         const year = new Date().getFullYear();
         const certTypeCode = this.getCertTypeCode(this.currentCertType);
-        let nextNumber = 1;
+        const counterId = `cert_${this.currentCertType}_${year}`;
 
         const firebaseStatus = checkFirebaseConnection();
-        if (firebaseStatus.connected && window.dhcFirebase) {
-            try {
-                const query = window.dhcFirebase.db.collection('certificates')
-                    .where('certificateType', '==', this.currentCertType)
-                    .orderBy('certificateNumber', 'desc')
-                    .limit(1);
-
-                const snapshot = await query.get();
-                if (!snapshot.empty) {
-                    const lastCert = snapshot.docs[0].data();
-                    const match = lastCert.certificateNumber.match(/-(\d+)$/);
-                    if (match) {
-                        nextNumber = parseInt(match[1]) + 1;
-                    }
-                }
-            } catch (error) {
-                console.error('마지막 자격증 번호 조회 오류:', error);
-                nextNumber = Date.now() % 10000;
-            }
-        } else {
-            nextNumber = Math.floor(Math.random() * 1000) + 1;
+        if (!firebaseStatus.connected || !window.dhcFirebase) {
+            const fallback = Date.now() % 10000;
+            return `${certTypeCode}-${year}-${fallback.toString().padStart(4, '0')}`;
         }
 
-        const formattedNumber = nextNumber.toString().padStart(4, '0');
-        return `${certTypeCode}-${year}-${formattedNumber}`;
+        // Firestore 트랜잭션으로 원자적 시퀀스 번호 발급 (동시 승인 시 중복 방지)
+        const counterRef = window.dhcFirebase.db.collection('_counters').doc(counterId);
+        let nextNumber;
+        await window.dhcFirebase.db.runTransaction(async (tx) => {
+            const snap = await tx.get(counterRef);
+            nextNumber = snap.exists ? snap.data().value + 1 : 1;
+            tx.set(counterRef, { value: nextNumber }, { merge: true });
+        });
+
+        return `${certTypeCode}-${year}-${nextNumber.toString().padStart(4, '0')}`;
     },
 
     generateEnglishName(koreanName) {
@@ -3793,10 +3783,14 @@ Object.assign(window.certManager, {
     async approveApplication(applicationId) {
         console.log('✅ 신청 승인 및 발급:', applicationId);
 
+        if (!this._processingIds) this._processingIds = new Set();
+        if (this._processingIds.has(applicationId)) return;
+
         if (!confirm('이 신청을 승인하고 자격증을 발급하시겠습니까?')) {
             return;
         }
 
+        this._processingIds.add(applicationId);
         try {
             window.adminAuth?.showNotification('신청을 승인하고 자격증을 발급하는 중...', 'info');
 
@@ -3808,53 +3802,58 @@ Object.assign(window.certManager, {
 
             console.log('🔥 Firebase를 통한 실제 승인 처리 시작');
 
-            // 1. 신청 데이터 조회
-            const appDoc = await window.dhcFirebase.db.collection('certificates').doc(applicationId).get();
-
-            if (!appDoc.exists) {
-                throw new Error('신청서를 찾을 수 없습니다.');
-            }
-
-            const appData = appDoc.data();
-            console.log('📋 신청 데이터 조회 완료:', appData);
-
-            // 2. 자격증 번호 생성
-            const certNumber = await this.generateCertificateNumber();
-            console.log('🔢 자격증 번호 생성:', certNumber);
-
-            // 3. 발급일/만료일 계산
+            // 자격증 번호 발급 + 승인 상태 업데이트를 단일 트랜잭션으로 처리
+            // (카운터 증가 후 certificate 업데이트 실패 시 번호 gap 발생 방지)
+            const year = new Date().getFullYear();
+            const certTypeCode = this.getCertTypeCode(this.currentCertType);
+            const counterId = `cert_${this.currentCertType}_${year}`;
+            const counterRef = window.dhcFirebase.db.collection('_counters').doc(counterId);
+            const certDocRef = window.dhcFirebase.db.collection('certificates').doc(applicationId);
             const now = new Date();
             const expiryDate = new Date(now);
             expiryDate.setFullYear(expiryDate.getFullYear() + 3);
+            const FS = window.dhcFirebase.firebase.firestore;
 
-            // 4. 업데이트할 데이터 준비
-            const updateData = {
-                // 상태 업데이트
-                isIssued: true,
-                needsApproval: false,
-                applicationStatus: 'approved',
-                status: 'active',
+            let certNumber;
+            let alreadyApproved = false;
 
-                // 자격증 정보 추가
-                certificateNumber: certNumber,
-                issueDate: window.dhcFirebase.firebase.firestore.Timestamp.fromDate(now),
-                expiryDate: window.dhcFirebase.firebase.firestore.Timestamp.fromDate(expiryDate),
+            await window.dhcFirebase.db.runTransaction(async (tx) => {
+                const [counterSnap, appSnap] = await Promise.all([
+                    tx.get(counterRef),
+                    tx.get(certDocRef)
+                ]);
 
-                // 메타 정보
-                approvedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp(),
-                approvedBy: 'admin',
-                updatedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp(),
+                if (!appSnap.exists) throw new Error('신청서를 찾을 수 없습니다.');
+                if (appSnap.data().applicationStatus === 'approved') {
+                    alreadyApproved = true;
+                    return; // 트랜잭션 내부에서 throw 대신 플래그로 처리
+                }
 
-                // 비고
-                remarks: `[${new Date().toLocaleString('ko-KR')}] 관리자 승인 및 발급 완료`
-            };
+                const nextNumber = counterSnap.exists ? counterSnap.data().value + 1 : 1;
+                certNumber = `${certTypeCode}-${year}-${nextNumber.toString().padStart(4, '0')}`;
 
-            console.log('📝 업데이트 데이터:', updateData);
+                tx.set(counterRef, { value: nextNumber }, { merge: true });
+                tx.update(certDocRef, {
+                    isIssued: true,
+                    needsApproval: false,
+                    applicationStatus: 'approved',
+                    status: 'active',
+                    certificateNumber: certNumber,
+                    issueDate: FS.Timestamp.fromDate(now),
+                    expiryDate: FS.Timestamp.fromDate(expiryDate),
+                    approvedAt: FS.FieldValue.serverTimestamp(),
+                    approvedBy: 'admin',
+                    updatedAt: FS.FieldValue.serverTimestamp(),
+                    remarks: `[${now.toLocaleString('ko-KR')}] 관리자 승인 및 발급 완료`
+                });
+            });
 
-            // 5. Firebase 업데이트 실행
-            await window.dhcFirebase.db.collection('certificates').doc(applicationId).update(updateData);
+            if (alreadyApproved) {
+                window.adminAuth?.showNotification('이미 승인된 신청입니다.', 'warning');
+                return;
+            }
 
-            console.log('✅ Firebase 업데이트 완료');
+            console.log('✅ 트랜잭션 커밋 완료 — 자격증 번호:', certNumber);
 
             window.adminAuth?.showNotification(
                 `신청이 승인되었고 자격증이 발급되었습니다. (자격증 번호: ${certNumber})`,
@@ -3870,31 +3869,56 @@ Object.assign(window.certManager, {
             console.error('❌ 신청 승인 오류:', error);
             console.error('오류 상세:', error.stack);
             window.adminAuth?.showNotification(`신청 승인 중 오류: ${error.message}`, 'error');
+        } finally {
+            this._processingIds.delete(applicationId);
         }
     },
 
     async rejectApplication(applicationId) {
         console.log('❌ 신청 거절:', applicationId);
 
+        if (!this._processingIds) this._processingIds = new Set();
+        if (this._processingIds.has(applicationId)) return;
+
         const reason = prompt('거절 사유를 입력하세요:');
         if (!reason) {
             return;
         }
 
+        this._processingIds.add(applicationId);
         try {
             window.adminAuth?.showNotification('신청을 거절하는 중...', 'info');
 
-            // 테스트 모드: 시뮬레이션
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const firebaseStatus = checkFirebaseConnection();
+            if (!firebaseStatus.connected || !window.dhcFirebase) {
+                throw new Error('Firebase 연결이 필요합니다.');
+            }
+
+            const appDoc = await window.dhcFirebase.db.collection('certificates').doc(applicationId).get();
+            if (!appDoc.exists) throw new Error('신청서를 찾을 수 없습니다.');
+            if (appDoc.data().applicationStatus === 'rejected') {
+                window.adminAuth?.showNotification('이미 거절된 신청입니다.', 'warning');
+                return;
+            }
+
+            await window.dhcFirebase.db.collection('certificates').doc(applicationId).update({
+                applicationStatus: 'rejected',
+                needsApproval: false,
+                rejectionReason: reason,
+                rejectedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
+            });
 
             window.adminAuth?.showNotification('신청이 거절되었습니다.', 'info');
 
             // 목록 새로고침
-            this.loadCertificatesData();
+            await this.loadCertificatesData();
 
         } catch (error) {
             console.error('❌ 신청 거절 오류:', error);
             window.adminAuth?.showNotification(`신청 거절 중 오류: ${error.message}`, 'error');
+        } finally {
+            this._processingIds.delete(applicationId);
         }
     },
 

@@ -152,8 +152,7 @@ console.log('=== board.js 파일 로드 시작 ===');
         }
 
         // 관리자는 항상 모든 권한 가짐
-        if (user.email === 'gostepexercise@gmail.com') {
-            console.log('관리자 권한 확인');
+        if (user.role === 'admin') {
             return true;
         }
 
@@ -238,7 +237,7 @@ console.log('=== board.js 파일 로드 시작 ===');
                     id: 1,
                     category: 'notice',
                     title: '테스트2',
-                    authorName: 'gostepexercise@gmail.com',
+                    authorName: '관리자',
                     createdAt: { seconds: Date.now() / 1000 - 86400 }, // 1일 전
                     views: 28,
                     attachments: [{ name: 'test.pdf' }]
@@ -247,7 +246,7 @@ console.log('=== board.js 파일 로드 시작 ===');
                     id: 2,
                     category: 'notice',
                     title: '테스트6',
-                    authorName: 'gostepexercise@gmail.com',
+                    authorName: '관리자',
                     createdAt: { seconds: Date.now() / 1000 - 172800 }, // 2일 전
                     views: 15,
                     attachments: []
@@ -593,7 +592,7 @@ console.log('=== board.js 파일 로드 시작 ===');
                 title: '테스트2',
                 category: 'notice',
                 content: '테스트2 그룹 샘업<br><br>테스트2 내용입니다.',
-                authorName: 'gostepexercise@gmail.com',
+                authorName: '관리자',
                 createdAt: { seconds: Date.now() / 1000 - 86400 },
                 views: 30,
                 attachments: [

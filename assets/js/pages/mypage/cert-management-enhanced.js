@@ -162,7 +162,7 @@
                 return;
             }
 
-            console.log('✅ 사용자 인증 확인:', user.email);
+            console.log('✅ 사용자 인증 확인');
 
             // 🆕 3. 로딩 상태 표시
             showLoadingState(true);
@@ -240,7 +240,7 @@
                 return;
             }
 
-            console.log('자격증 로드 시작:', user.uid);
+            console.log('자격증 로드 시작');
 
             const result = await window.dbService.getDocuments('certificates', {
                 where: {
@@ -294,7 +294,7 @@
                 return;
             }
 
-            console.log('📋 신청 내역 로드 시작 (통합 조회):', user.uid);
+            console.log('📋 신청 내역 로드 시작 (통합 조회)');
 
             // 1. applications 컬렉션 조회
             let applicationsData = [];
@@ -413,6 +413,9 @@
     window.openRenewalModal = async function (certId) {
         console.log('🔄 갱신 모달 열기 시작:', certId);
 
+        if (window._isOpeningRenewalModal) return;
+        window._isOpeningRenewalModal = true;
+
         try {
             // 1. 동적 비용 로드
             console.log('💰 최신 갱신 비용 로드 중...');
@@ -505,6 +508,8 @@
         } catch (error) {
             console.error('❌ 갱신 모달 열기 오류:', error);
             showNotification('갱신 모달을 여는 중 오류가 발생했습니다.', 'error');
+        } finally {
+            window._isOpeningRenewalModal = false;
         }
     };
 
@@ -607,7 +612,7 @@
 
                     if (address1) {
                         address1.value = data.address;
-                        console.log('✅ 기본주소 입력:', data.address);
+                        console.log('✅ 기본주소 입력 완료');
                     }
 
                     if (address2) {
@@ -1569,8 +1574,25 @@
             throw new Error('사용자 인증이 필요합니다.');
         }
 
+        // 중복 제출 방지: 동일 자격증에 대한 처리 중 신청이 있는지 확인
+        if (window.dhcFirebase) {
+            const dupSnap = await window.dhcFirebase.db.collection('applications')
+                .where('userId', '==', user.uid)
+                .where('certId', '==', formData.certId)
+                .where('type', '==', 'renewal')
+                .where('status', 'in', ['payment_pending', 'pending', 'under_review'])
+                .limit(1)
+                .get();
+            if (!dupSnap.empty) {
+                throw new Error('동일한 자격증에 대한 갱신 신청이 이미 진행 중입니다.');
+            }
+        }
+
         const applicationId = 'renewal_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         console.log('갱신 신청 저장 시작:', applicationId);
+
+        // 업로드된 ref를 직접 추적 — listAll() 없이 각 파일을 개별 삭제 가능하도록
+        const uploadedRefs = [];
 
         try {
             // 1. 파일들을 Firebase Storage에 업로드
@@ -1590,6 +1612,7 @@
                         uploadedAt: new Date().toISOString()
                     }
                 });
+                uploadedRefs.push(educationFileRef); // 업로드 성공 직후 추적
 
                 uploadedFiles.educationCompletionURL = await educationSnapshot.ref.getDownloadURL();
                 uploadedFiles.educationCompletionName = formData.educationCompletionFile.name;
@@ -1614,6 +1637,7 @@
                             uploadedAt: new Date().toISOString()
                         }
                     });
+                    uploadedRefs.push(cpeFileRef); // 업로드 성공 직후 추적
 
                     const downloadURL = await cpeSnapshot.ref.getDownloadURL();
                     uploadedFiles.cpeDocumentURLs.push({
@@ -1699,15 +1723,17 @@
         } catch (error) {
             console.error('갱신 신청 저장 오류:', error);
 
-            // 업로드된 파일들 정리 (실패 시)
-            try {
-                console.log('업로드된 파일 정리 중...');
-                const folderRef = window.dhcFirebase.storage.ref(`applications/${applicationId}`);
-                const fileList = await folderRef.listAll();
-                await Promise.all(fileList.items.map(item => item.delete()));
-                console.log('파일 정리 완료');
-            } catch (cleanupError) {
-                console.error('파일 정리 오류:', cleanupError);
+            // 업로드된 파일 개별 삭제 (listAll 없이 ref 직접 사용 — 더 안정적)
+            if (uploadedRefs.length > 0) {
+                console.log(`업로드된 파일 ${uploadedRefs.length}개 정리 중...`);
+                for (const ref of uploadedRefs) {
+                    try {
+                        await ref.delete();
+                        console.log('파일 삭제 완료:', ref.fullPath);
+                    } catch (delErr) {
+                        console.error('파일 삭제 실패 (수동 정리 필요):', ref.fullPath, delErr.message);
+                    }
+                }
             }
 
             throw error;
@@ -2359,28 +2385,22 @@
         loadDynamicRenewalFees: loadDynamicRenewalFees,
         updateRenewalTotalAmountWithDynamicFees: updateRenewalTotalAmountWithDynamicFees,
         checkAuthState: function () {
-            if (!window.authService || !window.authService.getCurrentUser) {
-                console.error('AuthService가 로드되지 않았습니다.');
-                setTimeout(() => {
+            return new Promise((resolve) => {
+                if (!window.dhcFirebase || !window.dhcFirebase.onAuthStateChanged) {
                     window.location.href = window.adjustPath('pages/auth/login.html');
-                }, 1000);
-                return false;
-            }
-
-            const user = window.authService.getCurrentUser();
-            if (!user) {
-                console.log('사용자가 로그인되지 않았습니다.');
-                setTimeout(() => {
-                    window.location.href = window.adjustPath('pages/auth/login.html');
-                }, 1000);
-                return false;
-            }
-
-            if (!user.emailVerified) {
-                console.warn('이메일 인증이 완료되지 않았습니다.');
-            }
-
-            return true;
+                    resolve(false);
+                    return;
+                }
+                const unsubscribe = window.dhcFirebase.onAuthStateChanged((user) => {
+                    unsubscribe();
+                    if (!user) {
+                        window.location.href = window.adjustPath('pages/auth/login.html');
+                        resolve(false);
+                    } else {
+                        resolve(true);
+                    }
+                });
+            });
         }
     });
 

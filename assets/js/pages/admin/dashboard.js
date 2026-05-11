@@ -213,7 +213,7 @@ function initializeWithAuth() {
         
         // 현재 인증 상태 확인
         const currentUser = window.dhcFirebase.getCurrentUser();
-        console.log('초기 인증 상태:', currentUser ? `${currentUser.email} 로그인됨` : '로그인하지 않음');
+        console.log('초기 인증 상태:', currentUser ? '로그인됨' : '로그인하지 않음');
         
         // 🔧 기존 리스너 제거 (중복 방지)
         if (authStateListener) {
@@ -224,7 +224,7 @@ function initializeWithAuth() {
         
         // 인증 상태 변화 감지 리스너 설정
         authStateListener = window.dhcFirebase.onAuthStateChanged(async (user) => {
-            console.log('인증 상태 변화 감지:', user ? `${user.email} 로그인됨` : '로그아웃됨');
+            console.log('인증 상태 변화 감지:', user ? '로그인됨' : '로그아웃됨');
             
             try {
                 if (user) {
@@ -286,22 +286,28 @@ async function checkAdminAccess(user = null) {
             return false;
         }
         
-        console.log('현재 사용자:', currentUser.email);
-        
-        const adminEmails = ['admin@test.com', 'gostepexercise@gmail.com'];
-        const isAdmin = adminEmails.includes(currentUser.email);
-        console.log('기본 권한 확인 결과:', isAdmin);
-        
-        if (!isAdmin) {
-            console.log('관리자 권한 없음');
+        try {
+            const userDoc = await window.dhcFirebase.db.collection('users').doc(currentUser.uid).get();
+            const isAdmin = userDoc.exists && userDoc.data().userType === 'admin';
+
+            if (!isAdmin) {
+                console.log('관리자 권한 없음');
+                showErrorMessage('관리자 권한이 필요합니다.');
+                setTimeout(() => {
+                    window.location.href = window.adjustPath ? window.adjustPath('index.html') : '../../index.html';
+                }, 2000);
+                return false;
+            }
+
+            return true;
+        } catch (fsError) {
+            console.error('권한 확인 오류:', fsError);
             showErrorMessage('관리자 권한이 필요합니다.');
             setTimeout(() => {
                 window.location.href = window.adjustPath ? window.adjustPath('index.html') : '../../index.html';
             }, 2000);
             return false;
         }
-        
-        return true;
     } catch (error) {
         console.error('권한 확인 오류:', error);
         return false;
@@ -334,7 +340,7 @@ async function initializeDashboard(user) {
     }
     dashboardInitialized = true; // 레이스 컨디션 방지: 비동기 작업 시작 전에 플래그 설정
 
-    console.log('✅ 인증된 사용자로 대시보드 초기화:', user.email);
+    console.log('✅ 인증된 사용자로 대시보드 초기화');
     
     try {
         // 기본 UI 기능들
@@ -1462,7 +1468,7 @@ if (window.location.hostname === 'localhost' ||
             console.log('- firebase 전역:', !!window.firebase);
             console.log('- firebase.storage:', !!window.firebase?.storage);
             console.log('- dbService:', !!window.dbService);
-            console.log('- 현재 사용자:', window.dhcFirebase?.getCurrentUser()?.email || '없음');
+            console.log('- 현재 사용자:', window.dhcFirebase?.getCurrentUser() ? '로그인됨' : '없음');
             
             // checkFirebaseConnection 함수 사용
             const connectionStatus = checkFirebaseConnection();
@@ -1483,9 +1489,8 @@ if (window.location.hostname === 'localhost' ||
             console.log('🔐 인증 상태 확인');
             const user = window.dhcFirebase?.getCurrentUser();
             if (user) {
-                console.log('✅ 로그인됨:', user.email);
+                console.log('✅ 로그인됨');
                 console.log('- displayName:', user.displayName);
-                console.log('- uid:', user.uid);
             } else {
                 console.log('❌ 로그인되지 않음');
             }

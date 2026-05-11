@@ -20,7 +20,21 @@
     "rewrites": [
       { "source": "/api/confirmPayment",  "function": "confirmPayment"  },
       { "source": "/api/cancelPayment",   "function": "cancelPayment"   },
-      { "source": "/api/deleteAuthUser",  "function": "deleteAuthUser"  }
+      { "source": "/api/deleteAuthUser",  "function": "deleteAuthUser"  },
+      { "source": "/api/tossWebhook",     "function": "tossWebhook"     },
+      { "source": "/api/health",          "function": "healthCheck"     }
+    ],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          { "key": "X-Content-Type-Options",  "value": "nosniff" },
+          { "key": "X-Frame-Options",         "value": "SAMEORIGIN" },
+          { "key": "X-XSS-Protection",        "value": "1; mode=block" },
+          { "key": "Referrer-Policy",         "value": "strict-origin-when-cross-origin" },
+          { "key": "Permissions-Policy",      "value": "camera=(), microphone=(), geolocation=()" }
+        ]
+      }
     ]
   }
 }

@@ -3,6 +3,45 @@
  * 이 코드는 반드시 모든 스크립트보다 먼저 실행되어야 합니다.
  */
 (function() {
+    // ===== 전역 에러 핸들러 =====
+    // IS_PRODUCTION 블록보다 먼저 실행되어 모든 JS 오류를 캡처합니다.
+    // console.error는 프로덕션에서도 활성 상태이므로 Cloud Logging에서 확인 가능합니다.
+
+    const MAX_ERROR_LOG = 50;
+
+    function captureError(type, detail) {
+        const entry = {
+            type: type,
+            detail: String(detail).slice(0, 500),
+            url: window.location.pathname,
+            ts: new Date().toISOString()
+        };
+        try {
+            const stored = JSON.parse(localStorage.getItem('dhc_error_log') || '[]');
+            stored.push(entry);
+            if (stored.length > MAX_ERROR_LOG) stored.shift();
+            localStorage.setItem('dhc_error_log', JSON.stringify(stored));
+        } catch (e) { /* localStorage 사용 불가 시 무시 */ }
+        console.error('[DHC Error]', entry.type, entry.detail, entry.url);
+    }
+
+    window.onerror = function(msg, src, line, col) {
+        captureError('uncaughtError', msg + ' @ ' + src + ':' + line + ':' + col);
+        return false;
+    };
+
+    window.addEventListener('unhandledrejection', function(event) {
+        const reason = (event.reason && event.reason.message)
+            ? event.reason.message
+            : String(event.reason);
+        captureError('unhandledRejection', reason);
+    });
+
+    // 관리자가 DevTools에서 에러 로그를 확인하는 함수
+    window.getErrorLog = function() {
+        return JSON.parse(localStorage.getItem('dhc_error_log') || '[]');
+    };
+
     // ===== 환경 설정 =====
     // 프로덕션 배포 시: IS_PRODUCTION = true 로 변경
     // 개발 중일 때: IS_PRODUCTION = false 유지
@@ -129,36 +168,40 @@
         
         // ===== 관리자용 디버그 활성화 시스템 =====
         
-        // 방법 1: Firebase 관리자 인증으로 활성화
-        window.enableAdminDebug = function() {
-            // Firebase 인증 확인
-            if (window.dhcFirebase && window.dhcFirebase.getCurrentUser) {
-                const user = window.dhcFirebase.getCurrentUser();
-                
-                // 관리자 이메일 체크
-                if (user && user.email === 'gostepexercise@gmail.com') {
-                    localStorage.setItem('dhc_debug_mode', 'enabled');
-                    sessionStorage.setItem('dhc_debug_key', 'verified');
-                    
-                    originalConsole.log('%c✅ 관리자 인증 성공! 페이지를 새로고침하세요.', 
-                        'color: #00ff00; font-weight: bold; font-size: 16px;');
-                    
-                    setTimeout(() => location.reload(), 1000);
-                    return true;
-                } else {
-                    originalConsole.error('❌ 관리자 계정으로 로그인이 필요합니다.');
-                    return false;
-                }
-            } else {
+        // 방법 1: Firebase 관리자 인증으로 활성화 (Firestore userType 기반)
+        window.enableAdminDebug = async function() {
+            if (!window.dhcFirebase?.getCurrentUser) {
                 originalConsole.error('❌ Firebase 인증이 준비되지 않았습니다.');
                 return false;
             }
+            const user = window.dhcFirebase.getCurrentUser();
+            if (!user) {
+                originalConsole.error('❌ 관리자 계정으로 로그인이 필요합니다.');
+                return false;
+            }
+            try {
+                const userDoc = await window.dhcFirebase.db.collection('users').doc(user.uid).get();
+                const isAdmin = userDoc.exists && userDoc.data().userType === 'admin';
+                if (isAdmin) {
+                    localStorage.setItem('dhc_debug_mode', 'enabled');
+                    sessionStorage.setItem('dhc_debug_key', 'verified');
+                    originalConsole.log('%c✅ 관리자 인증 성공! 페이지를 새로고침하세요.',
+                        'color: #00ff00; font-weight: bold; font-size: 16px;');
+                    setTimeout(() => location.reload(), 1000);
+                    return true;
+                } else {
+                    originalConsole.error('❌ 관리자 권한이 없습니다.');
+                    return false;
+                }
+            } catch (e) {
+                originalConsole.error('❌ 권한 확인 중 오류가 발생했습니다.');
+                return false;
+            }
         };
-        
+
         // 방법 2: 비밀키 입력으로 활성화 (백업용)
         window.enableDebugWithKey = function(secretKey) {
-            // 실제로는 이 키를 환경변수나 별도로 관리
-            const ADMIN_DEBUG_KEY = 'DHC2025_SECURE_DEBUG_' + btoa('gostepexercise@gmail.com').substring(0, 10);
+            const ADMIN_DEBUG_KEY = 'DHC2025_SECURE_DEBUG_KEY';
             
             if (secretKey === ADMIN_DEBUG_KEY) {
                 localStorage.setItem('dhc_debug_mode', 'enabled');
@@ -345,7 +388,7 @@ console.log('script-loader.js 파일이 로드되었습니다.');
     function initUserInfo() {
         // 세션 스토리지에서 사용자 정보 확인
         const savedAdminName = sessionStorage.getItem('admin_name') || '관리자';
-        const savedAdminEmail = sessionStorage.getItem('admin_email') || 'gostepexercise@gmail.com';
+        const savedAdminEmail = sessionStorage.getItem('admin_email') || '';
 
         // DOM이 준비되면 사용자 정보 설정
         function setUserInfo() {

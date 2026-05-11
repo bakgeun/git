@@ -218,7 +218,7 @@ window.CertApplication = window.CertApplication || {};
         return new Promise((resolve) => {
             window.dhcFirebase.onAuthStateChanged(async (user) => {
                 if (user) {
-                    console.log('✅ 로그인된 사용자:', user.email);
+                    console.log('✅ 로그인된 사용자 확인');
                     currentUser = user;
                     const autoFillBtn = document.getElementById('auto-fill-btn');
                     if (autoFillBtn) {

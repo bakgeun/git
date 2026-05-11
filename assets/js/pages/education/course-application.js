@@ -74,7 +74,7 @@ async function initAuthState() {
         window.dhcFirebase.onAuthStateChanged(async (user) => {
             courseApplicationUser = user;
             if (user) {
-                console.log('✅ 로그인 사용자:', user.email);
+                console.log('✅ 로그인 사용자 확인');
                 await loadUserAgreements(user.uid);
             } else {
                 console.log('❌ 비로그인 상태');
@@ -1355,7 +1355,7 @@ function initPaymentSystem() {
     if (typeof TossPayments === 'undefined') {
         console.error('❌ TossPayments SDK가 로드되지 않았습니다.');
         console.log('💡 HTML <head>에 다음 스크립트를 추가하세요:');
-        console.log('<script src="https://js.tosspayments.com/v1/payment"></script>');
+        console.log('<script src="https://js.tosspayments.com/v2/standard"></script>');
 
         // 사용자에게 알림
         showErrorMessage('결제 시스템을 불러오는 중 오류가 발생했습니다. 페이지를 새로고침해 주세요.');
@@ -2550,7 +2550,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (typeof TossPayments === 'undefined') {
         console.error('❌ TossPayments SDK가 로드되지 않았습니다.');
         console.log('💡 HTML에 다음 스크립트를 추가하세요:');
-        console.log('<script src="https://js.tosspayments.com/v1/payment"></script>');
+        console.log('<script src="https://js.tosspayments.com/v2/standard"></script>');
 
         // 사용자에게 알림
         showErrorMessage('결제 시스템을 불러오는 중 오류가 발생했습니다. 페이지를 새로고침해 주세요.');
@@ -2772,7 +2772,7 @@ if (window.location.hostname === 'localhost' ||
                 {
                     name: 'TossPayments SDK',
                     check: () => typeof TossPayments !== 'undefined',
-                    fix: 'HTML에 <script src="https://js.tosspayments.com/v1/payment"></script> 추가'
+                    fix: 'HTML에 <script src="https://js.tosspayments.com/v2/standard"></script> 추가'
                 },
                 {
                     name: 'paymentService',
@@ -3554,6 +3554,9 @@ function buildTossPaymentData(applicationData) {
         failUrl:    failUrl
     };
 
+    // Firestore 폴백 검색을 위해 orderId를 applicationData에 기록
+    applicationData.orderId = orderId;
+
     // 주문 데이터 임시 저장
     localStorage.setItem('dhc_pending_order', JSON.stringify({
         orderId:         orderId,
@@ -3760,12 +3763,32 @@ async function handlePaymentFailure(error, applicationData) {
                 message: error.message,
                 code: error.code,
                 timestamp: new Date().toISOString()
-            },
-            applicationData: applicationData
+            }
         };
 
         if (window.dbService) {
             await window.dbService.addDocument('payment_failures', failureLog);
+        }
+
+        // 결제 시도 전에 사전 저장된 레코드 정리
+        // (payments/enrollments는 아직 저장 안 됐으므로 applications/pending_applications만 삭제)
+        if (window.dbService) {
+            if (applicationData.firestoreId) {
+                try {
+                    await window.dbService.deleteDocument('applications', applicationData.firestoreId);
+                    console.log('applications 레코드 정리 완료:', applicationData.firestoreId);
+                } catch (e) {
+                    console.error('applications 레코드 정리 실패:', e.message);
+                }
+            }
+            if (applicationData.pendingId) {
+                try {
+                    await window.dbService.deleteDocument('pending_applications', applicationData.pendingId);
+                    console.log('pending_applications 레코드 정리 완료:', applicationData.pendingId);
+                } catch (e) {
+                    console.error('pending_applications 레코드 정리 실패:', e.message);
+                }
+            }
         }
 
         // 로컬 저장소 정리
@@ -3773,7 +3796,7 @@ async function handlePaymentFailure(error, applicationData) {
         localStorage.removeItem('dhc_payment_backup');
 
     } catch (logError) {
-        console.error('결제 실패 로그 저장 오류:', logError);
+        console.error('결제 실패 처리 오류:', logError);
     }
 }
 

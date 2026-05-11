@@ -89,38 +89,29 @@ window.mypageHelpers = (function () {
          * 인증 상태 체크
          */
         checkAuthState: function () {
-            // 🔧 임시 인증 체크 건너뛰기
+            // 임시 인증 체크 건너뛰기
             if (sessionStorage.getItem('skip_auth_check') === 'true') {
-                console.log('✅ 인증 체크 건너뛰기 (세션 플래그)');
-                sessionStorage.removeItem('skip_auth_check'); // 한 번만 사용
-                return true;
+                sessionStorage.removeItem('skip_auth_check');
+                return Promise.resolve(true);
             }
 
-            // 🔧 개선된 인증 상태 확인
-            try {
-                // Firebase 초기화 대기
-                if (!window.dhcFirebase || !window.authService) {
-                    console.log('🔄 Firebase 서비스 초기화 대기 중...');
-                    return true; // 초기화 중에는 리다이렉션하지 않음
+            return new Promise((resolve) => {
+                if (!window.dhcFirebase || !window.dhcFirebase.onAuthStateChanged) {
+                    resolve(true); // Firebase 초기화 전에는 리다이렉션하지 않음
+                    return;
                 }
 
-                const user = window.authService.getCurrentUser();
-
-                if (!user) {
-                    console.log('⚠️ 로그인된 사용자 없음 - 로그인 페이지로 이동');
-                    window.location.href = window.adjustPath('pages/auth/login.html') + '?redirect=' + encodeURIComponent(window.location.pathname);
-                    return false;
-                }
-
-                console.log('✅ 인증된 사용자:', user.email);
-                return true;
-
-            } catch (error) {
-                console.error('❌ 인증 확인 오류:', error);
-                // 에러 발생 시에는 페이지를 유지하고 경고만 표시
-                console.warn('⚠️ 인증 확인 중 오류 발생 - 페이지 유지');
-                return true;
-            }
+                const unsubscribe = window.dhcFirebase.onAuthStateChanged((user) => {
+                    unsubscribe();
+                    if (!user) {
+                        const redirect = encodeURIComponent(window.location.pathname);
+                        window.location.href = window.adjustPath('pages/auth/login.html') + '?redirect=' + redirect;
+                        resolve(false);
+                    } else {
+                        resolve(true);
+                    }
+                });
+            });
         },
 
 

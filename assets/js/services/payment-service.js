@@ -129,9 +129,18 @@
             try {
                 console.log('✅ 결제 승인 요청 → Firebase Functions');
 
+                // Firebase Auth 토큰 획득 (최대 3초 대기)
+                const idToken = await this._getIdToken();
+                if (!idToken) {
+                    throw new Error('로그인이 필요합니다. 다시 로그인 후 시도해주세요.');
+                }
+
                 const res = await fetch(`${CONFIG.FUNCTIONS_BASE}/confirmPayment`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${idToken}`
+                    },
                     body: JSON.stringify({ paymentKey, orderId, amount })
                 });
 
@@ -161,9 +170,17 @@
             try {
                 console.log('❌ 결제 취소 요청 → Firebase Functions');
 
+                const idToken = await this._getIdToken();
+                if (!idToken) {
+                    throw new Error('관리자 로그인이 필요합니다.');
+                }
+
                 const res = await fetch(`${CONFIG.FUNCTIONS_BASE}/cancelPayment`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${idToken}`
+                    },
                     body: JSON.stringify({ paymentKey, cancelReason, cancelAmount })
                 });
 
@@ -184,6 +201,16 @@
         // =================================
         // 유틸
         // =================================
+
+        // Firebase Auth 토큰 획득 (auth 복원 대기, 최대 3초)
+        _getIdToken: async function () {
+            for (let i = 0; i < 10; i++) {
+                const user = window.dhcFirebase?.getCurrentUser?.();
+                if (user) return user.getIdToken();
+                await new Promise(r => setTimeout(r, 300));
+            }
+            return null;
+        },
 
         _validatePaymentData: function (paymentData) {
             const missing = ['amount', 'orderId', 'orderName'].filter(f => !paymentData[f]);

@@ -219,7 +219,7 @@ function initializeWithAuth() {
 
         // 현재 인증 상태 확인
         const currentUser = window.dhcFirebase.getCurrentUser();
-        console.log('초기 인증 상태:', currentUser ? `${currentUser.email} 로그인됨` : '로그인하지 않음');
+        console.log('초기 인증 상태:', currentUser ? '로그인됨' : '로그인하지 않음');
 
         // 🔧 기존 리스너 제거 (중복 방지)
         if (authStateListener) {
@@ -230,7 +230,7 @@ function initializeWithAuth() {
 
         // 인증 상태 변화 감지 리스너 설정
         authStateListener = window.dhcFirebase.onAuthStateChanged(async (user) => {
-            console.log('인증 상태 변화 감지:', user ? `${user.email} 로그인됨` : '로그아웃됨');
+            console.log('인증 상태 변화 감지:', user ? '로그인됨' : '로그아웃됨');
 
             try {
                 if (user) {
@@ -318,7 +318,7 @@ async function initializeUserManagement(user) {
         return;
     }
 
-    console.log('✅ 인증된 사용자로 회원 관리 초기화:', user.email);
+    console.log('✅ 인증된 사용자로 회원 관리 초기화');
 
     try {
         // 기본 UI 기능들
@@ -711,62 +711,9 @@ window.userManager = {
         console.log('Firebase Auth 사용자 동기화 시작');
 
         try {
-            // Admin SDK가 없으므로 클라이언트에서는 현재 사용자 정보만 확인 가능
-            // 실제로는 Firebase Functions나 Admin SDK가 필요하지만
-            // 임시 해결책으로 알려진 사용자들을 수동으로 추가
-
-            const knownUsers = [
-                {
-                    uid: 'auth-user-1',
-                    email: 'bakgeunjeon@gmail.com',
-                    displayName: '박근전',
-                    userType: 'student',
-                    status: 'active',
-                    registrationMethod: 'google'
-                },
-                {
-                    uid: 'auth-user-2',
-                    email: 'test12@test.com',
-                    displayName: 'test12',
-                    userType: 'student',
-                    status: 'active',
-                    registrationMethod: 'email'
-                },
-                {
-                    uid: 'auth-user-3',
-                    email: 'test25@test.com',
-                    displayName: 'test25',
-                    userType: 'student',
-                    status: 'active',
-                    registrationMethod: 'email'
-                },
-                {
-                    uid: 'auth-user-4',
-                    email: 'bravohank@naver.com',
-                    displayName: 'bravohank',
-                    userType: 'student',
-                    status: 'active',
-                    registrationMethod: 'email'
-                },
-                {
-                    uid: 'auth-user-5',
-                    email: 'test01@test.com',
-                    displayName: 'test01',
-                    userType: 'student',
-                    status: 'active',
-                    registrationMethod: 'email'
-                }
-            ];
-
-            // 각 사용자가 Firestore에 있는지 확인하고 없으면 추가
-            for (const userData of knownUsers) {
-                const exists = await this.checkUserExistsInFirestore(userData.email);
-
-                if (!exists) {
-                    console.log('Firestore에 누락된 사용자 추가:', userData.email);
-                    await this.createMissingUserProfile(userData);
-                }
-            }
+            // 사용자 동기화는 Firebase Admin SDK가 필요합니다.
+            // 클라이언트에서는 현재 로그인된 사용자 정보만 확인 가능합니다.
+            console.log('사용자 동기화: 클라이언트에서는 지원하지 않습니다.');
 
             console.log('사용자 동기화 완료');
 
@@ -813,7 +760,7 @@ window.userManager = {
             const result = await window.dbService.addDocument('users', userDoc, docId);
 
             if (result.success) {
-                console.log('사용자 프로필 생성 완료:', userData.email);
+                console.log('사용자 프로필 생성 완료');
             } else {
                 console.error('사용자 프로필 생성 실패:', result.error);
             }
@@ -2081,16 +2028,15 @@ if (window.location.hostname === 'localhost' ||
             console.log('- auth:', !!window.dhcFirebase?.auth);
             console.log('- db:', !!window.dhcFirebase?.db);
             console.log('- dbService:', !!window.dbService);
-            console.log('- 현재 사용자:', window.dhcFirebase?.getCurrentUser()?.email || '없음');
+            console.log('- 현재 사용자:', window.dhcFirebase?.getCurrentUser() ? '로그인됨' : '없음');
         },
 
         checkAuth: function () {
             console.log('🔐 인증 상태 확인');
             const user = window.dhcFirebase?.getCurrentUser();
             if (user) {
-                console.log('✅ 로그인됨:', user.email);
+                console.log('✅ 로그인됨');
                 console.log('- displayName:', user.displayName);
-                console.log('- uid:', user.uid);
             } else {
                 console.log('❌ 로그인되지 않음');
             }

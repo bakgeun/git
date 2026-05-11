@@ -80,7 +80,7 @@
                 }
                 const doc = await window.dhcFirebase.db.collection('users').doc(user.uid).get();
                 _cachedAdminStatus = doc.exists && doc.data().userType === 'admin';
-                console.log('관리자 상태 초기화:', { uid: user.uid, isAdmin: _cachedAdminStatus });
+                console.log('관리자 상태 초기화 완료');
                 return _cachedAdminStatus;
             } catch (error) {
                 console.error('관리자 상태 초기화 오류:', error);
@@ -232,20 +232,16 @@
                 const currentUser = window.dhcFirebase.getCurrentUser();
 
                 if (currentUser) {
-                    console.log('현재 관리자 사용자:', currentUser.email);
-
                     const adminNameElement = document.getElementById('admin-name');
                     const adminEmailElement = document.getElementById('admin-email');
 
                     if (adminNameElement) {
                         const displayName = currentUser.displayName || '관리자';
                         adminNameElement.textContent = displayName;
-                        console.log('관리자 이름 표시:', displayName);
                     }
 
                     if (adminEmailElement) {
                         adminEmailElement.textContent = currentUser.email;
-                        console.log('관리자 이메일 표시:', currentUser.email);
                     }
 
                     // 프로필 이미지 표시
