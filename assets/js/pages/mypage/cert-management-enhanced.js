@@ -167,42 +167,20 @@
             // 🆕 3. 로딩 상태 표시
             showLoadingState(true);
 
-            // 🆕 4. 데이터 로드
-            console.log('📊 데이터 로드 시작...');
-            await Promise.all([
-                loadCertificates(),
-                loadApplications() // 🔧 수정된 통합 조회 버전 사용
-            ]);
+            // 4. 데이터 로드
+            await loadCertificates();
 
-            console.log('✅ 데이터 로드 완료');
-            console.log('  - certificates:', certificates.length + '개');
-            console.log('  - applications:', applications.length + '개');
-
-            // 🆕 5. URL 파라미터 처리
+            // 5. URL 파라미터 처리
             const urlParams = new URLSearchParams(window.location.search);
             const from = urlParams.get('from');
             const applicationId = urlParams.get('applicationId');
 
             if (from === 'cert-application' && applicationId) {
-                console.log('✅ 자격증 신청 완료 후 리다이렉트됨:', applicationId);
                 showNotification('자격증 발급 신청이 완료되었습니다!', 'success');
-
-                // 🔧 추가 동기화 (1초 후)
-                setTimeout(async () => {
-                    console.log('🔄 추가 데이터 동기화...');
-                    await loadApplications();
-                    updateDashboard();
-                    renderProgressList();
-                    console.log('✅ 추가 동기화 완료');
-                }, 1000);
             }
 
-            // 🆕 6. UI 업데이트
-            console.log('🎨 UI 업데이트 시작...');
-            updateDashboard();
+            // 6. UI 업데이트
             renderOwnedCertificates();
-            renderProgressList();
-            checkRenewalNeeded();
             initializeRenewalProcess();
 
             // 🆕 7. 이벤트 리스너 설정
@@ -1010,68 +988,37 @@
         const expiryDate = cert.expiryDate ? new Date(cert.expiryDate.seconds * 1000) : null;
         const issuedDate = cert.issuedAt ? new Date(cert.issuedAt.seconds * 1000) : null;
 
-        let statusBadge = '';
-        let statusClass = '';
-        let actions = '';
+        const formatDate = (date) => date.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+        let statusBadge, statusClass, renewalBtn = '';
 
         if (expiryDate) {
-            const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-
-            if (daysUntilExpiry > 90) {
+            const days = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+            if (days > 90) {
                 statusBadge = '<span class="cert-badge badge-valid">유효</span>';
                 statusClass = 'cert-valid';
-            } else if (daysUntilExpiry > 0) {
-                statusBadge = `<span class="cert-badge badge-expiring">만료 임박 (${daysUntilExpiry}일 남음)</span>`;
+            } else if (days > 0) {
+                statusBadge = `<span class="cert-badge badge-expiring">만료 임박 (${days}일 남음)</span>`;
                 statusClass = 'cert-expiring';
+                renewalBtn = `<button onclick="openRenewalModal('${cert.id}')" class="btn btn-sm btn-secondary">갱신 신청</button>`;
             } else {
                 statusBadge = '<span class="cert-badge badge-expired">만료됨</span>';
                 statusClass = 'cert-expired';
+                renewalBtn = `<button onclick="openRenewalModal('${cert.id}')" class="btn btn-sm btn-secondary">갱신 신청</button>`;
             }
-
-            actions = `
-                <button onclick="downloadCertificate('${cert.id}')" class="btn btn-sm btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    다운로드
-                </button>
-                ${daysUntilExpiry && daysUntilExpiry <= 90 ?
-                    `<button onclick="openRenewalModal('${cert.id}')" class="btn btn-sm btn-secondary">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                        갱신 신청
-                    </button>` : ''}
-            `;
         } else {
             statusBadge = '<span class="cert-badge badge-valid">유효</span>';
             statusClass = 'cert-valid';
-            actions = `
-                <button onclick="downloadCertificate('${cert.id}')" class="btn btn-sm btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    다운로드
-                </button>
-            `;
         }
-
-        const formatDate = (date) => {
-            return date.toLocaleDateString('ko-KR', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            });
-        };
 
         return `
             <div class="cert-card ${statusClass}">
                 <div class="cert-card-header">
                     <div class="cert-info">
-                        <h3 class="cert-name">${cert.certName}</h3>
+                        <h3 class="cert-name">${cert.certName || '자격증'}</h3>
                         <div class="cert-details">
-                            <p class="cert-number">자격증 번호: ${cert.certNumber}</p>
-                            ${issuedDate ? `<p class="cert-issued">발급일: ${formatDate(issuedDate)}</p>` : ''}
+                            ${cert.certNumber ? `<p class="cert-number">자격증 번호: ${cert.certNumber}</p>` : ''}
+                            ${issuedDate ? `<p class="cert-issued">취득일: ${formatDate(issuedDate)}</p>` : ''}
                             ${expiryDate ? `<p class="cert-expiry">만료일: ${formatDate(expiryDate)}</p>` : ''}
                         </div>
                     </div>
@@ -1080,7 +1027,8 @@
                     </div>
                 </div>
                 <div class="cert-actions">
-                    ${actions}
+                    <button onclick="downloadCertificate('${cert.id}')" class="btn btn-sm btn-primary">수료증 다운로드</button>
+                    ${renewalBtn}
                 </div>
             </div>
         `;
@@ -2235,24 +2183,12 @@
     /**
      * 데이터 새로고침
      */
-    async function refreshData(showToast = false) {  // 👈 매개변수 추가
+    async function refreshData(showToast = false) {
         try {
             showLoadingState(true);
-
-            await Promise.all([
-                loadCertificates(),
-                loadApplications()
-            ]);
-
-            updateDashboard();
+            await loadCertificates();
             renderOwnedCertificates();
-            renderProgressList();
-            checkRenewalNeeded();
-
-            // 👇 조건부로만 Toast 표시
-            if (showToast) {
-                showNotification('데이터가 새로고침되었습니다.', 'success');
-            }
+            if (showToast) showNotification('데이터가 새로고침되었습니다.', 'success');
         } catch (error) {
             console.error('데이터 새로고침 오류:', error);
             showNotification('데이터 새로고침 중 오류가 발생했습니다.', 'error');

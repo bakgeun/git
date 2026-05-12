@@ -210,9 +210,12 @@ async function loadAndUpdateApplicationData() {
             throw new Error('사용자 정보를 확인할 수 없습니다. 다시 로그인 후 시도해 주세요.');
         }
 
-        // 중복 처리 방지: 같은 orderId가 이미 payments에 저장됐는지 확인
+        // 중복 처리 방지: userId + orderId 조합으로 조회 (보안 규칙 준수)
         const dupCheck = await window.dbService.getDocuments('payments', {
-            where: { field: 'orderId', operator: '==', value: paymentData.orderId }
+            where: [
+                { field: 'userId', operator: '==', value: userId },
+                { field: 'orderId', operator: '==', value: paymentData.orderId }
+            ]
         });
         if (dupCheck.success && dupCheck.data.length > 0) {
             console.log('✅ 이미 처리된 결제 (중복 요청 무시):', paymentData.orderId);

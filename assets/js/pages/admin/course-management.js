@@ -62,7 +62,9 @@ window.courseManager = {
     applicantsCurrentPage: 1,
     applicantsPageSize: 10,
     applicantsTotalCount: 0,
-    allApplicants: [], // 전체 신청자 목록 저장
+    allApplicants: [],
+    enrollmentMap: {},   // userId → { id, status }
+    currentCourseId: null,
 
     /**
      * 🎯 초기화 함수 - async 문법 수정
@@ -843,18 +845,28 @@ window.courseManager = {
                 return;
             }
 
-            const snapshot = await window.dhcFirebase.db
-                .collection('applications')
-                .where('courseInfo.courseId', '==', courseId)
-                .orderBy('timestamp', 'desc')
-                .get();
+            const [snapshot, enrollSnap] = await Promise.all([
+                window.dhcFirebase.db
+                    .collection('applications')
+                    .where('courseInfo.courseId', '==', courseId)
+                    .orderBy('timestamp', 'desc')
+                    .get(),
+                window.dhcFirebase.db
+                    .collection('enrollments')
+                    .where('courseId', '==', courseId)
+                    .get()
+            ]);
 
             const applicants = [];
             snapshot.forEach(doc => {
-                applicants.push({
-                    id: doc.id,
-                    ...doc.data()
-                });
+                applicants.push({ id: doc.id, ...doc.data() });
+            });
+
+            this.currentCourseId = courseId;
+            this.enrollmentMap = {};
+            enrollSnap.forEach(doc => {
+                const d = doc.data();
+                if (d.userId) this.enrollmentMap[d.userId] = { id: doc.id, status: d.status || 'enrolled' };
             });
 
             console.log(`✅ 신청자 ${applicants.length}명 조회 완료`);
@@ -936,14 +948,24 @@ window.courseManager = {
 
         let html = '';
 
+        const enrollStatusLabel = { enrolled: '등록완료', 'in-progress': '수강중', completed: '수강완료', cancelled: '취소' };
+
         pageApplicants.forEach(applicant => {
             const info = applicant.applicantInfo || {};
             const timestamp = applicant.timestamp;
             const pricing = applicant.pricing || {};
+            const enrollment = this.enrollmentMap[applicant.userId] || null;
 
-            // 신청 상태 결정
-            let status = '신청완료';
-            let statusClass = 'status-active';
+            const statusCell = enrollment
+                ? `<select class="enrollment-status-select"
+                        data-enrollment-id="${enrollment.id}"
+                        onchange="courseManager.updateEnrollmentStatus('${enrollment.id}', this.value)">
+                        <option value="enrolled"    ${enrollment.status === 'enrolled'     ? 'selected' : ''}>등록완료</option>
+                        <option value="in-progress" ${enrollment.status === 'in-progress'  ? 'selected' : ''}>수강중</option>
+                        <option value="completed"   ${enrollment.status === 'completed'    ? 'selected' : ''}>수강완료</option>
+                        <option value="cancelled"   ${enrollment.status === 'cancelled'    ? 'selected' : ''}>취소</option>
+                    </select>`
+                : `<span class="status-badge status-inactive">미등록</span>`;
 
             html += `
                 <tr class="hover:bg-gray-50 transition-colors">
@@ -953,9 +975,7 @@ window.courseManager = {
                     <td data-label="전화번호">${info.phone || '-'}</td>
                     <td data-label="생년월일">${info['birth-date'] || '-'}</td>
                     <td data-label="결제금액">${formatCurrency(pricing.totalAmount)}</td>
-                    <td data-label="상태">
-                        <span class="status-badge ${statusClass}">${status}</span>
-                    </td>
+                    <td data-label="수강 상태">${statusCell}</td>
                 </tr>
             `;
         });
@@ -1091,6 +1111,36 @@ window.courseManager = {
         const paginationContainer = document.getElementById('applicants-pagination');
         if (paginationContainer) {
             paginationContainer.style.display = 'none';
+        }
+    },
+
+    /**
+     * 수강 상태 변경
+     */
+    updateEnrollmentStatus: async function (enrollmentId, newStatus) {
+        const select = document.querySelector(`select[data-enrollment-id="${enrollmentId}"]`);
+        const prevStatus = Object.values(this.enrollmentMap).find(e => e.id === enrollmentId)?.status;
+
+        try {
+            await window.dhcFirebase.db.collection('enrollments').doc(enrollmentId).update({
+                status: newStatus,
+                updatedAt: window.dhcFirebase.firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            // 로컬 맵 업데이트
+            for (const uid in this.enrollmentMap) {
+                if (this.enrollmentMap[uid].id === enrollmentId) {
+                    this.enrollmentMap[uid].status = newStatus;
+                    break;
+                }
+            }
+
+            const labels = { enrolled: '등록완료', 'in-progress': '수강중', completed: '수강완료', cancelled: '취소' };
+            window.adminAuth?.showNotification(`수강 상태가 "${labels[newStatus]}"로 변경됐습니다.`, 'success');
+        } catch (error) {
+            console.error('수강 상태 변경 실패:', error);
+            if (select && prevStatus) select.value = prevStatus;
+            window.adminAuth?.showNotification('수강 상태 변경에 실패했습니다.', 'error');
         }
     },
 
@@ -1792,11 +1842,11 @@ ${course.description || '내용 없음'}
                 form.querySelector('#course-method').value = course.method || '온라인 + 오프라인 병행';
                 form.querySelector('#course-location').value = course.location || '서울 강남구 센터';
 
-                // 🔧 간소화된 가격 정보 채우기
+                // 🔧 간소화된 가격 정보 채우기 (0원도 유효한 값이므로 ?? 사용)
                 const pricing = course.pricing || {};
-                form.querySelector('#course-price').value = course.price || pricing.education || '';
-                form.querySelector('#certificate-price').value = course.certificatePrice || pricing.certificate || 50000;
-                form.querySelector('#material-price').value = course.materialPrice || pricing.material || 30000;
+                form.querySelector('#course-price').value = course.price ?? pricing.education ?? '';
+                form.querySelector('#certificate-price').value = course.certificatePrice ?? pricing.certificate ?? 50000;
+                form.querySelector('#material-price').value = course.materialPrice ?? pricing.material ?? 30000;
 
                 // 할인율 처리 - 0%와 undefined/null 구분
                 const discountValue = pricing.packageDiscount !== undefined ? pricing.packageDiscount : 0;

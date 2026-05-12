@@ -30,6 +30,7 @@
 const functions = require('firebase-functions/v1');
 const { logger } = require('firebase-functions');
 const admin = require('firebase-admin');
+const nodemailer = require('nodemailer');
 if (!admin.apps.length) {
     admin.initializeApp();
 }
@@ -604,4 +605,213 @@ exports.scheduledBackup = functions.pubsub
         } catch (err) {
             logger.error('[scheduledBackup] 백업 오류', { projectId, error: err.message });
         }
+    });
+
+// =============================================================
+// 결제 완료 확인 이메일 자동 발송
+// payments 컬렉션에 문서가 생성되면 자동 트리거
+// 사전 설정: functions/.env 에 GMAIL_USER, GMAIL_APP_PASSWORD 추가
+// =============================================================
+
+function buildEmailHtml(recipientName, payment, formattedDate, formattedAmount) {
+    return `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>교육과정 신청 완료</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f6f9;font-family:'맑은 고딕','Malgun Gothic',sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:32px 0;">
+  <tr><td align="center">
+    <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+
+      <!-- 헤더 -->
+      <tr>
+        <td style="background:#1e3a5f;padding:32px 40px;text-align:center;">
+          <p style="margin:0;color:#a8c4e0;font-size:13px;letter-spacing:1px;">MUNGYEONG DIGITAL HEALTHCARE CENTER</p>
+          <h1 style="margin:8px 0 0;color:#ffffff;font-size:22px;font-weight:700;">문경 부설 디지털헬스케어센터</h1>
+        </td>
+      </tr>
+
+      <!-- 타이틀 -->
+      <tr>
+        <td style="padding:36px 40px 24px;border-bottom:1px solid #eef0f3;">
+          <table cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="background:#e8f4e8;border-radius:50%;width:48px;height:48px;text-align:center;vertical-align:middle;">
+                <span style="font-size:24px;">✓</span>
+              </td>
+              <td style="padding-left:16px;">
+                <p style="margin:0;color:#666;font-size:13px;">교육과정 신청이 완료되었습니다</p>
+                <h2 style="margin:4px 0 0;color:#1a1a1a;font-size:20px;font-weight:700;">결제가 완료되었습니다</h2>
+              </td>
+            </tr>
+          </table>
+          <p style="margin:20px 0 0;color:#444;font-size:15px;line-height:1.7;">
+            안녕하세요, <strong>${recipientName}</strong>님.<br>
+            교육과정 신청 및 결제가 정상적으로 완료되었습니다.<br>
+            교육 시작 전 별도로 안내 문자를 발송해 드리겠습니다.
+          </p>
+        </td>
+      </tr>
+
+      <!-- 결제 정보 -->
+      <tr>
+        <td style="padding:28px 40px;">
+          <h3 style="margin:0 0 16px;color:#1e3a5f;font-size:15px;font-weight:700;border-left:4px solid #1e3a5f;padding-left:12px;">결제 정보</h3>
+          <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eef0f3;border-radius:8px;overflow:hidden;">
+            <tr style="background:#f8fafc;">
+              <td style="padding:12px 20px;color:#666;font-size:13px;width:130px;">주문번호</td>
+              <td style="padding:12px 20px;color:#1a1a1a;font-size:13px;font-weight:600;">${payment.orderId}</td>
+            </tr>
+            <tr>
+              <td style="padding:12px 20px;color:#666;font-size:13px;border-top:1px solid #eef0f3;">교육과정</td>
+              <td style="padding:12px 20px;color:#1a1a1a;font-size:13px;font-weight:600;border-top:1px solid #eef0f3;">${payment.productName}</td>
+            </tr>
+            <tr style="background:#f8fafc;">
+              <td style="padding:12px 20px;color:#666;font-size:13px;border-top:1px solid #eef0f3;">결제방법</td>
+              <td style="padding:12px 20px;color:#1a1a1a;font-size:13px;border-top:1px solid #eef0f3;">${payment.paymentMethod || '신용카드'}</td>
+            </tr>
+            <tr>
+              <td style="padding:12px 20px;color:#666;font-size:13px;border-top:1px solid #eef0f3;">결제일시</td>
+              <td style="padding:12px 20px;color:#1a1a1a;font-size:13px;border-top:1px solid #eef0f3;">${formattedDate}</td>
+            </tr>
+            <tr style="background:#e8f4fd;">
+              <td style="padding:14px 20px;color:#1e3a5f;font-size:14px;font-weight:700;border-top:2px solid #1e3a5f;">결제금액</td>
+              <td style="padding:14px 20px;color:#1e3a5f;font-size:18px;font-weight:700;border-top:2px solid #1e3a5f;">${formattedAmount}</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <!-- 다음 단계 -->
+      <tr>
+        <td style="padding:0 40px 28px;">
+          <h3 style="margin:0 0 16px;color:#1e3a5f;font-size:15px;font-weight:700;border-left:4px solid #1e3a5f;padding-left:12px;">다음 단계</h3>
+          <table cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="padding:8px 0;">
+                <span style="display:inline-block;background:#1e3a5f;color:#fff;border-radius:50%;width:22px;height:22px;text-align:center;line-height:22px;font-size:12px;font-weight:700;margin-right:10px;">1</span>
+                <span style="color:#444;font-size:14px;">교육 시작 전 담당자가 안내 문자를 발송해 드립니다.</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;">
+                <span style="display:inline-block;background:#1e3a5f;color:#fff;border-radius:50%;width:22px;height:22px;text-align:center;line-height:22px;font-size:12px;font-weight:700;margin-right:10px;">2</span>
+                <span style="color:#444;font-size:14px;">교육 수료 후 자격증 발급이 진행됩니다.</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;">
+                <span style="display:inline-block;background:#1e3a5f;color:#fff;border-radius:50%;width:22px;height:22px;text-align:center;line-height:22px;font-size:12px;font-weight:700;margin-right:10px;">3</span>
+                <span style="color:#444;font-size:14px;">문의사항은 아래 연락처로 언제든지 문의해 주세요.</span>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <!-- 문의처 -->
+      <tr>
+        <td style="padding:0 40px 36px;">
+          <table width="100%" cellpadding="16" cellspacing="0" style="background:#f8fafc;border-radius:8px;border:1px solid #eef0f3;">
+            <tr>
+              <td>
+                <p style="margin:0 0 6px;color:#1e3a5f;font-size:13px;font-weight:700;">📞 문의처</p>
+                <p style="margin:0;color:#555;font-size:13px;line-height:1.8;">
+                  전화: 010-2596-2233<br>
+                  이메일: nhohs1507@gmail.com<br>
+                  운영시간: 평일 09:00 ~ 18:00
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <!-- 푸터 -->
+      <tr>
+        <td style="background:#f8fafc;padding:20px 40px;border-top:1px solid #eef0f3;text-align:center;">
+          <p style="margin:0;color:#999;font-size:12px;line-height:1.8;">
+            본 이메일은 발신 전용입니다. 답장을 보내도 확인이 어렵습니다.<br>
+            문경 부설 디지털헬스케어센터 | nhohs1507@gmail.com
+          </p>
+        </td>
+      </tr>
+
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>`;
+}
+
+exports.sendPaymentConfirmEmail = functions.firestore
+    .document('payments/{paymentId}')
+    .onCreate(async (snap) => {
+        const payment = snap.data();
+
+        if (payment.status !== 'completed') return null;
+
+        const gmailUser = process.env.GMAIL_USER;
+        const gmailPass = process.env.GMAIL_APP_PASSWORD;
+        if (!gmailUser || !gmailPass) {
+            logger.warn('[sendPaymentConfirmEmail] GMAIL 환경변수 미설정 — 이메일 발송 건너뜀');
+            return null;
+        }
+
+        try {
+            // 사용자 이메일/이름 조회
+            const userDoc = await admin.firestore().collection('users').doc(payment.userId).get();
+            const userData = userDoc.exists ? userDoc.data() : {};
+            const recipientEmail = userData.email;
+            const recipientName = userData.displayName || userData.name || '고객';
+
+            if (!recipientEmail) {
+                logger.warn('[sendPaymentConfirmEmail] 수신자 이메일 없음', { userId: payment.userId });
+                return null;
+            }
+
+            // 날짜/금액 포맷
+            const paymentDate = payment.createdAt?.toDate
+                ? payment.createdAt.toDate()
+                : new Date(payment.paidAt || Date.now());
+            const pad = (n) => String(n).padStart(2, '0');
+            const formattedDate =
+                `${paymentDate.getFullYear()}년 ${paymentDate.getMonth() + 1}월 ${paymentDate.getDate()}일 ` +
+                `${pad(paymentDate.getHours())}:${pad(paymentDate.getMinutes())}`;
+            const formattedAmount = `${Number(payment.amount).toLocaleString()}원`;
+
+            // 이메일 발송
+            const transporter = nodemailer.createTransporter({
+                service: 'gmail',
+                auth: { user: gmailUser, pass: gmailPass }
+            });
+
+            await transporter.sendMail({
+                from: `"문경 부설 디지털헬스케어센터" <${gmailUser}>`,
+                to: recipientEmail,
+                subject: `[신청 완료] ${payment.productName} 교육과정 신청이 완료되었습니다`,
+                html: buildEmailHtml(recipientName, payment, formattedDate, formattedAmount)
+            });
+
+            logger.info('[sendPaymentConfirmEmail] 발송 완료', {
+                to: recipientEmail,
+                orderId: payment.orderId
+            });
+
+            // 발송 시각 기록
+            await snap.ref.update({
+                confirmEmailSentAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+
+        } catch (error) {
+            logger.error('[sendPaymentConfirmEmail] 발송 오류', {
+                orderId: payment.orderId,
+                error: error.message
+            });
+        }
+
+        return null;
     });
