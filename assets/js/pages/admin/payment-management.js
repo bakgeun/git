@@ -153,7 +153,8 @@ async function initPaymentManagement() {
         console.log('⚠️ 결제 관리가 이미 초기화됨 - 중복 방지');
         return;
     }
-    
+    paymentManagerInitialized = true; // async 대기 전에 즉시 플래그 설정 (race condition 방지)
+
     console.log('=== initPaymentManagement 실행 시작 ===');
     
     try {
@@ -320,11 +321,6 @@ function redirectToLogin() {
  * 결제 관리 초기화 (인증된 사용자) - 최적화됨
  */
 async function initializePaymentManager(user) {
-    if (paymentManagerInitialized) {
-        console.log('⚠️ 결제 관리가 이미 초기화됨 - 중복 방지');
-        return;
-    }
-    
     console.log('✅ 인증된 사용자로 결제 관리 초기화');
     
     try {
@@ -339,8 +335,7 @@ async function initializePaymentManager(user) {
         
         // 결제 관리자 초기화
         await window.paymentManager.init();
-        
-        paymentManagerInitialized = true;
+
         console.log('✅ 결제 관리 초기화 완료');
         
     } catch (error) {
@@ -1573,8 +1568,8 @@ function cleanupRealtimeListeners() {
 // 폼 이벤트 처리
 // =================================
 
-// 환불 폼 제출 처리
-document.addEventListener('DOMContentLoaded', function() {
+// 환불 폼 제출 처리 (동적 로드 환경: DOMContentLoaded 이미 완료됨)
+(function() {
     const refundForm = document.getElementById('refund-form');
     if (refundForm) {
         refundForm.addEventListener('submit', async function(e) {
@@ -1654,7 +1649,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-});
+})();
 
 // =================================
 // 메시지 및 알림 시스템
