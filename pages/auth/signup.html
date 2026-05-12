@@ -423,9 +423,20 @@
 
                     <!-- 🆕 생년월일 -->
                     <div class="field-validation">
-                        <label for="birthdate" class="block text-sm font-medium text-gray-700 mb-1">생년월일</label>
-                        <input type="date" id="birthdate" name="birthdate" required class="form-input">
-                        <p id="birthdate-validation-message" class="text-sm text-red-600 mt-1 hidden">필수 입력 항목입니다.</p>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">생년월일</label>
+                        <div style="display:flex; gap:8px;">
+                            <select id="birthdate-year" style="flex:2; padding:0.5rem 0.75rem; border:1px solid #d1d5db; border-radius:6px; font-size:1rem; background:#fff; color:#111827;">
+                                <option value="">년도</option>
+                            </select>
+                            <select id="birthdate-month" style="flex:1.5; padding:0.5rem 0.75rem; border:1px solid #d1d5db; border-radius:6px; font-size:1rem; background:#fff; color:#111827;">
+                                <option value="">월</option>
+                            </select>
+                            <select id="birthdate-day" style="flex:1.5; padding:0.5rem 0.75rem; border:1px solid #d1d5db; border-radius:6px; font-size:1rem; background:#fff; color:#111827;">
+                                <option value="">일</option>
+                            </select>
+                        </div>
+                        <input type="hidden" id="birthdate" name="birthdate">
+                        <p id="birthdate-validation-message" class="text-sm text-red-600 mt-1 hidden">생년월일을 선택해주세요.</p>
                     </div>
 
                     <!-- 🆕 성별 -->
@@ -913,6 +924,62 @@
 
     <!-- 🆕 Daum 우편번호 API -->
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+    <script>
+        (function () {
+            const yearSel = document.getElementById('birthdate-year');
+            const monthSel = document.getElementById('birthdate-month');
+            const daySel = document.getElementById('birthdate-day');
+            const hidden = document.getElementById('birthdate');
+
+            // 년도: 현재 연도 ~ 1920
+            const currentYear = new Date().getFullYear();
+            for (let y = currentYear; y >= 1920; y--) {
+                const opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = y + '년';
+                yearSel.appendChild(opt);
+            }
+
+            // 월
+            for (let m = 1; m <= 12; m++) {
+                const opt = document.createElement('option');
+                opt.value = String(m).padStart(2, '0');
+                opt.textContent = m + '월';
+                monthSel.appendChild(opt);
+            }
+
+            function updateDays() {
+                const y = yearSel.value;
+                const m = monthSel.value;
+                const prevDay = daySel.value;
+                const maxDay = (y && m) ? new Date(y, m, 0).getDate() : 31;
+
+                daySel.innerHTML = '<option value="">일</option>';
+                for (let d = 1; d <= maxDay; d++) {
+                    const opt = document.createElement('option');
+                    opt.value = String(d).padStart(2, '0');
+                    opt.textContent = d + '일';
+                    if (opt.value === prevDay) opt.selected = true;
+                    daySel.appendChild(opt);
+                }
+            }
+
+            function syncHidden() {
+                const y = yearSel.value;
+                const m = monthSel.value;
+                const d = daySel.value;
+                hidden.value = (y && m && d) ? `${y}-${m}-${d}` : '';
+                hidden.dispatchEvent(new Event('change'));
+            }
+
+            yearSel.addEventListener('change', () => { updateDays(); syncHidden(); });
+            monthSel.addEventListener('change', () => { updateDays(); syncHidden(); });
+            daySel.addEventListener('change', syncHidden);
+
+            updateDays();
+        })();
+    </script>
 </body>
 
 </html>
