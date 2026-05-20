@@ -34,6 +34,20 @@ try {
   console.error("❌ Firebase 초기화 오류:", error);
 }
 
+// Firebase App Check 초기화 (reCAPTCHA v3)
+if (typeof firebase.appCheck === 'function') {
+  try {
+    const appCheck = firebase.appCheck();
+    appCheck.activate(
+      new firebase.appCheck.ReCaptchaV3Provider('6Lea8vIsAAAAABZuyFIqDP-xylfgE75bDBxQklbC'),
+      true
+    );
+    console.log("✅ Firebase App Check 초기화 성공");
+  } catch (e) {
+    console.error('❌ App Check 초기화 오류:', e);
+  }
+}
+
 // Analytics 초기화 (Analytics 사용 시)
 if (firebase.analytics && typeof firebase.analytics === 'function') {
   try {

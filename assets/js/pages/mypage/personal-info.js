@@ -5,6 +5,10 @@
  */
 
 (function () {
+    // 프로덕션 환경에서 console.log 비활성화
+    const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!isDev) { console.log = () => {}; }
+
     // 현재 사용자 정보를 저장할 변수
     let currentUser = null;
     let userProfile = null;

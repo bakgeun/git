@@ -5,6 +5,24 @@
 
 console.log('=== board.js 파일 로드 시작 ===');
 
+// HTML 삽입 전 스크립트·이벤트 핸들러 제거 (XSS 방어)
+function sanitizeHtml(html) {
+    if (!html) return '';
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    div.querySelectorAll('script, iframe, object, embed').forEach(el => el.remove());
+    div.querySelectorAll('*').forEach(el => {
+        Array.from(el.attributes).forEach(attr => {
+            if (attr.name.startsWith('on') ||
+                (attr.name === 'href' && /^javascript:/i.test(attr.value.trim())) ||
+                (attr.name === 'src'  && /^javascript:/i.test(attr.value.trim()))) {
+                el.removeAttribute(attr.name);
+            }
+        });
+    });
+    return div.innerHTML;
+}
+
 // 즉시 실행 함수 표현식(IIFE)을 사용하여 전역 네임스페이스 오염 방지
 (function () {
     'use strict';
@@ -690,8 +708,7 @@ console.log('=== board.js 파일 로드 시작 ===');
             // 내용
             const contentElement = document.getElementById(getElementId(boardType, 'content'));
             if (contentElement) {
-                // HTML 내용 그대로 표시 (이미지, 링크 등 포함)
-                contentElement.innerHTML = post.content;
+                contentElement.innerHTML = sanitizeHtml(post.content);
             }
 
             // 첨부파일

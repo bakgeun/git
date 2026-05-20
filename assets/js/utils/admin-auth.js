@@ -94,11 +94,44 @@
          * @returns {Promise<boolean>} - 권한 확인 결과 프로미스
          */
         checkAdminAccess: async function() {
-            // 무한 리디렉션 방지를 위해 함수 완전 비활성화
-            console.log('checkAdminAccess 함수 비활성화됨 - 무한 리디렉션 방지');
-            
-            // dashboard.html에서 직접 권한 확인을 처리하므로 여기서는 아무것도 하지 않음
-            return true;
+            try {
+                await this.waitForFirebase();
+
+                // onAuthStateChanged로 인증 상태가 완전히 확정될 때까지 대기 (최대 5초)
+                const user = await new Promise((resolve) => {
+                    let resolved = false;
+                    const auth = window.dhcFirebase && window.dhcFirebase.auth;
+                    if (!auth) { resolve(null); return; }
+                    const unsubscribe = auth.onAuthStateChanged((u) => {
+                        if (!resolved) {
+                            resolved = true;
+                            unsubscribe();
+                            resolve(u);
+                        }
+                    });
+                    setTimeout(() => {
+                        if (!resolved) { resolved = true; unsubscribe(); resolve(null); }
+                    }, 5000);
+                });
+
+                if (!user) {
+                    window.location.replace(this.adjustPath('pages/auth/login.html'));
+                    return false;
+                }
+
+                // Firestore에서 관리자 권한 확인
+                const isAdminUser = await this.initAdminStatus();
+                if (!isAdminUser) {
+                    window.location.replace(this.adjustPath('index.html'));
+                    return false;
+                }
+
+                return true;
+            } catch (error) {
+                console.error('관리자 접근 확인 오류:', error);
+                window.location.replace(this.adjustPath('index.html'));
+                return false;
+            }
         },
 
         /**

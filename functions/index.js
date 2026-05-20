@@ -157,6 +157,36 @@ exports.confirmPayment = functions.https.onRequest(async (req, res) => {
         return;
     }
 
+    // 클라이언트가 보낸 amount를 Firestore 기록과 대조 (금액 위변조 방지)
+    try {
+        const pendingRef = admin.firestore().collection('_pending_payments').doc(orderId);
+        const pendingDoc = await pendingRef.get();
+        if (!pendingDoc.exists) {
+            logger.warn('[confirmPayment] 결제 검증 레코드 없음', { orderId });
+            res.status(400).json({ message: '결제 정보를 찾을 수 없습니다. 다시 시도해주세요.' });
+            return;
+        }
+        const pendingData = pendingDoc.data();
+        if (pendingData.userId !== decoded.uid) {
+            logger.warn('[confirmPayment] 결제 소유자 불일치', { orderId, claimant: decoded.uid });
+            res.status(403).json({ message: '결제 정보가 일치하지 않습니다.' });
+            return;
+        }
+        if (pendingData.amount !== amount) {
+            logger.warn('[confirmPayment] 금액 불일치', {
+                orderId, expected: pendingData.amount, received: amount
+            });
+            res.status(400).json({ message: '결제 금액이 올바르지 않습니다.' });
+            return;
+        }
+        // 검증 완료 후 임시 레코드 삭제
+        await pendingRef.delete();
+    } catch (verifyErr) {
+        logger.error('[confirmPayment] 금액 검증 오류', { orderId, error: verifyErr.message });
+        res.status(500).json({ message: '결제 검증 중 오류가 발생했습니다.' });
+        return;
+    }
+
     const secretKey = getSecretKey();
     if (!secretKey) {
         logger.error('[confirmPayment] TOSS_SECRET_KEY가 설정되지 않았습니다.');
@@ -398,92 +428,6 @@ exports.deleteAuthUser = functions.https.onRequest(async (req, res) => {
     }
 });
 
-// =============================================================
-// 토스페이먼츠 웹훅 수신
-// POST /api/tossWebhook
-// 토스 대시보드에서 취소/상태 변경 시 Firestore 자동 동기화
-// =============================================================
-exports.tossWebhook = functions.https.onRequest(async (req, res) => {
-    if (req.method !== 'POST') {
-        res.status(405).json({ message: 'Method Not Allowed' });
-        return;
-    }
-
-    const { status, orderId } = req.body;
-
-    logger.info('[tossWebhook] 수신', { orderId, status });
-
-    // 토스페이먼츠 API로 역검증
-    if (orderId && status) {
-        const secretKey = getSecretKey();
-        if (secretKey) {
-            try {
-                const verifyRes = await fetch(
-                    `${TOSS_API}/orders/${encodeURIComponent(orderId)}`,
-                    { headers: { 'Authorization': basicAuth(secretKey) } }
-                );
-                if (!verifyRes.ok) {
-                    logger.error('[tossWebhook] 역검증 실패: 토스에서 주문 조회 불가', { orderId });
-                    res.status(200).json({ success: true }); // 재시도 방지용 200
-                    return;
-                }
-                const paymentInfo = await verifyRes.json();
-                if (paymentInfo.status !== status) {
-                    logger.error('[tossWebhook] 역검증 불일치', {
-                        orderId,
-                        webhookStatus: status,
-                        actualStatus: paymentInfo.status
-                    });
-                    res.status(200).json({ success: true });
-                    return;
-                }
-            } catch (verifyErr) {
-                logger.error('[tossWebhook] 역검증 오류 (Toss 재시도 허용)', {
-                    orderId,
-                    error: verifyErr.message
-                });
-                res.status(500).json({ message: '역검증 중 일시적 오류' });
-                return;
-            }
-        }
-    }
-
-    // Toss 상태 → 내부 상태 매핑
-    const statusMap = {
-        'DONE': 'completed',
-        'CANCELED': 'cancelled',
-        'PARTIAL_CANCELED': 'cancelled',
-        'ABORTED': 'failed',
-        'EXPIRED': 'expired'
-    };
-
-    const newStatus = statusMap[status];
-    if (!newStatus || !orderId) {
-        res.status(200).json({ success: true });
-        return;
-    }
-
-    try {
-        if (newStatus === 'cancelled') {
-            await syncCancelledStatus(orderId, null);
-        } else {
-            const snap = await admin.firestore()
-                .collection('payments').where('orderId', '==', orderId).get();
-            if (!snap.empty) {
-                const batch = admin.firestore().batch();
-                snap.docs.forEach(doc => batch.update(doc.ref, { status: newStatus }));
-                await batch.commit();
-            }
-        }
-        logger.info('[tossWebhook] 처리 완료', { orderId, newStatus });
-        await writePaymentLog('webhook_processed', { orderId, tossStatus: status, newStatus });
-        res.status(200).json({ success: true });
-    } catch (error) {
-        logger.error('[tossWebhook] 처리 오류', { orderId, error: error.message });
-        // 토스 재시도 방지를 위해 항상 200 반환
-        res.status(200).json({ success: true });
-    }
-});
 
 // =============================================================
 // 헬스체크

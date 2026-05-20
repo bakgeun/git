@@ -4,7 +4,9 @@
  */
 
 (function () {
-    console.log('🚀 signup.js 초기화 시작 (주소/생년월일 추가)');
+    // 프로덕션 환경에서 console.log 비활성화
+    const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!isDev) { console.log = () => {}; }
 
     // DOM 요소 참조
     let signupForm, emailInput, passwordInput, passwordConfirmInput, nameInput, phoneInput;

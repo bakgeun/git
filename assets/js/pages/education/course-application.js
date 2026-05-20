@@ -1423,10 +1423,22 @@ async function initiatePayment(applicationData) {
         // 결제 요청 전 데이터 저장
         await saveApplicationDataBeforePayment(applicationData);
 
-        console.log('💳 토스페이먼츠 결제 요청:', paymentData);
+        // 결제 금액 서버 검증용 레코드 저장 (confirmPayment에서 amount 위변조 방지)
+        const currentUser = window.dhcFirebase ? window.dhcFirebase.getCurrentUser() : null;
+        if (currentUser && window.dhcFirebase && window.dhcFirebase.db) {
+            try {
+                await window.dhcFirebase.db.collection('_pending_payments').doc(paymentData.orderId).set({
+                    userId: currentUser.uid,
+                    amount: paymentData.amount,
+                    courseId: applicationData.courseInfo?.courseId || '',
+                    createdAt: new Date()
+                });
+            } catch (e) {
+                console.error('결제 검증 레코드 저장 실패:', e);
+            }
+        }
 
         // v2: customerKey로 Firebase UID 사용 (비로그인 시 ANONYMOUS)
-        const currentUser = window.dhcFirebase ? window.dhcFirebase.getCurrentUser() : null;
         const customerKey = currentUser ? currentUser.uid : 'ANONYMOUS';
 
         const result = await window.paymentService.requestPayment(paymentData, { customerKey });
@@ -3770,23 +3782,31 @@ async function handlePaymentFailure(error, applicationData) {
             await window.dbService.addDocument('payment_failures', failureLog);
         }
 
-        // 결제 시도 전에 사전 저장된 레코드 정리
-        // (payments/enrollments는 아직 저장 안 됐으므로 applications/pending_applications만 삭제)
+        // 결제 실패 상태로 업데이트 (삭제 대신 상태값 기록 — 감사 추적 보존)
         if (window.dbService) {
+            const failedAt = new Date().toISOString();
             if (applicationData.firestoreId) {
                 try {
-                    await window.dbService.deleteDocument('applications', applicationData.firestoreId);
-                    console.log('applications 레코드 정리 완료:', applicationData.firestoreId);
+                    await window.dbService.updateDocument('applications', applicationData.firestoreId, {
+                        status: 'payment_failed',
+                        failedAt: failedAt,
+                        failureCode: error.code || 'UNKNOWN',
+                        failureMessage: error.message || ''
+                    });
                 } catch (e) {
-                    console.error('applications 레코드 정리 실패:', e.message);
+                    console.error('applications 상태 업데이트 실패:', e.message);
                 }
             }
             if (applicationData.pendingId) {
                 try {
-                    await window.dbService.deleteDocument('pending_applications', applicationData.pendingId);
-                    console.log('pending_applications 레코드 정리 완료:', applicationData.pendingId);
+                    await window.dbService.updateDocument('pending_applications', applicationData.pendingId, {
+                        status: 'payment_failed',
+                        failedAt: failedAt,
+                        failureCode: error.code || 'UNKNOWN',
+                        failureMessage: error.message || ''
+                    });
                 } catch (e) {
-                    console.error('pending_applications 레코드 정리 실패:', e.message);
+                    console.error('pending_applications 상태 업데이트 실패:', e.message);
                 }
             }
         }
