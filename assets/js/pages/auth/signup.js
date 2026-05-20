@@ -8,7 +8,7 @@
 
     // DOM 요소 참조
     let signupForm, emailInput, passwordInput, passwordConfirmInput, nameInput, phoneInput;
-    let birthdateInput, genderInputs, postalCodeInput, addressBasicInput, addressDetailInput, addressFullInput;
+    let birthdateInput, genderInputs, affiliationInput, postalCodeInput, addressBasicInput, addressDetailInput, addressFullInput;
     let termsAllCheckbox, termsServiceCheckbox, termsPrivacyCheckbox, termsMarketingCheckbox;
     let signupButton, googleSignupButton, addressSearchBtn, notification, notificationMessage;
     let modalButtons, modalCloseButtons, modals;
@@ -39,6 +39,7 @@
         // 🆕 새로 추가된 필드들
         birthdateInput = document.getElementById('birthdate');
         genderInputs = document.querySelectorAll('input[name="gender"]');
+        affiliationInput = document.getElementById('affiliation');
         postalCodeInput = document.getElementById('postal-code');
         addressBasicInput = document.getElementById('address-basic');
         addressDetailInput = document.getElementById('address-detail');
@@ -763,6 +764,7 @@
                 // 🆕 추가된 필드들
                 birthdate: birthdateInput?.value || '',
                 gender: genderValue,
+                affiliation: affiliationInput?.value.trim() || '',
                 postalCode: postalCodeInput?.value || '',
                 addressBasic: addressBasicInput?.value || '',
                 addressDetail: addressDetailInput?.value || '',

@@ -677,7 +677,7 @@ window.userManager = {
         const userList = document.getElementById('user-list');
         userList.innerHTML = `
             <tr>
-                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                <td colspan="8" class="px-6 py-4 text-center text-gray-500">
                     데이터를 불러오는 중입니다...
                 </td>
             </tr>
@@ -698,7 +698,7 @@ window.userManager = {
             console.error('회원 목록 로드 오류:', error);
             userList.innerHTML = `
                 <tr>
-                    <td colspan="7" class="px-6 py-4 text-center text-red-500">
+                    <td colspan="8" class="px-6 py-4 text-center text-red-500">
                         데이터 로드 중 오류가 발생했습니다.
                     </td>
                 </tr>
@@ -779,7 +779,7 @@ window.userManager = {
         if (!users || users.length === 0) {
             userList.innerHTML = `
             <tr>
-                <td colspan="7" class="admin-empty-state">
+                <td colspan="8" class="admin-empty-state">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                             d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
@@ -829,6 +829,9 @@ window.userManager = {
                     <div class="flex items-center">
                         <span class="text-sm font-medium text-gray-900">${userNumber}</span>
                     </div>
+                </td>
+                <td data-label="소속">
+                    <span class="text-sm text-gray-700">${escapeHtml(user.affiliation || '-')}</span>
                 </td>
                 <td data-label="이름">
                     <div class="flex items-center">

@@ -557,6 +557,8 @@
                 addressBasic: firestoreData.addressBasic || '',
                 addressDetail: firestoreData.addressDetail || '',
 
+                affiliation: firestoreData.affiliation || '',
+
                 // 생성/수정 시간
                 createdAt: firestoreData.createdAt || null,
                 updatedAt: firestoreData.updatedAt || null
@@ -585,7 +587,8 @@
                     phoneNumber: '',
                     birthdate: '',
                     address: '',
-                    gender: ''
+                    gender: '',
+                    affiliation: ''
                 };
 
                 await populateUserInfo(basicProfile);
@@ -636,10 +639,19 @@
                 phoneField.value = userData.phoneNumber || '';
             }
 
-            // 생년월일 필드
-            const birthdateField = document.getElementById('birthdate');
-            if (birthdateField) {
-                birthdateField.value = userData.birthdate || '';
+            // 생년월일 드롭다운
+            if (userData.birthdate && window.setBirthdateDropdowns) {
+                window.setBirthdateDropdowns(userData.birthdate);
+            } else if (userData.birthdate) {
+                // 폴백: hidden 필드에 직접 설정
+                const birthdateField = document.getElementById('birthdate');
+                if (birthdateField) birthdateField.value = userData.birthdate;
+            }
+
+            // 소속 필드
+            const affiliationField = document.getElementById('affiliation');
+            if (affiliationField) {
+                affiliationField.value = userData.affiliation || '';
             }
 
             // 🆕 주소 필드 (분리된 필드로 설정)
@@ -828,6 +840,7 @@
                 phoneNumber: formData.get('phone'),
                 birthdate: formData.get('birthdate'),
                 gender: formData.get('gender'),
+                affiliation: formData.get('affiliation') || '',
 
                 // 🆕 주소 정보 (분리 저장)
                 postalCode: formData.get('postal-code') || '',

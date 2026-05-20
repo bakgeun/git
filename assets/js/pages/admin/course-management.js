@@ -970,6 +970,7 @@ window.courseManager = {
             html += `
                 <tr class="hover:bg-gray-50 transition-colors">
                     <td data-label="신청일시">${formatDate(timestamp)}</td>
+                    <td data-label="소속">${info.affiliation || applicant.affiliation || '-'}</td>
                     <td data-label="신청자명">${info['applicant-name'] || '-'}</td>
                     <td data-label="이메일">${info.email || '-'}</td>
                     <td data-label="전화번호">${info.phone || '-'}</td>
@@ -1013,7 +1014,7 @@ window.courseManager = {
         if (tbody) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="7" class="admin-loading-state">
+                    <td colspan="8" class="admin-loading-state">
                         <div class="admin-loading-spinner"></div>
                         <span class="text-gray-600">신청자 데이터 로딩 중...</span>
                     </td>
@@ -1031,7 +1032,7 @@ window.courseManager = {
         if (tbody) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="7" class="text-center py-8 text-red-600">
+                    <td colspan="8" class="text-center py-8 text-red-600">
                         <svg class="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                 d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>

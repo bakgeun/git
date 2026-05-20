@@ -401,8 +401,19 @@
 
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="birthdate" class="form-label">생년월일</label>
-                                    <input type="date" id="birthdate" name="birthdate" class="form-input">
+                                    <label class="form-label">생년월일</label>
+                                    <div style="display:flex; gap:8px;">
+                                        <select id="birthdate-year" style="flex:2; padding:0.5rem 0.75rem; border:1px solid #d1d5db; border-radius:6px; font-size:1rem; background:#fff; color:#111827;">
+                                            <option value="">년도</option>
+                                        </select>
+                                        <select id="birthdate-month" style="flex:1.5; padding:0.5rem 0.75rem; border:1px solid #d1d5db; border-radius:6px; font-size:1rem; background:#fff; color:#111827;">
+                                            <option value="">월</option>
+                                        </select>
+                                        <select id="birthdate-day" style="flex:1.5; padding:0.5rem 0.75rem; border:1px solid #d1d5db; border-radius:6px; font-size:1rem; background:#fff; color:#111827;">
+                                            <option value="">일</option>
+                                        </select>
+                                    </div>
+                                    <input type="hidden" id="birthdate" name="birthdate">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">성별</label>
@@ -417,6 +428,12 @@
                                         </label>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="affiliation" class="form-label">소속</label>
+                                <input type="text" id="affiliation" name="affiliation" class="form-input"
+                                    placeholder="소속 기관/직장을 입력해주세요 (선택)">
                             </div>
 
                             <div class="form-group">
@@ -578,6 +595,71 @@
 
     <!-- Daum 우편번호 API -->
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+    <!-- 생년월일 드롭다운 초기화 -->
+    <script>
+        (function () {
+            const yearSel = document.getElementById('birthdate-year');
+            const monthSel = document.getElementById('birthdate-month');
+            const daySel = document.getElementById('birthdate-day');
+            const hidden = document.getElementById('birthdate');
+
+            const currentYear = new Date().getFullYear();
+            for (let y = currentYear; y >= 1920; y--) {
+                const opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = y + '년';
+                yearSel.appendChild(opt);
+            }
+
+            for (let m = 1; m <= 12; m++) {
+                const opt = document.createElement('option');
+                opt.value = String(m).padStart(2, '0');
+                opt.textContent = m + '월';
+                monthSel.appendChild(opt);
+            }
+
+            function updateDays() {
+                const y = yearSel.value;
+                const m = monthSel.value;
+                const prevDay = daySel.value;
+                const maxDay = (y && m) ? new Date(y, m, 0).getDate() : 31;
+                daySel.innerHTML = '<option value="">일</option>';
+                for (let d = 1; d <= maxDay; d++) {
+                    const opt = document.createElement('option');
+                    opt.value = String(d).padStart(2, '0');
+                    opt.textContent = d + '일';
+                    if (opt.value === prevDay) opt.selected = true;
+                    daySel.appendChild(opt);
+                }
+            }
+
+            function syncHidden() {
+                const y = yearSel.value;
+                const m = monthSel.value;
+                const d = daySel.value;
+                hidden.value = (y && m && d) ? `${y}-${m}-${d}` : '';
+            }
+
+            yearSel.addEventListener('change', () => { updateDays(); syncHidden(); });
+            monthSel.addEventListener('change', () => { updateDays(); syncHidden(); });
+            daySel.addEventListener('change', syncHidden);
+
+            updateDays();
+
+            // personal-info.js가 기존 생년월일 값을 설정할 수 있도록 헬퍼 노출
+            window.setBirthdateDropdowns = function (dateStr) {
+                if (!dateStr) return;
+                const parts = dateStr.split('-');
+                if (parts.length !== 3) return;
+                yearSel.value = parts[0];
+                monthSel.value = parts[1];
+                updateDays();
+                daySel.value = parts[2];
+                syncHidden();
+            };
+        })();
+    </script>
 
 </body>
 
