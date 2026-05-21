@@ -16,7 +16,7 @@ window.TOSS_KEYS = {
     //  환경 전환 스위치
     //  테스트 → 운영: 아래 값을 'TEST' 에서 'PRODUCTION' 으로 변경
     // ============================================================
-    ENV: 'TEST',
+    ENV: 'PRODUCTION',
 
     // 테스트 클라이언트 키 (공개용 — 노출되어도 무방)
     TEST: {
@@ -26,6 +26,6 @@ window.TOSS_KEYS = {
     // 운영 클라이언트 키 (공개용 — 노출되어도 무방)
     // SECRET_KEY는 Firebase Functions 환경변수에만 보관
     PRODUCTION: {
-        CLIENT_KEY: ''   // live_ck_ 로 시작하는 클라이언트 키 입력
+        CLIENT_KEY: 'live_ck_kYG57Eba3GN96AJypxwL8pWDOxmA'
     }
 };
