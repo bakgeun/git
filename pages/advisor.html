@@ -449,38 +449,6 @@
         <script src="{basePath}assets/js/components/footer.js"><\/script>
     </script>
 
-    <script>
-        // 더미 데이터 150명 (시드 고정 → 새로고침해도 동일)
-        const FIELDS = ['운동과학', '스포츠의학', '재활치료', '체육교육', '영양학', '운동생리학', '스포츠심리', '바이오메카닉스', '건강관리', '스포츠경영', '물리치료', '한의학'];
-        const AFFILS = ['○○대학교', '△△대학교', '□□병원', '◇◇연구소', '★★스포츠과학원', '◆◆체육대학원', '▲▲의과대학', '○○재활의학과'];
-        const SURNAMES = ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임', '한', '오', '서', '신', '권', '황', '안', '송', '전', '홍', '유', '고', '문', '양', '손'];
-        const FIRSTNAMES = ['민준', '서준', '예준', '도윤', '시우', '지호', '준서', '현우', '지훈', '서연', '서윤', '지우', '서현', '하은', '민서', '수아', '지유', '윤서', '채원', '가은', '나은', '다은', '민지', '수현', '도현'];
-        const TITLES = ['교수', '부교수', '연구원', '원장', '부원장', '과장', '박사', '전문의', '소장'];
-
-        let s = 42;
-        const r = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
-        const pick = arr => arr[Math.floor(r() * arr.length)];
-
-        const advisors = Array.from({ length: 150 }, () => ({
-            name: pick(SURNAMES) + pick(FIRSTNAMES),
-            affil: pick(AFFILS) + ' ' + pick(TITLES),
-            field: pick(FIELDS)
-        }));
-
-        document.getElementById('advisor-grid').innerHTML = advisors.map(a => `
-        <div class="advisor-card">
-            <div class="advisor-avatar">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-            </div>
-            <div class="advisor-name">${a.name}</div>
-            <div class="advisor-affil">${a.affil}</div>
-            <span class="advisor-field">${a.field}</span>
-        </div>
-    `).join('');
-    </script>
 </body>
 
 </html>
