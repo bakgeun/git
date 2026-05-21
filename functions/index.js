@@ -29,11 +29,14 @@
 
 const functions = require('firebase-functions/v1');
 const { logger } = require('firebase-functions');
+const { defineSecret } = require('firebase-functions/params');
 const admin = require('firebase-admin');
 const nodemailer = require('nodemailer');
 if (!admin.apps.length) {
     admin.initializeApp();
 }
+
+const tossSecretKey = defineSecret('TOSS_SECRET_KEY');
 
 const TOSS_API = 'https://api.tosspayments.com/v1/payments';
 
@@ -95,7 +98,7 @@ async function syncCancelledStatus(orderId, paymentKey, targetStatus = 'cancelle
 }
 
 function getSecretKey() {
-    return process.env.TOSS_SECRET_KEY || '';
+    return tossSecretKey.value() || '';
 }
 
 function basicAuth(secretKey) {
@@ -128,7 +131,7 @@ function handleAdminCors(req, res) {
 // headers: { Authorization: 'Bearer <idToken>' }
 // body: { paymentKey, orderId, amount }
 // =============================================================
-exports.confirmPayment = functions.https.onRequest(async (req, res) => {
+exports.confirmPayment = functions.runWith({ secrets: ['TOSS_SECRET_KEY'] }).https.onRequest(async (req, res) => {
     if (handleAdminCors(req, res)) return;
     if (req.method !== 'POST') {
         res.status(405).json({ message: 'Method Not Allowed' });
@@ -267,7 +270,7 @@ exports.confirmPayment = functions.https.onRequest(async (req, res) => {
 // headers: { Authorization: 'Bearer <idToken>' }
 // body: { paymentKey, cancelReason, cancelAmount?, targetStatus? }
 // =============================================================
-exports.cancelPayment = functions.https.onRequest(async (req, res) => {
+exports.cancelPayment = functions.runWith({ secrets: ['TOSS_SECRET_KEY'] }).https.onRequest(async (req, res) => {
     if (handleAdminCors(req, res)) return;
     if (req.method !== 'POST') {
         res.status(405).json({ message: 'Method Not Allowed' });
@@ -435,7 +438,7 @@ exports.deleteAuthUser = functions.https.onRequest(async (req, res) => {
 // Firestore 연결 상태를 포함한 서비스 상태를 반환합니다.
 // 외부 업타임 모니터(UptimeRobot 등)에서 이 엔드포인트를 주기적으로 호출하세요.
 // =============================================================
-exports.healthCheck = functions.https.onRequest(async (req, res) => {
+exports.healthCheck = functions.runWith({ secrets: ['TOSS_SECRET_KEY'] }).https.onRequest(async (req, res) => {
     res.set('Access-Control-Allow-Origin', '*');
     if (req.method === 'OPTIONS') {
         res.status(204).send('');
