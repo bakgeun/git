@@ -19,6 +19,8 @@ let isInternalNavigation = false;
 let formHasData = false;
 let courseDataListener = null;
 let isRealTimeEnabled = true;
+let selectedPaymentMethod = 'CARD';
+let activePaymentButton = null;
 
 // =================================
 // 🔧 초기화 및 메인 함수
@@ -802,6 +804,10 @@ function updateSummaryDisplay(educationPrice, certificatePrice, materialPrice, d
         if (element) element.textContent = value;
     });
 
+    // 계좌이체 버튼 금액도 동기화
+    const transferTotalEl = document.getElementById('button-total-transfer');
+    if (transferTotalEl) transferTotalEl.textContent = totalPrice.toLocaleString();
+
     // 자격증 발급비 표시/숨김
     const certificatePriceItem = document.getElementById('certificate-price-item');
     const certificatePriceEl = document.getElementById('certificate-price');
@@ -1031,7 +1037,7 @@ async function handleFormSubmission(e) {
             return;
         }
 
-        const paymentButton = document.getElementById('payment-button');
+        const paymentButton = activePaymentButton || document.getElementById('payment-button-card');
         updatePaymentButtonState(paymentButton, 'processing');
 
         const applicationData = collectApplicationData();
@@ -1044,7 +1050,7 @@ async function handleFormSubmission(e) {
         isInternalNavigation = false;
         showErrorMessage('신청 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
 
-        const paymentButton = document.getElementById('payment-button');
+        const paymentButton = activePaymentButton || document.getElementById('payment-button-card');
         updatePaymentButtonState(paymentButton, 'error');
     }
 }
@@ -1369,7 +1375,6 @@ function initPaymentSystem() {
         console.log('✅ 토스페이먼츠 연동 준비 완료');
     } else {
         console.warn('⚠️ 토스페이먼츠 서비스가 초기화되지 않았습니다.');
-        // 재시도 로직
         setTimeout(() => {
             if (window.paymentService) {
                 window.paymentService.init().then(() => {
@@ -1379,6 +1384,26 @@ function initPaymentSystem() {
                 });
             }
         }, 1000);
+    }
+
+    // 카드 / 계좌이체 버튼 클릭 핸들러
+    const form = document.getElementById('unified-application-form');
+    const cardBtn = document.getElementById('payment-button-card');
+    const transferBtn = document.getElementById('payment-button-transfer');
+
+    if (cardBtn && form) {
+        cardBtn.addEventListener('click', () => {
+            selectedPaymentMethod = 'CARD';
+            activePaymentButton = cardBtn;
+            form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        });
+    }
+    if (transferBtn && form) {
+        transferBtn.addEventListener('click', () => {
+            selectedPaymentMethod = 'TRANSFER';
+            activePaymentButton = transferBtn;
+            form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        });
     }
 }
 
@@ -1420,6 +1445,9 @@ async function initiatePayment(applicationData) {
             console.log('🔄 대체 결제 데이터 생성:', paymentData);
         }
 
+        // 결제 수단 주입 (CARD / TRANSFER)
+        paymentData.method = selectedPaymentMethod;
+
         // 결제 요청 전 데이터 저장
         await saveApplicationDataBeforePayment(applicationData);
 
@@ -1451,7 +1479,7 @@ async function initiatePayment(applicationData) {
         // 결제 실패 처리
         await handlePaymentFailure(error, applicationData);
 
-        const paymentButton = document.getElementById('payment-button');
+        const paymentButton = activePaymentButton || document.getElementById('payment-button-card');
         updatePaymentButtonState(paymentButton, 'error');
 
         // 사용자에게 오류 메시지 표시
@@ -1563,7 +1591,7 @@ async function handlePaymentSuccess(paymentResult, applicationData) {
         showPaymentSuccessModal(updatedData);
 
         // 결제 버튼 상태 업데이트
-        const paymentButton = document.getElementById('payment-button');
+        const paymentButton = activePaymentButton || document.getElementById('payment-button-card');
         updatePaymentButtonState(paymentButton, 'success');
 
         // 폼 비활성화 (중복 결제 방지)

@@ -228,7 +228,7 @@ async function loadAndUpdateApplicationData() {
             throw new Error('데이터베이스 연결을 사용할 수 없습니다. 고객센터에 문의해 주세요.');
         }
         const db = window.dhcFirebase.db;
-        const methodMap = { '카드': '신용카드', 'card': '신용카드', '계좌이체': '계좌이체', '가상계좌': '가상계좌' };
+        const methodMap = { '카드': 'card', 'card': 'card', '계좌이체': 'transfer', 'transfer': 'transfer', '가상계좌': 'vbank', 'vbank': 'vbank' };
         const rawMethod = paymentData.method || paymentData.type || '카드';
 
         const payRef = db.collection('payments').doc();

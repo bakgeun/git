@@ -520,11 +520,16 @@
                         <!-- 🔧 SIMPLIFIED: 결제 버튼으로 단순화 (임시저장 제거) -->
                         <div class="form-section text-center">
                             <div class="action-buttons">
-                                <!-- 메인 결제 버튼 -->
-                                <button id="payment-button" type="submit" class="payment-btn">
+                                <!-- 결제 수단 선택 버튼 -->
+                                <button id="payment-button-card" type="button" class="payment-btn">
                                     <span class="button-icon">💳</span>
-                                    <span class="button-text">결제하기</span>
+                                    <span class="button-text">카드로 결제</span>
                                     <span class="button-amount">(<span id="button-total">50,000</span>원)</span>
+                                </button>
+                                <button id="payment-button-transfer" type="button" class="payment-btn" style="background:#1e3a5f; margin-top:12px;">
+                                    <span class="button-icon">🏦</span>
+                                    <span class="button-text">계좌이체로 결제</span>
+                                    <span class="button-amount">(<span id="button-total-transfer">50,000</span>원)</span>
                                 </button>
                             </div>
 

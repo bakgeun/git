@@ -83,8 +83,9 @@
                 const customerKey = options.customerKey || 'ANONYMOUS';
                 const payment = this.tossPayments.payment({ customerKey });
 
+                const method = paymentData.method || 'CARD';
                 const tossRequest = {
-                    method: 'CARD',
+                    method: method,
                     amount: {
                         value:    paymentData.amount,
                         currency: 'KRW'
@@ -96,13 +97,16 @@
                     customerMobilePhone: paymentData.customerMobilePhone || '',
                     successUrl: paymentData.successUrl || `${CONFIG.BASE_URL}${CONFIG.SUCCESS_URL_PATH}`,
                     failUrl:    paymentData.failUrl    || `${CONFIG.BASE_URL}${CONFIG.FAIL_URL_PATH}`,
-                    card: {
+                };
+
+                if (method === 'CARD') {
+                    tossRequest.card = {
                         useEscrow:      false,
                         flowMode:       'DEFAULT',
                         useCardPoint:   false,
                         useAppCardOnly: false
-                    }
-                };
+                    };
+                }
 
                 console.log('💳 v2 결제 요청:', {
                     orderId:     tossRequest.orderId,
