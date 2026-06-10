@@ -21,6 +21,7 @@
       { "source": "/api/confirmPayment",  "function": "confirmPayment"  },
       { "source": "/api/cancelPayment",   "function": "cancelPayment"   },
       { "source": "/api/deleteAuthUser",  "function": "deleteAuthUser"  },
+      { "source": "/api/sendAdminEmail",  "function": "sendAdminEmail"  },
       { "source": "/api/health",          "function": "healthCheck"     }
     ],
     "headers": [
@@ -33,7 +34,7 @@
           { "key": "Referrer-Policy",         "value": "strict-origin-when-cross-origin" },
           { "key": "Permissions-Policy",        "value": "camera=(), microphone=(), geolocation=()" },
           { "key": "Strict-Transport-Security",  "value": "max-age=31536000; includeSubDomains" },
-          { "key": "Content-Security-Policy",    "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://t1.daumcdn.net https://js.tosspayments.com https://fonts.googleapis.com https://www.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://firestore.googleapis.com https://firebase.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.tosspayments.com https://www.gstatic.com https://www.google.com https://recaptchaenterprise.googleapis.com https://content-firebaseappcheck.googleapis.com https://firebasestorage.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; frame-src https://*.tosspayments.com https://www.google.com https://t1.daumcdn.net https://postcode.map.daum.net https://postcode.map.kakao.com; object-src 'none';" }
+          { "key": "Content-Security-Policy",    "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://t1.daumcdn.net https://js.tosspayments.com https://fonts.googleapis.com https://www.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https: blob:; connect-src 'self' https://firestore.googleapis.com https://firebase.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.tosspayments.com https://www.gstatic.com https://www.google.com https://recaptchaenterprise.googleapis.com https://content-firebaseappcheck.googleapis.com https://firebasestorage.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; frame-src 'self' https://*.tosspayments.com https://www.google.com https://t1.daumcdn.net https://postcode.map.daum.net https://postcode.map.kakao.com; object-src 'none';" }
         ]
       }
     ]

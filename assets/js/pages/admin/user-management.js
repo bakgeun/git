@@ -467,6 +467,7 @@ window.userManager = {
     pendingRoleChange: null,
     pendingStatusChange: null,
     currentUsers: [],
+    _selectedUserIds: new Set(),
 
     // ✅ 캐시 매니저 인스턴스 (간단해짐!)
     cacheManager: null,
@@ -677,7 +678,7 @@ window.userManager = {
         const userList = document.getElementById('user-list');
         userList.innerHTML = `
             <tr>
-                <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                <td colspan="9" class="px-6 py-4 text-center text-gray-500">
                     데이터를 불러오는 중입니다...
                 </td>
             </tr>
@@ -698,7 +699,7 @@ window.userManager = {
             console.error('회원 목록 로드 오류:', error);
             userList.innerHTML = `
                 <tr>
-                    <td colspan="8" class="px-6 py-4 text-center text-red-500">
+                    <td colspan="9" class="px-6 py-4 text-center text-red-500">
                         데이터 로드 중 오류가 발생했습니다.
                     </td>
                 </tr>
@@ -779,9 +780,9 @@ window.userManager = {
         if (!users || users.length === 0) {
             userList.innerHTML = `
             <tr>
-                <td colspan="8" class="admin-empty-state">
+                <td colspan="9" class="admin-empty-state">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
                         </path>
                     </svg>
@@ -823,8 +824,14 @@ window.userManager = {
             const statusInfo = this.getStatusInfo(status);
             const userTypeInfo = this.getUserTypeInfo(userType);
 
+            const isSelected = this._selectedUserIds.has(user.id);
             html += `
-            <tr class="hover:bg-gray-50 transition-colors">
+            <tr class="hover:bg-gray-50 transition-colors${isSelected ? ' bg-indigo-50' : ''}">
+                <td data-label="">
+                    <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded cursor-pointer"
+                        ${isSelected ? 'checked' : ''}
+                        onchange="userManager.toggleUserSelection('${user.id}', this.checked)">
+                </td>
                 <td data-label="번호">
                     <div class="flex items-center">
                         <span class="text-sm font-medium text-gray-900">${userNumber}</span>
@@ -870,19 +877,28 @@ window.userManager = {
                 <td data-label="관리">
                     <div class="table-actions">
                         ${canEdit ? `
-                            <button onclick="userManager.editUser('${user.id}')" 
+                            <button onclick="userManager.editUser('${user.id}')"
                                 class="table-action-btn btn-edit" title="회원 정보 수정">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
                                     </path>
                                 </svg>
                                 수정
                             </button>
-                            <button onclick="userManager.deleteUser('${user.id}')" 
+                            <button onclick="userManager.openEmailModal('${user.id}')"
+                                class="table-action-btn btn-edit" title="메일 발송" style="background:#eef2ff;color:#4f46e5;border-color:#c7d2fe;">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                메일
+                            </button>
+                            <button onclick="userManager.deleteUser('${user.id}')"
                                 class="table-action-btn btn-delete" title="회원 삭제">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
                                     </path>
                                 </svg>
@@ -898,6 +914,7 @@ window.userManager = {
         });
 
         userList.innerHTML = html;
+        this._updateHeaderCheckbox();
     },
 
     /**
@@ -1526,17 +1543,10 @@ window.userManager = {
      * 검색 필터 적용
      */
     applyFilters: function () {
-        console.log('검색 필터 적용');
-
-        const searchKeyword = document.getElementById('search-keyword')?.value.trim();
-        const userType = document.getElementById('filter-role')?.value;
-        const status = document.getElementById('filter-status')?.value;
-
-        console.log('검색 조건:', { searchKeyword, userType, status });
-
+        this._selectedUserIds.clear();
+        this._updateSelectionUI();
         this.currentPage = 1;
         this.lastDoc = null;
-
         this.loadUsers();
     },
 
@@ -1544,21 +1554,107 @@ window.userManager = {
      * 검색 필터 초기화
      */
     resetFilters: function () {
-        console.log('검색 필터 초기화');
-
         const searchKeyword = document.getElementById('search-keyword');
         if (searchKeyword) searchKeyword.value = '';
-
         const userType = document.getElementById('filter-role');
         if (userType) userType.value = '';
-
         const status = document.getElementById('filter-status');
         if (status) status.value = '';
 
+        this._selectedUserIds.clear();
+        this._updateSelectionUI();
         this.currentPage = 1;
         this.lastDoc = null;
-
         this.loadUsers();
+    },
+
+    // =================================
+    // 체크박스 선택 기능
+    // =================================
+
+    // 개별 행 체크박스 토글
+    toggleUserSelection: function (userId, checked) {
+        if (checked) {
+            this._selectedUserIds.add(userId);
+        } else {
+            this._selectedUserIds.delete(userId);
+        }
+        // 해당 행 배경색 갱신
+        const row = document.querySelector(`input[onchange*="'${userId}'"]`)?.closest('tr');
+        if (row) row.classList.toggle('bg-indigo-50', checked);
+        this._updateSelectionUI();
+        this._updateHeaderCheckbox();
+    },
+
+    // 현재 페이지 전체 선택/해제
+    toggleSelectAll: function (checked) {
+        const startIndex = (this.currentPage - 1) * this.pageSize;
+        const pageUsers = this.currentUsers.slice(startIndex, startIndex + this.pageSize);
+        pageUsers.forEach(u => {
+            if (checked) this._selectedUserIds.add(u.id);
+            else this._selectedUserIds.delete(u.id);
+        });
+        // 행 배경색 갱신
+        this.updateUserList(this.currentUsers);
+        this._updateSelectionUI();
+    },
+
+    // 선택 액션바 및 카운트 업데이트
+    _updateSelectionUI: function () {
+        const count = this._selectedUserIds.size;
+        const bar = document.getElementById('selection-action-bar');
+        const countEl = document.getElementById('selection-count');
+        if (!bar || !countEl) return;
+        if (count > 0) {
+            bar.classList.remove('hidden');
+            countEl.textContent = `${count}명 선택됨`;
+        } else {
+            bar.classList.add('hidden');
+        }
+    },
+
+    // 헤더 체크박스 상태 동기화
+    _updateHeaderCheckbox: function () {
+        const cb = document.getElementById('select-all-checkbox');
+        if (!cb) return;
+        const startIndex = (this.currentPage - 1) * this.pageSize;
+        const pageUsers = this.currentUsers.slice(startIndex, startIndex + this.pageSize);
+        const selectedOnPage = pageUsers.filter(u => this._selectedUserIds.has(u.id)).length;
+        if (selectedOnPage === 0) {
+            cb.checked = false; cb.indeterminate = false;
+        } else if (selectedOnPage === pageUsers.length) {
+            cb.checked = true; cb.indeterminate = false;
+        } else {
+            cb.checked = false; cb.indeterminate = true;
+        }
+    },
+
+    // 전체 선택 해제
+    clearSelection: function () {
+        this._selectedUserIds.clear();
+        this._updateSelectionUI();
+        this.updateUserList(this.currentUsers);
+    },
+
+    // 선택한 회원에게만 메일 발송 모달 열기
+    openSelectedEmailModal: function () {
+        if (this._selectedUserIds.size === 0) {
+            showErrorMessage('선택된 회원이 없습니다.');
+            return;
+        }
+        const targets = this.currentUsers
+            .filter(u => this._selectedUserIds.has(u.id) && u.email && !u.emailOptOut)
+            .map(u => ({ email: u.email, name: u.displayName || '회원' }));
+
+        if (targets.length === 0) {
+            showErrorMessage('선택한 회원 중 발송 가능한 이메일 주소가 없습니다.');
+            return;
+        }
+        const skipped = this._selectedUserIds.size - targets.length;
+        const desc = skipped > 0
+            ? `수신자: 선택한 ${targets.length}명 (이메일 없음/수신 거부 ${skipped}명 제외)`
+            : `수신자: 선택한 ${targets.length}명`;
+        this._openEmailModalWith('선택 메일 발송', desc, targets);
     },
 
     /**
@@ -1812,6 +1908,363 @@ window.userManager = {
         } catch (error) {
             console.error('CSV 다운로드 오류:', error);
             showErrorMessage('CSV 다운로드 중 오류가 발생했습니다.');
+        }
+    },
+
+    // =================================
+    // 이메일 발송
+    // =================================
+
+    _quillInstance: null,
+    _emailTargets: null,
+    _emailAttachments: [],
+
+    // Quill 에디터 초기화 (모달이 visible 상태일 때 호출)
+    _initQuill: function () {
+        if (!window.Quill) return;
+        const container = document.getElementById('email-quill-container');
+        if (!container) return;
+
+        if (this._quillInstance) {
+            // 기존 인스턴스 재사용 — 내용만 초기화
+            this._quillInstance.setContents([]);
+            return;
+        }
+
+        this._quillInstance = new Quill('#email-quill-container', {
+            theme: 'snow',
+            placeholder: '메일 내용을 입력하세요...',
+            modules: {
+                toolbar: {
+                    container: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ list: 'ordered' }, { list: 'bullet' }],
+                        [{ size: ['small', false, 'large', 'huge'] }],
+                        [{ color: [] }, { background: [] }],
+                        ['link'],
+                        ['clean']
+                    ],
+                    handlers: {
+                        // 모달 overflow-y:auto 에 의해 Quill 기본 툴팁이 잘리므로 prompt() 로 대체
+                        link: function (value) {
+                            if (value) {
+                                const range = this.quill.getSelection();
+                                if (!range || range.length === 0) {
+                                    alert('링크를 삽입할 텍스트를 먼저 선택하세요.');
+                                    return;
+                                }
+                                const url = prompt('링크 URL을 입력하세요:', 'https://');
+                                if (url && url.trim()) {
+                                    this.quill.format('link', url.trim());
+                                }
+                            } else {
+                                this.quill.format('link', false);
+                            }
+                        },
+                        clean: function () {
+                            const range = this.quill.getSelection();
+                            if (!range || range.length === 0) {
+                                alert('서식을 제거할 텍스트를 먼저 선택하세요.');
+                                return;
+                            }
+                            this.quill.removeFormat(range.index, range.length);
+                        }
+                    }
+                }
+            }
+        });
+    },
+
+    // 공통 모달 초기화
+    _openEmailModalWith: function (title, recipientDesc, targets) {
+        this._emailTargets = targets;
+        this._emailAttachments = [];
+
+        document.getElementById('email-modal-title').textContent = title;
+        document.getElementById('email-modal-recipient').textContent = recipientDesc;
+        document.getElementById('email-subject').value = '';
+
+        // CC/BCC 초기화
+        const ccField = document.getElementById('cc-field');
+        const bccField = document.getElementById('bcc-field');
+        if (ccField) { ccField.classList.add('hidden'); document.getElementById('email-cc').value = ''; }
+        if (bccField) { bccField.classList.add('hidden'); document.getElementById('email-bcc').value = ''; }
+        const ccBtn = document.getElementById('cc-toggle-btn');
+        const bccBtn = document.getElementById('bcc-toggle-btn');
+        if (ccBtn) ccBtn.textContent = '+ CC 추가';
+        if (bccBtn) bccBtn.textContent = '+ BCC 추가';
+
+        document.getElementById('email-attachments-list').innerHTML = '';
+        document.getElementById('email-send-button').disabled = false;
+        document.getElementById('email-send-button').textContent = '발송';
+
+        document.getElementById('email-modal').classList.remove('hidden');
+        this._initQuill();
+    },
+
+    // 개인 메일 발송 모달 열기
+    openEmailModal: async function (userId) {
+        const user = await this.getUserById(userId);
+        if (!user || !user.email) {
+            showErrorMessage('수신자 이메일 정보를 찾을 수 없습니다.');
+            return;
+        }
+        const targets = [{ email: user.email, name: user.displayName || '회원' }];
+        const desc = `수신자: ${escapeHtml(user.displayName || user.email)} <${escapeHtml(user.email)}>`;
+        this._openEmailModalWith('개인 메일 발송', desc, targets);
+    },
+
+    // 단체 메일 발송 모달 열기 (현재 필터된 목록 기준)
+    openBulkEmailModal: function () {
+        const targets = (this.currentUsers || [])
+            .filter(u => u.email && u.userType !== 'admin' && !u.emailOptOut)
+            .map(u => ({ email: u.email, name: u.displayName || '회원' }));
+
+        if (targets.length === 0) {
+            showErrorMessage('발송 대상 회원이 없습니다. 필터를 확인해주세요.');
+            return;
+        }
+        if (targets.length > 500) {
+            showErrorMessage('한 번에 최대 500명까지 발송할 수 있습니다. 필터를 좁혀주세요.');
+            return;
+        }
+
+        const optOutCount = (this.currentUsers || [])
+            .filter(u => u.email && u.userType !== 'admin' && u.emailOptOut).length;
+        const desc = optOutCount > 0
+            ? `수신자: 현재 목록 기준 ${targets.length}명 (수신 거부 ${optOutCount}명 제외)`
+            : `수신자: 현재 목록 기준 ${targets.length}명`;
+
+        this._openEmailModalWith('단체 메일 발송', desc, targets);
+    },
+
+    closeEmailModal: function () {
+        document.getElementById('email-modal').classList.add('hidden');
+        this._emailTargets = null;
+    },
+
+    // CC 필드 토글
+    toggleCC: function () {
+        const field = document.getElementById('cc-field');
+        const btn = document.getElementById('cc-toggle-btn');
+        const hidden = field.classList.contains('hidden');
+        field.classList.toggle('hidden');
+        if (hidden) {
+            btn.textContent = '− CC 제거';
+            document.getElementById('email-cc').focus();
+        } else {
+            btn.textContent = '+ CC 추가';
+            document.getElementById('email-cc').value = '';
+        }
+    },
+
+    // BCC 필드 토글
+    toggleBCC: function () {
+        const field = document.getElementById('bcc-field');
+        const btn = document.getElementById('bcc-toggle-btn');
+        const hidden = field.classList.contains('hidden');
+        field.classList.toggle('hidden');
+        if (hidden) {
+            btn.textContent = '− BCC 제거';
+            document.getElementById('email-bcc').focus();
+        } else {
+            btn.textContent = '+ BCC 추가';
+            document.getElementById('email-bcc').value = '';
+        }
+    },
+
+    // 이메일 주소 문자열 파싱 (쉼표 구분)
+    _parseEmailList: function (str) {
+        if (!str || !str.trim()) return [];
+        return str.split(',')
+            .map(e => e.trim())
+            .filter(e => e && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
+    },
+
+    // 파일 첨부 처리
+    handleFileAttachment: function (event) {
+        const MAX_FILE = 5 * 1024 * 1024;  // 5MB per file
+        const MAX_TOTAL = 10 * 1024 * 1024; // 10MB total
+
+        Array.from(event.target.files).forEach(file => {
+            if (file.size > MAX_FILE) {
+                showErrorMessage(`"${file.name}" 파일이 5MB를 초과합니다.`);
+                return;
+            }
+            const currentTotal = this._emailAttachments.reduce((s, a) => s + a.size, 0);
+            if (currentTotal + file.size > MAX_TOTAL) {
+                showErrorMessage('첨부 파일 총 용량이 10MB를 초과합니다.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const base64 = e.target.result.split(',')[1];
+                this._emailAttachments.push({
+                    filename: file.name,
+                    content: base64,
+                    contentType: file.type || 'application/octet-stream',
+                    size: file.size
+                });
+                this._renderAttachmentList();
+            };
+            reader.readAsDataURL(file);
+        });
+        event.target.value = '';
+    },
+
+    _renderAttachmentList: function () {
+        const list = document.getElementById('email-attachments-list');
+        if (!list) return;
+        if (this._emailAttachments.length === 0) { list.innerHTML = ''; return; }
+        list.innerHTML = this._emailAttachments.map((att, idx) => `
+            <div class="flex items-center gap-2 bg-gray-50 rounded px-3 py-1.5 text-sm border border-gray-200">
+                <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                </svg>
+                <span class="flex-1 truncate text-gray-700">${escapeHtml(att.filename)}</span>
+                <span class="text-gray-400 text-xs flex-shrink-0">${att.size >= 1024 * 1024 ? (att.size / 1024 / 1024).toFixed(1) + 'MB' : Math.round(att.size / 1024) + 'KB'}</span>
+                <button type="button" onclick="userManager.removeAttachment(${idx})"
+                    class="text-red-400 hover:text-red-600 flex-shrink-0 ml-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        `).join('');
+    },
+
+    removeAttachment: function (idx) {
+        this._emailAttachments.splice(idx, 1);
+        this._renderAttachmentList();
+    },
+
+    // 발송 전 미리보기
+    previewEmail: function () {
+        const subject = document.getElementById('email-subject').value.trim();
+        const bodyHtml = this._quillInstance ? this._quillInstance.root.innerHTML : '';
+        const recipientName = this._emailTargets && this._emailTargets.length === 1
+            ? this._emailTargets[0].name
+            : '미리보기';
+
+        if (!subject && (!bodyHtml || bodyHtml === '<p><br></p>')) {
+            showErrorMessage('제목 또는 내용을 입력한 후 미리보기를 확인하세요.');
+            return;
+        }
+
+        const iframe = document.getElementById('email-preview-iframe');
+        iframe.srcdoc = this._buildPreviewHtml(recipientName, subject || '(제목 없음)', bodyHtml);
+        document.getElementById('email-preview-modal').classList.remove('hidden');
+    },
+
+    // 미리보기 HTML 생성 (서버의 buildAdminEmailHtml과 동일한 구조)
+    _buildPreviewHtml: function (recipientName, subject, bodyHtml) {
+        const safeRecipient = escapeHtml(recipientName);
+        const safeSubject = escapeHtml(subject);
+        return `<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${safeSubject}</title></head>
+<body style="margin:0;padding:0;background:#f4f6f9;font-family:'맑은 고딕','Malgun Gothic',sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:32px 0;">
+  <tr><td align="center">
+    <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+      <tr><td style="background:#1e3a5f;padding:32px 40px;text-align:center;">
+        <p style="margin:0;color:#a8c4e0;font-size:13px;letter-spacing:1px;">MUNGYEONG DIGITAL HEALTHCARE CENTER</p>
+        <h1 style="margin:8px 0 0;color:#fff;font-size:22px;font-weight:700;">문경 부설 디지털헬스케어센터</h1>
+      </td></tr>
+      <tr><td style="padding:32px 40px 20px;border-bottom:1px solid #eef0f3;">
+        <p style="margin:0 0 6px;color:#666;font-size:13px;">안녕하세요, <strong>${safeRecipient}</strong>님.</p>
+        <h2 style="margin:0;color:#1a1a1a;font-size:20px;font-weight:700;">${safeSubject}</h2>
+      </td></tr>
+      <tr><td style="padding:28px 40px 36px;">
+        <div style="color:#444;font-size:15px;line-height:1.8;">${bodyHtml}</div>
+      </td></tr>
+      <tr><td style="padding:0 40px 28px;">
+        <table width="100%" cellpadding="16" cellspacing="0" style="background:#f8fafc;border-radius:8px;border:1px solid #eef0f3;">
+          <tr><td>
+            <p style="margin:0 0 6px;color:#1e3a5f;font-size:13px;font-weight:700;">📞 문의처</p>
+            <p style="margin:0;color:#555;font-size:13px;line-height:1.8;">전화: 010-2596-2233<br>이메일: nhohs1507@gmail.com<br>운영시간: 평일 09:00 ~ 18:00</p>
+          </td></tr>
+        </table>
+      </td></tr>
+      <tr><td style="background:#f8fafc;padding:20px 40px;border-top:1px solid #eef0f3;text-align:center;">
+        <p style="margin:0;color:#999;font-size:12px;line-height:1.8;">
+          본 이메일은 디지털헬스케어센터 회원에게 발송되는 공지 메일입니다.<br>
+          수신 거부를 원하시면 <a href="mailto:nhohs1507@gmail.com" style="color:#1e3a5f;">nhohs1507@gmail.com</a>으로 연락해 주세요.<br>
+          문경 부설 디지털헬스케어센터 | nhohs1507@gmail.com
+        </p>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body></html>`;
+    },
+
+    // 이메일 발송 처리
+    handleSendEmail: async function (event) {
+        event.preventDefault();
+
+        const subject = document.getElementById('email-subject').value.trim();
+        const bodyHtml = this._quillInstance ? this._quillInstance.root.innerHTML : '';
+        const targets = this._emailTargets;
+
+        if (!subject) { showErrorMessage('제목을 입력해주세요.'); return; }
+        if (!bodyHtml || bodyHtml === '<p><br></p>') { showErrorMessage('내용을 입력해주세요.'); return; }
+        if (!targets || targets.length === 0) return;
+
+        const cc = this._parseEmailList(document.getElementById('email-cc')?.value || '');
+        const bcc = this._parseEmailList(document.getElementById('email-bcc')?.value || '');
+
+        const confirmMsg = targets.length === 1
+            ? `"${targets[0].name}" 님에게 메일을 발송하시겠습니까?`
+            : `${targets.length}명에게 메일을 발송하시겠습니까?\n발송 후 취소할 수 없습니다.`;
+        if (!confirm(confirmMsg)) return;
+
+        const sendBtn = document.getElementById('email-send-button');
+        sendBtn.disabled = true;
+        sendBtn.textContent = '발송 중...';
+
+        try {
+            const currentUser = window.dhcFirebase.getCurrentUser();
+            if (!currentUser) throw new Error('로그인이 필요합니다.');
+            const idToken = await currentUser.getIdToken();
+
+            const payload = { subject, body: bodyHtml, targets };
+            if (cc.length > 0) payload.cc = cc;
+            if (bcc.length > 0) payload.bcc = bcc;
+            if (this._emailAttachments.length > 0) {
+                payload.attachments = this._emailAttachments.map(a => ({
+                    filename: a.filename,
+                    content: a.content,
+                    contentType: a.contentType
+                }));
+            }
+
+            const res = await fetch('/api/sendAdminEmail', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${idToken}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await res.json();
+            if (!res.ok) throw new Error(result.message || '발송 중 오류가 발생했습니다.');
+
+            this.closeEmailModal();
+
+            if (result.failCount > 0) {
+                showNotification(`발송 완료: ${result.successCount}명 성공, ${result.failCount}명 실패`, 'warning');
+            } else {
+                showSuccessMessage(`${result.successCount}명에게 메일을 발송했습니다.`);
+            }
+
+        } catch (error) {
+            console.error('이메일 발송 오류:', error);
+            showErrorMessage(error.message || '메일 발송 중 오류가 발생했습니다.');
+            sendBtn.disabled = false;
+            sendBtn.textContent = '발송';
         }
     }
 };

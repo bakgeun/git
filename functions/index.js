@@ -555,6 +555,205 @@ exports.scheduledBackup = functions.pubsub
     });
 
 // =============================================================
+// 관리자 공지 이메일 발송 (관리자 전용)
+// POST /api/sendAdminEmail
+// headers: { Authorization: 'Bearer <idToken>' }
+// body: { subject, body, targets: [{email, name}] }
+// targets 배열은 최대 500개로 제한합니다.
+// users/{uid}.emailOptOut === true 인 사용자는 자동 제외됩니다.
+// =============================================================
+
+// bodyHtml: Quill 에디터에서 생성된 HTML (관리자 전용 엔드포인트이므로 XSS 위험 허용)
+function buildAdminEmailHtml(recipientName, subject, bodyHtml) {
+    const safeBody = bodyHtml || '';
+
+    return `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${subject}</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f6f9;font-family:'맑은 고딕','Malgun Gothic',sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:32px 0;">
+  <tr><td align="center">
+    <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+
+      <!-- 헤더 -->
+      <tr>
+        <td style="background:#1e3a5f;padding:32px 40px;text-align:center;">
+          <p style="margin:0;color:#a8c4e0;font-size:13px;letter-spacing:1px;">MUNGYEONG DIGITAL HEALTHCARE CENTER</p>
+          <h1 style="margin:8px 0 0;color:#ffffff;font-size:22px;font-weight:700;">문경 부설 디지털헬스케어센터</h1>
+        </td>
+      </tr>
+
+      <!-- 제목 -->
+      <tr>
+        <td style="padding:32px 40px 20px;border-bottom:1px solid #eef0f3;">
+          <p style="margin:0 0 6px;color:#666;font-size:13px;">안녕하세요, <strong>${recipientName}</strong>님.</p>
+          <h2 style="margin:0;color:#1a1a1a;font-size:20px;font-weight:700;">${subject}</h2>
+        </td>
+      </tr>
+
+      <!-- 본문 -->
+      <tr>
+        <td style="padding:28px 40px 36px;">
+          <p style="margin:0;color:#444;font-size:15px;line-height:1.8;">${safeBody}</p>
+        </td>
+      </tr>
+
+      <!-- 문의처 -->
+      <tr>
+        <td style="padding:0 40px 28px;">
+          <table width="100%" cellpadding="16" cellspacing="0" style="background:#f8fafc;border-radius:8px;border:1px solid #eef0f3;">
+            <tr>
+              <td>
+                <p style="margin:0 0 6px;color:#1e3a5f;font-size:13px;font-weight:700;">📞 문의처</p>
+                <p style="margin:0;color:#555;font-size:13px;line-height:1.8;">
+                  전화: 010-2596-2233<br>
+                  이메일: nhohs1507@gmail.com<br>
+                  운영시간: 평일 09:00 ~ 18:00
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <!-- 푸터 -->
+      <tr>
+        <td style="background:#f8fafc;padding:20px 40px;border-top:1px solid #eef0f3;text-align:center;">
+          <p style="margin:0;color:#999;font-size:12px;line-height:1.8;">
+            본 이메일은 디지털헬스케어센터 회원에게 발송되는 공지 메일입니다.<br>
+            수신 거부를 원하시면 <a href="mailto:nhohs1507@gmail.com" style="color:#1e3a5f;">nhohs1507@gmail.com</a>으로 연락해 주세요.<br>
+            문경 부설 디지털헬스케어센터 | nhohs1507@gmail.com
+          </p>
+        </td>
+      </tr>
+
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>`;
+}
+
+exports.sendAdminEmail = functions.https.onRequest(async (req, res) => {
+    if (handleAdminCors(req, res)) return;
+    if (req.method !== 'POST') {
+        res.status(405).json({ message: 'Method Not Allowed' });
+        return;
+    }
+
+    // ID 토큰 검증
+    const authHeader = req.headers.authorization || '';
+    const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (!idToken) {
+        res.status(401).json({ message: '인증이 필요합니다.' });
+        return;
+    }
+    let decoded;
+    try {
+        decoded = await admin.auth().verifyIdToken(idToken);
+    } catch (e) {
+        res.status(401).json({ message: '유효하지 않은 토큰입니다.' });
+        return;
+    }
+
+    // 관리자 권한 확인
+    const callerDoc = await admin.firestore().collection('users').doc(decoded.uid).get();
+    if (!callerDoc.exists || callerDoc.data().userType !== 'admin') {
+        res.status(403).json({ message: '관리자 권한이 필요합니다.' });
+        return;
+    }
+
+    const { subject, body, targets, cc, bcc, attachments } = req.body;
+    if (!subject || !body || !Array.isArray(targets) || targets.length === 0) {
+        res.status(400).json({ message: '필수 파라미터 누락: subject, body, targets(배열)' });
+        return;
+    }
+    if (targets.length > 500) {
+        res.status(400).json({ message: '한 번에 발송 가능한 최대 수신자는 500명입니다.' });
+        return;
+    }
+
+    const gmailUser = process.env.GMAIL_USER;
+    const gmailPass = process.env.GMAIL_APP_PASSWORD;
+    if (!gmailUser || !gmailPass) {
+        logger.warn('[sendAdminEmail] GMAIL 환경변수 미설정 — 발송 불가');
+        res.status(500).json({ message: '이메일 서버 설정이 완료되지 않았습니다. 관리자에게 문의하세요.' });
+        return;
+    }
+
+    // 첨부파일 구성 (base64 → Buffer)
+    const builtAttachments = Array.isArray(attachments) && attachments.length > 0
+        ? attachments.map(a => ({
+            filename: a.filename,
+            content: Buffer.from(a.content, 'base64'),
+            contentType: a.contentType || 'application/octet-stream'
+        }))
+        : [];
+
+    // CC/BCC 문자열 배열 처리
+    const ccList = Array.isArray(cc) ? cc.filter(Boolean) : [];
+    const bccList = Array.isArray(bcc) ? bcc.filter(Boolean) : [];
+    logger.info('[sendAdminEmail] CC/BCC 수신 확인', { ccList, bccList });
+
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: gmailUser, pass: gmailPass }
+    });
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const recipient of targets) {
+        if (!recipient.email) { failCount++; continue; }
+        try {
+            const mailOptions = {
+                from: `"문경 부설 디지털헬스케어센터" <${gmailUser}>`,
+                to: recipient.email,
+                subject,
+                html: buildAdminEmailHtml(recipient.name || '회원', subject, body)
+            };
+            if (ccList.length > 0) mailOptions.cc = ccList.join(', ');
+            if (bccList.length > 0) mailOptions.bcc = bccList.join(', ');
+            if (builtAttachments.length > 0) mailOptions.attachments = builtAttachments;
+
+            await transporter.sendMail(mailOptions);
+            successCount++;
+        } catch (err) {
+            failCount++;
+            logger.warn('[sendAdminEmail] 개별 발송 실패', { email: recipient.email, error: err.message });
+        }
+    }
+
+    // 발송 이력 기록
+    try {
+        await admin.firestore().collection('_email_logs').add({
+            type: 'admin_notice',
+            subject,
+            totalCount: targets.length,
+            successCount,
+            failCount,
+            adminUid: decoded.uid,
+            sentAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+    } catch (e) {
+        logger.error('[sendAdminEmail] 이력 기록 실패', { error: e.message });
+    }
+
+    logger.info('[sendAdminEmail] 발송 완료', {
+        adminUid: decoded.uid,
+        total: targets.length,
+        successCount,
+        failCount
+    });
+
+    res.status(200).json({ success: true, totalCount: targets.length, successCount, failCount });
+});
+
+// =============================================================
 // 결제 완료 확인 이메일 자동 발송
 // payments 컬렉션에 문서가 생성되면 자동 트리거
 // 사전 설정: functions/.env 에 GMAIL_USER, GMAIL_APP_PASSWORD 추가
@@ -731,7 +930,7 @@ exports.sendPaymentConfirmEmail = functions.firestore
             const formattedAmount = `${Number(payment.amount).toLocaleString()}원`;
 
             // 이메일 발송
-            const transporter = nodemailer.createTransporter({
+            const transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: { user: gmailUser, pass: gmailPass }
             });

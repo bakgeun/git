@@ -1433,12 +1433,11 @@ window.CertApplication = window.CertApplication || {};
             const certNumber = document.getElementById('verify-cert-number').value.trim();
             const certDate = document.getElementById('verify-cert-date').value;
 
-            if (!certNumber || !certDate) {
-                showWarningMessage('자격증 번호와 발급일자를 모두 입력해주세요.');
+            if (!certNumber && !certDate) {
+                showWarningMessage('자격증 번호 또는 발급일자 중 하나 이상 입력해주세요.');
                 return;
             }
 
-            console.log('자격증 조회 시작:', { certNumber, certDate });
             const submitButton = verifyForm.querySelector('button[type="submit"]');
             const originalText = submitButton.textContent;
 
@@ -1465,92 +1464,148 @@ window.CertApplication = window.CertApplication || {};
         });
     }
 
+    // issueDate 필드를 YYYY-MM-DD 문자열로 정규화 (Timestamp / Date / string 모두 처리)
+    function normalizeDateStr(val) {
+        if (!val) return '';
+        if (typeof val === 'string') return val.slice(0, 10);
+        if (typeof val.toDate === 'function') return val.toDate().toISOString().slice(0, 10);
+        if (val instanceof Date) return val.toISOString().slice(0, 10);
+        return '';
+    }
+
     async function verifyCertificate(certNumber, certDate) {
         try {
-            if (!window.dbService) {
+            if (!window.dbService || !window.dhcFirebase) {
+                // Firebase 미연결 시 mock 데이터 반환
                 return {
                     success: true,
                     data: {
-                        number: certNumber,
-                        date: certDate,
-                        holder: '홍길동',
-                        holderEnglish: 'Hong Gil Dong',
-                        type: '건강운동처방사',
-                        status: '유효',
-                        issuedBy: '디지털헬스케어센터'
+                        certificateNumber: certNumber || 'HE-2025-0001',
+                        issueDate: certDate || '2025-03-15',
+                        holderName: '홍길동',
+                        holderNameEnglish: 'Hong Gil Dong',
+                        certificateType: 'health-exercise',
+                        status: 'active'
                     }
                 };
             }
 
-            const queryConditions = [
-                { field: 'certificateNumber', operator: '==', value: certNumber },
-                { field: 'issueDate', operator: '==', value: certDate }
-            ];
+            let candidates = [];
 
-            const result = await window.dbService.queryDocuments('certificates', queryConditions);
-
-            if (result.success && result.data.length > 0) {
-                return {
-                    success: true,
-                    data: result.data[0]
-                };
+            if (certNumber) {
+                // 자격증 번호로 조회 (빠른 인덱스 검색)
+                const r = await window.dbService.getDocuments('certificates', {
+                    where: [{ field: 'certificateNumber', operator: '==', value: certNumber }],
+                    limit: 5
+                });
+                if (r.success) candidates = r.data || [];
             } else {
-                return {
-                    success: false,
-                    error: '일치하는 자격증 정보를 찾을 수 없습니다.'
-                };
+                // 발급일자만 입력된 경우 — 문자열 저장 먼저 시도
+                const rStr = await window.dbService.getDocuments('certificates', {
+                    where: [{ field: 'issueDate', operator: '==', value: certDate }],
+                    limit: 20
+                });
+                if (rStr.success && rStr.data?.length > 0) {
+                    candidates = rStr.data;
+                } else {
+                    // Timestamp 범위 쿼리 (approveApplication 경로로 저장된 문서)
+                    const FS = window.dhcFirebase.firebase.firestore;
+                    const dayStart = FS.Timestamp.fromDate(new Date(certDate + 'T00:00:00'));
+                    const dayEnd   = FS.Timestamp.fromDate(new Date(certDate + 'T23:59:59'));
+                    const rTs = await window.dbService.getDocuments('certificates', {
+                        where: [
+                            { field: 'issueDate', operator: '>=', value: dayStart },
+                            { field: 'issueDate', operator: '<=', value: dayEnd }
+                        ],
+                        limit: 20
+                    });
+                    if (rTs.success) candidates = rTs.data || [];
+                }
             }
+
+            if (candidates.length === 0) {
+                return { success: false, error: '일치하는 자격증 정보를 찾을 수 없습니다.' };
+            }
+
+            // 번호와 날짜 모두 입력된 경우 클라이언트에서 날짜 교차 검증
+            if (certNumber && certDate) {
+                const filtered = candidates.filter(c => normalizeDateStr(c.issueDate) === certDate);
+                if (filtered.length === 0) {
+                    return { success: false, error: '자격증 번호는 존재하나 발급일자가 일치하지 않습니다.' };
+                }
+                return { success: true, data: filtered[0] };
+            }
+
+            return { success: true, data: candidates[0] };
 
         } catch (error) {
             console.error('자격증 조회 중 오류:', error);
-            return {
-                success: false,
-                error: '조회 중 오류가 발생했습니다.'
-            };
+            return { success: false, error: '조회 중 오류가 발생했습니다.' };
         }
     }
 
-    function showVerificationResult(result) {
-        console.log('자격증 조회 결과 표시:', result);
+    function certTypeToKorean(type) {
+        const map = {
+            'health-exercise': '건강운동처방사',
+            'rehabilitation': '운동재활전문가',
+            'pilates': '필라테스 전문가',
+            'recreation': '레크리에이션지도자'
+        };
+        return map[type] || type || '-';
+    }
 
+    function statusToKorean(status) {
+        const map = { active: '유효', expired: '만료', revoked: '취소', suspended: '정지' };
+        return map[status] || status || '-';
+    }
+
+    function showVerificationResult(result) {
         const existingResult = document.querySelector('.verification-result');
-        if (existingResult) {
-            existingResult.remove();
-        }
+        if (existingResult) existingResult.remove();
+
+        const certNumber   = result.certificateNumber || result.number || '-';
+        const holderKo     = result.holderName || result.holderNameKorean || result.holder || '-';
+        const holderEn     = result.holderNameEnglish || result.holderEnglish || '';
+        const certType     = certTypeToKorean(result.certificateType) || result.type || '-';
+        const issueDateStr = normalizeDateStr(result.issueDate || result.date) || '-';
+        const statusText   = statusToKorean(result.status);
+        const statusColor  = result.status === 'active' ? 'text-green-600' : 'text-red-500';
 
         const resultDiv = document.createElement('div');
         resultDiv.className = 'verification-result mt-6 p-6 bg-green-50 border border-green-200 rounded-lg';
         resultDiv.innerHTML = `
-            <h3 class="text-lg font-bold text-green-800 mb-4 flex items-center">
-                <span class="mr-2">✅</span>
-                자격증 조회 결과
+            <h3 class="text-lg font-bold text-green-800 mb-4" style="display:flex;align-items:center;gap:6px;">
+                <span>✅</span> 자격증 조회 결과
             </h3>
-            <div class="grid gap-3">
-                <div class="flex justify-between py-2 border-b border-green-200">
-                    <span class="font-medium text-gray-700">자격증 번호:</span>
-                    <span class="text-gray-900">${result.number || result.certificateNumber}</span>
-                </div>
-                <div class="flex justify-between py-2 border-b border-green-200">
-                    <span class="font-medium text-gray-700">소지자 (한글):</span>
-                    <span class="text-gray-900">${result.holder || result.holderName}</span>
-                </div>
-                <div class="flex justify-between py-2 border-b border-green-200">
-                    <span class="font-medium text-gray-700">소지자 (영문):</span>
-                    <span class="text-gray-900">${result.holderEnglish || result.holderNameEnglish}</span>
-                </div>
-                <div class="flex justify-between py-2 border-b border-green-200">
-                    <span class="font-medium text-gray-700">자격증 종류:</span>
-                    <span class="text-gray-900">${result.type || result.certificateName}</span>
-                </div>
-                <div class="flex justify-between py-2 border-b border-green-200">
-                    <span class="font-medium text-gray-700">발급일:</span>
-                    <span class="text-gray-900">${result.date || result.issueDate}</span>
-                </div>
-                <div class="flex justify-between py-2">
-                    <span class="font-medium text-gray-700">상태:</span>
-                    <span class="text-green-600 font-bold">${result.status}</span>
-                </div>
-            </div>
+            <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+                <tbody>
+                    <tr style="border-bottom:1px solid #bbf7d0;">
+                        <td style="padding:8px 12px 8px 0;width:120px;color:#374151;font-weight:600;white-space:nowrap;vertical-align:top;">자격증 번호</td>
+                        <td style="padding:8px 0;color:#111827;">${certNumber}</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid #bbf7d0;">
+                        <td style="padding:8px 12px 8px 0;color:#374151;font-weight:600;white-space:nowrap;vertical-align:top;">소지자 (한글)</td>
+                        <td style="padding:8px 0;color:#111827;">${holderKo}</td>
+                    </tr>
+                    ${holderEn ? `
+                    <tr style="border-bottom:1px solid #bbf7d0;">
+                        <td style="padding:8px 12px 8px 0;color:#374151;font-weight:600;white-space:nowrap;vertical-align:top;">소지자 (영문)</td>
+                        <td style="padding:8px 0;color:#111827;">${holderEn}</td>
+                    </tr>` : ''}
+                    <tr style="border-bottom:1px solid #bbf7d0;">
+                        <td style="padding:8px 12px 8px 0;color:#374151;font-weight:600;white-space:nowrap;vertical-align:top;">자격증 종류</td>
+                        <td style="padding:8px 0;color:#111827;">${certType}</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid #bbf7d0;">
+                        <td style="padding:8px 12px 8px 0;color:#374151;font-weight:600;white-space:nowrap;vertical-align:top;">발급일</td>
+                        <td style="padding:8px 0;color:#111827;">${issueDateStr}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 12px 8px 0;color:#374151;font-weight:600;white-space:nowrap;vertical-align:top;">상태</td>
+                        <td style="padding:8px 0;font-weight:700;" class="${statusColor}">${statusText}</td>
+                    </tr>
+                </tbody>
+            </table>
         `;
 
         const verifyForm = document.getElementById('verify-form');

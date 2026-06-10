@@ -14,7 +14,7 @@
 - **게시판**: 공지사항, 칼럼, 강의자료, 동영상 강의
 - **인증 시스템**: 회원가입, 로그인, 계정 관리
 - **마이페이지**: 개인정보 관리, 수강 내역, 자격증 관리 (발급/갱신 통합), 결제 내역
-- **관리자 기능**: 회원 관리, 교육 관리, 자격증 관리, 게시판 관리, 결제 관리
+- **관리자 기능**: 회원 관리, 교육 관리, 자격증 관리, 게시판 관리, 결제 관리, 공지 이메일 발송
 
 ## 기술 스택
 
@@ -26,6 +26,7 @@
   - Firebase SDK v9 compat (CDN)
   - Daum 우편번호 API
   - PDF 생성 라이브러리 (자격증 발급용)
+  - Quill.js 1.3.7 (CDN) — 관리자 이메일 발송 리치 텍스트 편집기
 
 ## 디렉토리 구조
 
@@ -218,6 +219,7 @@ git checkout HEAD -- functions/index.js
 | `confirmPayment` | `POST /api/confirmPayment` | 토스페이먼츠 결제 승인 (멱등성 검사 포함) |
 | `cancelPayment` | `POST /api/cancelPayment` | 결제 취소 (관리자 전용) |
 | `deleteAuthUser` | `POST /api/deleteAuthUser` | Firebase Auth 계정 삭제 (관리자 전용) |
+| `sendAdminEmail` | `POST /api/sendAdminEmail` | 관리자 공지 이메일 발송 (관리자 전용) |
 | `tossWebhook` | `POST /api/tossWebhook` | 토스 웹훅 수신 및 역검증 |
 | `healthCheck` | `GET /api/health` | 서비스 상태 확인 |
 | `scheduledBackup` | 매일 03:00 KST | Firestore 자동 백업 |
@@ -234,7 +236,11 @@ firebase functions:secrets:set TOSS_SECRET_KEY
 
 ```
 TOSS_SECRET_KEY=test_sk_...
+GMAIL_USER=발신자@gmail.com
+GMAIL_APP_PASSWORD=Gmail_앱_비밀번호_16자리
 ```
+
+> **Gmail 앱 비밀번호 발급**: Google 계정 → 보안 → 2단계 인증 활성화 → 앱 비밀번호 생성
 
 ### 감사 로그
 
@@ -248,6 +254,64 @@ TOSS_SECRET_KEY=test_sk_...
 | `cancel_success` | 결제 취소 성공 |
 | `cancel_failed` | 결제 취소 실패 |
 | `webhook_processed` | 웹훅 처리 완료 |
+
+## 관리자 이메일 발송 기능
+
+관리자 페이지에서 회원에게 공지 이메일을 발송하는 기능입니다.  
+기존 Gmail + Nodemailer 인프라(`sendPaymentConfirmEmail`)를 재사용하여 추가 비용 없이 구현합니다.
+
+### 발송 모드
+
+| 모드 | 진입 방법 | 대상 |
+|---|---|---|
+| **개인 메일** | 테이블 행 "메일" 버튼 클릭 | 해당 회원 1명 |
+| **선택 메일** | 체크박스로 복수 선택 후 액션 바 "선택 메일 발송" | 선택된 회원들 |
+| **단체 메일** | 필터 영역 "단체 메일 발송" 버튼 클릭 | 현재 필터 결과 전원 |
+
+### 메일 작성 기능
+
+- **리치 텍스트 편집기**: Quill.js 1.3.7 (Snow 테마) — 볼드·이탤릭·밑줄·목록·링크 등 서식 지원
+- **파일 첨부**: 파일당 5 MB, 전체 10 MB 제한 / Base64 인코딩으로 Cloud Function 전송
+- **CC / BCC**: 토글 버튼으로 표시, 쉼표 구분 복수 주소 입력 가능
+- **발송 미리보기**: "미리보기" 버튼 → `<iframe srcdoc>` 로 클라이언트 사이드 렌더링
+
+### 수신 대상 필터링
+
+- Firestore `users/{uid}.emailOptOut: true` 설정된 회원은 단체·선택 발송에서 자동 제외
+- 모달 상단에 수신자 수·수신 거부 제외 수 표시
+
+### 체크박스 선택 기능 (선택 메일)
+
+- 회원 목록 테이블에 체크박스 열 추가
+- 헤더 체크박스로 현재 페이지 전체 선택 / 해제 (일부 선택 시 indeterminate 표시)
+- 선택 내역은 페이지 이동 시에도 유지, 필터 변경 시 초기화
+- 선택된 회원이 있으면 테이블 위 액션 바 표시 (선택 수 · 해제 · 발송 버튼)
+
+### 발송 처리 (백엔드)
+
+- 엔드포인트: `POST /api/sendAdminEmail`
+- 관리자 Firebase ID 토큰 + Firestore `userType === 'admin'` 이중 검증
+- 요청 바디: `{ subject, body, targets, cc?, bcc?, attachments? }`
+- 수신자당 개별 발송 (각 메일에 수신자 이름 삽입)
+- 한 번에 최대 500명 제한
+- 발송 결과 `_email_logs` 컬렉션에 자동 기록 (`type: 'admin_notice'`)
+
+### 이메일 HTML 템플릿
+
+기존 결제 확인 이메일(`buildEmailHtml`)과 동일한 디자인 언어 적용.  
+Quill 리치 텍스트 HTML을 본문에 그대로 삽입 (관리자 전용 기능으로 XSS 허용).  
+푸터에 수신 거부 안내 문구 포함 (정보통신망법 준수).
+
+### 관련 파일
+
+| 파일 | 변경 내용 |
+|---|---|
+| `functions/index.js` | `sendAdminEmail` 함수, `buildAdminEmailHtml` 헬퍼 추가 |
+| `firebase.json` | `/api/sendAdminEmail` 라우팅, CSP `style-src`·`font-src`·`frame-src` 갱신 |
+| `pages/admin/user-management.html` | Quill CSS 로드, 체크박스 열, 선택 액션 바, 이메일 모달(CC/BCC·첨부·미리보기), 미리보기 모달 추가 |
+| `assets/js/pages/admin/user-management.js` | 체크박스 선택 메서드, 3가지 발송 모드 메서드, Quill 초기화, 첨부 파일 처리, 미리보기 빌더 추가 |
+
+---
 
 ## 운영 및 모니터링
 
@@ -404,8 +468,236 @@ await enableAdminDebug()
 - [Tailwind CSS](https://tailwindcss.com/) - UI 스타일링
 - [Google Fonts - Noto Sans KR](https://fonts.google.com/specimen/Noto+Sans+KR) - 웹 폰트
 - [Daum 우편번호 API](https://postcode.map.daum.net/guide) - 주소 검색
+- [Quill.js](https://quilljs.com/) - 관리자 이메일 발송 리치 텍스트 편집기
+
+## 구현 완료 — 승인 확인 모달 & 결제 완료자 시작 번호 지정
+
+### 배경
+
+자격증 번호 수동 입력은 관리자 수동 발급 경로에만 적용됨.
+나머지 두 경로(사용자 신청 승인, 결제 완료자 선택 발급)는 번호 수정이 불가능한 상태.
+오프라인 실물 자격증 번호와의 일치 요구사항을 모든 발급 경로에서 충족해야 함.
+
+---
+
+### 작업 범위
+
+#### A. 사용자 신청 승인 — 발급 확정 모달
+
+**설계 원칙**: "승인" 클릭 시 즉시 처리하지 않고, 자격증 번호·발급일·만료일을 확인/수정할 수 있는 소형 모달을 먼저 표시. 수동 번호 입력 시 중복 검증.
+
+##### A-1. `pages/admin/cert-management.html`
+
+`approval-confirm-modal` 신규 추가 (cert-modal-quaternary 레벨):
+- 자격증 번호 입력 필드 (pre-fill: `previewNextCertNumber()`, 수정 가능)
+- "번호 재생성" 버튼
+- 발급일 (기본값: 오늘)
+- 만료일 (발급일 + 3년 자동)
+- [취소] [발급 확정] 버튼
+
+##### A-2. `assets/js/pages/admin/cert-management.js`
+
+| 함수 | 변경 내용 |
+|---|---|
+| `approveApplication(id)` | 즉시 처리 → `showApprovalConfirmModal(id)` 호출로 변경 |
+| `showApprovalConfirmModal(id)` 신규 | 모달 오픈, applicationId hidden 저장, 번호 pre-fill |
+| `closeApprovalConfirmModal()` 신규 | 모달 닫기 |
+| `confirmApproval()` 신규 | 모달의 번호·날짜 읽어 기존 `approveApplication` 트랜잭션 실행. 수동 번호 시 중복 체크 |
+| `modalStates` | `approval-confirm-modal` 항목 추가 |
+
+---
+
+#### B. 결제 완료자 선택 발급 — 시작 번호 지정
+
+**설계 원칙**: 다건 발급 시 개별 번호 입력 대신 시작 번호만 지정. 선택된 신청자 순서대로 +1씩 자동 증가. 번호가 지정되지 않으면 현재 카운터에서 이어서 발급.
+
+##### B-1. `pages/admin/cert-management.html`
+
+`paid-applicants-modal`의 "자격증 발급 설정" 영역에 추가:
+- 시작 자격증 번호 입력 필드 (pre-fill: `previewNextCertNumber()`, 수정 가능)
+- "번호 재생성" 버튼
+- 안내 문구: "선택된 N명에게 이 번호부터 순서대로 발급됩니다."
+
+##### B-2. `assets/js/pages/admin/cert-management.js`
+
+| 함수 | 변경 내용 |
+|---|---|
+| `showPaidApplicantsModal()` | 시작 번호 필드 pre-fill 추가 |
+| `regenerateBulkStartNumber()` 신규 | "번호 재생성" 버튼 핸들러 |
+| `issueSelectedCertificates()` | 시작 번호 읽어 각 신청자에게 순번 적용. 수동 번호 시 중복 체크. Firebase 실제 저장 구현 (현재 시뮬레이션 상태) |
+
+---
+
+### 수정 대상 파일 요약
+
+| 파일 | 변경 내용 |
+|---|---|
+| `pages/admin/cert-management.html` | `approval-confirm-modal` 신규, `paid-applicants-modal`에 시작 번호 필드 추가 |
+| `assets/js/pages/admin/cert-management.js` | `approveApplication` 흐름 변경, 신규 함수 4개 추가, `issueSelectedCertificates` 실제 저장 구현 |
+
+---
+
+## 구현 완료 — 자격증 번호 수동 입력 & 조회 오류 수정
+
+### 배경
+
+오프라인(실물) 자격증 발급 시 클라이언트 자체 번호 양식이 존재하며, 온라인 시스템과 번호를 일치시켜야 하는 요구사항 발생.
+동시에 `cert-application.html` 자격증 조회 기능이 런타임 오류로 동작하지 않는 버그 확인.
+
+---
+
+### 작업 범위
+
+#### A. 관리자 수동 발급 — 자격증 번호 직접 입력 기능 (Option A)
+
+**설계 원칙**: 자동생성 번호를 기본값으로 pre-fill하되 관리자가 덮어쓸 수 있음. 저장 전 Firestore에서 중복 여부 검증.
+
+##### A-1. `pages/admin/cert-management.html`
+
+- `cert-issue-modal` 폼 상단에 자격증 번호 필드 추가
+
+```html
+<!-- 수료자명 필드 위에 삽입 -->
+<div class="form-field">
+  <label for="issue-cert-number" class="block text-sm font-medium text-gray-700">
+    자격증 번호 <span class="text-red-500">*</span>
+  </label>
+  <div class="flex gap-2 mt-1">
+    <input type="text" id="issue-cert-number" name="certNumber"
+      class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-indigo-500"
+      placeholder="자동 생성 또는 직접 입력">
+    <button type="button" id="btn-regen-cert-number"
+      onclick="certManager.regenerateCertNumber()"
+      class="admin-btn admin-btn-secondary whitespace-nowrap">번호 재생성</button>
+  </div>
+  <p class="text-xs text-gray-500 mt-1">
+    모달 열림 시 자동 생성됩니다. 실물 자격증 번호와 일치시킬 경우 직접 입력하세요.
+  </p>
+</div>
+```
+
+##### A-2. `assets/js/pages/admin/cert-management.js`
+
+| 위치 | 변경 내용 |
+|---|---|
+| `showIssueCertModal()` | 모달 오픈 시 `generateCertificateNumber()`를 호출해 `#issue-cert-number`에 pre-fill |
+| `regenerateCertNumber()` 신규 추가 | "번호 재생성" 버튼 핸들러 — `generateCertificateNumber()` 재호출 후 필드 갱신 |
+| `issueCertificate()` | `formData.get('certNumber')`를 우선 사용; 비어있으면 `generateCertificateNumber()` 호출. 저장 전 `checkCertNumberDuplicate()` 호출 |
+| `checkCertNumberDuplicate()` 신규 추가 | `certificates` 컬렉션에서 `certificateNumber == value` 쿼리. 중복 시 오류 반환 |
+| `validateIssueData()` | `certNumber` 필드 필수값 검증 추가 |
+
+**카운터 필드 통일 (버그 수정)**
+
+`cert-management.js`의 `generateCertificateNumber()`는 카운터 문서의 `.value` 필드를 사용하나,
+`db-service.js`의 `generateCertificateNumber()`는 `.count` 필드를 사용 — 동일 카운터 문서가 두 필드를 별도로 증가시켜 순번이 분기됨.
+
+→ `cert-management.js`의 카운터 필드를 `.count`로 통일 (db-service.js 기준 따름).
+
+---
+
+#### B. 자격증 조회 오류 수정 (`cert-application.js`)
+
+##### B-1. 오류 원인 분석
+
+| 원인 | 상세 |
+|---|---|
+| **존재하지 않는 메서드 호출** | `verifyCertificate()`가 `window.dbService.queryDocuments()` 호출. 이 메서드는 db-service.js에 없음 — 실제 메서드는 `getDocuments(options)` |
+| **타입 불일치 — issueDate** | Firestore에 `issueDate`가 Timestamp로 저장되나 조회 시 `string` 으로 비교 → 항상 불일치 |
+
+##### B-2. `assets/js/pages/education/cert-application.js` — `verifyCertificate()` 수정
+
+```js
+// Before (오류 발생)
+const result = await window.dbService.queryDocuments('certificates', queryConditions);
+
+// After
+const result = await window.dbService.getDocuments('certificates', {
+    where: [
+        { field: 'certificateNumber', operator: '==', value: certNumber }
+    ],
+    limit: 1
+});
+```
+
+- `issueDate` 조건을 쿼리에서 제거하고 **결과 반환 후 클라이언트에서 날짜 비교**로 대체
+  - Firestore Timestamp → `toDate()` → `YYYY-MM-DD` 문자열로 변환 후 입력값과 비교
+  - 이유: Firestore에서 `Timestamp == string` 비교는 항상 false
+
+```js
+// 날짜 비교 (클라이언트 사이드)
+const cert = result.data[0];
+const storedDate = cert.issueDate?.toDate
+    ? cert.issueDate.toDate().toISOString().slice(0, 10)
+    : cert.issueDate;
+
+if (storedDate !== certDate) {
+    return { success: false, error: '일치하는 자격증 정보를 찾을 수 없습니다.' };
+}
+```
+
+---
+
+### 수정 대상 파일 요약
+
+| 파일 | 변경 유형 | 내용 요약 |
+|---|---|---|
+| `pages/admin/cert-management.html` | 수정 | `cert-issue-modal`에 자격증 번호 입력 필드 + 재생성 버튼 추가 |
+| `assets/js/pages/admin/cert-management.js` | 수정 | `showIssueCertModal` pre-fill, `regenerateCertNumber` 신규, `issueCertificate` 수동 번호 지원, `checkCertNumberDuplicate` 신규, 카운터 필드 `.value` → `.count` 통일 |
+| `assets/js/pages/education/cert-application.js` | 수정 | `verifyCertificate`에서 `queryDocuments` → `getDocuments` 교체, issueDate 타입 불일치 해소 |
+
+---
+
+### 데이터 정합성 — 카운터 필드 마이그레이션 주의사항
+
+`_counters` 컬렉션에 `.value` 필드만 있는 기존 문서가 존재할 경우:
+- `cert-management.js` 수정 후 `.count` 필드로 읽으면 `undefined` → 순번이 1부터 재시작될 수 있음
+- **마이그레이션 처리**: `cert-management.js`의 `generateCertificateNumber()` 트랜잭션 안에서 `snap.data().count ?? snap.data().value ?? 0`으로 기존 `.value` 필드도 fallback으로 읽어 자연스럽게 이관
+
+---
 
 ## 변경 이력
+
+### 2026-06-10 — 관리자 이메일 발송 기능 추가
+
+#### 신규 기능
+
+- **개인·선택·단체 3가지 발송 모드**: 회원 행 "메일" 버튼(1명), 체크박스 다중 선택 후 액션 바(선택 인원), 필터 결과 전체 일괄 발송
+- **체크박스 선택 UI**: 테이블에 체크박스 열 추가, 헤더 체크박스(전체 선택·indeterminate 표시), 선택 액션 바, 페이지 이동 시 선택 유지·필터 변경 시 초기화
+- **Quill.js 리치 텍스트 편집기**: Snow 테마, 기존 인스턴스 재사용으로 중복 초기화 방지
+- **파일 첨부**: FileReader Base64 인코딩, 5 MB/파일·10 MB 전체 클라이언트 검증, 청크 제거 목록 UI
+- **CC / BCC 필드**: 토글 버튼, 쉼표 구분 이메일 정규식 검증, 숨김 시 값 초기화
+- **발송 미리보기**: `<iframe srcdoc>` 클라이언트 렌더링, 서버 템플릿과 동일한 HTML 구조
+- **수신 거부 자동 제외**: `emailOptOut: true` 회원 필터링, 제외 수 모달 상단 표시
+
+#### 버그 수정
+
+- **`nodemailer.createTransporter` → `createTransport`**: 기존 `sendPaymentConfirmEmail`의 잘못된 메서드 이름 수정
+
+#### 인프라 변경
+
+- **`functions/index.js`**: `sendAdminEmail` Cloud Function, `buildAdminEmailHtml` 헬퍼 추가 (관리자 ID 토큰 + `userType` 이중 검증, Base64 첨부 처리, CC/BCC 지원, `_email_logs` 자동 기록)
+- **`firebase.json`**: `/api/sendAdminEmail` 라우팅 추가; CSP `style-src`·`font-src`에 `https://cdn.jsdelivr.net` 추가, `frame-src`에 `'self'` 추가 (Quill CSS 및 미리보기 iframe 허용)
+- **`pages/admin/user-management.html`**: Quill CSS CDN 로드, 체크박스 열(colspan 8→9), 선택 액션 바, 이메일 모달(CC/BCC·첨부·미리보기), 미리보기 모달, Quill JS CDN 로드
+- **`assets/js/pages/admin/user-management.js`**: `_selectedUserIds(Set)`, `_quillInstance`, `_emailAttachments` 상태 추가; 체크박스·액션 바·발송 모달 관련 메서드 전체 추가
+
+#### 배포 전 필수 설정
+
+```bash
+# functions/.env 에 추가 (로컬) 또는 Firebase 환경변수 설정 (운영)
+GMAIL_USER=발신자@gmail.com
+GMAIL_APP_PASSWORD=Gmail_앱_비밀번호_16자리
+```
+
+> **배포 주의**: CC/BCC 발송은 Cloud Function 안에서 처리됩니다.  
+> Hosting만 배포하면 CC/BCC가 동작하지 않습니다. 반드시 `firebase deploy --only functions` 또는 `firebase deploy`로 Function도 함께 배포하세요.
+
+#### 추가 버그 수정 (2026-06-10)
+
+- **Quill 링크 버튼 미작동**: 모달의 `overflow-y: auto`가 Quill 기본 URL 입력 툴팁을 화면 밖으로 잘라냄 → `prompt()` 대화상자로 대체, 텍스트 미선택 시 안내 메시지 표시
+- **Quill 서식제거(Tx) 버튼 미작동**: 텍스트 미선택 상태에서 클릭해도 아무 반응 없어 고장처럼 보이던 문제 → 미선택 시 "텍스트를 먼저 선택하세요" 안내 알림 추가
+- **CC/BCC 발송 디버그 로그 추가**: `functions/index.js`에 `[sendAdminEmail] CC/BCC 수신 확인` 로그 추가 — Firebase Console에서 CC/BCC 전달 여부 확인 가능
+
+---
 
 ### 2026-05-11 — 보안 강화 및 운영 안정성 개선
 

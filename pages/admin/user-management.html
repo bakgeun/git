@@ -10,6 +10,15 @@
     <!-- Tailwind CSS Play CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../../assets/css/main.css">
+    <!-- Quill 리치 텍스트 에디터 (이메일 작성용) -->
+    <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
+    <style>
+        /* Quill 에디터 스타일 조정 */
+        .ql-container { font-size: 14px; }
+        .ql-editor { min-height: 180px; max-height: 300px; overflow-y: auto; }
+        .ql-toolbar { border-top-left-radius: 0.375rem; border-top-right-radius: 0.375rem; }
+        .ql-container { border-bottom-left-radius: 0.375rem; border-bottom-right-radius: 0.375rem; }
+    </style>
 
     <!-- 경로 헬퍼 스크립트 (항상 가장 먼저 로드되어야 함) -->
     <script src="../../assets/js/utils/script-loader.js"></script>
@@ -173,6 +182,12 @@
                         </svg>
                         CSV 다운로드
                     </button>
+                    <button type="button" onclick="userManager.openBulkEmailModal()" class="admin-btn" style="background:#4f46e5;color:#fff;">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right: 0.5rem;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        단체 메일 발송
+                    </button>
                 </div>
             </div>
 
@@ -247,11 +262,35 @@
                 </div>
             </div>
 
+            <!-- 선택 액션바 (회원 선택 시 표시) -->
+            <div id="selection-action-bar" class="hidden mb-4 bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-3 flex items-center justify-between">
+                <span id="selection-count" class="text-indigo-700 font-medium text-sm"></span>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="userManager.clearSelection()"
+                        class="text-sm text-gray-600 hover:text-gray-800 px-3 py-1.5 rounded hover:bg-white">
+                        선택 해제
+                    </button>
+                    <button type="button" onclick="userManager.openSelectedEmailModal()"
+                        class="bg-indigo-600 text-white text-sm px-4 py-1.5 rounded-md hover:bg-indigo-700 flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        선택 메일 발송
+                    </button>
+                </div>
+            </div>
+
             <!-- 회원 목록 테이블 -->
             <div class="admin-table-container">
                 <table class="admin-table admin-table-responsive">
                     <thead>
                         <tr>
+                            <th style="width:40px;">
+                                <input type="checkbox" id="select-all-checkbox"
+                                    class="w-4 h-4 text-indigo-600 rounded cursor-pointer"
+                                    onchange="userManager.toggleSelectAll(this.checked)"
+                                    title="현재 페이지 전체 선택">
+                            </th>
                             <th>번호</th>
                             <th>소속</th>
                             <th>이름</th>
@@ -265,7 +304,7 @@
                     <tbody id="user-list">
                         <!-- 로딩 상태 -->
                         <tr>
-                            <td colspan="8" class="admin-loading-state">
+                            <td colspan="9" class="admin-loading-state">
                                 <div class="admin-loading-spinner"></div>
                                 <span class="text-gray-600">데이터를 불러오는 중입니다...</span>
                             </td>
@@ -374,6 +413,121 @@
         </div>
     </div>
 
+    <!-- 이메일 발송 모달 -->
+    <div id="email-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg w-full max-w-2xl relative mx-4" style="max-height:92vh;overflow-y:auto;">
+            <!-- 모달 헤더 -->
+            <div class="flex items-center justify-between px-6 pt-5 pb-3 border-b border-gray-200">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900" id="email-modal-title">메일 발송</h2>
+                    <p class="text-sm text-gray-500 mt-0.5" id="email-modal-recipient"></p>
+                </div>
+                <button onclick="userManager.closeEmailModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <form id="email-form" onsubmit="userManager.handleSendEmail(event)" class="px-6 py-4 space-y-4">
+                <!-- CC / BCC 토글 -->
+                <div class="flex gap-3">
+                    <button type="button" id="cc-toggle-btn" onclick="userManager.toggleCC()"
+                        class="text-xs text-indigo-600 hover:underline">+ CC 추가</button>
+                    <button type="button" id="bcc-toggle-btn" onclick="userManager.toggleBCC()"
+                        class="text-xs text-indigo-600 hover:underline">+ BCC 추가</button>
+                </div>
+
+                <!-- CC 필드 -->
+                <div id="cc-field" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">참조 (CC)</label>
+                    <input type="text" id="email-cc" placeholder="이메일 주소를 쉼표(,)로 구분하여 입력"
+                        class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+
+                <!-- BCC 필드 -->
+                <div id="bcc-field" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">숨은 참조 (BCC)</label>
+                    <input type="text" id="email-bcc" placeholder="이메일 주소를 쉼표(,)로 구분하여 입력"
+                        class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+
+                <!-- 제목 -->
+                <div>
+                    <label for="email-subject" class="block text-sm font-medium text-gray-700 mb-1">제목 <span class="text-red-500">*</span></label>
+                    <input type="text" id="email-subject" required placeholder="메일 제목을 입력하세요"
+                        class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+
+                <!-- 본문 (Quill 에디터) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">내용 <span class="text-red-500">*</span></label>
+                    <div id="email-quill-container"></div>
+                </div>
+
+                <!-- 파일 첨부 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">파일 첨부</label>
+                    <div class="flex items-center gap-3">
+                        <label for="email-file-input"
+                            class="cursor-pointer inline-flex items-center gap-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded-md px-3 py-1.5 text-sm text-gray-700">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                            </svg>
+                            파일 선택
+                        </label>
+                        <input type="file" id="email-file-input" multiple class="hidden"
+                            onchange="userManager.handleFileAttachment(event)">
+                        <span class="text-xs text-gray-400">파일당 최대 5MB / 총 10MB</span>
+                    </div>
+                    <!-- 첨부 파일 목록 -->
+                    <div id="email-attachments-list" class="mt-2 space-y-1"></div>
+                </div>
+
+                <p class="text-xs text-gray-400">수신 거부 희망 회원은 nhohs1507@gmail.com으로 연락하도록 메일 하단에 안내됩니다.</p>
+
+                <!-- 버튼 영역 -->
+                <div class="flex justify-end gap-2 pt-1 pb-1">
+                    <button type="button" onclick="userManager.closeEmailModal()"
+                        class="bg-gray-100 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-200 text-sm">
+                        취소
+                    </button>
+                    <button type="button" onclick="userManager.previewEmail()"
+                        class="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-50 text-sm flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                        미리보기
+                    </button>
+                    <button type="submit" id="email-send-button"
+                        class="bg-indigo-600 text-white py-2 px-5 rounded-md hover:bg-indigo-700 text-sm flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        발송
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 이메일 미리보기 모달 -->
+    <div id="email-preview-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-[60]">
+        <div class="bg-white rounded-lg w-full max-w-2xl mx-4 relative flex flex-col" style="max-height:90vh;">
+            <div class="flex items-center justify-between px-5 py-3 border-b border-gray-200 flex-shrink-0">
+                <h3 class="font-bold text-gray-900">이메일 미리보기</h3>
+                <button onclick="document.getElementById('email-preview-modal').classList.add('hidden')"
+                    class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <iframe id="email-preview-iframe" style="flex:1;border:none;min-height:480px;" sandbox="allow-same-origin"></iframe>
+        </div>
+    </div>
+
     <!-- 표준화된 스크립트 로딩 (dashboard.html 스타일) -->
     <script id="firebase-sdk-template" type="text/template">
     <!-- Firebase SDK -->
@@ -398,6 +552,8 @@
 </script>
 
     <script id="additional-scripts-template" type="text/template">
+    <!-- Quill 리치 텍스트 에디터 -->
+    <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"><\/script>
     <!-- 관리자 전용 유틸리티 -->
     <script src="{basePath}assets/js/utils/admin-auth.js"><\/script>
     

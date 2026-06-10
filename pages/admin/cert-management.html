@@ -391,6 +391,24 @@
                 <div class="cert-modal-body">
                     <form id="cert-issue-form" class="space-y-4">
                         <div class="form-field">
+                            <label for="issue-cert-number" class="block text-sm font-medium text-gray-700">
+                                자격증 번호 <span class="text-red-500">*</span>
+                            </label>
+                            <div class="mt-1 flex gap-2">
+                                <input type="text" id="issue-cert-number" name="certNumber"
+                                    class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                    placeholder="불러오는 중...">
+                                <button type="button" onclick="certManager.regenerateCertNumber()"
+                                    class="admin-btn admin-btn-secondary whitespace-nowrap text-xs px-3">
+                                    번호 재생성
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">
+                                자동 생성된 번호가 표시됩니다. 실물 자격증 번호와 맞춰야 할 경우 직접 수정하세요.
+                            </p>
+                        </div>
+
+                        <div class="form-field">
                             <label for="issue-course" class="block text-sm font-medium text-gray-700">
                                 교육 과정 <span class="text-red-500">*</span>
                             </label>
@@ -658,18 +676,37 @@
                         <!-- 발급 설정 -->
                         <div class="bg-gray-50 p-4 rounded-lg">
                             <h4 class="text-sm font-medium text-gray-800 mb-3">자격증 발급 설정</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 gap-4">
+                                <!-- 시작 자격증 번호 -->
                                 <div>
-                                    <label for="bulk-issue-date"
-                                        class="block text-sm font-medium text-gray-700">발급일</label>
-                                    <input type="date" id="bulk-issue-date"
-                                        class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                    <label for="bulk-start-cert-number"
+                                        class="block text-sm font-medium text-gray-700">시작 자격증 번호</label>
+                                    <div class="mt-1 flex gap-2">
+                                        <input type="text" id="bulk-start-cert-number"
+                                            class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                            placeholder="불러오는 중...">
+                                        <button type="button" onclick="certManager.regenerateBulkStartNumber()"
+                                            class="admin-btn admin-btn-secondary whitespace-nowrap text-xs px-3">
+                                            번호 재생성
+                                        </button>
+                                    </div>
+                                    <p id="bulk-start-number-hint" class="text-xs text-gray-500 mt-1">
+                                        선택된 신청자에게 이 번호부터 순서대로 발급됩니다.
+                                    </p>
                                 </div>
-                                <div>
-                                    <label for="bulk-expiry-date"
-                                        class="block text-sm font-medium text-gray-700">만료일</label>
-                                    <input type="date" id="bulk-expiry-date"
-                                        class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="bulk-issue-date"
+                                            class="block text-sm font-medium text-gray-700">발급일</label>
+                                        <input type="date" id="bulk-issue-date"
+                                            class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                    </div>
+                                    <div>
+                                        <label for="bulk-expiry-date"
+                                            class="block text-sm font-medium text-gray-700">만료일</label>
+                                        <input type="date" id="bulk-expiry-date"
+                                            class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1225,6 +1262,85 @@
                             </button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 승인 확인 모달 -->
+    <div id="approval-confirm-modal" class="cert-modal cert-modal-quaternary hidden">
+        <div class="cert-modal-backdrop" onclick="certManager.closeApprovalConfirmModal()"></div>
+        <div class="cert-modal-container">
+            <div class="cert-modal-content">
+                <div class="cert-modal-header">
+                    <h3 class="cert-modal-title">발급 확정</h3>
+                    <button onclick="certManager.closeApprovalConfirmModal()" class="cert-modal-close">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="cert-modal-body">
+                    <input type="hidden" id="approval-application-id">
+                    <div class="space-y-4">
+                        <!-- 안내 -->
+                        <div class="bg-blue-50 border-l-4 border-blue-400 p-3 text-sm text-blue-700">
+                            발급 전 자격증 번호와 날짜를 확인하세요. 번호는 실물 자격증에 맞게 수정할 수 있습니다.
+                        </div>
+                        <!-- 신청자 정보 (읽기 전용) -->
+                        <div class="bg-gray-50 rounded-md px-4 py-3 text-sm">
+                            <span class="text-gray-500">신청자:</span>
+                            <span id="approval-holder-name" class="ml-2 font-medium text-gray-900"></span>
+                        </div>
+                        <!-- 자격증 번호 -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">
+                                자격증 번호 <span class="text-red-500">*</span>
+                            </label>
+                            <div class="mt-1 flex gap-2">
+                                <input type="text" id="approval-cert-number"
+                                    class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                    placeholder="불러오는 중...">
+                                <button type="button" onclick="certManager.regenerateApprovalCertNumber()"
+                                    class="admin-btn admin-btn-secondary whitespace-nowrap text-xs px-3">
+                                    번호 재생성
+                                </button>
+                            </div>
+                        </div>
+                        <!-- 발급일 / 만료일 -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">
+                                    발급일 <span class="text-red-500">*</span>
+                                </label>
+                                <input type="date" id="approval-issue-date"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                    onchange="certManager.syncApprovalExpiryDate()">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">
+                                    만료일 <span class="text-red-500">*</span>
+                                </label>
+                                <input type="date" id="approval-expiry-date"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <p class="text-xs text-gray-500 mt-1">발급일 변경 시 자동 갱신</p>
+                            </div>
+                        </div>
+                        <!-- 버튼 -->
+                        <div class="flex justify-end gap-3 pt-2 border-t border-gray-200">
+                            <button type="button" onclick="certManager.closeApprovalConfirmModal()"
+                                class="admin-btn admin-btn-secondary">취소</button>
+                            <button type="button" onclick="certManager.confirmApproval()"
+                                class="admin-btn admin-btn-success">
+                                <svg class="inline-block w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                발급 확정
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
