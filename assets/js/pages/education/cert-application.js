@@ -1,4 +1,4 @@
-/**
+﻿/**
  * cert-application.js - 자격증 발급 신청 (데이터 연동 수정 버전)
  * 🔧 cert-management.js와 데이터 스키마 통일
  */
@@ -98,7 +98,7 @@ window.CertApplication = window.CertApplication || {};
      */
     function getCertificateTypeName(type) {
         const typeNames = {
-            'health-exercise': '건강운동처방사',
+            'health-exercise': '운동건강관리사',
             'rehabilitation': '운동재활전문가',
             'pilates': '필라테스 전문가',
             'recreation': '레크리에이션지도자'
@@ -1124,7 +1124,7 @@ window.CertApplication = window.CertApplication || {};
 
     function updateCertificateInfo(certType) {
         const certNames = {
-            'health-exercise': '건강운동처방사',
+            'health-exercise': '운동건강관리사',
             'rehabilitation': '운동재활전문가',
             'pilates': '필라테스 전문가',
             'recreation': '레크리에이션지도자'
@@ -1154,7 +1154,7 @@ window.CertApplication = window.CertApplication || {};
 
         if (certTypeSelect && summaryCertName) {
             const certNames = {
-                'health-exercise': '건강운동처방사',
+                'health-exercise': '운동건강관리사',
                 'rehabilitation': '운동재활전문가',
                 'pilates': '필라테스 전문가',
                 'recreation': '레크리에이션지도자'
@@ -1546,7 +1546,7 @@ window.CertApplication = window.CertApplication || {};
 
     function certTypeToKorean(type) {
         const map = {
-            'health-exercise': '건강운동처방사',
+            'health-exercise': '운동건강관리사',
             'rehabilitation': '운동재활전문가',
             'pilates': '필라테스 전문가',
             'recreation': '레크리에이션지도자'
@@ -1634,7 +1634,7 @@ window.CertApplication = window.CertApplication || {};
                     case 'health':
                     case 'health-exercise':
                         optionValue = 'health-exercise';
-                        certName = '건강운동처방사';
+                        certName = '운동건강관리사';
                         break;
                     case 'rehab':
                     case 'rehabilitation':
@@ -2183,7 +2183,7 @@ console.log('📸 테스트: window.CertApplication.debug.testDataConversion()')
      */
     function getCertificateTypeName(type) {
         const typeNames = {
-            'health-exercise': '건강운동처방사',
+            'health-exercise': '운동건강관리사',
             'rehabilitation': '운동재활전문가',
             'pilates': '필라테스 전문가',
             'recreation': '레크리에이션지도자'
@@ -2309,7 +2309,7 @@ window.CertApplicationUtils.convertApplicationToCertificate = function (applicat
     // 자격증 종류명 가져오기 함수 (내부)
     function getCertificateTypeName(type) {
         const typeNames = {
-            'health-exercise': '건강운동처방사',
+            'health-exercise': '운동건강관리사',
             'rehabilitation': '운동재활전문가',
             'pilates': '필라테스 전문가',
             'recreation': '레크리에이션지도자'

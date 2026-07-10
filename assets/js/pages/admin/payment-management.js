@@ -1,4 +1,4 @@
-/**
+﻿/**
  * payment-management.js - 완전한 통합 유틸리티 시스템 적용 버전
  * 결제 관리 페이지의 모든 기능을 포함합니다.
  */
@@ -862,7 +862,7 @@ window.paymentManager = {
                 userName: '홍길동',
                 userEmail: 'hong@example.com',
                 userPhone: '010-1234-5678',
-                courseName: '건강운동처방사 기본과정',
+                courseName: '운동건강관리사 기본과정',
                 courseType: 'health-exercise',
                 amount: 350000,
                 paymentMethod: 'card',
@@ -920,7 +920,7 @@ window.paymentManager = {
                 userName: '정하나',
                 userEmail: 'jung@example.com',
                 userPhone: '010-5678-9012',
-                courseName: '건강운동처방사 심화과정',
+                courseName: '운동건강관리사 심화과정',
                 courseType: 'health-exercise',
                 amount: 450000,
                 paymentMethod: 'card',

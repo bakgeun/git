@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 데이터베이스 관련 서비스
  * Firestore 데이터베이스 관련 CRUD 기능을 처리합니다.
  */
@@ -677,7 +677,7 @@
      */
     window.dbService.getCertificateTypeName = function (type) {
         const typeNames = {
-            'health-exercise': '건강운동처방사',
+            'health-exercise': '운동건강관리사',
             'rehabilitation': '운동재활전문가',
             'pilates': '필라테스 전문가',
             'recreation': '레크리에이션지도자'
@@ -1444,7 +1444,7 @@ function getDefaultRenewalFeeSettings() {
 
 function getCertTypeName(certType) {
     const certTypeNames = {
-        'health-exercise': '건강운동처방사',
+        'health-exercise': '운동건강관리사',
         'rehabilitation': '운동재활전문가',
         'pilates': '필라테스 전문가',
         'recreation': '레크리에이션지도자'

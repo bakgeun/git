@@ -1,4 +1,4 @@
-/**
+﻿/**
  * course-application.js - 최적화 버전
  * Firebase 기반 교육 신청 페이지 - 통합 결제 시스템
  * 기능 보존하면서 코드 최적화 (1,400줄 → 1,100줄)
@@ -283,7 +283,7 @@ function renderScheduleTable(courses) {
             const coursePeriod = `${year.toString().slice(-2)}년 ${period}`;
 
             const certNames = {
-                'health-exercise': '건강운동처방사',
+                'health-exercise': '운동건강관리사',
                 'rehabilitation': '운동재활전문가',
                 'pilates': '필라테스 전문가',
                 'recreation': '레크리에이션지도자'
@@ -457,7 +457,7 @@ async function handleURLParameters() {
             setTimeout(() => {
                 scrollToCourseSelection();
                 const certNames = {
-                    'health-exercise': '건강운동처방사',
+                    'health-exercise': '운동건강관리사',
                     'rehabilitation': '운동재활전문가',
                     'pilates': '필라테스 전문가',
                     'recreation': '레크리에이션지도자'
@@ -551,7 +551,7 @@ function populateCourseOptions(courses) {
 
     Object.keys(groupedCourses).forEach(certType => {
         const certNames = {
-            'health-exercise': '건강운동처방사',
+            'health-exercise': '운동건강관리사',
             'rehabilitation': '운동재활전문가',
             'pilates': '필라테스 전문가',
             'recreation': '레크리에이션지도자'
@@ -2333,7 +2333,7 @@ function getTestScheduleData() {
     return [
         {
             id: 'test-health-1',
-            title: '건강운동처방사 기본과정 1기',
+            title: '운동건강관리사 기본과정 1기',
             certificateType: 'health-exercise',
             instructor: '김운동',
             startDate: new Date(now.getTime() + oneMonth),
@@ -2341,7 +2341,7 @@ function getTestScheduleData() {
             capacity: 30,
             enrolledCount: 18,
             status: 'active',
-            description: '건강운동처방사 자격증 취득을 위한 기본 과정입니다.',
+            description: '운동건강관리사 자격증 취득을 위한 기본 과정입니다.',
             pricing: {
                 education: 150000,
                 certificate: 50000,

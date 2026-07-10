@@ -1556,6 +1556,7 @@ window.courseManager = {
         const applyEndDate = new Date(form.querySelector('#course-apply-end-date').value);
         const capacity = parseInt(form.querySelector('#course-capacity').value);
         const period = form.querySelector('#course-period').value.trim();
+        const grade = form.querySelector('#course-grade')?.value || '1급';
         const status = form.querySelector('#course-status').value;
         const method = form.querySelector('#course-method').value;
         const location = form.querySelector('#course-location').value;
@@ -1637,6 +1638,7 @@ window.courseManager = {
             applyEndDate,
             capacity,
             period,
+            grade,
             status,
             method,
             location,
@@ -1670,6 +1672,7 @@ window.courseManager = {
             description: description,
             capacity: formData.capacity,
             period: formData.period,
+            grade: formData.grade,
             method: formData.method || '온라인 + 오프라인 병행',
             location: formData.location || '서울 강남구 센터',
             status: formData.status,
@@ -1837,6 +1840,8 @@ ${course.description || '내용 없음'}
                 // 기본 정보
                 form.querySelector('#course-certificate-type').value = course.certificateType || '';
                 form.querySelector('#course-period').value = course.period || '';
+                const gradeEl = form.querySelector('#course-grade');
+                if (gradeEl) gradeEl.value = course.grade || '1급';
                 form.querySelector('#course-instructor').value = course.instructorId || '';
                 form.querySelector('#course-capacity').value = course.capacity || '';
                 form.querySelector('#course-status').value = course.status || 'preparing';

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * dashboard.js - 완전한 통합 유틸리티 시스템 적용 버전 (cert-management 표준 적용)
  * 관리자 대시보드 페이지의 모든 기능을 포함합니다.
  */
@@ -697,7 +697,7 @@ async function loadRecentApplications() {
         // 더미 데이터 또는 실제 데이터 표시
         if (applications.length === 0) {
             applications = [
-                { course: '건강운동처방사', applicant: '이미영', createdAt: new Date('2025-05-13') },
+                { course: '운동건강관리사', applicant: '이미영', createdAt: new Date('2025-05-13') },
                 { course: '운동재활전문가', applicant: '정현우', createdAt: new Date('2025-05-12') },
                 { course: '필라테스 전문가', applicant: '최서연', createdAt: new Date('2025-05-11') }
             ];
@@ -746,7 +746,7 @@ async function loadRecentNotices() {
         // 더미 데이터 또는 실제 데이터 표시
         if (notices.length === 0) {
             notices = [
-                { title: '5월 건강운동처방사 시험 일정 안내', createdAt: new Date('2025-05-13') },
+                { title: '5월 운동건강관리사 시험 일정 안내', createdAt: new Date('2025-05-13') },
                 { title: '온라인 교육 시스템 업데이트 공지', createdAt: new Date('2025-05-12') },
                 { title: '자격증 갱신 절차 변경 안내', createdAt: new Date('2025-05-11') }
             ];

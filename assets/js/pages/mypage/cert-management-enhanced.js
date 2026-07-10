@@ -1,4 +1,4 @@
-/**
+﻿/**
  * cert-management-enhanced.js Part 1
  * 초기화 및 변수 설정, 동적 갱신 비용 시스템
  */
@@ -407,7 +407,7 @@
                 cert = {
                     id: certId,
                     certType: 'health-exercise',
-                    certName: '건강운동처방사 (테스트)',
+                    certName: '운동건강관리사 (테스트)',
                     certNumber: 'TEST-2024-001',
                     issuedAt: { seconds: new Date('2022-01-01').getTime() / 1000 },
                     expiryDate: { seconds: new Date('2025-01-01').getTime() / 1000 }
@@ -1287,7 +1287,7 @@
                 selectedCertForRenewal = {
                     id: 'test-cert',
                     certType: 'health-exercise',
-                    certName: '건강운동처방사 (테스트)',
+                    certName: '운동건강관리사 (테스트)',
                     certNumber: 'TEST-2024-001',
                     issuedAt: { seconds: new Date('2022-01-01').getTime() / 1000 },
                     expiryDate: { seconds: new Date('2025-01-01').getTime() / 1000 }
@@ -2113,7 +2113,7 @@
      */
     function getCertificateTypeName(type) {
         const typeNames = {
-            'health-exercise': '건강운동처방사',
+            'health-exercise': '운동건강관리사',
             'rehabilitation': '운동재활전문가',
             'pilates': '필라테스 전문가',
             'recreation': '레크리에이션지도자'
@@ -2409,7 +2409,7 @@
                 const testCert = {
                     userId: user.uid,
                     certType: 'health-exercise',
-                    certName: '건강운동처방사 (테스트)',
+                    certName: '운동건강관리사 (테스트)',
                     certNumber: 'TEST-' + Date.now(),
                     status: 'active',
                     issuedAt: new Date(),

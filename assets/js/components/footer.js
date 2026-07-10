@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 푸터 컴포넌트
  * 웹사이트 하단 푸터 관련 기능
  */
@@ -125,7 +125,7 @@
             // 실제로는 통계 데이터를 기반으로 인기 자격증을 조회
             // 여기서는 하드코딩된 데이터 반환
             return [
-                { id: 'health-exercise', name: '건강운동처방사', count: 150 },
+                { id: 'health-exercise', name: '운동건강관리사', count: 150 },
                 { id: 'pilates', name: '필라테스 전문가', count: 120 },
                 { id: 'rehabilitation', name: '운동재활전문가', count: 100 }
             ];

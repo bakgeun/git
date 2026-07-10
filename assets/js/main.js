@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 메인 JavaScript 파일
  * 모든 페이지에서 공통으로 사용되는 기능을 처리합니다.
  */
@@ -565,7 +565,7 @@
         updateCourseInfo: function(courseId) {
             const courseData = {
                 'health-1': {
-                    title: '건강운동처방사 과정 1기',
+                    title: '운동건강관리사 과정 1기',
                     period: '2025.06.03 ~ 2025.08.23 (12주)',
                     price: '1,200,000원',
                     method: '블렌디드 과정 (온라인+오프라인)',

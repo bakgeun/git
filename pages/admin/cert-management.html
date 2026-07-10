@@ -195,7 +195,7 @@
                     <button onclick="certManager.switchCertType('health-exercise')"
                         class="cert-tab active border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
                         data-cert="health-exercise">
-                        건강운동처방사
+                        운동건강관리사
                     </button>
                     <button onclick="certManager.switchCertType('rehabilitation')"
                         class="cert-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
@@ -261,7 +261,7 @@
             <div class="bg-white rounded-lg shadow-md">
                 <div class="p-4 border-b border-gray-200 flex justify-between items-center gap-4">
                     <h2 class="text-xl font-semibold text-gray-800 shrink-0">
-                        <span id="cert-type-title">건강운동처방사</span> 자격증 목록
+                        <span id="cert-type-title">운동건강관리사</span> 자격증 목록
                     </h2>
                     <div class="flex items-center gap-2 flex-wrap justify-end">
 
@@ -390,6 +390,7 @@
                 </div>
                 <div class="cert-modal-body">
                     <form id="cert-issue-form" class="space-y-4">
+                        <input type="hidden" id="issue-grade" name="grade" value="1급">
                         <div class="form-field">
                             <label for="issue-cert-number" class="block text-sm font-medium text-gray-700">
                                 자격증 번호 <span class="text-red-500">*</span>
@@ -571,7 +572,7 @@
                                 </div>
                                 <div class="ml-3">
                                     <p class="text-sm text-blue-700">
-                                        <span id="current-cert-type-name">건강운동처방사</span> 자격증비를 결제 완료한 신청자 목록입니다.
+                                        <span id="current-cert-type-name">운동건강관리사</span> 자격증비를 결제 완료한 신청자 목록입니다.
                                         발급할 신청자를 선택하세요.
                                     </p>
                                 </div>
@@ -782,7 +783,7 @@
                                 <button onclick="certManager.switchRenewalFeeTab('health-exercise')"
                                     class="renewal-fee-tab active border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
                                     data-cert="health-exercise">
-                                    건강운동처방사
+                                    운동건강관리사
                                 </button>
                                 <button onclick="certManager.switchRenewalFeeTab('rehabilitation')"
                                     class="renewal-fee-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
@@ -996,7 +997,7 @@
                                 </div>
                                 <div class="ml-3">
                                     <p class="text-sm text-orange-700">
-                                        <span id="renewal-current-cert-type-name">건강운동처방사</span> 자격증 갱신 신청자 목록입니다.
+                                        <span id="renewal-current-cert-type-name">운동건강관리사</span> 자격증 갱신 신청자 목록입니다.
                                         신청을 검토하고 승인/거절을 처리하세요.
                                     </p>
                                 </div>
@@ -1234,16 +1235,27 @@
                             </div>
                         </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">상태 <span
-                                    class="text-red-500">*</span></label>
-                            <select id="edit-status" name="status" required
-                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                <option value="active">유효</option>
-                                <option value="expired">만료</option>
-                                <option value="revoked">취소</option>
-                                <option value="suspended">정지</option>
-                            </select>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">급수 <span
+                                        class="text-red-500">*</span></label>
+                                <select id="edit-grade" name="grade" required
+                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                    <option value="1급">1급</option>
+                                    <option value="2급">2급</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">상태 <span
+                                        class="text-red-500">*</span></label>
+                                <select id="edit-status" name="status" required
+                                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                    <option value="active">유효</option>
+                                    <option value="expired">만료</option>
+                                    <option value="revoked">취소</option>
+                                    <option value="suspended">정지</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div>

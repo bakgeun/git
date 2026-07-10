@@ -1,4 +1,4 @@
-/**
+﻿/**
  * course-history.js - URL 파라미터 연동 개선 버전
  * 수강 내역 페이지 기능 + 결제 완료 후 하이라이트
  */
@@ -592,7 +592,7 @@
     function getCertTypeText(certType) {
         switch (certType) {
             case 'health-exercise':
-                return '건강운동처방사';
+                return '운동건강관리사';
             case 'rehabilitation':
                 return '운동재활전문가';
             case 'pilates':

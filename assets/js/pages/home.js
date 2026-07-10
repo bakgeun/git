@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 홈페이지 전용 JavaScript
  * 메인 페이지의 특정 기능을 처리합니다.
  * 🔧 수정: 동적 교육과정 로딩 기능 추가
@@ -73,7 +73,7 @@
 
         generateCourseTitle: function (certificateType, startDate) {
             const certNames = {
-                'health-exercise': '건강운동처방사',
+                'health-exercise': '운동건강관리사',
                 'rehabilitation': '운동재활전문가',
                 'pilates': '필라테스 전문가',
                 'recreation': '레크리에이션지도자'
@@ -264,7 +264,7 @@
                         packageDiscount: 0,
                         enableInstallment: false
                     },
-                    materialName: '건강운동처방사 전문교재',
+                    materialName: '운동건강관리사 전문교재',
                     capacity: 30,
                     enrolledCount: 0,
                     status: 'active',
@@ -415,7 +415,7 @@
 
             // 자격증 이름 매핑
             const certNames = {
-                'health-exercise': '건강운동처방사',
+                'health-exercise': '운동건강관리사',
                 'rehabilitation': '운동재활전문가',
                 'pilates': '필라테스 전문가',
                 'recreation': '레크리에이션지도자'

@@ -1,4 +1,4 @@
-// health-exercise.js - 수정된 교육일정 동적 업데이트 버전
+﻿// health-exercise.js - 수정된 교육일정 동적 업데이트 버전
 
 console.log('health-exercise.js (수정된 교육일정 동적 버전) 로드됨');
 
@@ -336,7 +336,7 @@ console.log('health-exercise.js (수정된 교육일정 동적 버전) 로드됨
     // 자격증 타입에 따른 교육과정 파라미터 매핑 (폴백용)
     function getCourseParamByCertType(certType) {
         const courseMapping = {
-            'health-exercise': 'test-health-1',  // 건강운동처방사 과정
+            'health-exercise': 'test-health-1',  // 운동건강관리사 과정
             'rehabilitation': 'test-rehab-1',    // 운동재활전문가 과정
             'pilates': 'test-pilates-1',         // 필라테스 전문가 과정
             'recreation': 'test-recreation-1'    // 레크리에이션지도자 과정

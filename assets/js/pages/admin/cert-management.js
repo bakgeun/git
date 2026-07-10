@@ -1,4 +1,4 @@
-/**
+﻿/**
  * cert-management.js Part 1 - 기본 설정 및 초기화
  * 최적화된 자격증 관리 시스템
  */
@@ -606,6 +606,10 @@ function initCertManager() {
                 this.setCompletionDate(courseData);
                 this.setExpiryDate(courseData);
 
+                // 과정의 급수를 hidden 필드에 저장
+                const gradeField = document.getElementById('issue-grade');
+                if (gradeField) gradeField.value = courseData.grade || '1급';
+
                 // 해당 과정 수강자 목록 로드
                 await this.loadEnrolleesForCourse(courseData);
 
@@ -808,7 +812,7 @@ Object.assign(window.certManager, {
 
     getCertTypeName(type) {
         const types = {
-            'health-exercise': '건강운동처방사',
+            'health-exercise': '운동건강관리사',
             'rehabilitation': '운동재활전문가',
             'pilates': '필라테스 전문가',
             'recreation': '레크리에이션지도자'
@@ -1491,10 +1495,12 @@ Object.assign(window.certManager, {
         } else {
             return `
                 <div class="flex space-x-1">
-                    <button onclick="certManager.viewCertDetails('${cert.id}')" 
+                    <button onclick="certManager.viewCertDetails('${cert.id}')"
                         class="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600">상세</button>
+                    <button onclick="certManager.editCert('${cert.id}')"
+                        class="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600">수정</button>
                     <div class="relative inline-block">
-                        <button onclick="certManager.togglePdfDropdown('${cert.id}')" 
+                        <button onclick="certManager.togglePdfDropdown('${cert.id}')"
                             class="px-2 py-1 bg-indigo-500 text-white rounded text-xs hover:bg-indigo-600">PDF</button>
                         <div id="pdf-dropdown-${cert.id}" class="hidden absolute right-0 mt-1 w-32 bg-white border rounded shadow-lg z-10">
                             <a href="#" onclick="certManager.downloadCertPdf('${cert.id}', 'ko'); event.preventDefault();"
@@ -1612,7 +1618,7 @@ Object.assign(window.certManager, {
                 holderNameKorean: '홍길동',
                 holderNameEnglish: 'Hong Gil Dong',
                 holderEmail: 'hong@example.com',
-                courseName: '건강운동처방사 1기',
+                courseName: '운동건강관리사 1기',
                 certificateType: 'health-exercise',
                 issueDate: '2025-03-15',
                 expiryDate: '2028-03-14',
@@ -1626,7 +1632,7 @@ Object.assign(window.certManager, {
                 holderNameKorean: '김철수',
                 holderNameEnglish: 'Kim Chul Soo',
                 holderEmail: 'kim@example.com',
-                courseName: '건강운동처방사 1기',
+                courseName: '운동건강관리사 1기',
                 certificateType: 'health-exercise',
                 issueDate: '2025-03-15',
                 expiryDate: '2028-03-14',
@@ -1640,7 +1646,7 @@ Object.assign(window.certManager, {
                 holderNameKorean: '이영희',
                 holderNameEnglish: 'Lee Young Hee',
                 holderEmail: 'lee@example.com',
-                courseName: '건강운동처방사 4기',
+                courseName: '운동건강관리사 4기',
                 certificateType: 'health-exercise',
                 issueDate: '2024-12-20',
                 expiryDate: '2027-12-19',
@@ -1902,7 +1908,7 @@ Object.assign(window.certManager, {
         return [
             {
                 id: 'course1',
-                title: '2025년 1기 건강운동처방사 과정',
+                title: '2025년 1기 운동건강관리사 과정',
                 certificateType: 'health-exercise',
                 status: 'active',
                 startDate: '2025-01-15',
@@ -3156,7 +3162,8 @@ Object.assign(window.certManager, {
                 email: formData.get('email'),
                 course: formData.get('course'),
                 completionDate: formData.get('completionDate'),
-                expiryDate: formData.get('expiryDate')
+                expiryDate: formData.get('expiryDate'),
+                grade: document.getElementById('issue-grade')?.value || '1급'
             };
 
             // 유효성 검사
@@ -3188,6 +3195,7 @@ Object.assign(window.certManager, {
                 certificateType: this.currentCertType,
                 courseName: this.getSelectedCourseName(issueData.course),
                 courseId: issueData.course,
+                grade: issueData.grade,
                 issueDate: issueData.completionDate,
                 expiryDate: issueData.expiryDate,
                 status: 'active',
@@ -3638,23 +3646,32 @@ Object.assign(window.certManager, {
     // ✏️ 자격증 수정
     // =================================
 
-    editCert(certId) {
+    async editCert(certId) {
         console.log('✏️ 자격증 수정:', certId);
 
         try {
-            const cert = this.getMockCertificateById(certId);
+            // 메모리에 로드된 목록에서 먼저 조회
+            let cert = (this.certificates || []).find(c => c.id === certId);
+
+            // 없으면 Firebase에서 직접 조회
+            if (!cert && window.dhcFirebase?.db) {
+                const doc = await window.dhcFirebase.db.collection('certificates').doc(certId).get();
+                if (doc.exists) cert = { id: doc.id, ...doc.data() };
+            }
+
             if (!cert) {
                 window.adminAuth?.showNotification('자격증 정보를 찾을 수 없습니다.', 'error');
                 return;
             }
+
+            // 수정 중인 cert id 저장 (저장 시 사용)
+            this._editingCertId = certId;
 
             const editModal = document.getElementById('cert-edit-modal');
             if (editModal) {
                 this.fillEditForm(cert);
                 this.showCertEditModal();
                 window.adminAuth?.showNotification('자격증 수정 모드로 전환되었습니다.', 'info');
-            } else {
-                window.adminAuth?.showNotification(`${cert.holderName}님의 자격증 수정 기능 준비 중입니다.`, 'info');
             }
 
         } catch (error) {
@@ -3673,6 +3690,7 @@ Object.assign(window.certManager, {
             'edit-course-name': cert.courseName,
             'edit-issue-date': this.formatDateToInput(cert.issueDate),
             'edit-expiry-date': this.formatDateToInput(cert.expiryDate),
+            'edit-grade': cert.grade || '1급',
             'edit-status': cert.status,
             'edit-remarks': cert.remarks
         };
@@ -3714,6 +3732,7 @@ Object.assign(window.certManager, {
                 courseName: formData.get('course-name'),
                 issueDate: formData.get('issue-date'),
                 expiryDate: formData.get('expiry-date'),
+                grade: formData.get('grade') || '1급',
                 status: formData.get('status'),
                 remarks: formData.get('remarks'),
                 updatedAt: new Date()
@@ -3721,10 +3740,15 @@ Object.assign(window.certManager, {
 
             console.log('📝 수정할 데이터:', updateData);
 
+            const certId = this._editingCertId || document.getElementById('edit-cert-id')?.value;
+            if (!certId) {
+                window.adminAuth?.showNotification('수정할 자격증 ID를 찾을 수 없습니다.', 'error');
+                return;
+            }
+
             const firebaseStatus = checkFirebaseConnection();
             if (firebaseStatus.connected && window.dhcFirebase) {
-                console.log('🔥 Firebase 업데이트 (구현 예정)');
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await window.dhcFirebase.db.collection('certificates').doc(certId).update(updateData);
                 window.adminAuth?.showNotification('자격증 정보가 성공적으로 수정되었습니다.', 'success');
             } else {
                 console.log('🔧 테스트 모드: 자격증 수정 시뮬레이션');
@@ -4601,7 +4625,7 @@ Object.assign(window.certManager, {
                 name: '홍길동',
                 nameKorean: '홍길동',
                 nameEnglish: 'Hong Gil Dong', // 🔧 NEW: 영문명 추가
-                course: '건강운동처방사 1기',
+                course: '운동건강관리사 1기',
                 issueDate: '2025-03-15',
                 expiryDate: '2028-03-14',
                 status: 'active',
@@ -4613,7 +4637,7 @@ Object.assign(window.certManager, {
                 name: '김철수',
                 nameKorean: '김철수',
                 nameEnglish: 'Kim Chul Soo', // 🔧 NEW: 영문명 추가
-                course: '건강운동처방사 1기',
+                course: '운동건강관리사 1기',
                 issueDate: '2025-03-15',
                 expiryDate: '2028-03-14',
                 status: 'active',
@@ -4625,7 +4649,7 @@ Object.assign(window.certManager, {
                 name: '이영희',
                 nameKorean: '이영희',
                 nameEnglish: 'Lee Young Hee', // 🔧 NEW: 영문명 추가
-                course: '건강운동처방사 4기',
+                course: '운동건강관리사 4기',
                 issueDate: '2024-12-20',
                 expiryDate: '2027-12-19',
                 status: 'active',
@@ -4656,8 +4680,8 @@ Object.assign(window.certManager, {
                 holderName: '테스트',
                 holderNameKorean: '테스트',
                 holderNameEnglish: 'Test User',
-                course: '건강운동처방사 1기',
-                courseName: '건강운동처방사 1기',
+                course: '운동건강관리사 1기',
+                courseName: '운동건강관리사 1기',
                 issueDate: '2025-05-19',
                 expiryDate: '2028-05-19',
                 status: 'active',
@@ -4712,7 +4736,8 @@ Object.assign(window.certManager, {
 
             issueDate: this.formatDateSafe(cert.issueDate) || '2025-05-19',
             expiryDate: this.formatDateSafe(cert.expiryDate) || '2028-05-19',
-            status: safeGetValue(cert, 'status') || 'active'
+            status: safeGetValue(cert, 'status') || 'active',
+            grade: safeGetValue(cert, 'grade') || '1급'
         };
     },
 
@@ -4741,7 +4766,7 @@ Object.assign(window.certManager, {
         // 영문 자격증명 매칭
         const getEnglishCertName = (koreanCertType) => {
             const mapping = {
-                '건강운동처방사': 'Health Exercise Specialist',
+                '운동건강관리사': 'Health Exercise Specialist',
                 '운동재활전문가': 'Exercise Rehabilitation Specialist',
                 '필라테스 전문가': 'Pilates Specialist',
                 '레크리에이션지도자': 'Recreation Instructor'
@@ -4904,15 +4929,15 @@ Object.assign(window.certManager, {
                                     
                                     <div style="margin-bottom: 25px;">
                                         <span style="
-                                            font-weight: 600; 
+                                            font-weight: 600;
                                             color: #1e293b;
                                             font-size: 17px;
                                         ">급 수 : </span>
                                         <span style="
-                                            font-weight: 700; 
+                                            font-weight: 700;
                                             color: #1e3a8a;
                                             font-size: 17px;
-                                        ">1급</span>
+                                        ">${certData.grade || '1급'}</span>
                                     </div>
                                     
                                     <div style="margin-bottom: 25px;">
@@ -6111,7 +6136,7 @@ if (!window.certManager.showRenewalManagementModal) {
     if (!window.certManager.getCertTypeName) {
         window.certManager.getCertTypeName = function (type) {
             const types = {
-                'health-exercise': '건강운동처방사',
+                'health-exercise': '운동건강관리사',
                 'rehabilitation': '운동재활전문가',
                 'pilates': '필라테스 전문가',
                 'recreation': '레크리에이션지도자'
@@ -6196,7 +6221,7 @@ Object.assign(window.certManager, {
 
             // 현재 탭 자격증 종류명
             const certTypeNames = {
-                'health-exercise': '건강운동처방사',
+                'health-exercise': '운동건강관리사',
                 'rehabilitation':  '운동재활전문가',
                 'pilates':         '필라테스전문가',
                 'recreation':      '레크리에이션지도자'
