@@ -657,6 +657,37 @@ if (storedDate !== certDate) {
 
 ## 변경 이력
 
+### 2026-07-10 — 명칭 통일 및 자격증 급수 기능 추가
+
+#### 명칭 일괄 변경
+
+- **"건강운동처방사" → "운동건강관리사" 전체 일괄 수정**: 21개 파일(관리자 페이지, 마이페이지, 교육/자격증 JS, 컴포넌트, 인증 HTML 등)에 잔존하던 구 명칭을 모두 교체
+
+#### 신규 기능 — 자격증 급수(1급/2급)
+
+- **교육 과정 개설/수정**: 급수 선택 필드(1급/2급) 추가 → 저장 시 `grade` 필드로 Firestore에 기록
+- **자격증 발급**: 교육 과정 선택 시 해당 과정의 급수를 자동으로 읽어 `issue-grade` hidden 필드에 저장 → 발급 데이터(`certificateData.grade`)에 반영
+- **자격증 수정 모달**: 급수 편집 select 추가 → 저장 시 Firestore 업데이트에 포함 (기존 자격증 급수 수동 지정 가능)
+- **PDF 자격증**: "급 수" 항목 하드코딩 `1급` → `certData.grade`(동적 값, 미설정 시 `1급` 폴백)로 교체
+
+#### 버그 수정 — 자격증 수정 기능
+
+- **수정 버튼 누락**: 자격증 목록 각 행에 **수정** 버튼 추가 (상세 옆, 초록색)
+- **`editCert` 목업 데이터 참조 제거**: `getMockCertificateById()` 대신 메모리 목록(`this.certificates`) → Firebase 직접 조회 순으로 실제 데이터 사용
+- **`handleUpdateCertificate` 미구현 저장 로직 완성**: "구현 예정" 더미 코드 → `_editingCertId`를 사용한 Firestore 실제 업데이트(`certificates/{id}.update()`)로 교체
+
+#### 수정 대상 파일 요약
+
+| 파일 | 변경 내용 |
+|---|---|
+| 21개 파일 전체 | `건강운동처방사` → `운동건강관리사` 일괄 치환 |
+| `pages/admin/course-management.html` | 교육 과정 모달에 급수 select 추가 |
+| `assets/js/pages/admin/course-management.js` | `collectEnhancedFormData` · `buildEnhancedCourseData` · `editCourse`에 `grade` 처리 추가 |
+| `pages/admin/cert-management.html` | 발급 폼 `issue-grade` hidden 필드, 수정 모달 급수 select 추가 |
+| `assets/js/pages/admin/cert-management.js` | 과정 선택 시 급수 자동 설정, 발급/수정 저장 시 `grade` 포함, `extractCertificateData`에 `grade` 추가, PDF 급수 동적 처리, 수정 버튼 추가, `editCert` 실제 데이터 조회, `handleUpdateCertificate` 실제 저장 |
+
+---
+
 ### 2026-06-10 — 관리자 이메일 발송 기능 추가
 
 #### 신규 기능
