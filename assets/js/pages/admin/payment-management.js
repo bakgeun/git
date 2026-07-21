@@ -470,7 +470,11 @@ async function handleLogout(e) {
 window.paymentManager = {
     currentPage: 1,
     pageSize: 10,
-    lastDoc: null,
+    // 페이지 번호별 시작 커서 캐시. pageStartCursors[N] = N페이지를 조회할 때 사용할 startAfter 커서.
+    // (Firestore 커서 페이징은 "다음 페이지"만 알 수 있으므로, 방문한 페이지의 커서를 저장해 뒀다가
+    //  뒤로 돌아갈 때 재사용해야 한다. 커서 하나만 계속 덮어쓰면 이전 페이지로 돌아가도
+    //  최신 커서 기준으로 조회되어 엉뚱한 페이지 데이터가 표시된다.)
+    pageStartCursors: { 1: null },
     filters: {},
     currentPayments: [],
 
@@ -715,8 +719,9 @@ window.paymentManager = {
                 // 검색 결과
                 result = await this.searchPayments(this.filters.searchKeyword, options);
             } else {
-                // 일반 페이징
-                result = await window.dbService.getPaginatedDocuments('payments', options, this.currentPage > 1 ? this.lastDoc : null);
+                // 일반 페이징 - 현재 페이지에 맞는 시작 커서를 확보한 뒤 조회
+                const startCursor = await this.getCursorForPage(this.currentPage, options);
+                result = await window.dbService.getPaginatedDocuments('payments', options, startCursor);
             }
 
             if (result.success) {
@@ -724,13 +729,14 @@ window.paymentManager = {
                 const paymentsWithDetails = result.alreadyEnriched
                     ? result.data
                     : await this.enrichPaymentData(result.data);
-                
+
                 this.currentPayments = paymentsWithDetails;
                 this.updatePaymentList(paymentsWithDetails);
-                
+
                 // 페이지네이션 업데이트
                 if (!this.filters.searchKeyword) {
-                    this.lastDoc = result.lastDoc;
+                    // 다음 페이지 조회를 위한 커서를 캐시에 저장 (뒤로 갔다가 다시 와도 재사용)
+                    this.pageStartCursors[this.currentPage + 1] = result.lastDoc;
                     const totalCount = await window.dbService.countDocuments('payments', { where: options.where });
                     const totalPages = Math.ceil(totalCount.count / this.pageSize);
                     this.updatePagination(totalPages);
@@ -747,6 +753,45 @@ window.paymentManager = {
             console.error('실제 결제 목록 로드 오류:', error);
             this.displayDummyPayments();
         }
+    },
+
+    /**
+     * 특정 페이지를 조회하기 위한 시작 커서(startAfter 대상 문서)를 반환
+     *
+     * Firestore 커서 페이징은 "특정 문서 다음"만 조회할 수 있어서, 임의의 페이지 번호로
+     * 바로 이동하려면 그 페이지 바로 이전 문서까지의 커서가 필요하다. 이미 방문해서
+     * 캐시된 페이지라면 캐시를 그대로 재사용하고, 방문한 적 없는 페이지로 건너뛰는
+     * 경우(페이지 번호 버튼으로 여러 페이지를 한 번에 이동)에는 알고 있는 가장 가까운
+     * 페이지부터 순차적으로 조회하며 커서 체인을 채운다.
+     */
+    getCursorForPage: async function (page, options) {
+        if (page <= 1) {
+            return null;
+        }
+
+        if (this.pageStartCursors[page] !== undefined) {
+            return this.pageStartCursors[page];
+        }
+
+        let knownPage = 1;
+        for (let p = page - 1; p >= 1; p--) {
+            if (this.pageStartCursors[p] !== undefined) {
+                knownPage = p;
+                break;
+            }
+        }
+
+        let cursor = this.pageStartCursors[knownPage];
+        for (let p = knownPage; p < page; p++) {
+            const pageResult = await window.dbService.getPaginatedDocuments('payments', options, cursor);
+            if (!pageResult.success) {
+                break;
+            }
+            cursor = pageResult.lastDoc;
+            this.pageStartCursors[p + 1] = cursor;
+        }
+
+        return cursor;
     },
 
     /**
@@ -1196,9 +1241,9 @@ window.paymentManager = {
             endDate: document.getElementById('end-date')?.value || ''
         };
 
-        // 첫 페이지로 리셋
+        // 첫 페이지로 리셋 (필터가 바뀌면 기존 커서 캐시는 다른 쿼리 결과라 무효)
         this.currentPage = 1;
-        this.lastDoc = null;
+        this.pageStartCursors = { 1: null };
 
         // 데이터 다시 로드
         this.loadPayments();

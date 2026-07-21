@@ -664,12 +664,15 @@ if (storedDate !== certDate) {
 - **결제 관리 검색 결과 항상 0건**: `payment-management.html`에서 결제자 이름/결제번호로 검색하면 등록된 결제내역이 실제로는 있어도 "없음"으로 표시되던 문제 해결
   - **원인**: `searchPayments()`가 Firestore `payments` 문서의 `paymentId`, `userName` 필드를 검색 대상으로 사용했으나, 실제 결제 문서(`success.js`에서 생성)에는 두 필드가 저장되지 않음 — `orderId`, `userId`만 저장되고 이름은 조회 시점에 `users` 컬렉션과 조인해 화면에만 표시되는 값이었음. 존재하지 않는 필드를 검색하니 항상 매치 0건
   - **수정**: 필터 조건에 맞는 결제 문서를 전체 조회 → `users` 컬렉션과 조인해 이름/이메일 보강 → 실제 존재하는 `orderId`와 보강된 `userName`/`userEmail` 기준으로 클라이언트 사이드 검색하도록 `searchPayments()` 재작성
+- **결제 관리 페이지네이션 뒤로가기 시 데이터 불일치**: 3페이지 → 2페이지처럼 이전 페이지로 되돌아가면 페이지 번호(#11~#20 등)는 맞지만 실제 목록 내용은 다른 배치(예: 4페이지 데이터)가 표시되던 문제 해결
+  - **원인**: Firestore 커서 페이징(`startAfter`)의 시작 커서를 `this.lastDoc` 변수 하나에만 계속 덮어써서 저장 — 뒤로 이동해도 `currentPage`만 바뀔 뿐, 조회에는 항상 "가장 최근에 로드한 페이지의 마지막 문서" 커서가 사용되어 엉뚱한 페이지 데이터를 가져옴
+  - **수정**: 페이지 번호별 시작 커서를 캐시하는 `pageStartCursors` 객체로 교체. 이미 방문한 페이지는 캐시된 커서를 재사용하고, 방문한 적 없는 페이지로 건너뛸 때는 가장 가까운 캐시 지점부터 순차 조회해 커서 체인을 채우는 `getCursorForPage()` 헬퍼 추가. 필터 변경 시에는 캐시 전체 초기화
 
 #### 수정 대상 파일 요약
 
 | 파일 | 변경 내용 |
 |---|---|
-| `assets/js/pages/admin/payment-management.js` | `searchPayments()` 검색 필드를 `paymentId`/`userName`(미존재) → `orderId`/보강된 `userName`/`userEmail`로 교체; `loadRealPayments()`에서 검색 결과 중복 보강 방지 |
+| `assets/js/pages/admin/payment-management.js` | `searchPayments()` 검색 필드를 `paymentId`/`userName`(미존재) → `orderId`/보강된 `userName`/`userEmail`로 교체; `loadRealPayments()`에서 검색 결과 중복 보강 방지; `lastDoc` 단일 변수 → `pageStartCursors` 캐시로 교체, `getCursorForPage()` 신규 추가로 페이지 뒤로가기/건너뛰기 시 커서 재사용 |
 
 ---
 
