@@ -720,8 +720,10 @@ window.paymentManager = {
             }
 
             if (result.success) {
-                // 추가 정보 조회
-                const paymentsWithDetails = await this.enrichPaymentData(result.data);
+                // 추가 정보 조회 (검색 결과는 searchPayments에서 이미 보강됨)
+                const paymentsWithDetails = result.alreadyEnriched
+                    ? result.data
+                    : await this.enrichPaymentData(result.data);
                 
                 this.currentPayments = paymentsWithDetails;
                 this.updatePaymentList(paymentsWithDetails);
@@ -776,38 +778,41 @@ window.paymentManager = {
 
     /**
      * 결제 검색
+     *
+     * payments 문서에는 paymentId/userName 필드가 저장되지 않는다
+     * (결제자 이름은 users 컬렉션과 조인해야만 얻을 수 있음).
+     * 그래서 필터 조건에 맞는 결제를 모두 가져와 사용자 정보를 보강한 뒤
+     * 실제 존재하는 필드(orderId)와 보강된 이름/이메일을 기준으로 검색한다.
      */
     searchPayments: async function (keyword, options) {
         try {
-            const paymentIdResults = await window.dbService.searchDocuments('payments', 'paymentId', keyword, options);
-            const userNameResults = await window.dbService.searchDocuments('payments', 'userName', keyword, options);
+            const fetchOptions = {
+                orderBy: options.orderBy,
+                where: options.where
+            };
+            const result = await window.dbService.getDocuments('payments', fetchOptions);
 
-            // 결과 병합 및 중복 제거
-            const combinedResults = [];
-            const seenIds = new Set();
-
-            if (paymentIdResults.success) {
-                paymentIdResults.data.forEach(item => {
-                    if (!seenIds.has(item.id)) {
-                        combinedResults.push(item);
-                        seenIds.add(item.id);
-                    }
-                });
+            if (!result.success) {
+                return { success: false, error: result.error };
             }
 
-            if (userNameResults.success) {
-                userNameResults.data.forEach(item => {
-                    if (!seenIds.has(item.id)) {
-                        combinedResults.push(item);
-                        seenIds.add(item.id);
-                    }
-                });
-            }
+            const enriched = await this.enrichPaymentData(result.data);
+            const keywordLower = keyword.toLowerCase();
+
+            const filtered = enriched.filter(payment => {
+                const orderId = (payment.orderId || '').toLowerCase();
+                const userName = (payment.userName || '').toLowerCase();
+                const userEmail = (payment.userEmail || '').toLowerCase();
+                return orderId.includes(keywordLower) ||
+                    userName.includes(keywordLower) ||
+                    userEmail.includes(keywordLower);
+            });
 
             return {
                 success: true,
-                data: combinedResults,
-                lastDoc: null
+                data: filtered,
+                lastDoc: null,
+                alreadyEnriched: true
             };
         } catch (error) {
             console.error('결제 검색 오류:', error);

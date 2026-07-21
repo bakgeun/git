@@ -657,6 +657,22 @@ if (storedDate !== certDate) {
 
 ## 변경 이력
 
+### 2026-07-21 — 결제 관리 검색 기능 버그 수정
+
+#### 버그 수정
+
+- **결제 관리 검색 결과 항상 0건**: `payment-management.html`에서 결제자 이름/결제번호로 검색하면 등록된 결제내역이 실제로는 있어도 "없음"으로 표시되던 문제 해결
+  - **원인**: `searchPayments()`가 Firestore `payments` 문서의 `paymentId`, `userName` 필드를 검색 대상으로 사용했으나, 실제 결제 문서(`success.js`에서 생성)에는 두 필드가 저장되지 않음 — `orderId`, `userId`만 저장되고 이름은 조회 시점에 `users` 컬렉션과 조인해 화면에만 표시되는 값이었음. 존재하지 않는 필드를 검색하니 항상 매치 0건
+  - **수정**: 필터 조건에 맞는 결제 문서를 전체 조회 → `users` 컬렉션과 조인해 이름/이메일 보강 → 실제 존재하는 `orderId`와 보강된 `userName`/`userEmail` 기준으로 클라이언트 사이드 검색하도록 `searchPayments()` 재작성
+
+#### 수정 대상 파일 요약
+
+| 파일 | 변경 내용 |
+|---|---|
+| `assets/js/pages/admin/payment-management.js` | `searchPayments()` 검색 필드를 `paymentId`/`userName`(미존재) → `orderId`/보강된 `userName`/`userEmail`로 교체; `loadRealPayments()`에서 검색 결과 중복 보강 방지 |
+
+---
+
 ### 2026-07-10 — 명칭 통일 및 자격증 급수 기능 추가
 
 #### 명칭 일괄 변경
