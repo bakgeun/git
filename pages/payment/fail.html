@@ -112,7 +112,10 @@
             const code = urlParams.get('code');
             const message = urlParams.get('message');
             const orderId = urlParams.get('orderId');
-            
+
+            // 결제 실패 사유를 Firestore에 기록 (원인 추적용)
+            logPaymentFailure(code, message, orderId);
+
             // 실패 메시지 업데이트
             const failMessageElement = document.getElementById('fail-message');
             if (message && failMessageElement) {
@@ -177,6 +180,65 @@
             const homeUrl = window.adjustPath ? window.adjustPath('index.html') : '../../index.html';
             window.location.href = homeUrl;
         }
+
+        // Firebase가 준비될 때까지 대기 (script-loader가 비동기로 로드)
+        function waitForFirebase(timeoutMs) {
+            return new Promise((resolve) => {
+                const start = Date.now();
+                (function check() {
+                    if (window.dhcFirebase && window.dhcFirebase.db && window.dbService) return resolve(true);
+                    if (Date.now() - start > timeoutMs) return resolve(false);
+                    setTimeout(check, 200);
+                })();
+            });
+        }
+
+        // 결제 실패 정보 기록 — 카드 거절 등 토스 failUrl로 돌아온 건은 여기서만 남길 수 있음
+        async function logPaymentFailure(code, message, orderId) {
+            if (!code && !orderId) return;
+            try {
+                if (!(await waitForFirebase(10000))) return;
+
+                // 로그인 상태 확인 (payment_failures 생성은 로그인 사용자만 허용)
+                const user = await new Promise((resolve) => {
+                    const unsubscribe = window.dhcFirebase.auth.onAuthStateChanged((u) => {
+                        unsubscribe();
+                        resolve(u);
+                    });
+                });
+                if (!user) return;
+
+                const failureLog = {
+                    userId: user.uid,
+                    orderId: orderId || '',
+                    source: 'fail_page',
+                    error: {
+                        code: code || 'UNKNOWN',
+                        message: message || '',
+                        timestamp: new Date().toISOString()
+                    },
+                    userAgent: navigator.userAgent
+                };
+
+                // 주문번호 기반 ID → 새로고침해도 중복 기록되지 않음 (기존 문서 덮어쓰기는 규칙상 거부됨)
+                const docId = (orderId && /^[A-Za-z0-9_-]{1,100}$/.test(orderId)) ? 'fail_' + orderId : null;
+                await window.dbService.addDocument('payment_failures', failureLog, docId);
+            } catch (e) {
+                // 기록 실패는 사용자 화면에 영향 주지 않음
+            }
+        }
+    </script>
+
+    <!-- Firebase SDK 템플릿 (결제 실패 기록용) -->
+    <script id="firebase-sdk-template" type="text/template">
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"><\/script>
+        <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
+        <script src="{basePath}assets/js/services/auth-service.js"><\/script>
+        <script src="{basePath}assets/js/services/db-service.js"><\/script>
     </script>
 </body>
 </html>
