@@ -33,8 +33,12 @@
 ```
 digital-healthcare-center/
 ├── index.html                # 메인 페이지
+├── robots.txt                # 검색엔진 수집 규칙 (관리자·마이페이지·결제·인증·API 제외)
+├── sitemap.xml               # 사이트맵 (공개 페이지 17개, 네이버 서치어드바이저 제출)
+├── naverd316ca447fa7365156c00981541603b5.html  # 네이버 사이트 소유확인 파일 (삭제 금지)
 ├── pages/                    # 서브 페이지들
 │   ├── about.html           # 기관 소개 페이지 ✓
+│   ├── privacy.html         # 개인정보처리방침 ✓ (전체 페이지 푸터에 링크)
 │   ├── advisor.html         # 자문위원 페이지 ✓ (총재 1명 + 자문위원 150명, 검색/필터/페이지네이션)
 │   │
 │   ├── research/             # 학술·연구 관련 페이지들
@@ -70,7 +74,7 @@ digital-healthcare-center/
 │   │   └── payment-history.html # 결제 내역 ✓
 │   │
 │   ├── payment/
-│   │   ├── fail.html
+│   │   ├── fail.html        # 결제 실패 — 실패 사유를 payment_failures에 기록
 │   │   └── success.html
 │   │
 │   └── admin/                # 관리자 페이지들
@@ -369,6 +373,19 @@ Cloud Functions의 구조화된 로그는 Google Cloud Console에서 확인합�
 firebase functions:log --only confirmPayment
 ```
 
+### 결제 실패 원인 확인
+
+"결제가 안 된다"는 문의가 오면 Firestore `payment_failures` 컬렉션을 확인합니다.
+
+| `source` 값 | 기록 위치 | 주요 내용 |
+|---|---|---|
+| `fail_page` | `pages/payment/fail.html` | 카드 거절 등 토스 `failUrl`로 돌아온 실패 — 토스 오류 코드(`error.code`)·메시지·주문번호·userAgent |
+| (없음) | `course-application.js` `handlePaymentFailure()` | 결제창 단계 오류 — 대부분 `USER_CANCEL`(사용자 취소) |
+
+- `fail_page` 기록의 문서 ID는 `fail_{주문번호}`이므로 주문번호로 바로 조회할 수 있습니다.
+- 로그인 사용자만 기록됩니다(보안 규칙상 `payment_failures` 생성은 인증 필요).
+- 결제 승인 요청(`confirmPayment`) 로그가 없다면 카드사·토스 단계에서 거절된 것입니다. 상세 사유는 토스페이먼츠 상점관리자 → 결제내역(실패 건 포함)에서도 확인할 수 있습니다.
+
 ## Firestore 자동 백업
 
 매일 오전 3시(KST) `scheduledBackup` 함수가 실행되어 주요 컬렉션을 Cloud Storage로 내보냅니다.
@@ -656,6 +673,38 @@ if (storedDate !== certDate) {
 ---
 
 ## 변경 이력
+
+### 2026-11-22 — 개인정보처리방침, 검색엔진 등록, 결제 실패 기록
+
+#### 신규 기능
+
+- **개인정보처리방침 페이지**: `pages/privacy.html` 신규 작성(시행일 2025-10-01), 전체 페이지 푸터에 링크 추가. 회원가입·교육 신청의 개인정보 동의 문구를 방침과 일치하도록 수정
+- **네이버 서치어드바이저 등록**: `robots.txt`, `sitemap.xml`, 네이버 소유확인 파일을 사이트 루트에 추가하고 사이트맵 제출 완료. 대표 주소는 `https://dhcenter.co.kr` (www 주소는 미연결)
+  - 공개 페이지를 추가·삭제하면 `sitemap.xml`의 URL 목록도 함께 수정할 것
+  - 소유확인 파일(`naverd316ca447fa7365156c00981541603b5.html`)은 삭제하면 네이버 소유 인증이 풀리므로 유지할 것
+
+#### 운영 개선 — 결제 실패 사유 기록
+
+- **배경**: 법인카드 결제가 되지 않았다는 문의가 들어왔으나 원인을 확인할 수 없었음. 카드사·토스에서 거절된 결제는 서버(`confirmPayment`)까지 오지 않고 토스가 사용자를 `fail.html`로 보내는데, 이 페이지는 오류 코드를 화면에만 표시하고 저장하지 않았음
+- **수정**: `fail.html`에 Firebase SDK를 로드하고, 진입 시 토스 오류 코드·메시지·주문번호·userAgent를 `payment_failures`에 `source: 'fail_page'`로 기록. 문서 ID를 `fail_{주문번호}`로 지정해 새로고침 시 중복 기록 방지(기존 문서 덮어쓰기는 보안 규칙상 거부됨). 기록 실패는 사용자 화면에 영향 없음
+- **확인**: 운영 사이트에서 테스트 URL로 기록 저장 확인 후 테스트 문서 삭제
+
+#### 조사 메모
+
+- Firestore에 App Check(reCAPTCHA v3, 최소 점수 0.5)가 강제 적용(ENFORCED)되어 있음. 헤드리스 브라우저 같은 자동화 환경에서는 토큰 발급이 거부되어 과정 목록이 로드되지 않지만, 실제 브라우저에서는 정상 동작함을 확인. reCAPTCHA 사이트 키에는 `dhcenter.co.kr`만 등록되어 있어 `*.web.app` 주소에서는 Firestore 접근이 차단됨
+- 2026-07-06 이후 신청서(`applications`) 생성 기록이 0건 — 원인 미확인(사이트 장애는 아닌 것으로 판단)
+
+#### 수정 대상 파일 요약
+
+| 파일 | 변경 내용 |
+|---|---|
+| `pages/privacy.html` | 개인정보처리방침 신규 |
+| 전체 공개 페이지 HTML | 푸터에 개인정보처리방침 링크 추가 |
+| `pages/auth/signup.html`, `pages/education/course-application.html` | 개인정보 동의 문구 수정 |
+| `robots.txt`, `sitemap.xml`, `naverd316ca447fa7365156c00981541603b5.html` | 검색엔진 등록용 파일 신규 |
+| `pages/payment/fail.html` | Firebase SDK 로드, `logPaymentFailure()` 추가로 실패 사유를 `payment_failures`에 기록 |
+
+---
 
 ### 2026-07-21 — 결제 관리 검색 기능 버그 수정
 
