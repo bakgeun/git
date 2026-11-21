@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /pages/admin/
+Disallow: /pages/mypage/
+Disallow: /pages/payment/
+Disallow: /pages/auth/
+Disallow: /api/
+
+Sitemap: https://dhcenter.co.kr/sitemap.xml
