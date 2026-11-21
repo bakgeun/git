@@ -1,0 +1,620 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>개인정보처리방침 - 문경 부설 디지털헬스케어센터</title>
+    <meta name="description" content="사단법인 문경 디지털헬스케어센터 개인정보처리방침">
+    <link rel="icon" href="../assets/images/logo/logo.jpeg">
+    <link rel="manifest" href="../manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <script src="../assets/js/utils/script-loader.js"></script>
+    <style>
+        .hero-privacy {
+            background-image: url('../assets/images/banners/about.jpg');
+        }
+
+        .privacy-wrap {
+            max-width: 880px;
+            margin: 0 auto;
+        }
+
+        .privacy-intro {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 1.5rem 1.75rem;
+            color: var(--text-primary);
+            line-height: 1.85;
+            margin-bottom: 2rem;
+        }
+
+        .privacy-toc {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem 1.75rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .privacy-toc h2 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .privacy-toc ol {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.35rem 1.5rem;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .privacy-toc a {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        .privacy-toc a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        .privacy-section {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.75rem;
+            margin-bottom: 1.25rem;
+            scroll-margin-top: 100px;
+        }
+
+        .privacy-section h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-left: 0.75rem;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .privacy-section h3 {
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 1.25rem 0 0.5rem;
+        }
+
+        .privacy-section p,
+        .privacy-section li {
+            font-size: 0.92rem;
+            color: var(--text-secondary);
+            line-height: 1.85;
+        }
+
+        .privacy-section ul {
+            list-style: disc;
+            padding-left: 1.25rem;
+            margin: 0.5rem 0;
+        }
+
+        .privacy-section ol {
+            list-style: decimal;
+            padding-left: 1.25rem;
+            margin: 0.5rem 0;
+        }
+
+        .privacy-table-wrap {
+            overflow-x: auto;
+            margin: 0.75rem 0;
+        }
+
+        .privacy-table {
+            width: 100%;
+            min-width: 520px;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        .privacy-table th,
+        .privacy-table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.65rem 0.8rem;
+            text-align: left;
+            vertical-align: top;
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+
+        .privacy-table th {
+            background: #f9fafb;
+            color: var(--text-primary);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .privacy-effective {
+            text-align: right;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 767px) {
+            .privacy-toc ol {
+                grid-template-columns: 1fr;
+            }
+
+            .privacy-section,
+            .privacy-intro,
+            .privacy-toc {
+                padding: 1.25rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ── 헤더 ── -->
+    <header id="main-header">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="logo flex items-center">
+                <a href="javascript:window.location.href=window.adjustPath('index.html')">
+                    <div class="flex items-center">
+                        <img src="../assets/images/logo/logo.jpeg" alt="디지털헬스케어센터 로고" class="logo-image">
+                        <div class="ml-3">
+                            <div class="flex flex-col">
+                                <span class="organization-name">문경 부설 디지털헬스케어센터</span>
+                                <span class="organization-name-en">Digital Healthcare Center in Mungyeong</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <nav class="main-nav hidden md:flex">
+                <ul class="flex space-x-6">
+                    <li class="group relative nav-item">
+                        <a href="javascript:window.location.href=window.adjustPath('pages/about.html')"
+                            class="text-gray-800 hover:text-blue-600 py-2 nav-link">기관 소개</a>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#greeting')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">센터장 인사말</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#mission')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">미션과 핵심가치</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#organization')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">조직도</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#business')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">주요 사업영역</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/about.html#partners')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">협력 네트워크</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative nav-item">
+                        <a href="javascript:window.location.href=window.adjustPath('pages/advisor.html')"
+                            class="text-gray-800 hover:text-blue-600 py-2 nav-link">자문위원</a>
+                    </li>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">학술·연구</a>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-40 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/research/domestic.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">국내</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/research/international.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">국제</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">자격증 소개</a>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/health-exercise.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">운동건강관리사</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/rehabilitation.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">스포츠헬스케어지도자</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/pilates.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">필라테스전문가</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/certificate/recreation.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">레크리에이션지도자</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">교육 과정</a>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/instructors.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">강사 소개</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/course-application.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">교육 신청</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/education/cert-application.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md text-blue-600 font-medium">자격증
+                                    신청</a></li>
+                        </ul>
+                    </li>
+                    <li class="group relative nav-item">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 py-2 nav-link">게시판</a>
+                        <ul
+                            class="submenu absolute hidden group-hover:block bg-white shadow-lg rounded-md w-48 p-2 z-10">
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/notice/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">공지사항</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/column/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">칼럼</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/materials/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">강의자료</a></li>
+                            <li><a href="javascript:window.location.href=window.adjustPath('pages/board/videos/index.html')"
+                                    class="block px-4 py-2 hover:bg-gray-100 rounded-md">동영상 강의</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <div class="auth-buttons flex items-center">
+                <a href="javascript:window.location.href=window.adjustPath('pages/auth/login.html')"
+                    class="login-btn text-sm text-gray-600 hover:text-blue-600 mr-4">로그인</a>
+                <a href="javascript:window.location.href=window.adjustPath('pages/auth/signup.html')"
+                    class="signup-btn text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">회원가입</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden ml-4 hamburger-menu" aria-expanded="false"
+                aria-controls="mobile-menu-overlay">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+        <!-- Mobile Menu Overlay -->
+        <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden md:hidden">
+            <div class="bg-white h-full w-full flex flex-col">
+                <div class="flex justify-between items-center p-4 bg-blue-600 text-white mobile-menu-header">
+                    <span class="text-lg font-semibold">메뉴</span>
+                    <button id="mobile-menu-close" class="text-2xl font-bold hover:text-gray-200">&times;</button>
+                </div>
+                <div class="flex-1 overflow-y-auto bg-gray-50 mobile-menu-container">
+                    <div class="p-4">
+                        <div class="mb-6 p-4 bg-white rounded-lg shadow-sm mobile-menu-user-info">
+                            <span class="text-blue-600 font-semibold">로그인 해주세요 ></span>
+                        </div>
+                        <div class="space-y-2 mobile-menu-nav"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ── Hero ── -->
+    <section class="hero-section hero-privacy text-white py-16">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl text-left">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-left">개인정보처리방침</h1>
+                <p class="text-xl mb-8 text-left">사단법인 문경은 이용자의 개인정보를 소중히 여기며<br>「개인정보 보호법」 등 관련 법령을 준수합니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── 메인 컨텐츠 ── -->
+    <main>
+        <section class="py-16 bg-light">
+            <div class="container mx-auto px-4">
+                <div class="privacy-wrap">
+
+                    <div class="privacy-intro">
+                        사단법인 문경(이하 "법인")은 문경 부설 디지털헬스케어센터 웹사이트(이하 "사이트")를 운영하면서
+                        「개인정보 보호법」 및 「정보통신망 이용촉진 및 정보보호 등에 관한 법률」을 준수하며,
+                        「개인정보 보호법」 제30조에 따라 정보주체의 개인정보를 보호하고 이와 관련한 고충을 신속하고
+                        원활하게 처리할 수 있도록 다음과 같이 개인정보처리방침을 수립·공개합니다.
+                        <p class="mt-3 text-sm font-bold">시행일: 2025년 10월 1일</p>
+                    </div>
+
+                    <nav class="privacy-toc" aria-label="개인정보처리방침 목차">
+                        <h2>목차</h2>
+                        <ol>
+                            <li><a href="#article-1">제1조 개인정보의 처리 목적</a></li>
+                            <li><a href="#article-2">제2조 처리하는 개인정보 항목</a></li>
+                            <li><a href="#article-3">제3조 개인정보의 처리 및 보유 기간</a></li>
+                            <li><a href="#article-4">제4조 개인정보의 제3자 제공</a></li>
+                            <li><a href="#article-5">제5조 개인정보 처리의 위탁</a></li>
+                            <li><a href="#article-6">제6조 개인정보의 국외 이전</a></li>
+                            <li><a href="#article-7">제7조 개인정보의 파기 절차 및 방법</a></li>
+                            <li><a href="#article-8">제8조 정보주체의 권리·의무 및 행사 방법</a></li>
+                            <li><a href="#article-9">제9조 개인정보의 안전성 확보 조치</a></li>
+                            <li><a href="#article-10">제10조 자동 수집 장치의 설치·운영 및 거부</a></li>
+                            <li><a href="#article-11">제11조 개인정보 보호책임자</a></li>
+                            <li><a href="#article-12">제12조 권익침해 구제 방법</a></li>
+                            <li><a href="#article-13">제13조 개인정보처리방침의 변경</a></li>
+                        </ol>
+                    </nav>
+
+                    <section id="article-1" class="privacy-section">
+                        <h2>제1조 개인정보의 처리 목적</h2>
+                        <p>법인은 다음의 목적을 위하여 개인정보를 처리합니다. 처리한 개인정보는 다음 목적 이외의 용도로는 이용되지 않으며,
+                            이용 목적이 변경되는 경우에는 「개인정보 보호법」 제18조에 따라 별도의 동의를 받는 등 필요한 조치를 이행합니다.</p>
+                        <ol>
+                            <li><strong>회원 가입 및 관리:</strong> 회원제 서비스 이용에 따른 본인 식별·인증, 회원자격 유지·관리, 부정 이용 방지, 각종 고지·통지, 고충 처리</li>
+                            <li><strong>교육 과정 운영:</strong> 교육 과정 신청 접수, 수강생 관리, 교재 발송, 수료 확인</li>
+                            <li><strong>자격증 발급 및 관리:</strong> 자격증 신청 접수, 자격 검정 및 발급, 자격증 배송, 발급 이력 관리 및 진위 확인</li>
+                            <li><strong>결제 및 환불:</strong> 교육비·자격증 발급비 등 유료 서비스의 결제, 결제 내역 관리, 환불 처리</li>
+                            <li><strong>고객 지원:</strong> 문의 및 상담 처리, 분쟁 조정을 위한 기록 보존</li>
+                            <li><strong>마케팅 및 광고 활용(선택 동의 시):</strong> 신규 교육 과정 및 행사 안내 등 광고성 정보 전달</li>
+                            <li><strong>서비스 개선:</strong> 접속 빈도 파악, 서비스 이용 통계 분석(개인을 알아볼 수 없는 비식별 통계로 활용)</li>
+                        </ol>
+                    </section>
+
+                    <section id="article-2" class="privacy-section">
+                        <h2>제2조 처리하는 개인정보 항목</h2>
+                        <p>법인은 다음의 개인정보 항목을 처리하고 있습니다.</p>
+                        <div class="privacy-table-wrap">
+                            <table class="privacy-table">
+                                <thead>
+                                    <tr>
+                                        <th>구분</th>
+                                        <th>수집 항목</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th>회원 가입 (이메일)</th>
+                                        <td>[필수] 이메일 주소, 비밀번호, 이름, 휴대폰 번호, 생년월일, 성별<br>[선택] 소속, 주소, 마케팅 정보 수신 동의 여부</td>
+                                    </tr>
+                                    <tr>
+                                        <th>회원 가입 (Google 계정)</th>
+                                        <td>[필수] Google 계정 이메일 주소, 이름, 고유 식별자(UID)<br>[선택] 프로필 사진</td>
+                                    </tr>
+                                    <tr>
+                                        <th>교육 과정 신청</th>
+                                        <td>[필수] 이름(국문·영문), 휴대폰 번호, 이메일 주소<br>[선택] 생년월일, 주소, 비상 연락처, 마케팅 정보 수신 동의 여부</td>
+                                    </tr>
+                                    <tr>
+                                        <th>자격증 신청</th>
+                                        <td>[필수] 이름(국문·영문), 생년월일, 휴대폰 번호, 이메일 주소, 배송지 주소(우편번호 포함), 증명사진, 교육 수료일·시험 합격일</td>
+                                    </tr>
+                                    <tr>
+                                        <th>결제</th>
+                                        <td>주문번호, 결제 금액, 결제 수단, 결제 승인 일시 및 결과<br>※ 카드번호 등 결제 정보는 결제대행사(토스페이먼츠)가 직접 처리하며, 법인은 이를 저장하지 않습니다.</td>
+                                    </tr>
+                                    <tr>
+                                        <th>자동 수집</th>
+                                        <td>IP 주소, 쿠키, 접속 일시, 서비스 이용 기록, 브라우저 및 기기 정보</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p>법인은 만 14세 미만 아동의 개인정보를 수집하지 않습니다.</p>
+                    </section>
+
+                    <section id="article-3" class="privacy-section">
+                        <h2>제3조 개인정보의 처리 및 보유 기간</h2>
+                        <p>법인은 법령에 따른 보유·이용 기간 또는 정보주체로부터 동의받은 보유·이용 기간 내에서 개인정보를 처리·보유합니다.</p>
+                        <ol>
+                            <li><strong>회원 정보:</strong> 회원 탈퇴 시까지. 단, 관계 법령 위반에 따른 조사가 진행 중인 경우 해당 조사 종료 시까지</li>
+                            <li><strong>자격증 발급 이력:</strong> 자격증의 진위 확인 및 재발급을 위하여 발급일로부터 자격 유효기간 만료 시까지</li>
+                            <li><strong>관계 법령에 따른 보존</strong>
+                                <ul>
+                                    <li>계약 또는 청약철회 등에 관한 기록: 5년 (「전자상거래 등에서의 소비자보호에 관한 법률」)</li>
+                                    <li>대금 결제 및 재화 등의 공급에 관한 기록: 5년 (「전자상거래 등에서의 소비자보호에 관한 법률」)</li>
+                                    <li>소비자의 불만 또는 분쟁 처리에 관한 기록: 3년 (「전자상거래 등에서의 소비자보호에 관한 법률」)</li>
+                                    <li>표시·광고에 관한 기록: 6개월 (「전자상거래 등에서의 소비자보호에 관한 법률」)</li>
+                                    <li>웹사이트 방문 기록(로그 기록, 접속지 정보): 3개월 (「통신비밀보호법」)</li>
+                                </ul>
+                            </li>
+                        </ol>
+                    </section>
+
+                    <section id="article-4" class="privacy-section">
+                        <h2>제4조 개인정보의 제3자 제공</h2>
+                        <p>법인은 정보주체의 개인정보를 제1조에서 명시한 범위 내에서만 처리하며, 정보주체의 동의 또는 법률의 특별한 규정 등
+                            「개인정보 보호법」 제17조 및 제18조에 해당하는 경우에만 개인정보를 제3자에게 제공합니다.
+                            현재 법인은 개인정보를 제3자에게 제공하고 있지 않으며, 다음의 경우에 한하여 예외적으로 제공할 수 있습니다.</p>
+                        <ul>
+                            <li>정보주체가 사전에 별도로 동의한 경우</li>
+                            <li>법령에 특별한 규정이 있거나, 수사 목적으로 법령에 정해진 절차와 방법에 따라 수사기관이 요구하는 경우</li>
+                        </ul>
+                    </section>
+
+                    <section id="article-5" class="privacy-section">
+                        <h2>제5조 개인정보 처리의 위탁</h2>
+                        <p>법인은 원활한 서비스 제공을 위하여 다음과 같이 개인정보 처리 업무를 위탁하고 있습니다.</p>
+                        <div class="privacy-table-wrap">
+                            <table class="privacy-table">
+                                <thead>
+                                    <tr>
+                                        <th>수탁자</th>
+                                        <th>위탁 업무</th>
+                                        <th>보유 기간</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>토스페이먼츠 주식회사</td>
+                                        <td>결제 처리, 결제 인증, 환불 처리</td>
+                                        <td>결제 완료 후 5년 (전자상거래법)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Google LLC (Firebase)</td>
+                                        <td>회원 인증, 데이터베이스·파일 저장, 웹사이트 호스팅, 이용 통계 분석</td>
+                                        <td>회원 탈퇴 또는 위탁 계약 종료 시까지</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p>법인은 위탁 계약 체결 시 「개인정보 보호법」 제26조에 따라 위탁업무 수행 목적 외 개인정보 처리 금지, 기술적·관리적 보호조치,
+                            재위탁 제한, 수탁자에 대한 관리·감독, 손해배상 등 책임에 관한 사항을 계약서 등 문서에 명시하고,
+                            수탁자가 개인정보를 안전하게 처리하는지 감독합니다. 위탁 업무의 내용이나 수탁자가 변경될 경우 본 개인정보처리방침을 통하여 공개합니다.</p>
+                    </section>
+
+                    <section id="article-6" class="privacy-section">
+                        <h2>제6조 개인정보의 국외 이전</h2>
+                        <p>법인은 서비스 제공을 위하여 다음과 같이 개인정보를 국외에서 처리하고 있습니다.</p>
+                        <div class="privacy-table-wrap">
+                            <table class="privacy-table">
+                                <tbody>
+                                    <tr>
+                                        <th>이전받는 자</th>
+                                        <td>Google LLC (개인정보 보호 문의: <a href="https://support.google.com/policies/contact/general_privacy_form" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Google 개인정보 문의 양식</a>)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>이전 국가</th>
+                                        <td>미국 등 Google 데이터센터 소재 국가</td>
+                                    </tr>
+                                    <tr>
+                                        <th>이전 일시 및 방법</th>
+                                        <td>서비스 이용 시점에 정보통신망을 통하여 수시로 전송</td>
+                                    </tr>
+                                    <tr>
+                                        <th>이전 항목</th>
+                                        <td>제2조에 기재된 개인정보 항목 전체</td>
+                                    </tr>
+                                    <tr>
+                                        <th>이전 목적</th>
+                                        <td>회원 인증, 데이터 저장 및 웹사이트 운영(클라우드 인프라 이용)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>보유 및 이용 기간</th>
+                                        <td>회원 탈퇴 또는 위탁 계약 종료 시까지</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p>정보주체는 개인정보의 국외 이전을 거부할 수 있습니다. 다만, 국외 이전은 사이트 운영에 필수적이므로 거부하시는 경우 회원 가입 및 서비스 이용이 제한될 수 있습니다.</p>
+                    </section>
+
+                    <section id="article-7" class="privacy-section">
+                        <h2>제7조 개인정보의 파기 절차 및 방법</h2>
+                        <ol>
+                            <li>법인은 개인정보 보유 기간의 경과, 처리 목적 달성 등 개인정보가 불필요하게 되었을 때에는 지체 없이 해당 개인정보를 파기합니다.</li>
+                            <li>법령에 따라 개인정보를 계속 보존하여야 하는 경우에는 해당 개인정보를 별도의 데이터베이스(DB)로 옮기거나 보관 장소를 달리하여 보존합니다.</li>
+                            <li><strong>파기 절차:</strong> 파기 사유가 발생한 개인정보를 선정하고, 개인정보 보호책임자의 승인을 받아 파기합니다.</li>
+                            <li><strong>파기 방법:</strong> 전자적 파일 형태의 정보는 기록을 재생할 수 없는 기술적 방법을 사용하여 삭제하며, 종이에 출력된 개인정보는 분쇄기로 분쇄하거나 소각합니다.</li>
+                        </ol>
+                    </section>
+
+                    <section id="article-8" class="privacy-section">
+                        <h2>제8조 정보주체의 권리·의무 및 행사 방법</h2>
+                        <ol>
+                            <li>정보주체는 법인에 대해 언제든지 개인정보 열람·정정·삭제·처리정지 요구 및 동의 철회 등의 권리를 행사할 수 있습니다.</li>
+                            <li>권리 행사는 사이트의 <strong>마이페이지 &gt; 개인정보 관리</strong> 메뉴를 이용하거나, 제11조의 개인정보 보호책임자에게 전화(010-2596-2233) 또는 이메일(gostepexercise@gmail.com)로 요청하실 수 있으며, 법인은 요청을 받은 날부터 10일 이내에 조치 결과를 알려 드립니다.</li>
+                            <li>권리 행사는 정보주체의 법정대리인이나 위임을 받은 자 등 대리인을 통하여 하실 수 있습니다. 이 경우 위임장을 제출하셔야 합니다.</li>
+                            <li>다른 법령에서 그 개인정보가 수집 대상으로 명시되어 있는 경우에는 그 삭제를 요구할 수 없습니다.</li>
+                            <li>마케팅 정보 수신 동의는 마이페이지에서 언제든지 철회할 수 있습니다.</li>
+                        </ol>
+                    </section>
+
+                    <section id="article-9" class="privacy-section">
+                        <h2>제9조 개인정보의 안전성 확보 조치</h2>
+                        <p>법인은 개인정보의 안전성 확보를 위해 다음과 같은 조치를 취하고 있습니다.</p>
+                        <ul>
+                            <li><strong>관리적 조치:</strong> 개인정보 취급 인원의 최소화 및 정기적인 교육</li>
+                            <li><strong>기술적 조치:</strong> 비밀번호 암호화 저장, 전 구간 암호화 통신(HTTPS) 적용, 데이터베이스 접근 권한 규칙 설정, 관리자 계정 접근 통제</li>
+                            <li><strong>접속 기록 관리:</strong> 개인정보 처리 시스템에 대한 접속 기록 보관 및 위·변조 방지</li>
+                        </ul>
+                    </section>
+
+                    <section id="article-10" class="privacy-section">
+                        <h2>제10조 자동 수집 장치의 설치·운영 및 거부</h2>
+                        <ol>
+                            <li>법인은 이용자에게 개별적인 맞춤 서비스를 제공하고 이용 통계를 분석하기 위해 쿠키(cookie) 및 브라우저 저장소를 사용하며, Google Analytics(Firebase Analytics)를 통해 서비스 이용 정보를 수집합니다.</li>
+                            <li>쿠키는 웹사이트 운영에 이용되는 서버가 이용자의 브라우저에 보내는 소량의 정보로, 이용자의 기기에 저장됩니다.</li>
+                            <li><strong>거부 방법:</strong> 이용자는 웹 브라우저 설정(예: Chrome의 설정 &gt; 개인정보 및 보안 &gt; 서드파티 쿠키)에서 쿠키 저장을 거부할 수 있습니다. 다만, 쿠키 저장을 거부할 경우 로그인 등 일부 서비스 이용에 어려움이 발생할 수 있습니다.</li>
+                        </ol>
+                    </section>
+
+                    <section id="article-11" class="privacy-section">
+                        <h2>제11조 개인정보 보호책임자</h2>
+                        <p>법인은 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만 처리 및 피해 구제 등을 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.</p>
+                        <div class="privacy-table-wrap">
+                            <table class="privacy-table">
+                                <tbody>
+                                    <tr>
+                                        <th>개인정보 보호책임자</th>
+                                        <td>성명: 노호성<br>연락처: 010-2596-2233<br>이메일: <a href="mailto:gostepexercise@gmail.com" class="text-blue-600 hover:underline">gostepexercise@gmail.com</a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p>정보주체는 사이트 이용 중 발생한 모든 개인정보 보호 관련 문의, 불만 처리, 피해 구제 등에 관한 사항을 개인정보 보호책임자에게 문의하실 수 있으며, 법인은 지체 없이 답변 및 처리해 드립니다.</p>
+                    </section>
+
+                    <section id="article-12" class="privacy-section">
+                        <h2>제12조 권익침해 구제 방법</h2>
+                        <p>정보주체는 개인정보 침해로 인한 구제를 받기 위하여 아래 기관에 분쟁 해결이나 상담 등을 신청할 수 있습니다.</p>
+                        <ul>
+                            <li>개인정보분쟁조정위원회: (국번없이) 1833-6972 (www.kopico.go.kr)</li>
+                            <li>개인정보침해신고센터: (국번없이) 118 (privacy.kisa.or.kr)</li>
+                            <li>대검찰청: (국번없이) 1301 (www.spo.go.kr)</li>
+                            <li>경찰청: (국번없이) 182 (ecrm.police.go.kr)</li>
+                        </ul>
+                    </section>
+
+                    <section id="article-13" class="privacy-section">
+                        <h2>제13조 개인정보처리방침의 변경</h2>
+                        <p>이 개인정보처리방침은 법령, 정책 또는 보안 기술의 변경에 따라 내용이 추가·삭제 및 수정될 수 있으며, 변경되는 경우 시행일 최소 7일 전에 사이트 공지사항을 통하여 고지합니다.</p>
+                        <h3>부칙</h3>
+                        <p>이 개인정보처리방침은 2025년 10월 1일부터 시행합니다.</p>
+                    </section>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white">
+        <div class="container mx-auto px-4 py-6">
+            <div class="mb-6">
+                <h3 class="text-lg font-bold mb-3 text-white">사단법인 문경</h3>
+                <p class="text-gray-400 mb-4 text-sm leading-relaxed max-w-2xl">
+                    운동과학 기반 전문직업인력 양성을 위한 교육 및 자격 인증 관리 플랫폼
+                </p>
+            </div>
+            <div class="border-t border-gray-700 pt-5 mb-5">
+                <div class="flex flex-wrap gap-y-2 gap-x-8">
+                    <div class="min-w-[200px]">
+                        <p class="text-sm text-gray-400 mb-1">상호: 사단법인 문경</p>
+                        <p class="text-sm text-gray-400 mb-1">대표: 최승욱</p>
+                        <p class="text-sm text-gray-400 mb-1">주소: 서울특별시 노원구 한글비석로 233, 새롬스타빌 706호&lpar;중계동, 새롬스타빌&rpar;</p>
+                        <p class="text-sm text-gray-400 mb-1">전화: 010-2596-2233</p>
+                    </div>
+                    <div class="min-w-[200px]">
+                        <p class="text-sm text-gray-400 mb-1">사업자등록번호: 217-82-07188</p>
+                        <p class="text-sm text-gray-400 mb-1">통신판매신고번호: 제2025-서울노원-1117호</p>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-4">
+                <p class="mb-2"><a href="javascript:window.location.href=window.adjustPath('pages/privacy.html')" class="text-sm font-bold text-white hover:underline">개인정보처리방침</a></p>
+                <p class="text-sm text-gray-400">&copy; 2025 사단법인 문경. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- TOP 버튼 -->
+    <button id="scroll-top-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>
+    </button>
+
+    <!-- Firebase SDK 템플릿 (script-loader.js가 {basePath}를 처리) -->
+    <script id="firebase-sdk-template" type="text/template">
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"><\/script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"><\/script>
+        <script src="{basePath}assets/js/config/firebase-config.js"><\/script>
+        <script src="{basePath}assets/js/services/auth-service.js"><\/script>
+    </script>
+
+    <!-- 추가 스크립트 템플릿 -->
+    <script id="additional-scripts-template" type="text/template">
+        <script src="{basePath}assets/js/components/header.js"><\/script>
+        <script src="{basePath}assets/js/components/footer.js"><\/script>
+    </script>
+
+</body>
+
+</html>
