@@ -17,6 +17,15 @@ function escapeHtml(str) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#x27;');
 }
+// onclick="fn('...')" 처럼 이벤트 속성 안의 JS 문자열에 데이터를 넣을 때 사용
+function escapeJsStr(str) {
+    if (str == null) return '';
+    return escapeHtml(String(str)
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '\\"')
+        .replace(/\r?\n/g, '\\n'));
+}
 
 // =================================
 // 전역 변수 선언 (🔧 호이스팅 문제 해결 - 최상단으로 이동)
@@ -49,7 +58,7 @@ function checkDependencies() {
         console.error('⚠️ 필수 유틸리티가 로드되지 않음:', missing.map(m => m.path));
         console.log('📝 HTML에서 다음 스크립트들이 먼저 로드되어야 합니다:');
         missing.forEach(m => {
-            console.log(`   <script src="{basePath}assets/js/utils/${m.path}"></script>`);
+            console.log(`   <script src="{basePath}assets/js/utils/${escapeHtml(m.path)}"></script>`);
         });
         return false;
     }
@@ -826,15 +835,15 @@ window.userManager = {
 
             const isSelected = this._selectedUserIds.has(user.id);
             html += `
-            <tr class="hover:bg-gray-50 transition-colors${isSelected ? ' bg-indigo-50' : ''}">
+            <tr class="hover:bg-gray-50 transition-colors${escapeHtml(isSelected ? ' bg-indigo-50' : '')}">
                 <td data-label="">
                     <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded cursor-pointer"
-                        ${isSelected ? 'checked' : ''}
-                        onchange="userManager.toggleUserSelection('${user.id}', this.checked)">
+                        ${escapeHtml(isSelected ? 'checked' : '')}
+                        onchange="userManager.toggleUserSelection('${escapeJsStr(user.id)}', this.checked)">
                 </td>
                 <td data-label="번호">
                     <div class="flex items-center">
-                        <span class="text-sm font-medium text-gray-900">${userNumber}</span>
+                        <span class="text-sm font-medium text-gray-900">${escapeHtml(userNumber)}</span>
                     </div>
                 </td>
                 <td data-label="소속">
@@ -851,9 +860,9 @@ window.userManager = {
                 </td>
                 <td data-label="회원 유형">
                     <div class="flex items-center flex-wrap gap-2">
-                        <span class="user-type-badge ${userTypeInfo.class}">${userTypeInfo.text}</span>
+                        <span class="user-type-badge ${escapeHtml(userTypeInfo.class)}">${escapeHtml(userTypeInfo.text)}</span>
                         ${canEdit ? `
-                            <button onclick="userManager.quickRoleChange('${user.id}', '${userType}')" 
+                            <button onclick="userManager.quickRoleChange('${escapeJsStr(user.id)}', '${escapeJsStr(userType)}')" 
                                 class="table-action-btn btn-edit" title="권한 변경">
                                 변경
                             </button>
@@ -862,9 +871,9 @@ window.userManager = {
                 </td>
                 <td data-label="상태">
                     <div class="flex items-center flex-wrap gap-2">
-                        <span class="status-badge ${statusInfo.class}">${statusInfo.text}</span>
+                        <span class="status-badge ${escapeHtml(statusInfo.class)}">${escapeHtml(statusInfo.text)}</span>
                         ${canEdit ? `
-                            <button onclick="userManager.quickStatusChange('${user.id}', '${status}')" 
+                            <button onclick="userManager.quickStatusChange('${escapeJsStr(user.id)}', '${escapeJsStr(status)}')" 
                                 class="table-action-btn btn-edit" title="상태 변경">
                                 변경
                             </button>
@@ -872,12 +881,12 @@ window.userManager = {
                     </div>
                 </td>
                 <td data-label="가입일">
-                    <span class="text-sm text-gray-500">${createdAt}</span>
+                    <span class="text-sm text-gray-500">${escapeHtml(createdAt)}</span>
                 </td>
                 <td data-label="관리">
                     <div class="table-actions">
                         ${canEdit ? `
-                            <button onclick="userManager.editUser('${user.id}')"
+                            <button onclick="userManager.editUser('${escapeJsStr(user.id)}')"
                                 class="table-action-btn btn-edit" title="회원 정보 수정">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -886,7 +895,7 @@ window.userManager = {
                                 </svg>
                                 수정
                             </button>
-                            <button onclick="userManager.openEmailModal('${user.id}')"
+                            <button onclick="userManager.openEmailModal('${escapeJsStr(user.id)}')"
                                 class="table-action-btn btn-edit" title="메일 발송" style="background:#eef2ff;color:#4f46e5;border-color:#c7d2fe;">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -895,7 +904,7 @@ window.userManager = {
                                 </svg>
                                 메일
                             </button>
-                            <button onclick="userManager.deleteUser('${user.id}')"
+                            <button onclick="userManager.deleteUser('${escapeJsStr(user.id)}')"
                                 class="table-action-btn btn-delete" title="회원 삭제">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1171,9 +1180,9 @@ window.userManager = {
 
         // 이전 페이지 버튼
         html += `
-        <button onclick="userManager.changePage(${this.currentPage - 1})" 
-            class="admin-pagination-btn ${this.currentPage === 1 ? 'cursor-not-allowed opacity-50' : ''}"
-            ${this.currentPage === 1 ? 'disabled' : ''}>
+        <button onclick="userManager.changePage(${escapeJsStr(this.currentPage - 1)})" 
+            class="admin-pagination-btn ${escapeHtml(this.currentPage === 1 ? 'cursor-not-allowed opacity-50' : '')}"
+            ${escapeHtml(this.currentPage === 1 ? 'disabled' : '')}>
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
             </svg>
@@ -1202,10 +1211,10 @@ window.userManager = {
 
         for (let i = startPage; i <= endPage; i++) {
             html += `
-            <button onclick="userManager.changePage(${i})" 
-                class="admin-pagination-btn page-number ${this.currentPage === i ? 'active' : ''}"
-                data-page="${i}">
-                ${i}
+            <button onclick="userManager.changePage(${escapeJsStr(i)})" 
+                class="admin-pagination-btn page-number ${escapeHtml(this.currentPage === i ? 'active' : '')}"
+                data-page="${escapeHtml(i)}">
+                ${escapeHtml(i)}
             </button>
         `;
         }
@@ -1216,15 +1225,15 @@ window.userManager = {
                 html += `<span class="admin-pagination-btn cursor-default">...</span>`;
             }
             html += `
-            <button onclick="userManager.changePage(${totalPages})" class="admin-pagination-btn">${totalPages}</button>
+            <button onclick="userManager.changePage(${escapeJsStr(totalPages)})" class="admin-pagination-btn">${escapeHtml(totalPages)}</button>
         `;
         }
 
         // 다음 페이지 버튼
         html += `
-        <button onclick="userManager.changePage(${this.currentPage + 1})" 
-            class="admin-pagination-btn ${this.currentPage === totalPages ? 'cursor-not-allowed opacity-50' : ''}"
-            ${this.currentPage === totalPages ? 'disabled' : ''}>
+        <button onclick="userManager.changePage(${escapeJsStr(this.currentPage + 1)})" 
+            class="admin-pagination-btn ${escapeHtml(this.currentPage === totalPages ? 'cursor-not-allowed opacity-50' : '')}"
+            ${escapeHtml(this.currentPage === totalPages ? 'disabled' : '')}>
             <span class="hide-mobile">다음</span>
             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -2122,8 +2131,8 @@ window.userManager = {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
                 </svg>
                 <span class="flex-1 truncate text-gray-700">${escapeHtml(att.filename)}</span>
-                <span class="text-gray-400 text-xs flex-shrink-0">${att.size >= 1024 * 1024 ? (att.size / 1024 / 1024).toFixed(1) + 'MB' : Math.round(att.size / 1024) + 'KB'}</span>
-                <button type="button" onclick="userManager.removeAttachment(${idx})"
+                <span class="text-gray-400 text-xs flex-shrink-0">${escapeHtml(att.size >= 1024 * 1024 ? (att.size / 1024 / 1024).toFixed(1) + 'MB' : Math.round(att.size / 1024) + 'KB')}</span>
+                <button type="button" onclick="userManager.removeAttachment(${escapeJsStr(idx)})"
                     class="text-red-400 hover:text-red-600 flex-shrink-0 ml-1">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -2339,7 +2348,7 @@ function showNotification(message, type = 'info') {
                 <span class="text-lg">${icon}</span>
             </div>
             <div class="flex-1">
-                <p class="text-sm font-medium">${message}</p>
+                <p class="text-sm font-medium">${escapeHtml(message)}</p>
             </div>
             <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-semibold hover:opacity-70">
                 ×

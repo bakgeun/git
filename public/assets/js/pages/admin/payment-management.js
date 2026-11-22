@@ -17,6 +17,15 @@ function escapeHtml(str) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#x27;');
 }
+// onclick="fn('...')" 처럼 이벤트 속성 안의 JS 문자열에 데이터를 넣을 때 사용
+function escapeJsStr(str) {
+    if (str == null) return '';
+    return escapeHtml(String(str)
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '\\"')
+        .replace(/\r?\n/g, '\\n'));
+}
 
 // =================================
 // 전역 변수 선언 (최적화 - 중복 방지)
@@ -59,7 +68,7 @@ function checkDependencies() {
         console.error('⚠️ 필수 유틸리티가 로드되지 않음:', missing.map(m => m.path));
         console.log('📝 HTML에서 다음 스크립트들이 먼저 로드되어야 합니다:');
         missing.forEach(m => {
-            console.log(`   <script src="{basePath}assets/js/utils/${m.path}"></script>`);
+            console.log(`   <script src="{basePath}assets/js/utils/${escapeHtml(m.path)}"></script>`);
         });
         return false;
     }
@@ -1057,7 +1066,7 @@ window.paymentManager = {
             };
 
             const config = statusConfig[status] || { class: 'status-badge bg-gray-100 text-gray-800', text: status };
-            return `<span class="${config.class}">${config.text}</span>`;
+            return `<span class="${escapeHtml(config.class)}">${escapeHtml(config.text)}</span>`;
         };
 
         const getActionButtons = (payment) => {
@@ -1065,7 +1074,7 @@ window.paymentManager = {
 
             // 상세 보기 버튼 (항상 표시)
             buttons.push(`
-                <button onclick="viewPaymentDetail('${payment.id}')" 
+                <button onclick="viewPaymentDetail('${escapeJsStr(payment.id)}')" 
                         class="table-action-btn btn-view">
                     상세
                 </button>
@@ -1074,7 +1083,7 @@ window.paymentManager = {
             // 환불 버튼 (완료된 결제만)
             if (payment.status === 'completed' || payment.status === 'refund_requested') {
                 buttons.push(`
-                    <button onclick="showRefundModal('${payment.id}')" 
+                    <button onclick="showRefundModal('${escapeJsStr(payment.id)}')" 
                             class="table-action-btn btn-edit">
                         환불
                     </button>
@@ -1084,7 +1093,7 @@ window.paymentManager = {
             // 취소 버튼 (대기중인 결제만)
             if (payment.status === 'pending') {
                 buttons.push(`
-                    <button onclick="cancelPayment('${payment.id}')" 
+                    <button onclick="cancelPayment('${escapeJsStr(payment.id)}')" 
                             class="table-action-btn btn-delete">
                         취소
                     </button>
@@ -1097,10 +1106,10 @@ window.paymentManager = {
         const paymentNumber = index + 1 + ((this.currentPage - 1) * this.pageSize);
 
         return `
-            <tr class="hover:bg-gray-50 transition-colors" data-payment-id="${payment.id}">
+            <tr class="hover:bg-gray-50 transition-colors" data-payment-id="${escapeHtml(payment.id)}">
                 <td data-label="결제번호">
                     <div class="font-medium text-gray-900">
-                        ${payment.paymentId || `#${paymentNumber}`}
+                        ${escapeHtml(payment.paymentId || `#${paymentNumber}`)}
                     </div>
                 </td>
                 <td data-label="결제자">
@@ -1116,17 +1125,17 @@ window.paymentManager = {
                 </td>
                 <td data-label="결제금액">
                     <div class="font-medium text-gray-900">
-                        ${formatCurrency(payment.amount)}
+                        ${escapeHtml(formatCurrency(payment.amount))}
                     </div>
                 </td>
                 <td data-label="결제방법">
                     <div class="text-sm text-gray-900">
-                        ${getPaymentMethodName(payment.paymentMethod)}
+                        ${escapeHtml(getPaymentMethodName(payment.paymentMethod))}
                     </div>
                 </td>
                 <td data-label="결제일시">
                     <div class="text-sm text-gray-500">
-                        ${formatDate(payment.createdAt)}
+                        ${escapeHtml(formatDate(payment.createdAt))}
                     </div>
                 </td>
                 <td data-label="상태">
@@ -1157,9 +1166,9 @@ window.paymentManager = {
 
         // 이전 페이지 버튼
         html += `
-            <button onclick="changePage(${this.currentPage - 1})" 
-                    class="admin-pagination-btn ${this.currentPage === 1 ? 'cursor-not-allowed opacity-50' : ''}"
-                    ${this.currentPage === 1 ? 'disabled' : ''}>
+            <button onclick="changePage(${escapeJsStr(this.currentPage - 1)})" 
+                    class="admin-pagination-btn ${escapeHtml(this.currentPage === 1 ? 'cursor-not-allowed opacity-50' : '')}"
+                    ${escapeHtml(this.currentPage === 1 ? 'disabled' : '')}>
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                 </svg>
@@ -1186,10 +1195,10 @@ window.paymentManager = {
 
         for (let i = startPage; i <= endPage; i++) {
             html += `
-                <button onclick="changePage(${i})" 
-                    class="admin-pagination-btn ${this.currentPage === i ? 'active' : ''}"
-                    data-page="${i}">
-                    ${i}
+                <button onclick="changePage(${escapeJsStr(i)})" 
+                    class="admin-pagination-btn ${escapeHtml(this.currentPage === i ? 'active' : '')}"
+                    data-page="${escapeHtml(i)}">
+                    ${escapeHtml(i)}
                 </button>
             `;
         }
@@ -1199,14 +1208,14 @@ window.paymentManager = {
             if (endPage < totalPages - 1) {
                 html += `<span class="admin-pagination-btn cursor-default">...</span>`;
             }
-            html += `<button onclick="changePage(${totalPages})" class="admin-pagination-btn">${totalPages}</button>`;
+            html += `<button onclick="changePage(${escapeJsStr(totalPages)})" class="admin-pagination-btn">${escapeHtml(totalPages)}</button>`;
         }
 
         // 다음 페이지 버튼
         html += `
-            <button onclick="changePage(${this.currentPage + 1})" 
-                    class="admin-pagination-btn ${this.currentPage === totalPages ? 'cursor-not-allowed opacity-50' : ''}"
-                    ${this.currentPage === totalPages ? 'disabled' : ''}>
+            <button onclick="changePage(${escapeJsStr(this.currentPage + 1)})" 
+                    class="admin-pagination-btn ${escapeHtml(this.currentPage === totalPages ? 'cursor-not-allowed opacity-50' : '')}"
+                    ${escapeHtml(this.currentPage === totalPages ? 'disabled' : '')}>
                 <span class="hide-mobile">다음</span>
                 <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -1350,23 +1359,23 @@ window.paymentManager = {
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-500">결제번호</label>
-                            <p class="mt-1 text-sm font-medium text-gray-900">${payment.paymentId || '-'}</p>
+                            <p class="mt-1 text-sm font-medium text-gray-900">${escapeHtml(payment.paymentId || '-')}</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-500">결제상태</label>
-                            <p class="mt-1 text-sm font-medium text-gray-900">${getStatusText(payment.status)}</p>
+                            <p class="mt-1 text-sm font-medium text-gray-900">${escapeHtml(getStatusText(payment.status))}</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-500">결제금액</label>
-                            <p class="mt-1 text-lg font-bold text-gray-900">${formatCurrency(payment.amount)}</p>
+                            <p class="mt-1 text-lg font-bold text-gray-900">${escapeHtml(formatCurrency(payment.amount))}</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-500">결제방법</label>
-                            <p class="mt-1 text-sm text-gray-900">${getPaymentMethodText(payment.paymentMethod)}</p>
+                            <p class="mt-1 text-sm text-gray-900">${escapeHtml(getPaymentMethodText(payment.paymentMethod))}</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-500">결제일시</label>
-                            <p class="mt-1 text-sm text-gray-900">${formatDate(payment.createdAt)}</p>
+                            <p class="mt-1 text-sm text-gray-900">${escapeHtml(formatDate(payment.createdAt))}</p>
                         </div>
                     </div>
                 </div>
@@ -1431,7 +1440,7 @@ window.paymentManager = {
                         ${payment.pgResponse.installment !== undefined ? `
                         <div>
                             <label class="block text-sm font-medium text-gray-500">할부</label>
-                            <p class="mt-1 text-sm text-gray-900">${payment.pgResponse.installment === 0 ? '일시불' : payment.pgResponse.installment + '개월'}</p>
+                            <p class="mt-1 text-sm text-gray-900">${escapeHtml(payment.pgResponse.installment === 0 ? '일시불' : payment.pgResponse.installment + '개월')}</p>
                         </div>
                         ` : ''}
                     </div>
@@ -1794,7 +1803,7 @@ function showNotification(message, type = 'info') {
                 <span class="text-lg">${icon}</span>
             </div>
             <div class="flex-1">
-                <p class="text-sm font-medium">${message}</p>
+                <p class="text-sm font-medium">${escapeHtml(message)}</p>
             </div>
             <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-semibold hover:opacity-70">
                 ×

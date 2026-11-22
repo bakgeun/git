@@ -1,3 +1,23 @@
+// ===== XSS 방지 헬퍼 (innerHTML 템플릿에 데이터를 넣을 때 사용) =====
+function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;');
+}
+// onclick="fn('...')" 처럼 이벤트 속성 안의 JS 문자열에 데이터를 넣을 때 사용
+function escapeJsStr(str) {
+    if (str == null) return '';
+    return escapeHtml(String(str)
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '\\"')
+        .replace(/\r?\n/g, '\\n'));
+}
+
 /**
  * 🔧 course-management-enhanced.js
  * 통합 가격 설정 기능이 포함된 개선된 교육 관리 페이지 스크립트
@@ -411,8 +431,8 @@ window.courseManager = {
             const specialtiesText = instructor.specialties ?
                 ` (${instructor.specialties.map(s => this.getCertificateName(s)).join(', ')})` : '';
 
-            optionsHtml += `<option value="${instructor.id}" data-name="${instructor.name}">
-                ${instructor.name}${specialtiesText}
+            optionsHtml += `<option value="${escapeHtml(instructor.id)}" data-name="${escapeHtml(instructor.name)}">
+                ${escapeHtml(instructor.name)}${specialtiesText}
             </option>`;
         });
 
@@ -483,7 +503,7 @@ window.courseManager = {
                 previewElement.style.cssText = 'margin-top: 0.5rem; padding: 0.5rem; background: #f0f9ff; border-radius: 4px; font-size: 0.875rem;';
                 autoInfo.appendChild(previewElement);
             }
-            previewElement.innerHTML = `<strong>생성될 교육명:</strong> ${generatedTitle}`;
+            previewElement.innerHTML = `<strong>생성될 교육명:</strong> ${escapeHtml(generatedTitle)}`;
         }
     },
 
@@ -746,27 +766,27 @@ window.courseManager = {
                         'completed': '<span class="status-badge status-inactive">종료</span>',
                         'preparing': '<span class="status-badge status-available">준비중</span>'
                     };
-                    return badges[status] || `<span class="status-badge status-inactive">${status}</span>`;
+                    return badges[status] || `<span class="status-badge status-inactive">${escapeHtml(status)}</span>`;
                 };
 
                 const coursePeriod = course.period || this.generateCoursePeriod(startDate);
 
                 // 🔧 NEW: 통합 가격 정보 표시 (HTML 테이블 구조와 일치)
                 html += `
-                    <tr class="hover:bg-gray-50 transition-colors cursor-pointer" onclick="courseManager.selectCourseForApplicants('${course.id}', '${this.getCertificateName(course.certificateType)}', '${coursePeriod}')">
-                        <td data-label="자격증">${this.getCertificateName(course.certificateType)}</td>
-                        <td data-label="기수">${coursePeriod}</td>
-                        <td data-label="강사">${course.instructor || '-'}</td>
-                        <td data-label="교육기간">${formatDate(startDate)} ~ ${formatDate(endDate)}</td>
-                        <td data-label="신청기간">${formatDate(applyStartDate)} ~ ${formatDate(applyEndDate)}</td>
-                        <td data-label="교육비">${formatCurrency(course.price ?? course.pricing?.education ?? 0)}</td>
-                        <td data-label="자격증비">${formatCurrency(course.certificatePrice ?? course.pricing?.certificate ?? 0)}</td>
-                        <td data-label="교재비">${formatCurrency(course.materialPrice ?? course.pricing?.material ?? 0)}</td>
-                        <td data-label="정원/신청자">${course.capacity}/${course.enrolledCount || 0}명</td>
+                    <tr class="hover:bg-gray-50 transition-colors cursor-pointer" onclick="courseManager.selectCourseForApplicants('${escapeJsStr(course.id)}', '${escapeJsStr(this.getCertificateName(course.certificateType))}', '${escapeJsStr(coursePeriod)}')">
+                        <td data-label="자격증">${escapeHtml(this.getCertificateName(course.certificateType))}</td>
+                        <td data-label="기수">${escapeHtml(coursePeriod)}</td>
+                        <td data-label="강사">${escapeHtml(course.instructor || '-')}</td>
+                        <td data-label="교육기간">${escapeHtml(formatDate(startDate))} ~ ${escapeHtml(formatDate(endDate))}</td>
+                        <td data-label="신청기간">${escapeHtml(formatDate(applyStartDate))} ~ ${escapeHtml(formatDate(applyEndDate))}</td>
+                        <td data-label="교육비">${escapeHtml(formatCurrency(course.price ?? course.pricing?.education ?? 0))}</td>
+                        <td data-label="자격증비">${escapeHtml(formatCurrency(course.certificatePrice ?? course.pricing?.certificate ?? 0))}</td>
+                        <td data-label="교재비">${escapeHtml(formatCurrency(course.materialPrice ?? course.pricing?.material ?? 0))}</td>
+                        <td data-label="정원/신청자">${escapeHtml(course.capacity)}/${escapeHtml(course.enrolledCount || 0)}명</td>
                         <td data-label="상태">${getStatusBadge(course.status)}</td>
                         <td data-label="작업">
                             <div class="table-actions">
-                                <button onclick="courseManager.viewCourse('${course.id}')" 
+                                <button onclick="courseManager.viewCourse('${escapeJsStr(course.id)}')" 
                                     class="table-action-btn btn-view" title="상세 보기">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -775,7 +795,7 @@ window.courseManager = {
                                     </svg>
                                     상세
                                 </button>
-                                <button onclick="courseManager.editCourse('${course.id}')" 
+                                <button onclick="courseManager.editCourse('${escapeJsStr(course.id)}')" 
                                     class="table-action-btn btn-edit" title="수정">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -784,7 +804,7 @@ window.courseManager = {
                                     </svg>
                                     수정
                                 </button>
-                                <button onclick="courseManager.deleteCourse('${course.id}')" 
+                                <button onclick="courseManager.deleteCourse('${escapeJsStr(course.id)}')" 
                                     class="table-action-btn btn-delete" title="삭제">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -958,24 +978,24 @@ window.courseManager = {
 
             const statusCell = enrollment
                 ? `<select class="enrollment-status-select"
-                        data-enrollment-id="${enrollment.id}"
-                        onchange="courseManager.updateEnrollmentStatus('${enrollment.id}', this.value)">
-                        <option value="enrolled"    ${enrollment.status === 'enrolled'     ? 'selected' : ''}>등록완료</option>
-                        <option value="in-progress" ${enrollment.status === 'in-progress'  ? 'selected' : ''}>수강중</option>
-                        <option value="completed"   ${enrollment.status === 'completed'    ? 'selected' : ''}>수강완료</option>
-                        <option value="cancelled"   ${enrollment.status === 'cancelled'    ? 'selected' : ''}>취소</option>
+                        data-enrollment-id="${escapeHtml(enrollment.id)}"
+                        onchange="courseManager.updateEnrollmentStatus('${escapeJsStr(enrollment.id)}', this.value)">
+                        <option value="enrolled"    ${escapeHtml(enrollment.status === 'enrolled'     ? 'selected' : '')}>등록완료</option>
+                        <option value="in-progress" ${escapeHtml(enrollment.status === 'in-progress'  ? 'selected' : '')}>수강중</option>
+                        <option value="completed"   ${escapeHtml(enrollment.status === 'completed'    ? 'selected' : '')}>수강완료</option>
+                        <option value="cancelled"   ${escapeHtml(enrollment.status === 'cancelled'    ? 'selected' : '')}>취소</option>
                     </select>`
                 : `<span class="status-badge status-inactive">미등록</span>`;
 
             html += `
                 <tr class="hover:bg-gray-50 transition-colors">
-                    <td data-label="신청일시">${formatDate(timestamp)}</td>
-                    <td data-label="소속">${info.affiliation || applicant.affiliation || '-'}</td>
-                    <td data-label="신청자명">${info['applicant-name'] || '-'}</td>
-                    <td data-label="이메일">${info.email || '-'}</td>
-                    <td data-label="전화번호">${info.phone || '-'}</td>
-                    <td data-label="생년월일">${info['birth-date'] || '-'}</td>
-                    <td data-label="결제금액">${formatCurrency(pricing.totalAmount)}</td>
+                    <td data-label="신청일시">${escapeHtml(formatDate(timestamp))}</td>
+                    <td data-label="소속">${escapeHtml(info.affiliation || applicant.affiliation || '-')}</td>
+                    <td data-label="신청자명">${escapeHtml(info['applicant-name'] || '-')}</td>
+                    <td data-label="이메일">${escapeHtml(info.email || '-')}</td>
+                    <td data-label="전화번호">${escapeHtml(info.phone || '-')}</td>
+                    <td data-label="생년월일">${escapeHtml(info['birth-date'] || '-')}</td>
+                    <td data-label="결제금액">${escapeHtml(formatCurrency(pricing.totalAmount))}</td>
                     <td data-label="수강 상태">${statusCell}</td>
                 </tr>
             `;
@@ -1037,7 +1057,7 @@ window.courseManager = {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                 d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        ${message}
+                        ${escapeHtml(message)}
                     </td>
                 </tr>
             `;
@@ -1094,9 +1114,9 @@ window.courseManager = {
             for (let i = startPage; i <= endPage; i++) {
                 const isActive = i === this.applicantsCurrentPage;
                 pageNumbersHtml += `
-                    <button onclick="courseManager.goToApplicantsPage(${i})" 
-                        class="admin-pagination-number ${isActive ? 'active' : ''}">
-                        ${i}
+                    <button onclick="courseManager.goToApplicantsPage(${escapeJsStr(i)})" 
+                        class="admin-pagination-number ${escapeHtml(isActive ? 'active' : '')}">
+                        ${escapeHtml(i)}
                     </button>
                 `;
             }

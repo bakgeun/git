@@ -742,7 +742,17 @@ if (storedDate !== certDate) {
   - `cert-application.js`: 증명사진 업로드 시 `uploadedBy`에 Firebase Auth uid를 보조로 사용
 - **장애 이력**: 첫 배포 규칙의 `resource == null` 비교가 신규 업로드에서 오류로 평가되어, 재배포 전까지 수십 분간 증명사진·갱신 첨부 업로드가 거부됐을 수 있음 → `create`/`update` 규칙 분리로 수정
 - **검증**: `scripts/rules-test.js` 신규 작성(26개 케이스 전부 통과). 일반 회원 계정으로 실제 화면 업로드는 미확인
-- **남은 점검 항목**(별도 작업 예정): 관리자 화면 저장형 XSS(`cert-management`·`course-management`·`board-management`), 결제 금액·결제 기록의 클라이언트 신뢰 문제(`_pending_payments`·`payments`·`enrollments`를 클라이언트가 작성), 회원 `email` 변경을 통한 결제 확인 메일 악용 가능성
+- **남은 점검 항목**(별도 작업 예정): 결제 금액·결제 기록의 클라이언트 신뢰 문제(`_pending_payments`·`payments`·`enrollments`를 클라이언트가 작성), 회원 `email` 변경을 통한 결제 확인 메일 악용 가능성
+
+#### 보안 — 관리자 화면 저장형 XSS 차단
+
+- **배경**: 회원이 입력한 값(자격증 신청 이름·이메일·주소 등)이 관리자 화면에 `innerHTML`로 이스케이프 없이 출력되어, 이름에 `<img src=x onerror=...>`를 넣으면 관리자가 목록을 여는 순간 관리자 권한으로 스크립트가 실행될 수 있었음(CSP `'unsafe-inline'` 허용 상태). 알림(toast)도 메시지를 `innerHTML`로 넣고 있었음
+- **수정**: 관리자 화면 6개 파일과 `toast.js`의 HTML 템플릿에 들어가는 데이터를 모두 이스케이프(267곳)
+  - `escapeHtml()`: 텍스트·속성 값용
+  - `escapeJsStr()` 신규: `onclick="fn('${...}')"`처럼 이벤트 속성 안 JS 문자열에 넣는 값용 (HTML 이스케이프만으로는 `'`로 JS 문자열을 탈출할 수 있음)
+  - 배지·버튼 등 HTML 조각, 이미 이스케이프된 값(`safeRecipient` 등), 메일 본문 미리보기(`bodyHtml`)는 제외
+- **규칙**: 앞으로 `innerHTML`/템플릿에 데이터를 넣을 때는 반드시 `escapeHtml()`(이벤트 속성 안이면 `escapeJsStr()`)로 감쌀 것
+- **검증**: 공격 문자열로 자격증 목록 행 렌더링 테스트(수정 전 취약 → 수정 후 무력화), Edge에서 관리자 페이지 6개 스크립트 로드 오류 없음, toast 공격 문자열 미실행 확인. 관리자 로그인 상태의 실제 화면은 운영자 확인 필요
 
 #### 조사 메모
 
@@ -767,6 +777,8 @@ if (storedDate !== certDate) {
 | `storage.rules` | 증명사진·갱신 첨부를 본인·관리자 전용으로 제한, 파일 검사 함수 `request.resource` 기준으로 수정, `profiles/`·`uploads/` 관리자 전용 |
 | `public/assets/js/pages/education/cert-application.js` | 증명사진 `uploadedBy`에 Auth uid 보조 사용 |
 | `scripts/rules-test.js` | 보안 규칙 테스트 스크립트 신규 |
+| `public/assets/js/pages/admin/*.js` (cert·course·board·user·payment-management, dashboard) | HTML 템플릿 데이터 이스케이프, `escapeHtml`·`escapeJsStr` 헬퍼 추가 |
+| `public/assets/js/components/toast.js` | 알림 메시지 이스케이프 |
 
 ---
 

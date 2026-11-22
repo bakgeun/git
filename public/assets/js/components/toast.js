@@ -1,3 +1,23 @@
+// ===== XSS 방지 헬퍼 (innerHTML 템플릿에 데이터를 넣을 때 사용) =====
+function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;');
+}
+// onclick="fn('...')" 처럼 이벤트 속성 안의 JS 문자열에 데이터를 넣을 때 사용
+function escapeJsStr(str) {
+    if (str == null) return '';
+    return escapeHtml(String(str)
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '\\"')
+        .replace(/\r?\n/g, '\\n'));
+}
+
 /**
  * 🔔 통합 Toast 알림 시스템
  * 모든 관리자 페이지에서 사용할 수 있는 통일된 알림 시스템
@@ -98,7 +118,7 @@ function createToastElement(message, type, config) {
                 ${icon}
             </div>
             <div class="toast-message">
-                ${message}
+                ${escapeHtml(message)}
             </div>
             ${config.dismissible ? `
                 <button class="toast-close" aria-label="닫기">

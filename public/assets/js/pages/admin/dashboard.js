@@ -1,4 +1,24 @@
-﻿/**
+﻿// ===== XSS 방지 헬퍼 (innerHTML 템플릿에 데이터를 넣을 때 사용) =====
+function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;');
+}
+// onclick="fn('...')" 처럼 이벤트 속성 안의 JS 문자열에 데이터를 넣을 때 사용
+function escapeJsStr(str) {
+    if (str == null) return '';
+    return escapeHtml(String(str)
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '\\"')
+        .replace(/\r?\n/g, '\\n'));
+}
+
+/**
  * dashboard.js - 완전한 통합 유틸리티 시스템 적용 버전 (cert-management 표준 적용)
  * 관리자 대시보드 페이지의 모든 기능을 포함합니다.
  */
@@ -42,7 +62,7 @@ function checkDependencies() {
         console.error('⚠️ 필수 유틸리티가 로드되지 않음:', missing.map(m => m.path));
         console.log('📝 HTML에서 다음 스크립트들이 먼저 로드되어야 합니다:');
         missing.forEach(m => {
-            console.log(`   <script src="{basePath}assets/js/utils/${m.path}"></script>`);
+            console.log(`   <script src="{basePath}assets/js/utils/${escapeHtml(m.path)}"></script>`);
         });
         return false;
     }
@@ -660,9 +680,9 @@ async function loadRecentUsers() {
             
             return `
                 <tr class="border-b hover:bg-gray-50">
-                    <td class="py-2">${user.name || user.displayName || '이름 없음'}</td>
-                    <td class="py-2">${user.email}</td>
-                    <td class="py-2">${formattedDate}</td>
+                    <td class="py-2">${escapeHtml(user.name || user.displayName || '이름 없음')}</td>
+                    <td class="py-2">${escapeHtml(user.email)}</td>
+                    <td class="py-2">${escapeHtml(formattedDate)}</td>
                 </tr>
             `;
         }).join('');
@@ -709,9 +729,9 @@ async function loadRecentApplications() {
             
             return `
                 <tr class="border-b hover:bg-gray-50">
-                    <td class="py-2">${app.course || app.courseName || '과정 없음'}</td>
-                    <td class="py-2">${app.applicant || app.applicantName || '신청자 없음'}</td>
-                    <td class="py-2">${formattedDate}</td>
+                    <td class="py-2">${escapeHtml(app.course || app.courseName || '과정 없음')}</td>
+                    <td class="py-2">${escapeHtml(app.applicant || app.applicantName || '신청자 없음')}</td>
+                    <td class="py-2">${escapeHtml(formattedDate)}</td>
                 </tr>
             `;
         }).join('');
@@ -759,8 +779,8 @@ async function loadRecentNotices() {
             return `
                 <li class="border-b pb-2 last:border-b-0 hover:bg-gray-50 p-2 rounded">
                     <div class="flex justify-between items-start">
-                        <span class="text-gray-800 text-sm hover:text-blue-600 cursor-pointer">${notice.title}</span>
-                        <span class="text-gray-500 text-xs ml-4">${formattedDate}</span>
+                        <span class="text-gray-800 text-sm hover:text-blue-600 cursor-pointer">${escapeHtml(notice.title)}</span>
+                        <span class="text-gray-500 text-xs ml-4">${escapeHtml(formattedDate)}</span>
                     </div>
                 </li>
             `;
@@ -1312,7 +1332,7 @@ function showNotification(message, type = 'info') {
                 <span class="text-lg">${icon}</span>
             </div>
             <div class="flex-1">
-                <p class="text-sm font-medium">${message}</p>
+                <p class="text-sm font-medium">${escapeHtml(message)}</p>
             </div>
             <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-semibold hover:opacity-70">
                 ×

@@ -1,4 +1,24 @@
-﻿/**
+﻿// ===== XSS 방지 헬퍼 (innerHTML 템플릿에 데이터를 넣을 때 사용) =====
+function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;');
+}
+// onclick="fn('...')" 처럼 이벤트 속성 안의 JS 문자열에 데이터를 넣을 때 사용
+function escapeJsStr(str) {
+    if (str == null) return '';
+    return escapeHtml(String(str)
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '\\"')
+        .replace(/\r?\n/g, '\\n'));
+}
+
+/**
  * cert-management.js Part 1 - 기본 설정 및 초기화
  * 최적화된 자격증 관리 시스템
  */
@@ -571,7 +591,7 @@ function initCertManager() {
                 previewArea.classList.remove('hidden');
                 previewArea.innerHTML = `
                     <div class="p-4 bg-green-50 border border-green-200 rounded">
-                        <p class="text-green-800">파일 업로드 완료: ${file.name}</p>
+                        <p class="text-green-800">파일 업로드 완료: ${escapeHtml(file.name)}</p>
                         <p class="text-sm text-green-600">일괄 발급을 진행하려면 "일괄 발급" 버튼을 클릭하세요.</p>
                     </div>
                 `;
@@ -1440,22 +1460,22 @@ Object.assign(window.certManager, {
         const rowClass = isApplication ? 'bg-yellow-50 border-l-4 border-yellow-400' : '';
 
         return `
-            <tr class="hover:bg-gray-50 transition-colors ${rowClass}">
+            <tr class="hover:bg-gray-50 transition-colors ${escapeHtml(rowClass)}">
                 <td class="text-center px-4 py-3">
-                    <input type="checkbox" class="cert-checkbox rounded border-gray-300" data-id="${cert.id}"
+                    <input type="checkbox" class="cert-checkbox rounded border-gray-300" data-id="${escapeHtml(cert.id)}"
                         onchange="certManager.updateCertDeleteButton()">
                 </td>
                 <td class="px-4 py-3 font-medium">
-                    ${certNumber}
+                    ${escapeHtml(certNumber)}
                     ${isApplication ? '<span class="ml-2 text-xs text-yellow-600 font-bold">📝 NEW</span>' : ''}
                 </td>
                 <td class="px-4 py-3">
-                    <div class="font-medium text-gray-900">${holderName}</div>
-                    ${holderNameEnglish ? `<div class="text-sm text-gray-500">${holderNameEnglish}</div>` : ''}
+                    <div class="font-medium text-gray-900">${escapeHtml(holderName)}</div>
+                    ${holderNameEnglish ? `<div class="text-sm text-gray-500">${escapeHtml(holderNameEnglish)}</div>` : ''}
                 </td>
-                <td class="px-4 py-3 text-gray-600">${courseName}</td>
-                <td class="px-4 py-3 text-gray-600">${displayIssueDate}</td>
-                <td class="px-4 py-3 text-gray-600">${displayExpiryDate}</td>
+                <td class="px-4 py-3 text-gray-600">${escapeHtml(courseName)}</td>
+                <td class="px-4 py-3 text-gray-600">${escapeHtml(displayIssueDate)}</td>
+                <td class="px-4 py-3 text-gray-600">${escapeHtml(displayExpiryDate)}</td>
                 <td class="px-4 py-3">${statusBadge}</td>
                 <td class="px-4 py-3">${actionButtons}</td>
             </tr>
@@ -1474,20 +1494,20 @@ Object.assign(window.certManager, {
             'suspended': '<span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 font-medium">⏸️ 정지</span>',
             'pending': '<span class="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 font-medium">⏳ 처리 중</span>'
         };
-        return badges[status] || `<span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800 font-medium">${status}</span>`;
+        return badges[status] || `<span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800 font-medium">${escapeHtml(status)}</span>`;
     },
 
     getActionButtons(cert, isApp) {
         if (isApp) {
             return `
                 <div class="flex space-x-1">
-                    <button onclick="certManager.viewApplicationDetails('${cert.id}')" 
+                    <button onclick="certManager.viewApplicationDetails('${escapeJsStr(cert.id)}')" 
                         class="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600" 
                         title="신청 상세보기">📄 신청서</button>
-                    <button onclick="certManager.approveApplication('${cert.id}')" 
+                    <button onclick="certManager.approveApplication('${escapeJsStr(cert.id)}')" 
                         class="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600" 
                         title="승인 및 발급">✅ 승인</button>
-                    <button onclick="certManager.rejectApplication('${cert.id}')" 
+                    <button onclick="certManager.rejectApplication('${escapeJsStr(cert.id)}')" 
                         class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600" 
                         title="신청 거절">❌ 거절</button>
                 </div>
@@ -1495,26 +1515,26 @@ Object.assign(window.certManager, {
         } else {
             return `
                 <div class="flex space-x-1">
-                    <button onclick="certManager.viewCertDetails('${cert.id}')"
+                    <button onclick="certManager.viewCertDetails('${escapeJsStr(cert.id)}')"
                         class="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600">상세</button>
-                    <button onclick="certManager.editCert('${cert.id}')"
+                    <button onclick="certManager.editCert('${escapeJsStr(cert.id)}')"
                         class="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600">수정</button>
                     <div class="relative inline-block">
-                        <button onclick="certManager.togglePdfDropdown('${cert.id}')"
+                        <button onclick="certManager.togglePdfDropdown('${escapeJsStr(cert.id)}')"
                             class="px-2 py-1 bg-indigo-500 text-white rounded text-xs hover:bg-indigo-600">PDF</button>
-                        <div id="pdf-dropdown-${cert.id}" class="hidden absolute right-0 mt-1 w-32 bg-white border rounded shadow-lg z-10">
-                            <a href="#" onclick="certManager.downloadCertPdf('${cert.id}', 'ko'); event.preventDefault();"
+                        <div id="pdf-dropdown-${escapeHtml(cert.id)}" class="hidden absolute right-0 mt-1 w-32 bg-white border rounded shadow-lg z-10">
+                            <a href="#" onclick="certManager.downloadCertPdf('${escapeJsStr(cert.id)}', 'ko'); event.preventDefault();"
                                class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">한글 PDF</a>
-                            <a href="#" onclick="certManager.downloadCertPdf('${cert.id}', 'en'); event.preventDefault();"
+                            <a href="#" onclick="certManager.downloadCertPdf('${escapeJsStr(cert.id)}', 'en'); event.preventDefault();"
                                class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">영문 PDF</a>
                         </div>
                     </div>
                     ${cert.status !== 'suspended' && cert.status !== 'revoked' ? `
-                        <button onclick="certManager.revokeCertificate('${cert.id}')" 
+                        <button onclick="certManager.revokeCertificate('${escapeJsStr(cert.id)}')" 
                             class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600">취소</button>
                     ` : ''}
                     <!-- 🆕 삭제 버튼 추가 -->
-                    <button onclick="certManager.deleteCertificate('${cert.id}')"
+                    <button onclick="certManager.deleteCertificate('${escapeJsStr(cert.id)}')"
                         class="px-2 py-1 bg-gray-700 text-white rounded text-xs hover:bg-gray-900" 
                         title="자격증 삭제">🗑️</button>
                 </div>
@@ -1883,7 +1903,7 @@ Object.assign(window.certManager, {
                     const title = course.title || course.name || `${this.getCertTypeName(this.currentCertType)} 과정`;
                     const courseDataJson = JSON.stringify(course).replace(/"/g, '&quot;');
                     courseSelect.innerHTML += `
-                        <option value="${course.id}" data-course="${courseDataJson}">${title}</option>
+                        <option value="${escapeHtml(course.id)}" data-course="${courseDataJson}">${escapeHtml(title)}</option>
                     `;
                 });
             } else {
@@ -2103,14 +2123,14 @@ Object.assign(window.certManager, {
                 <tr class="hover:bg-gray-50">
                     <td class="px-4 py-3 text-center">
                         <input type="checkbox" class="paid-checkbox rounded border-gray-300" 
-                               data-id="${applicant.id}" 
+                               data-id="${escapeHtml(applicant.id)}" 
                                onchange="certManager.updateSelectedCount()">
                     </td>
-                    <td class="px-4 py-3 font-medium text-gray-900">${applicant.name}</td>
-                    <td class="px-4 py-3 text-gray-600">${applicant.email}</td>
-                    <td class="px-4 py-3 text-gray-600">${applicant.courseName}</td>
-                    <td class="px-4 py-3 text-gray-600">${applicant.paymentDate}</td>
-                    <td class="px-4 py-3 font-medium text-green-600">${this.formatCurrency(applicant.paymentAmount)}</td>
+                    <td class="px-4 py-3 font-medium text-gray-900">${escapeHtml(applicant.name)}</td>
+                    <td class="px-4 py-3 text-gray-600">${escapeHtml(applicant.email)}</td>
+                    <td class="px-4 py-3 text-gray-600">${escapeHtml(applicant.courseName)}</td>
+                    <td class="px-4 py-3 text-gray-600">${escapeHtml(applicant.paymentDate)}</td>
+                    <td class="px-4 py-3 font-medium text-green-600">${escapeHtml(this.formatCurrency(applicant.paymentAmount))}</td>
                     <td class="px-4 py-3">
                         <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 font-medium">
                             ✅ 결제완료
@@ -2176,7 +2196,7 @@ Object.assign(window.certManager, {
 
         const listHtml = selectedApplicants.map(app =>
             `<span class="inline-block bg-green-200 text-green-800 px-2 py-1 rounded text-sm mr-2 mb-1">
-                ${app.name} (${app.email})
+                ${escapeHtml(app.name)} (${escapeHtml(app.email)})
             </span>`
         ).join('');
 
@@ -2595,27 +2615,27 @@ Object.assign(window.certManager, {
         };
 
         preview.innerHTML = `
-            <div class="font-medium text-green-800 mb-2">${certTypeName} 갱신 비용</div>
+            <div class="font-medium text-green-800 mb-2">${escapeHtml(certTypeName)} 갱신 비용</div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
                     <div class="font-medium">일반 갱신</div>
-                    <div>• 온라인 교육: ${scenarios.normalOnline.toLocaleString()}원</div>
-                    <div>• 오프라인 교육: ${scenarios.normalOffline.toLocaleString()}원</div>
-                    <div>• 교육 이수 완료: ${scenarios.completed.toLocaleString()}원</div>
+                    <div>• 온라인 교육: ${escapeHtml(scenarios.normalOnline.toLocaleString())}원</div>
+                    <div>• 오프라인 교육: ${escapeHtml(scenarios.normalOffline.toLocaleString())}원</div>
+                    <div>• 교육 이수 완료: ${escapeHtml(scenarios.completed.toLocaleString())}원</div>
                 </div>
                 <div>
                     <div class="font-medium">조기 갱신 (60일 전)</div>
-                    <div>• 온라인 교육: ${scenarios.earlyOnline.toLocaleString()}원 
-                        <span class="text-red-600">(-${(earlyDiscountAmount + onlineDiscountAmount).toLocaleString()}원)</span>
+                    <div>• 온라인 교육: ${escapeHtml(scenarios.earlyOnline.toLocaleString())}원 
+                        <span class="text-red-600">(-${escapeHtml((earlyDiscountAmount + onlineDiscountAmount).toLocaleString())}원)</span>
                     </div>
-                    <div>• 오프라인 교육: ${scenarios.earlyOffline.toLocaleString()}원 
-                        <span class="text-red-600">(-${earlyDiscountAmount.toLocaleString()}원)</span>
+                    <div>• 오프라인 교육: ${escapeHtml(scenarios.earlyOffline.toLocaleString())}원 
+                        <span class="text-red-600">(-${escapeHtml(earlyDiscountAmount.toLocaleString())}원)</span>
                     </div>
                 </div>
             </div>
             ${(settings.deliveryFee ?? 5000) > 0 ? `
             <div class="mt-2 text-xs text-green-600">
-                * 실물 + 디지털 배송 선택 시 배송비 ${(settings.deliveryFee ?? 5000).toLocaleString()}원 추가
+                * 실물 + 디지털 배송 선택 시 배송비 ${escapeHtml((settings.deliveryFee ?? 5000).toLocaleString())}원 추가
             </div>` : ''}
         `;
     },
@@ -2988,27 +3008,27 @@ const certManagerEnhancements = {
         };
 
         preview.innerHTML = `
-            <div class="font-medium text-green-800 mb-2">${certTypeName} 갱신 비용</div>
+            <div class="font-medium text-green-800 mb-2">${escapeHtml(certTypeName)} 갱신 비용</div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
                     <div class="font-medium">일반 갱신</div>
-                    <div>• 온라인 교육: ${scenarios.normalOnline.toLocaleString()}원</div>
-                    <div>• 오프라인 교육: ${scenarios.normalOffline.toLocaleString()}원</div>
-                    <div>• 교육 이수 완료: ${scenarios.completed.toLocaleString()}원</div>
+                    <div>• 온라인 교육: ${escapeHtml(scenarios.normalOnline.toLocaleString())}원</div>
+                    <div>• 오프라인 교육: ${escapeHtml(scenarios.normalOffline.toLocaleString())}원</div>
+                    <div>• 교육 이수 완료: ${escapeHtml(scenarios.completed.toLocaleString())}원</div>
                 </div>
                 <div>
                     <div class="font-medium">조기 갱신 (60일 전)</div>
-                    <div>• 온라인 교육: ${scenarios.earlyOnline.toLocaleString()}원 
-                        <span class="text-red-600">(-${(earlyDiscountAmount + onlineDiscountAmount).toLocaleString()}원)</span>
+                    <div>• 온라인 교육: ${escapeHtml(scenarios.earlyOnline.toLocaleString())}원 
+                        <span class="text-red-600">(-${escapeHtml((earlyDiscountAmount + onlineDiscountAmount).toLocaleString())}원)</span>
                     </div>
-                    <div>• 오프라인 교육: ${scenarios.earlyOffline.toLocaleString()}원 
-                        <span class="text-red-600">(-${earlyDiscountAmount.toLocaleString()}원)</span>
+                    <div>• 오프라인 교육: ${escapeHtml(scenarios.earlyOffline.toLocaleString())}원 
+                        <span class="text-red-600">(-${escapeHtml(earlyDiscountAmount.toLocaleString())}원)</span>
                     </div>
                 </div>
             </div>
             ${(settings.deliveryFee ?? 5000) > 0 ? `
             <div class="mt-2 text-xs text-green-600">
-                * 실물 + 디지털 배송 선택 시 배송비 ${(settings.deliveryFee ?? 5000).toLocaleString()}원 추가
+                * 실물 + 디지털 배송 선택 시 배송비 ${escapeHtml((settings.deliveryFee ?? 5000).toLocaleString())}원 추가
             </div>` : ''}
         `;
     },
@@ -3526,22 +3546,22 @@ Object.assign(window.certManager, {
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <h4 class="font-medium text-gray-700">자격증 번호</h4>
-                <p class="text-gray-900">${certNumber}</p>
+                <p class="text-gray-900">${escapeHtml(certNumber)}</p>
             </div>
             <div>
                 <h4 class="font-medium text-gray-700">자격증 종류</h4>
-                <p class="text-gray-900">${certType}</p>
+                <p class="text-gray-900">${escapeHtml(certType)}</p>
             </div>
         </div>
         
         <div>
             <h4 class="font-medium text-gray-700">수료자 정보</h4>
             <div class="space-y-1">
-                <p><span class="font-medium">한글명:</span> ${holderNameKorean}</p>
-                <p><span class="font-medium">영문명:</span> ${holderNameEnglish}</p>
-                <p><span class="font-medium">🎂 생년월일:</span> ${birthDate}</p>
-                <p><span class="font-medium">이메일:</span> ${holderEmail}</p>
-                <p><span class="font-medium">📞 연락처:</span> ${holderPhone}</p>
+                <p><span class="font-medium">한글명:</span> ${escapeHtml(holderNameKorean)}</p>
+                <p><span class="font-medium">영문명:</span> ${escapeHtml(holderNameEnglish)}</p>
+                <p><span class="font-medium">🎂 생년월일:</span> ${escapeHtml(birthDate)}</p>
+                <p><span class="font-medium">이메일:</span> ${escapeHtml(holderEmail)}</p>
+                <p><span class="font-medium">📞 연락처:</span> ${escapeHtml(holderPhone)}</p>
             </div>
         </div>
         
@@ -3549,8 +3569,8 @@ Object.assign(window.certManager, {
         <div>
             <h4 class="font-medium text-gray-700">📮 배송 주소</h4>
             <div class="space-y-1">
-                <p class="text-gray-900">${fullAddress}</p>
-                ${postalCode ? `<p class="text-sm text-gray-600">우편번호: ${postalCode}</p>` : ''}
+                <p class="text-gray-900">${escapeHtml(fullAddress)}</p>
+                ${postalCode ? `<p class="text-sm text-gray-600">우편번호: ${escapeHtml(postalCode)}</p>` : ''}
             </div>
         </div>
         ` : ''}
@@ -3559,13 +3579,13 @@ Object.assign(window.certManager, {
         <div>
             <h4 class="font-medium text-gray-700">📷 증명사진</h4>
             <div class="mt-2">
-                <img src="${photoUrl}" 
+                <img src="${escapeHtml(photoUrl)}" 
                      alt="증명사진" 
                      class="w-32 h-40 object-cover border-2 border-gray-300 rounded"
                      onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                 <div style="display:none;" class="text-sm text-gray-500">
                     이미지를 불러올 수 없습니다.
-                    ${photoFileName ? `<br>파일명: ${photoFileName}` : ''}
+                    ${photoFileName ? `<br>파일명: ${escapeHtml(photoFileName)}` : ''}
                 </div>
             </div>
         </div>
@@ -3573,17 +3593,17 @@ Object.assign(window.certManager, {
         
         <div>
             <h4 class="font-medium text-gray-700">교육 과정</h4>
-            <p class="text-gray-900">${courseName}</p>
+            <p class="text-gray-900">${escapeHtml(courseName)}</p>
         </div>
         
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <h4 class="font-medium text-gray-700">발급일 / 수료일</h4>
-                <p class="text-gray-900">${issueDate}</p>
+                <p class="text-gray-900">${escapeHtml(issueDate)}</p>
             </div>
             <div>
                 <h4 class="font-medium text-gray-700">만료일</h4>
-                <p class="text-gray-900">${expiryDate}</p>
+                <p class="text-gray-900">${escapeHtml(expiryDate)}</p>
             </div>
         </div>
         
@@ -3591,25 +3611,25 @@ Object.assign(window.certManager, {
             <h4 class="font-medium text-gray-700">상태</h4>
             <p>
                 <span class="px-2 py-1 rounded-full text-xs 
-                    bg-${statusClass}-100 text-${statusClass}-800 font-medium">
-                    ${statusText}
+                    bg-${escapeHtml(statusClass)}-100 text-${escapeHtml(statusClass)}-800 font-medium">
+                    ${escapeHtml(statusText)}
                 </span>
             </p>
         </div>
         
         <div>
             <h4 class="font-medium text-gray-700">비고</h4>
-            <p class="text-gray-900 whitespace-pre-wrap">${remarks}</p>
+            <p class="text-gray-900 whitespace-pre-wrap">${escapeHtml(remarks)}</p>
         </div>
         
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <h4 class="font-medium text-gray-700">등록일시</h4>
-                <p class="text-gray-900">${createdAt}</p>
+                <p class="text-gray-900">${escapeHtml(createdAt)}</p>
             </div>
             <div>
                 <h4 class="font-medium text-gray-700">수정일시</h4>
-                <p class="text-gray-900">${updatedAt}</p>
+                <p class="text-gray-900">${escapeHtml(updatedAt)}</p>
             </div>
         </div>
         
@@ -3617,13 +3637,13 @@ Object.assign(window.certManager, {
         <div class="mt-4 pt-4 border-t border-gray-200">
             <h4 class="font-medium text-gray-700">자격증 PDF 다운로드</h4>
             <div class="flex space-x-3 mt-2">
-                <button onclick="certManager.downloadCertPdf('${cert.id}', 'ko'); certManager.closeModalById('cert-detail-modal');" 
+                <button onclick="certManager.downloadCertPdf('${escapeJsStr(cert.id)}', 'ko'); certManager.closeModalById('cert-detail-modal');" 
                     class="admin-btn admin-btn-secondary">
-                    한글 PDF (${holderNameKorean})
+                    한글 PDF (${escapeHtml(holderNameKorean)})
                 </button>
-                <button onclick="certManager.downloadCertPdf('${cert.id}', 'en'); certManager.closeModalById('cert-detail-modal');" 
+                <button onclick="certManager.downloadCertPdf('${escapeJsStr(cert.id)}', 'en'); certManager.closeModalById('cert-detail-modal');" 
                     class="admin-btn admin-btn-primary">
-                    영문 PDF (${holderNameEnglish})
+                    영문 PDF (${escapeHtml(holderNameEnglish)})
                 </button>
             </div>
         </div>
@@ -4778,7 +4798,7 @@ Object.assign(window.certManager, {
 
         // 🔧 NEW: 사진 HTML 생성
         const photoHtml = photoData ? `
-            <img src="${photoData.dataUrl}" 
+            <img src="${escapeHtml(photoData.dataUrl)}" 
                  style="
                      width: 120px;
                      height: 160px;
@@ -4825,7 +4845,7 @@ Object.assign(window.certManager, {
                     overflow: hidden;
                 ">
                     <!-- 🖼️ 황금 테두리 이미지 (배경) -->
-                    <img src="${borderPath}" 
+                    <img src="${escapeHtml(borderPath)}" 
                          style="
                              position: absolute;
                              top: 0;
@@ -4837,7 +4857,7 @@ Object.assign(window.certManager, {
                          ">
 
                     <!-- 🔧 국문 메달 이미지 -->
-                    <img src="${medalPath}" 
+                    <img src="${escapeHtml(medalPath)}" 
                          style="
                              position: absolute;
                              top: 100px;
@@ -4866,7 +4886,7 @@ Object.assign(window.certManager, {
                                 margin: 0 0 15px 0;
                                 letter-spacing: 3px;
                             ">
-                                ${certData.certType}
+                                ${escapeHtml(certData.certType)}
                             </h1>
                             <p style="
                                 font-size: 18px;
@@ -4876,7 +4896,7 @@ Object.assign(window.certManager, {
                                 font-weight: 500;
                                 font-style: italic;
                             ">
-                                ${englishCertName}
+                                ${escapeHtml(englishCertName)}
                             </p>
                         </div>
 
@@ -4911,7 +4931,7 @@ Object.assign(window.certManager, {
                                             font-weight: 700; 
                                             color: #1e3a8a;
                                             font-size: 17px;
-                                        ">${certData.certNumber}</span>
+                                        ">${escapeHtml(certData.certNumber)}</span>
                                     </div>
                                     
                                     <div style="margin-bottom: 25px;">
@@ -4924,7 +4944,7 @@ Object.assign(window.certManager, {
                                             font-weight: 700; 
                                             color: #1e3a8a; 
                                             font-size: 20px;
-                                        ">${certData.holderNameKorean || certData.holderName}</span>
+                                        ">${escapeHtml(certData.holderNameKorean || certData.holderName)}</span>
                                     </div>
                                     
                                     <div style="margin-bottom: 25px;">
@@ -4937,7 +4957,7 @@ Object.assign(window.certManager, {
                                             font-weight: 700;
                                             color: #1e3a8a;
                                             font-size: 17px;
-                                        ">${certData.grade || '1급'}</span>
+                                        ">${escapeHtml(certData.grade || '1급')}</span>
                                     </div>
                                     
                                     <div style="margin-bottom: 25px;">
@@ -4950,7 +4970,7 @@ Object.assign(window.certManager, {
                                             font-weight: 700; 
                                             color: #1e3a8a;
                                             font-size: 17px;
-                                        ">${certData.issueDate}</span>
+                                        ">${escapeHtml(certData.issueDate)}</span>
                                     </div>
                                 </div>
                                 
@@ -4976,7 +4996,7 @@ Object.assign(window.certManager, {
                                 color: #1e293b;
                             ">
                                 <p style="margin: 0 0 15px 0; font-weight: 500;">
-                                    위 사람은 <strong style="color: #1e3a8a;">${certData.certType}</strong> 1급 교육과정을
+                                    위 사람은 <strong style="color: #1e3a8a;">${escapeHtml(certData.certType)}</strong> 1급 교육과정을
                                 </p>
                                 <p style="margin: 0 0 15px 0; font-weight: 500;">
                                     이수하고 이론 및 실기 심사에 통과하였으므로
@@ -5003,7 +5023,7 @@ Object.assign(window.certManager, {
                                         margin: 0;
                                         color: #1e293b;
                                         font-weight: 600;
-                                    ">${issuedDate}</p>
+                                    ">${escapeHtml(issuedDate)}</p>
                                 </div>
 
                                 <!-- 센터명과 직인 -->
@@ -5024,7 +5044,7 @@ Object.assign(window.certManager, {
                                     ">(사)문경 부설 디지털헬스케어센터</h3>
                                     
                                     <!-- 직인 -->
-                                    <img src="${sealPath}" 
+                                    <img src="${escapeHtml(sealPath)}" 
                                          style="
                                              width: 85px;
                                              height: 85px;
@@ -5085,7 +5105,7 @@ Object.assign(window.certManager, {
                     background: #ffffff;
                     overflow: hidden;
                 ">
-                    <img src="${borderPath}" 
+                    <img src="${escapeHtml(borderPath)}" 
                          style="
                              position: absolute;
                              top: 0;
@@ -5096,7 +5116,7 @@ Object.assign(window.certManager, {
                              z-index: 1;
                          ">
 
-                    <img src="${englishMedalPath}" 
+                    <img src="${escapeHtml(englishMedalPath)}" 
                          style="
                              position: absolute;
                              top: 80px;
@@ -5142,7 +5162,7 @@ Object.assign(window.certManager, {
                                 color: #8B4513;
                                 margin: 0 0 20px 0;
                                 font-weight: 600;
-                            ">${certTypeEn}</h3>
+                            ">${escapeHtml(certTypeEn)}</h3>
                             
                             <div style="
                                 color: #1e3a8a;
@@ -5158,7 +5178,7 @@ Object.assign(window.certManager, {
                                 text-align: center;
                                 line-height: 46px;
                                 box-sizing: border-box;
-                            ">Certificate No: ${certData.certNumber}</div>
+                            ">Certificate No: ${escapeHtml(certData.certNumber)}</div>
                         </div>
 
                         <div style="
@@ -5190,7 +5210,7 @@ Object.assign(window.certManager, {
                                     margin: 0;
                                     letter-spacing: 2px;
                                     font-family: 'Times New Roman', serif;
-                                ">${certData.holderNameEnglish}</h2>
+                                ">${escapeHtml(certData.holderNameEnglish)}</h2>
                             </div>
                             
                             <p style="
@@ -5199,7 +5219,7 @@ Object.assign(window.certManager, {
                                 color: #374151;
                                 line-height: 1.6;
                                 font-weight: 500;
-                            ">has successfully completed the ${certTypeEn}<br>
+                            ">has successfully completed the ${escapeHtml(certTypeEn)}<br>
                             training program and passed all theoretical<br>
                             and practical examinations with distinction,<br>
                             and is hereby certified.</p>
@@ -5219,7 +5239,7 @@ Object.assign(window.certManager, {
                                         margin: 0 0 15px 0;
                                         color: #1e293b;
                                         font-weight: 700;
-                                    ">${issuedDate}</p>
+                                    ">${escapeHtml(issuedDate)}</p>
                                     
                                     <div style="
                                         display: flex;
@@ -5228,10 +5248,10 @@ Object.assign(window.certManager, {
                                         margin-top: 10px;
                                     ">
                                         <span style="font-weight: 600; color: #1e293b; font-size: 16px;">
-                                            Issue Date: <span style="font-weight: 700; color: #1e3a8a;">${certData.issueDate}</span>
+                                            Issue Date: <span style="font-weight: 700; color: #1e3a8a;">${escapeHtml(certData.issueDate)}</span>
                                         </span>
                                         <span style="font-weight: 600; color: #1e293b; font-size: 16px;">
-                                            Expiry Date: <span style="font-weight: 700; color: #1e3a8a;">${certData.expiryDate}</span>
+                                            Expiry Date: <span style="font-weight: 700; color: #1e3a8a;">${escapeHtml(certData.expiryDate)}</span>
                                         </span>
                                     </div>
                                 </div>
@@ -5257,7 +5277,7 @@ Object.assign(window.certManager, {
                                         font-weight: 500;
                                     ">Mungyeong Subsidiary</p>
                                     
-                                    <img src="${sealPath}" 
+                                    <img src="${escapeHtml(sealPath)}" 
                                          style="
                                              width: 75px;
                                              height: 75px;
@@ -5515,57 +5535,57 @@ Object.assign(window.certManager, {
             const urgentClass = isUrgent ? 'bg-red-50 border-l-4 border-red-400' : '';
 
             tableHtml += `
-                <tr class="hover:bg-gray-50 ${urgentClass}">
+                <tr class="hover:bg-gray-50 ${escapeHtml(urgentClass)}">
                     <td class="px-4 py-3">
                         <input type="checkbox" class="renewal-checkbox rounded border-gray-300" 
-                               data-id="${applicant.id}">
+                               data-id="${escapeHtml(applicant.id)}">
                     </td>
                     <td class="px-4 py-3">
-                        <div class="font-medium text-gray-900">${applicant.certNumber}</div>
+                        <div class="font-medium text-gray-900">${escapeHtml(applicant.certNumber)}</div>
                         ${isUrgent ? '<div class="text-xs text-red-600 font-bold">🚨 만료 임박</div>' : ''}
                     </td>
                     <td class="px-4 py-3">
-                        <div class="font-medium text-gray-900">${applicant.holderName}</div>
-                        <div class="text-sm text-gray-500">${applicant.holderEmail}</div>
+                        <div class="font-medium text-gray-900">${escapeHtml(applicant.holderName)}</div>
+                        <div class="text-sm text-gray-500">${escapeHtml(applicant.holderEmail)}</div>
                     </td>
-                    <td class="px-4 py-3 text-gray-600">${educationTypeName}</td>
-                    <td class="px-4 py-3 text-gray-600">${applicant.cpeHours}시간</td>
-                    <td class="px-4 py-3 text-gray-600">${deliveryMethodName}</td>
+                    <td class="px-4 py-3 text-gray-600">${escapeHtml(educationTypeName)}</td>
+                    <td class="px-4 py-3 text-gray-600">${escapeHtml(applicant.cpeHours)}시간</td>
+                    <td class="px-4 py-3 text-gray-600">${escapeHtml(deliveryMethodName)}</td>
                     <td class="px-4 py-3">
                         <div class="text-sm font-medium text-green-600">
-                            ${applicant.totalAmount.toLocaleString()}원
+                            ${escapeHtml(applicant.totalAmount.toLocaleString())}원
                         </div>
                     </td>
                     <td class="px-4 py-3">
                         ${statusBadge}
                         <div class="mt-1">
                             <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-blue-600 h-2 rounded-full" style="width: ${applicant.progress}%"></div>
+                                <div class="bg-blue-600 h-2 rounded-full" style="width: ${escapeHtml(applicant.progress)}%"></div>
                             </div>
-                            <div class="text-xs text-gray-500 mt-1">${applicant.progress}% 진행</div>
+                            <div class="text-xs text-gray-500 mt-1">${escapeHtml(applicant.progress)}% 진행</div>
                         </div>
                     </td>
                     <td class="px-4 py-3">
                         <div class="flex space-x-1">
-                            <button onclick="certManager.viewRenewalDetails('${applicant.id}')" 
+                            <button onclick="certManager.viewRenewalDetails('${escapeJsStr(applicant.id)}')" 
                                 class="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600" 
                                 title="상세보기">
                                 📄 상세
                             </button>
                             ${applicant.status === 'under_review' ? `
-                                <button onclick="certManager.approveRenewal('${applicant.id}')" 
+                                <button onclick="certManager.approveRenewal('${escapeJsStr(applicant.id)}')" 
                                     class="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600" 
                                     title="승인">
                                     ✅ 승인
                                 </button>
-                                <button onclick="certManager.rejectRenewal('${applicant.id}')" 
+                                <button onclick="certManager.rejectRenewal('${escapeJsStr(applicant.id)}')" 
                                     class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600" 
                                     title="거절">
                                     ❌ 거절
                                 </button>
                             ` : ''}
                             ${applicant.status === 'processing' ? `
-                                <button onclick="certManager.completeRenewal('${applicant.id}')" 
+                                <button onclick="certManager.completeRenewal('${escapeJsStr(applicant.id)}')" 
                                     class="px-2 py-1 bg-purple-500 text-white rounded text-xs hover:bg-purple-600" 
                                     title="완료 처리">
                                     🎯 완료
@@ -5602,7 +5622,7 @@ Object.assign(window.certManager, {
             'rejected': '<span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800 font-medium">❌ 거절</span>',
             'completed': '<span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 font-medium">🎉 완료</span>'
         };
-        return badges[status] || `<span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800 font-medium">${status}</span>`;
+        return badges[status] || `<span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800 font-medium">${escapeHtml(status)}</span>`;
     },
 
     /**
@@ -5670,19 +5690,19 @@ Object.assign(window.certManager, {
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <h4 class="font-medium text-gray-700">자격증 번호</h4>
-                    <p class="text-gray-900">${renewal.certNumber}</p>
+                    <p class="text-gray-900">${escapeHtml(renewal.certNumber)}</p>
                 </div>
                 <div>
                     <h4 class="font-medium text-gray-700">자격증 종류</h4>
-                    <p class="text-gray-900">${renewal.certName}</p>
+                    <p class="text-gray-900">${escapeHtml(renewal.certName)}</p>
                 </div>
             </div>
             
             <div>
                 <h4 class="font-medium text-gray-700">신청자 정보</h4>
                 <div class="space-y-1">
-                    <p><span class="font-medium">이름:</span> ${renewal.holderName}</p>
-                    <p><span class="font-medium">이메일:</span> ${renewal.holderEmail}</p>
+                    <p><span class="font-medium">이름:</span> ${escapeHtml(renewal.holderName)}</p>
+                    <p><span class="font-medium">이메일:</span> ${escapeHtml(renewal.holderEmail)}</p>
                 </div>
             </div>
             
@@ -5690,15 +5710,15 @@ Object.assign(window.certManager, {
                 <div>
                     <h4 class="font-medium text-gray-700">교육 정보</h4>
                     <div class="space-y-1">
-                        <p><span class="font-medium">교육 유형:</span> ${this.getEducationTypeName(renewal.educationType)}</p>
-                        <p><span class="font-medium">보수교육 시간:</span> ${renewal.cpeHours}시간</p>
+                        <p><span class="font-medium">교육 유형:</span> ${escapeHtml(this.getEducationTypeName(renewal.educationType))}</p>
+                        <p><span class="font-medium">보수교육 시간:</span> ${escapeHtml(renewal.cpeHours)}시간</p>
                     </div>
                 </div>
                 <div>
                     <h4 class="font-medium text-gray-700">배송 정보</h4>
                     <div class="space-y-1">
-                        <p><span class="font-medium">배송 방법:</span> ${this.getDeliveryMethodName(renewal.deliveryMethod)}</p>
-                        <p><span class="font-medium">결제 금액:</span> ${renewal.totalAmount.toLocaleString()}원</p>
+                        <p><span class="font-medium">배송 방법:</span> ${escapeHtml(this.getDeliveryMethodName(renewal.deliveryMethod))}</p>
+                        <p><span class="font-medium">결제 금액:</span> ${escapeHtml(renewal.totalAmount.toLocaleString())}원</p>
                     </div>
                 </div>
             </div>
@@ -5706,11 +5726,11 @@ Object.assign(window.certManager, {
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <h4 class="font-medium text-gray-700">신청일</h4>
-                    <p class="text-gray-900">${createdDate.toLocaleDateString('ko-KR')}</p>
+                    <p class="text-gray-900">${escapeHtml(createdDate.toLocaleDateString('ko-KR'))}</p>
                 </div>
                 <div>
                     <h4 class="font-medium text-gray-700">만료일</h4>
-                    <p class="text-gray-900">${expiryDate ? expiryDate.toLocaleDateString('ko-KR') : '-'}</p>
+                    <p class="text-gray-900">${escapeHtml(expiryDate ? expiryDate.toLocaleDateString('ko-KR') : '-')}</p>
                     ${renewal.daysUntilExpiry <= 7 ?
                 '<p class="text-red-600 text-sm font-bold">🚨 만료 임박!</p>' : ''}
                 </div>
@@ -5722,9 +5742,9 @@ Object.assign(window.certManager, {
                     ${this.getRenewalStatusBadge(renewal.status)}
                     <div class="flex-1">
                         <div class="w-full bg-gray-200 rounded-full h-3">
-                            <div class="bg-blue-600 h-3 rounded-full" style="width: ${renewal.progress}%"></div>
+                            <div class="bg-blue-600 h-3 rounded-full" style="width: ${escapeHtml(renewal.progress)}%"></div>
                         </div>
-                        <p class="text-sm text-gray-600 mt-1">진행률: ${renewal.progress}%</p>
+                        <p class="text-sm text-gray-600 mt-1">진행률: ${escapeHtml(renewal.progress)}%</p>
                     </div>
                 </div>
             </div>
@@ -5733,17 +5753,17 @@ Object.assign(window.certManager, {
                 <h4 class="font-medium text-gray-700">관리자 작업</h4>
                 <div class="flex space-x-3 mt-2">
                     ${renewal.status === 'under_review' ? `
-                        <button onclick="certManager.approveRenewal('${renewal.id}'); certManager.closeRenewalDetailModal();" 
+                        <button onclick="certManager.approveRenewal('${escapeJsStr(renewal.id)}'); certManager.closeRenewalDetailModal();" 
                             class="admin-btn admin-btn-success">
                             ✅ 승인
                         </button>
-                        <button onclick="certManager.rejectRenewal('${renewal.id}'); certManager.closeRenewalDetailModal();" 
+                        <button onclick="certManager.rejectRenewal('${escapeJsStr(renewal.id)}'); certManager.closeRenewalDetailModal();" 
                             class="admin-btn admin-btn-danger">
                             ❌ 거절
                         </button>
                     ` : ''}
                     ${renewal.status === 'processing' ? `
-                        <button onclick="certManager.completeRenewal('${renewal.id}'); certManager.closeRenewalDetailModal();" 
+                        <button onclick="certManager.completeRenewal('${escapeJsStr(renewal.id)}'); certManager.closeRenewalDetailModal();" 
                             class="admin-btn admin-btn-primary">
                             🎯 완료 처리
                         </button>

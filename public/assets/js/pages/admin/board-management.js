@@ -1,3 +1,23 @@
+// ===== XSS 방지 헬퍼 (innerHTML 템플릿에 데이터를 넣을 때 사용) =====
+function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;');
+}
+// onclick="fn('...')" 처럼 이벤트 속성 안의 JS 문자열에 데이터를 넣을 때 사용
+function escapeJsStr(str) {
+    if (str == null) return '';
+    return escapeHtml(String(str)
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '\\"')
+        .replace(/\r?\n/g, '\\n'));
+}
+
 /**
  * board-management-enhanced.js - 게시글 상세보기/수정 통합 구현 + 첨부파일 표시 문제 해결
  * 기존 WYSIWYG 에디터 기능에 상세보기/수정 기능 추가 + 첨부파일 완전 지원
@@ -644,7 +664,7 @@ window.boardManager.loadPostFromTestData = function (postId) {
             content: `
                 <h2>디버깅 테스트 게시글</h2>
                 <p>이것은 <strong>동적으로 생성된</strong> 테스트 게시글입니다.</p>
-                <p>ID: <code>${postId}</code></p>
+                <p>ID: <code>${escapeHtml(postId)}</code></p>
                 <ul>
                     <li>상세보기 모드 테스트</li>
                     <li>수정 모드 테스트</li>
@@ -821,9 +841,9 @@ window.boardManager.displayExistingAttachments = function (attachments) {
 
         fileElement.innerHTML = `
             <span class="file-icon">${fileIcon}</span>
-            <span class="file-name">${attachment.name}</span>
-            <span class="file-size">${fileSize}</span>
-            <span class="remove-file" onclick="boardManager.removeExistingFile('${fileId}')" title="제거">×</span>
+            <span class="file-name">${escapeHtml(attachment.name)}</span>
+            <span class="file-size">${escapeHtml(fileSize)}</span>
+            <span class="remove-file" onclick="boardManager.removeExistingFile('${escapeJsStr(fileId)}')" title="제거">×</span>
         `;
 
         uploadedFilesContainer.appendChild(fileElement);
@@ -1880,7 +1900,7 @@ window.boardManager.generateDefaultTestData = function () {
         testPosts.push({
             id: `test-${this.currentBoardType}-${i}`,
             title: `${this.getBoardTypeName(this.currentBoardType)} 테스트 게시글 ${i}`,
-            content: `<h2>테스트 게시글 ${i}</h2><p>이것은 개발 및 테스트 목적으로 생성된 <strong>HTML 형식</strong>의 데이터입니다.</p><p>다음과 같은 내용이 포함됩니다:</p><ul><li>기본 텍스트 및 <em>서식</em></li><li><u>밑줄</u> 및 <s>취소선</s> 텍스트</li><li>목록 및 링크 요소</li></ul><p>WYSIWYG 에디터에서 올바르게 표시되는지 확인하기 위한 샘플 콘텐츠입니다.</p>${attachments.length > 0 ? '<p><strong>📎 이 게시글에는 첨부파일이 포함되어 있습니다.</strong></p>' : ''}`,
+            content: `<h2>테스트 게시글 ${escapeHtml(i)}</h2><p>이것은 개발 및 테스트 목적으로 생성된 <strong>HTML 형식</strong>의 데이터입니다.</p><p>다음과 같은 내용이 포함됩니다:</p><ul><li>기본 텍스트 및 <em>서식</em></li><li><u>밑줄</u> 및 <s>취소선</s> 텍스트</li><li>목록 및 링크 요소</li></ul><p>WYSIWYG 에디터에서 올바르게 표시되는지 확인하기 위한 샘플 콘텐츠입니다.</p>${attachments.length > 0 ? '<p><strong>📎 이 게시글에는 첨부파일이 포함되어 있습니다.</strong></p>' : ''}`,
             category: this.getTestCategory(),
             author: '관리자',
             authorName: '관리자',
@@ -2260,8 +2280,8 @@ window.boardManager.updateSearchResultMessage = function (totalCount, searchKeyw
     if (searchKeyword) {
         searchResultElement.innerHTML = `
             <div class="text-sm text-gray-600 mb-4">
-                <span class="font-medium">"${searchKeyword}"</span> 검색 결과: 
-                <span class="font-bold text-indigo-600">${totalCount}개</span>
+                <span class="font-medium">"${escapeHtml(searchKeyword)}"</span> 검색 결과: 
+                <span class="font-bold text-indigo-600">${escapeHtml(totalCount)}개</span>
                 <button onclick="boardManager.resetSearch()" class="ml-2 text-indigo-600 hover:text-indigo-800 underline">
                     전체보기
                 </button>
@@ -2296,7 +2316,7 @@ window.boardManager.showErrorMessage = function (message) {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <h3>오류 발생</h3>
-                    <p>${message}</p>
+                    <p>${escapeHtml(message)}</p>
                     <button onclick="boardManager.loadBoardDataWithRetry()" class="admin-btn admin-btn-primary mt-4">
                         다시 시도
                     </button>
@@ -2373,34 +2393,34 @@ window.boardManager.updateBoardList = function (posts) {
             html += `
                 <tr class="hover:bg-gray-50 transition-colors">
                     <td data-label="제목" class="py-3 px-4">
-                        <a href="#" class="text-indigo-600 hover:text-indigo-900 view-post font-medium" data-id="${postId}">
-                            ${title}
+                        <a href="#" class="text-indigo-600 hover:text-indigo-900 view-post font-medium" data-id="${escapeHtml(postId)}">
+                            ${escapeHtml(title)}
                         </a>
                     </td>
-                    <td data-label="작성자" class="py-3 px-4 text-center text-gray-600">${author}</td>
-                    <td data-label="조회수" class="py-3 px-4 text-center text-gray-600">${viewCount}</td>
-                    <td data-label="작성일" class="py-3 px-4 text-center text-gray-600">${createdAt}</td>
+                    <td data-label="작성자" class="py-3 px-4 text-center text-gray-600">${escapeHtml(author)}</td>
+                    <td data-label="조회수" class="py-3 px-4 text-center text-gray-600">${escapeHtml(viewCount)}</td>
+                    <td data-label="작성일" class="py-3 px-4 text-center text-gray-600">${escapeHtml(createdAt)}</td>
                     <td data-label="상태" class="py-3 px-4 text-center">
-                        <span class="status-badge ${statusInfo.class}">
-                            ${statusInfo.text}
+                        <span class="status-badge ${escapeHtml(statusInfo.class)}">
+                            ${escapeHtml(statusInfo.text)}
                         </span>
                     </td>
                     <td data-label="작업" class="py-3 px-4 text-center">
                         <div class="table-actions">
-                            <button class="table-action-btn btn-view view-post" data-id="${postId}" title="보기">
+                            <button class="table-action-btn btn-view view-post" data-id="${escapeHtml(postId)}" title="보기">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                 </svg>
                                 보기
                             </button>
-                            <button class="table-action-btn btn-edit edit-post" data-id="${postId}" title="수정">
+                            <button class="table-action-btn btn-edit edit-post" data-id="${escapeHtml(postId)}" title="수정">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                 </svg>
                                 수정
                             </button>
-                            <button class="table-action-btn btn-delete delete-post" data-id="${postId}" title="삭제">
+                            <button class="table-action-btn btn-delete delete-post" data-id="${escapeHtml(postId)}" title="삭제">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                 </svg>
@@ -2481,9 +2501,9 @@ window.boardManager.updatePagination = function (totalPages) {
 
     // 이전 페이지 버튼
     html += `
-        <button class="admin-pagination-btn ${this.currentPage === 1 ? 'cursor-not-allowed opacity-50' : ''}" 
-            onclick="boardManager.changePage(${this.currentPage - 1})"
-            ${this.currentPage === 1 ? 'disabled' : ''}>
+        <button class="admin-pagination-btn ${escapeHtml(this.currentPage === 1 ? 'cursor-not-allowed opacity-50' : '')}" 
+            onclick="boardManager.changePage(${escapeJsStr(this.currentPage - 1)})"
+            ${escapeHtml(this.currentPage === 1 ? 'disabled' : '')}>
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
             </svg>
@@ -2502,18 +2522,18 @@ window.boardManager.updatePagination = function (totalPages) {
 
     for (let i = startPage; i <= endPage; i++) {
         html += `
-            <button class="admin-pagination-btn page-number ${this.currentPage === i ? 'active' : ''}" 
-                onclick="boardManager.changePage(${i})" data-page="${i}">
-                ${i}
+            <button class="admin-pagination-btn page-number ${escapeHtml(this.currentPage === i ? 'active' : '')}" 
+                onclick="boardManager.changePage(${escapeJsStr(i)})" data-page="${escapeHtml(i)}">
+                ${escapeHtml(i)}
             </button>
         `;
     }
 
     // 다음 페이지 버튼
     html += `
-        <button class="admin-pagination-btn ${this.currentPage === totalPages ? 'cursor-not-allowed opacity-50' : ''}" 
-            onclick="boardManager.changePage(${this.currentPage + 1})"
-            ${this.currentPage === totalPages ? 'disabled' : ''}>
+        <button class="admin-pagination-btn ${escapeHtml(this.currentPage === totalPages ? 'cursor-not-allowed opacity-50' : '')}" 
+            onclick="boardManager.changePage(${escapeJsStr(this.currentPage + 1)})"
+            ${escapeHtml(this.currentPage === totalPages ? 'disabled' : '')}>
             <span class="hide-mobile">다음</span>
             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
