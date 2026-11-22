@@ -10,19 +10,12 @@
     "source": "functions"
   },
   "hosting": {
-    "public": ".",
+    "public": "public",
     "ignore": [
-      "firebase.json",
       "**/.*",
       "**/.*/**",
       "**/node_modules/**",
-      "functions/**",
-      "**/*.md",
-      "*.rules",
-      "cors.json",
-      "firestore.indexes.json",
-      "package.json",
-      "package-lock.json"
+      "**/*.md"
     ],
     "rewrites": [
       { "source": "/api/confirmPayment",  "function": "confirmPayment"  },

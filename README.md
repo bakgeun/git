@@ -32,86 +32,95 @@
 
 ```
 digital-healthcare-center/
-├── index.html                # 메인 페이지
-├── robots.txt                # 검색엔진 수집 규칙 (관리자·마이페이지·결제·인증·API 제외)
-├── sitemap.xml               # 사이트맵 (공개 페이지 17개, 네이버 서치어드바이저 제출)
-├── naverd316ca447fa7365156c00981541603b5.html  # 네이버 사이트 소유확인 파일 (삭제 금지)
-├── pages/                    # 서브 페이지들
-│   ├── about.html           # 기관 소개 페이지 ✓
-│   ├── privacy.html         # 개인정보처리방침 ✓ (전체 페이지 푸터에 링크)
-│   ├── advisor.html         # 자문위원 페이지 ✓ (총재 1명 + 자문위원 150명, 검색/필터/페이지네이션)
+├── public/                   # ★ 웹에 공개되는 파일만 (firebase.json hosting.public)
+│   ├── index.html                # 메인 페이지
+│   ├── robots.txt                # 검색엔진 수집 규칙 (관리자·마이페이지·결제·인증·API 제외)
+│   ├── sitemap.xml               # 사이트맵 (공개 페이지 17개, 네이버 서치어드바이저 제출)
+│   ├── naverd316ca447fa7365156c00981541603b5.html  # 네이버 사이트 소유확인 파일 (삭제 금지)
+│   ├── pages/                    # 서브 페이지들
+│   │   ├── about.html           # 기관 소개 페이지 ✓
+│   │   ├── privacy.html         # 개인정보처리방침 ✓ (전체 페이지 푸터에 링크)
+│   │   ├── advisor.html         # 자문위원 페이지 ✓ (총재 1명 + 자문위원 150명, 검색/필터/페이지네이션)
+│   │   │
+│   │   ├── research/             # 학술·연구 관련 페이지들
+│   │   │   ├── domestic.html    # 국내 학술·연구 (학회 2개 + 연구소 2개) ✓
+│   │   │   └── international.html # 국제 학술·연구 (학회 1개 + 연구소 1개) ✓
+│   │   │
+│   │   ├── certificate/          # 자격증 관련 페이지들
+│   │   │   ├── health-exercise.html  # 운동건강관리사 ✓
+│   │   │   ├── rehabilitation.html   # 운동재활전문가 ✓
+│   │   │   ├── pilates.html          # 필라테스 전문가 ✓
+│   │   │   └── recreation.html       # 레크리에이션지도자 ✓
+│   │   │
+│   │   ├── education/            # 교육 과정 관련 페이지들
+│   │   │   ├── course-application.html # 교육 신청 + 결제 통합 ✓
+│   │   │   ├── cert-application.html # 자격증 신청 ✓
+│   │   │   └── instructors.html  # 강사 소개 ✓
+│   │   │
+│   │   ├── board/                # 게시판 관련 페이지들
+│   │   │   ├── notice/           # 공지사항
+│   │   │   ├── column/           # 칼럼
+│   │   │   ├── materials/        # 강의자료
+│   │   │   └── videos/           # 동영상 강의
+│   │   │
+│   │   ├── auth/                 # 인증 관련 페이지들
+│   │   │   ├── login.html        # 로그인 ✓
+│   │   │   ├── signup.html       # 회원가입 ✓
+│   │   │   └── find-account.html # 계정찾기 ✓
+│   │   │
+│   │   ├── mypage/               # 마이페이지 관련 페이지들
+│   │   │   ├── personal-info.html  # 개인정보 관리 ✓
+│   │   │   ├── course-history.html # 수강 내역 ✓
+│   │   │   ├── cert-management.html # 자격증 관리 (발급+갱신 통합) ✓✨
+│   │   │   └── payment-history.html # 결제 내역 ✓
+│   │   │
+│   │   ├── payment/
+│   │   │   ├── fail.html        # 결제 실패 — 실패 사유를 payment_failures에 기록
+│   │   │   └── success.html
+│   │   │
+│   │   └── admin/                # 관리자 페이지들
+│   │       ├── dashboard.html    # 대시보드 ✓
+│   │       ├── user-management.html # 회원 관리 ✓
+│   │       ├── course-management.html # 교육 관리 ✓
+│   │       ├── cert-management.html # 자격증 관리 ✓
+│   │       ├── board-management.html # 게시판 관리 ✓
+│   │       └── payment-management.html # 결제 관리 ✓
 │   │
-│   ├── research/             # 학술·연구 관련 페이지들
-│   │   ├── domestic.html    # 국내 학술·연구 (학회 2개 + 연구소 2개) ✓
-│   │   └── international.html # 국제 학술·연구 (학회 1개 + 연구소 1개) ✓
+│   ├── assets/
+│   │   ├── css/                  # CSS 파일들
+│   │   └── js/
+│   │       ├── config/
+│   │       │   └── firebase-config.js
+│   │       ├── services/
+│   │       │   ├── auth-service.js
+│   │       │   ├── db-service.js
+│   │       │   ├── storage-service.js
+│   │       │   ├── api-service.js
+│   │       │   ├── payment-service.js
+│   │       │   └── local-auth-override.js
+│   │       ├── utils/
+│   │       │   ├── script-loader.js  # 전역 에러 핸들러 포함
+│   │       │   ├── admin-auth.js
+│   │       │   └── ...
+│   │       ├── components/
+│   │       └── pages/
 │   │
-│   ├── certificate/          # 자격증 관련 페이지들
-│   │   ├── health-exercise.html  # 운동건강관리사 ✓
-│   │   ├── rehabilitation.html   # 운동재활전문가 ✓
-│   │   ├── pilates.html          # 필라테스 전문가 ✓
-│   │   └── recreation.html       # 레크리에이션지도자 ✓
-│   │
-│   ├── education/            # 교육 과정 관련 페이지들
-│   │   ├── course-application.html # 교육 신청 + 결제 통합 ✓
-│   │   ├── cert-application.html # 자격증 신청 ✓
-│   │   └── instructors.html  # 강사 소개 ✓
-│   │
-│   ├── board/                # 게시판 관련 페이지들
-│   │   ├── notice/           # 공지사항
-│   │   ├── column/           # 칼럼
-│   │   ├── materials/        # 강의자료
-│   │   └── videos/           # 동영상 강의
-│   │
-│   ├── auth/                 # 인증 관련 페이지들
-│   │   ├── login.html        # 로그인 ✓
-│   │   ├── signup.html       # 회원가입 ✓
-│   │   └── find-account.html # 계정찾기 ✓
-│   │
-│   ├── mypage/               # 마이페이지 관련 페이지들
-│   │   ├── personal-info.html  # 개인정보 관리 ✓
-│   │   ├── course-history.html # 수강 내역 ✓
-│   │   ├── cert-management.html # 자격증 관리 (발급+갱신 통합) ✓✨
-│   │   └── payment-history.html # 결제 내역 ✓
-│   │
-│   ├── payment/
-│   │   ├── fail.html        # 결제 실패 — 실패 사유를 payment_failures에 기록
-│   │   └── success.html
-│   │
-│   └── admin/                # 관리자 페이지들
-│       ├── dashboard.html    # 대시보드 ✓
-│       ├── user-management.html # 회원 관리 ✓
-│       ├── course-management.html # 교육 관리 ✓
-│       ├── cert-management.html # 자격증 관리 ✓
-│       ├── board-management.html # 게시판 관리 ✓
-│       └── payment-management.html # 결제 관리 ✓
-│
-├── assets/
-│   ├── css/                  # CSS 파일들
-│   └── js/
-│       ├── config/
-│       │   └── firebase-config.js
-│       ├── services/
-│       │   ├── auth-service.js
-│       │   ├── db-service.js
-│       │   ├── storage-service.js
-│       │   ├── api-service.js
-│       │   ├── payment-service.js
-│       │   └── local-auth-override.js
-│       ├── utils/
-│       │   ├── script-loader.js  # 전역 에러 핸들러 포함
-│       │   ├── admin-auth.js
-│       │   └── ...
-│       ├── components/
-│       └── pages/
+│   ├── 404.html
+│   └── manifest.json
 │
 ├── functions/
 │   └── index.js              # Cloud Functions (결제, 헬스체크, 자동 백업)
 │
-├── firebase.json
+├── firebase.json             # 아래 파일들은 public/ 밖에 있으므로 웹에 배포되지 않음
 ├── firestore.rules
 ├── firestore.indexes.json
-└── storage.rules
+├── storage.rules
+├── cors.json
+├── package.json
+└── README.md 등 내부 문서
 ```
+
+> **주의:** 웹에서 접근해야 하는 파일만 `public/`에 두세요. 내부 문서·설정·규칙 파일을 `public/`에 넣으면 누구나 열람할 수 있게 됩니다.
 
 ## 관리자 계정 설정
 
