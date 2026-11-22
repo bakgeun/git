@@ -166,7 +166,12 @@ firebase login
 # 로컬 에뮬레이터 실행 (Functions 테스트 시)
 cd functions && npm install
 firebase emulators:start --only functions
+
+# 사이트 화면 확인 (public/ 폴더를 http://127.0.0.1:5000 으로 서비스)
+firebase emulators:start --only hosting
 ```
+
+> 웹사이트 파일은 모두 `public/` 폴더에 있습니다. 다른 정적 서버(Live Server 등)를 쓸 때도 `public/`을 루트로 지정하세요.
 
 ### 스크립트 로딩 방식
 
@@ -357,6 +362,7 @@ Quill 리치 텍스트 HTML을 본문에 그대로 삽입 (관리자 전용 기�
 □ GET /api/health → 200 OK, "status": "ok" 확인
 □ Firebase Console → Functions → 에러 0건 확인
 □ Firebase Console → Firestore → 최근 _health/ping 문서 갱신 확인
+□ 내부 파일 비공개 확인: /README.md, /.git/config, /firebase.json → 404
 ```
 
 ### 클라이언트 에러 로그 확인
@@ -683,7 +689,7 @@ if (storedDate !== certDate) {
 
 ## 변경 이력
 
-### 2026-11-22 — 개인정보처리방침, 검색엔진 등록, 결제 실패 기록
+### 2026-11-22 — 개인정보처리방침, 검색엔진 등록, 결제 실패 기록, 내부 파일 노출 차단
 
 #### 신규 기능
 
@@ -697,6 +703,21 @@ if (storedDate !== certDate) {
 - **배경**: 법인카드 결제가 되지 않았다는 문의가 들어왔으나 원인을 확인할 수 없었음. 카드사·토스에서 거절된 결제는 서버(`confirmPayment`)까지 오지 않고 토스가 사용자를 `fail.html`로 보내는데, 이 페이지는 오류 코드를 화면에만 표시하고 저장하지 않았음
 - **수정**: `fail.html`에 Firebase SDK를 로드하고, 진입 시 토스 오류 코드·메시지·주문번호·userAgent를 `payment_failures`에 `source: 'fail_page'`로 기록. 문서 ID를 `fail_{주문번호}`로 지정해 새로고침 시 중복 기록 방지(기존 문서 덮어쓰기는 보안 규칙상 거부됨). 기록 실패는 사용자 화면에 영향 없음
 - **확인**: 운영 사이트에서 테스트 URL로 기록 저장 확인 후 테스트 문서 삭제
+
+#### 보안 — 내부 파일 노출 차단 및 `public/` 폴더 분리
+
+- **배경**: `firebase.json`의 `hosting.public`이 `"."`(저장소 루트 전체)이어서 내부 파일이 운영 사이트에서 누구나 열람 가능(HTTP 200)했음
+  - `README.md`, `CONSOLE_GUIDE.md`, `FIRESTORE_UPDATE_GUIDE.md`, `firestore.rules`, `storage.rules`, `firestore.indexes.json`, `cors.json`, `package.json`, `package-lock.json`
+  - **`.git/` 폴더 전체**(config, index, logs, pack 파일) — git 이력 전체 복원이 가능한 상태였음. `ignore`의 `"**/.*"`는 점(.) 파일만 막고 `.git/`, `.claude/` 같은 점 폴더 안의 파일은 막지 못함
+  - `.claude/settings.local.json`(로컬 경로 포함)
+- **노출 내용 점검**: 운영 토스 시크릿 키·Gmail 앱 비밀번호·`.env`·서비스 계정 키는 git 이력 전체에 없음을 확인. 과거 커밋에 토스 **테스트** 키와 운영자 본인·관리자 이메일이 있었으나 실사용 키가 아니고 회원 정보가 아니어서 별도 조치 불필요로 판단
+- **1차 조치**: `hosting.ignore`에 점 폴더·문서·규칙·설정 파일 추가 후 배포, `.claude/settings.local.json` git 추적 해제 및 `.gitignore` 추가
+- **2차 조치(구조 변경)**: 웹에 공개할 파일만 `public/` 폴더로 이동하고 `hosting.public`을 `"public"`으로 변경. 이제 `public/` 밖의 파일은 이름과 관계없이 배포되지 않음. URL은 바뀌지 않음(`public/pages/...` → `/pages/...`)
+- **확인**: 운영 사이트에서 HTML 38개와 참조 자원 79개 전부 200, 위 내부 파일 전부 404, `/api/health` 200
+- **부수 수정**: 링크 점검 중 발견한 기존 오류 2건 수정
+  - `about.html`: 존재하지 않는 `partner2.jpg`(git 이력에도 없음)를 가리키던 협력 기관 카드 제거 — 로고 파일이 확보되면 `public/assets/images/about/`에 넣고 카드 재추가
+  - `instructors.html`: 강사 지원서 `.hwp` 링크의 한글 파일명이 자모 분리형(NFD)이라 다운로드가 404였음 → 완성형(NFC)으로 정규화
+- **주의**: 새 파일을 추가할 때 웹에서 접근해야 하는 파일만 `public/`에 둘 것. `lib/firebase/`는 어디서도 참조하지 않아 루트에 남겨 둠(배포되지 않음, 삭제 검토 대상)
 
 #### 조사 메모
 
@@ -712,6 +733,11 @@ if (storedDate !== certDate) {
 | `pages/auth/signup.html`, `pages/education/course-application.html` | 개인정보 동의 문구 수정 |
 | `robots.txt`, `sitemap.xml`, `naverd316ca447fa7365156c00981541603b5.html` | 검색엔진 등록용 파일 신규 |
 | `pages/payment/fail.html` | Firebase SDK 로드, `logPaymentFailure()` 추가로 실패 사유를 `payment_failures`에 기록 |
+| `firebase.json` | `hosting.public`을 `"public"`으로 변경, `ignore`에 점 폴더(`**/.*/**`)·`**/*.md` 추가 |
+| `.gitignore` | `.claude/settings.local.json` 추가 (git 추적 해제) |
+| 사이트 파일 전체 | `index.html`, `404.html`, `robots.txt`, `sitemap.xml`, `manifest.json`, 네이버 소유확인 파일, `assets/`, `pages/` → `public/`으로 이동 |
+| `public/pages/about.html` | 깨진 `partner2.jpg` 협력 기관 카드 제거 |
+| `public/pages/education/instructors.html` | 강사 지원서 `.hwp` 링크 파일명 NFC 정규화 |
 
 ---
 
