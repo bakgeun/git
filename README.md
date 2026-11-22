@@ -207,6 +207,16 @@ firebase deploy --only functions
 firebase deploy --only hosting
 ```
 
+#### 보안 규칙 테스트 (규칙 배포 전 필수)
+
+`firestore.rules` / `storage.rules`를 수정했다면 배포 전에 실행합니다. Firebase Rules 테스트 API로 가상 요청(일반 회원·관리자·공격자)의 허용/거부를 확인하며, 운영 데이터는 읽거나 쓰지 않고 Java·에뮬레이터도 필요 없습니다 (`firebase login` 상태 필요).
+
+```bash
+node scripts/rules-test.js   # 실패가 하나라도 있으면 종료 코드 1
+```
+
+규칙을 바꾸면 해당 동작의 허용(ALLOW)·거부(DENY) 케이스를 스크립트의 `F`(Firestore)·`S`(Storage) 배열에 함께 추가하세요.
+
 ### Hosting 롤백
 
 Firebase Hosting은 배포 버전 이력을 보관합니다.
@@ -689,7 +699,7 @@ if (storedDate !== certDate) {
 
 ## 변경 이력
 
-### 2026-11-22 — 개인정보처리방침, 검색엔진 등록, 결제 실패 기록, 내부 파일 노출 차단
+### 2026-11-22 — 개인정보처리방침, 검색엔진 등록, 결제 실패 기록, 보안 점검·수정
 
 #### 신규 기능
 
@@ -719,6 +729,21 @@ if (storedDate !== certDate) {
   - `instructors.html`: 강사 지원서 `.hwp` 링크의 한글 파일명이 자모 분리형(NFD)이라 다운로드가 404였음 → 완성형(NFC)으로 정규화
 - **주의**: 새 파일을 추가할 때 웹에서 접근해야 하는 파일만 `public/`에 둘 것. `lib/firebase/`는 어디서도 참조하지 않아 루트에 남겨 둠(배포되지 않음, 삭제 검토 대상)
 
+#### 보안 — 권한 상승 차단 및 개인정보 파일 접근 제한
+
+- **배경**: 보안 점검에서 규칙 취약점 발견
+  - `firestore.rules`의 `users` 생성 규칙이 `userType`을 검사하지 않아, 일반 회원이 자기 문서를 `userType: 'admin'`으로 만들어 관리자 권한(결제 취소·회원 삭제·단체 메일 API 포함)을 얻을 수 있었음 — 점검 결과 실제 악용 흔적 없음(admin은 운영 계정 1개)
+  - `storage.rules`의 `certificate-photos/`(증명사진), `applications/`(갱신 첨부)를 로그인 회원 누구나 목록 조회·다운로드·덮어쓰기 가능했음
+  - 파일 형식·크기 검사 함수가 새 파일(`request.resource`)이 아닌 기존 파일(`resource`)을 검사하고 있었음
+- **수정**
+  - `users` 생성: 관리자가 아니면 `userType`이 없거나 `'student'`일 때만 허용
+  - `certificate-photos/`, `applications/`: 업로드한 본인(`metadata.uploadedBy`)과 관리자만 읽기·덮어쓰기·삭제, 목록 조회는 관리자만. 신규 업로드는 `uploadedBy`가 본인 uid여야 함
+  - `isValidFileType()`·`isValidFileSize()`를 `request.resource` 기준으로 수정, 사용하지 않는 `profiles/`·`uploads/`는 관리자 전용으로 제한
+  - `cert-application.js`: 증명사진 업로드 시 `uploadedBy`에 Firebase Auth uid를 보조로 사용
+- **장애 이력**: 첫 배포 규칙의 `resource == null` 비교가 신규 업로드에서 오류로 평가되어, 재배포 전까지 수십 분간 증명사진·갱신 첨부 업로드가 거부됐을 수 있음 → `create`/`update` 규칙 분리로 수정
+- **검증**: `scripts/rules-test.js` 신규 작성(26개 케이스 전부 통과). 일반 회원 계정으로 실제 화면 업로드는 미확인
+- **남은 점검 항목**(별도 작업 예정): 관리자 화면 저장형 XSS(`cert-management`·`course-management`·`board-management`), 결제 금액·결제 기록의 클라이언트 신뢰 문제(`_pending_payments`·`payments`·`enrollments`를 클라이언트가 작성), 회원 `email` 변경을 통한 결제 확인 메일 악용 가능성
+
 #### 조사 메모
 
 - Firestore에 App Check(reCAPTCHA v3, 최소 점수 0.5)가 강제 적용(ENFORCED)되어 있음. 헤드리스 브라우저 같은 자동화 환경에서는 토큰 발급이 거부되어 과정 목록이 로드되지 않지만, 실제 브라우저에서는 정상 동작함을 확인. reCAPTCHA 사이트 키에는 `dhcenter.co.kr`만 등록되어 있어 `*.web.app` 주소에서는 Firestore 접근이 차단됨
@@ -738,6 +763,10 @@ if (storedDate !== certDate) {
 | 사이트 파일 전체 | `index.html`, `404.html`, `robots.txt`, `sitemap.xml`, `manifest.json`, 네이버 소유확인 파일, `assets/`, `pages/` → `public/`으로 이동 |
 | `public/pages/about.html` | 깨진 `partner2.jpg` 협력 기관 카드 제거 |
 | `public/pages/education/instructors.html` | 강사 지원서 `.hwp` 링크 파일명 NFC 정규화 |
+| `firestore.rules` | `users` 생성 시 `userType`을 `'student'`로 제한 (관리자 권한 자가 부여 차단) |
+| `storage.rules` | 증명사진·갱신 첨부를 본인·관리자 전용으로 제한, 파일 검사 함수 `request.resource` 기준으로 수정, `profiles/`·`uploads/` 관리자 전용 |
+| `public/assets/js/pages/education/cert-application.js` | 증명사진 `uploadedBy`에 Auth uid 보조 사용 |
+| `scripts/rules-test.js` | 보안 규칙 테스트 스크립트 신규 |
 
 ---
 

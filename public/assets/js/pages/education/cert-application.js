@@ -1196,7 +1196,8 @@ window.CertApplication = window.CertApplication || {};
                 customMetadata: {
                     applicationId: applicationId,
                     uploadType: 'certificate_photo',
-                    uploadedBy: currentUser ? currentUser.uid : 'unknown'
+                    // Storage 규칙상 uploadedBy가 로그인 uid와 같아야 업로드·조회 가능
+                    uploadedBy: currentUser?.uid || window.dhcFirebase?.auth?.currentUser?.uid || 'unknown'
                 }
             };
 

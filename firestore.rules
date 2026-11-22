@@ -33,8 +33,11 @@ service cloud.firestore {
                       resource.data.status != 'deleted')) || 
                      isAdmin();
   
-      // 🔧 생성: 본인이 자신의 문서 생성 OR 관리자가 모든 문서 생성
-      allow create: if (isAuthenticated() && request.auth.uid == userId) || isAdmin();
+      // 생성: 관리자는 모든 문서, 본인은 자신의 문서를 student로만 생성 가능 (관리자 권한 자가 부여 차단)
+      allow create: if isAdmin() ||
+        (isOwner(userId) &&
+         (!('userType' in request.resource.data) ||
+          request.resource.data.userType == 'student'));
   
       // 업데이트: 본인 또는 관리자 (userType은 관리자만 변경 가능)
       allow update: if (isOwner(userId) || isAdmin()) &&

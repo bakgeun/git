@@ -21,21 +21,21 @@ service firebase.storage {
     
     // 헬퍼 함수: 허용된 파일 타입 확인
     function isValidFileType() {
-      return resource.contentType.matches('image/.*') ||
-             resource.contentType.matches('application/pdf') ||
-             resource.contentType.matches('application/msword') ||
-             resource.contentType.matches('application/vnd.openxmlformats-officedocument.wordprocessingml.document') ||
-             resource.contentType.matches('application/vnd.ms-excel') ||
-             resource.contentType.matches('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') ||
-             resource.contentType.matches('application/vnd.ms-powerpoint') ||
-             resource.contentType.matches('application/vnd.openxmlformats-officedocument.presentationml.presentation') ||
-             resource.contentType.matches('text/.*') ||
-             resource.contentType.matches('video/.*');
+      return request.resource.contentType.matches('image/.*') ||
+             request.resource.contentType.matches('application/pdf') ||
+             request.resource.contentType.matches('application/msword') ||
+             request.resource.contentType.matches('application/vnd.openxmlformats-officedocument.wordprocessingml.document') ||
+             request.resource.contentType.matches('application/vnd.ms-excel') ||
+             request.resource.contentType.matches('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') ||
+             request.resource.contentType.matches('application/vnd.ms-powerpoint') ||
+             request.resource.contentType.matches('application/vnd.openxmlformats-officedocument.presentationml.presentation') ||
+             request.resource.contentType.matches('text/.*') ||
+             request.resource.contentType.matches('video/.*');
     }
     
     // 헬퍼 함수: 파일 크기 확인 (10MB 제한)
     function isValidFileSize() {
-      return resource.size < 10 * 1024 * 1024;
+      return request.resource.size < 10 * 1024 * 1024;
     }
     
     // =================================
@@ -43,17 +43,25 @@ service firebase.storage {
     // =================================
     
     // 자격증 사진 폴더 - certificate-photos (cert-application.js에서 사용)
+    // 증명사진은 개인정보: 업로드한 본인(metadata.uploadedBy)과 관리자만 접근
     match /certificate-photos/{allPaths=**} {
-      // 읽기: 인증된 사용자
-      allow read: if isAuthenticated();
-      
-      // 쓰기: 인증된 사용자 (이미지 파일만 허용)
-      allow write: if isAuthenticated() && 
-                      request.resource.contentType.matches('image/.*') &&
-                      request.resource.size < 5 * 1024 * 1024; // 5MB 제한
-      
-      // 삭제: 관리자만 가능
-      allow delete: if isAdmin();
+      // 읽기(다운로드 URL 발급 포함): 본인 또는 관리자. 목록 조회는 관리자만
+      allow read: if isAdmin() || isOwner();
+
+      // 신규 업로드: uploadedBy에 본인 uid 필수 (이미지, 5MB 제한)
+      allow create: if isAuthenticated() &&
+                       request.resource.metadata.uploadedBy == request.auth.uid &&
+                       request.resource.contentType.matches('image/.*') &&
+                       request.resource.size < 5 * 1024 * 1024;
+
+      // 덮어쓰기: 본인이 올린 파일만
+      allow update: if isOwner() &&
+                       request.resource.metadata.uploadedBy == request.auth.uid &&
+                       request.resource.contentType.matches('image/.*') &&
+                       request.resource.size < 5 * 1024 * 1024;
+
+      // 삭제: 본인 또는 관리자
+      allow delete: if isOwner() || isAdmin();
     }
     
     // =================================
@@ -68,9 +76,10 @@ service firebase.storage {
     }
     
     // 프로필 파일 폴더 (대시보드에서 스캔)
+    // (현재 코드에서 사용하지 않음 — 관리자 전용으로 제한)
     match /profiles/{allPaths=**} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && isValidFileType() && isValidFileSize();
+      allow write: if isAdmin() && isValidFileType() && isValidFileSize();
       allow delete: if isOwner() || isAdmin();
     }
     
@@ -89,9 +98,10 @@ service firebase.storage {
     }
     
     // 일반 업로드 폴더 (대시보드에서 스캔)
+    // (현재 코드에서 사용하지 않음 — 관리자 전용으로 제한)
     match /uploads/{allPaths=**} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && isValidFileType() && isValidFileSize();
+      allow write: if isAdmin() && isValidFileType() && isValidFileSize();
       allow delete: if isOwner() || isAdmin();
     }
     
@@ -202,19 +212,26 @@ service firebase.storage {
 
     // 자격증 신청/갱신 첨부파일
     match /applications/{applicationId}/{allPaths=**} {
-      // 읽기: 인증된 사용자
-      allow read: if isAuthenticated();
-      
-      // 쓰기: 인증된 사용자 (파일 업로드)
-      allow write: if isAuthenticated() && 
-                      // PDF, 이미지 파일만 허용
-                      (request.resource.contentType.matches('application/pdf') ||
-                       request.resource.contentType.matches('image/.*')) &&
-                      // 파일 크기 제한 (5MB)
-                      request.resource.size < 5 * 1024 * 1024;
-      
-      // 삭제: 관리자만 가능
-      allow delete: if isAdmin();
+      // 신청 첨부(교육 이수증·보수교육 증빙)는 개인정보: 업로드한 본인과 관리자만 접근
+      // 읽기(다운로드 URL 발급 포함): 본인 또는 관리자. 목록 조회는 관리자만
+      allow read: if isAdmin() || isOwner();
+
+      // 신규 업로드: uploadedBy에 본인 uid 필수 (PDF·이미지, 5MB 제한)
+      allow create: if isAuthenticated() &&
+                       request.resource.metadata.uploadedBy == request.auth.uid &&
+                       (request.resource.contentType.matches('application/pdf') ||
+                        request.resource.contentType.matches('image/.*')) &&
+                       request.resource.size < 5 * 1024 * 1024;
+
+      // 덮어쓰기: 본인이 올린 파일만
+      allow update: if isOwner() &&
+                       request.resource.metadata.uploadedBy == request.auth.uid &&
+                       (request.resource.contentType.matches('application/pdf') ||
+                        request.resource.contentType.matches('image/.*')) &&
+                       request.resource.size < 5 * 1024 * 1024;
+
+      // 삭제: 본인(업로드 실패 시 정리용) 또는 관리자
+      allow delete: if isOwner() || isAdmin();
     }
     
     // 사용자별 임시 업로드 폴더 (자격증 신청용)
