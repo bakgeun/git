@@ -759,7 +759,30 @@ exports.sendAdminEmail = functions.https.onRequest(async (req, res) => {
 // 사전 설정: functions/.env 에 GMAIL_USER, GMAIL_APP_PASSWORD 추가
 // =============================================================
 
+// 메일 HTML에 넣는 값 이스케이프 (회원이 입력·조작할 수 있는 값이 들어감)
+function escapeEmailHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+// 메일 제목 등 한 줄 텍스트: 줄바꿈 제거 + 길이 제한
+function toSingleLine(value, maxLength) {
+    return String(value ?? '').replace(/[\r\n\t]+/g, ' ').trim().slice(0, maxLength);
+}
+
 function buildEmailHtml(recipientName, payment, formattedDate, formattedAmount) {
+    recipientName = escapeEmailHtml(recipientName);
+    payment = {
+        orderId: escapeEmailHtml(payment.orderId),
+        productName: escapeEmailHtml(payment.productName),
+        paymentMethod: payment.paymentMethod ? escapeEmailHtml(payment.paymentMethod) : ''
+    };
+    formattedDate = escapeEmailHtml(formattedDate);
+    formattedAmount = escapeEmailHtml(formattedAmount);
     return `<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -908,18 +931,43 @@ exports.sendPaymentConfirmEmail = functions.firestore
         }
 
         try {
-            // 사용자 이메일/이름 조회
+            // 토스 승인 확인: confirmPayment(서버)가 남긴 승인 기록이 있는 주문에만 발송
+            // (payments 문서는 브라우저가 작성하므로, 결제 없이 만든 문서로 메일이 나가지 않게 함)
+            if (!payment.orderId || !payment.userId) {
+                logger.warn('[sendPaymentConfirmEmail] orderId/userId 없음 — 발송 건너뜀', { paymentId: snap.id });
+                return null;
+            }
+            const approvalSnap = await admin.firestore().collection('_payment_logs')
+                .where('action', '==', 'confirm_success')
+                .where('orderId', '==', payment.orderId)
+                .limit(1)
+                .get();
+            const approval = approvalSnap.empty ? null : approvalSnap.docs[0].data();
+            if (!approval || approval.uid !== payment.userId) {
+                logger.warn('[sendPaymentConfirmEmail] 서버 승인 기록 없음 — 발송 건너뜀', {
+                    paymentId: snap.id, orderId: payment.orderId, userId: payment.userId
+                });
+                return null;
+            }
+
+            // 받는 주소: 회원이 수정할 수 있는 users.email 대신 로그인(Auth) 계정 이메일
+            let recipientEmail = null;
+            try {
+                recipientEmail = (await admin.auth().getUser(payment.userId)).email || null;
+            } catch (authErr) {
+                logger.warn('[sendPaymentConfirmEmail] Auth 사용자 조회 실패', { userId: payment.userId, error: authErr.message });
+            }
+
             const userDoc = await admin.firestore().collection('users').doc(payment.userId).get();
             const userData = userDoc.exists ? userDoc.data() : {};
-            const recipientEmail = userData.email;
-            const recipientName = userData.displayName || userData.name || '고객';
+            const recipientName = toSingleLine(userData.displayName || userData.name || '고객', 50);
 
             if (!recipientEmail) {
                 logger.warn('[sendPaymentConfirmEmail] 수신자 이메일 없음', { userId: payment.userId });
                 return null;
             }
 
-            // 날짜/금액 포맷
+            // 날짜/금액 포맷 (금액은 토스 승인 금액 사용)
             const paymentDate = payment.createdAt?.toDate
                 ? payment.createdAt.toDate()
                 : new Date(payment.paidAt || Date.now());
@@ -927,7 +975,9 @@ exports.sendPaymentConfirmEmail = functions.firestore
             const formattedDate =
                 `${paymentDate.getFullYear()}년 ${paymentDate.getMonth() + 1}월 ${paymentDate.getDate()}일 ` +
                 `${pad(paymentDate.getHours())}:${pad(paymentDate.getMinutes())}`;
-            const formattedAmount = `${Number(payment.amount).toLocaleString()}원`;
+            const approvedAmount = Number(approval.amount ?? payment.amount) || 0;
+            const formattedAmount = `${approvedAmount.toLocaleString()}원`;
+            const productName = toSingleLine(payment.productName || '교육과정', 100);
 
             // 이메일 발송
             const transporter = nodemailer.createTransport({
@@ -938,8 +988,8 @@ exports.sendPaymentConfirmEmail = functions.firestore
             await transporter.sendMail({
                 from: `"문경 부설 디지털헬스케어센터" <${gmailUser}>`,
                 to: recipientEmail,
-                subject: `[신청 완료] ${payment.productName} 교육과정 신청이 완료되었습니다`,
-                html: buildEmailHtml(recipientName, payment, formattedDate, formattedAmount)
+                subject: `[신청 완료] ${productName} 교육과정 신청이 완료되었습니다`,
+                html: buildEmailHtml(recipientName, { ...payment, productName }, formattedDate, formattedAmount)
             });
 
             logger.info('[sendPaymentConfirmEmail] 발송 완료', {
